@@ -3,10 +3,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	"github.com/Khan/genqlient/graphql"
+)
+
+var (
+	envVarName          = "LINEAR_TOKEN"
+	errMissingAuthToken = "Required token could not be found. Please set the token using an input variable in the provider configuration block or by using the `" + envVarName + "` environment variable."
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
@@ -18,9 +27,7 @@ type provider struct {
 	// client can contain the upstream provider SDK or HTTP client used to
 	// communicate with the upstream service. Resource and DataSource
 	// implementations can then make calls using this client.
-	//
-	// TODO: If appropriate, implement upstream provider SDK or HTTP client.
-	// client vendorsdk.ExampleClient
+	client graphql.Client
 
 	// configured is set to true at the end of the Configure method.
 	// This can be used in Resource and DataSource implementations to verify
@@ -35,11 +42,22 @@ type provider struct {
 
 // providerData can be used to store data from the Terraform configuration.
 type providerData struct {
-	Example types.String `tfsdk:"example"`
+	Token types.String `tfsdk:"token"`
+}
+
+type authedTransport struct {
+	token   string
+	wrapped http.RoundTripper
+}
+
+func (t *authedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", "bearer "+t.token)
+	return t.wrapped.RoundTrip(req)
 }
 
 func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
 	var data providerData
+
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 
@@ -47,32 +65,52 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
-	// Configuration values are now available.
-	// if data.Example.Null { /* ... */ }
+	token := ""
 
-	// If the upstream provider SDK or HTTP client requires configuration, such
-	// as authentication or logging, this is a great opportunity to do so.
+	if !data.Token.IsNull() {
+		token = data.Token.Value
+	}
 
+	// If a token wasn't set in the provider configuration block, try and fetch it
+	// from the environment variable.
+	if token == "" {
+		token = os.Getenv(envVarName)
+	}
+
+	// If we still don't have a token at this point, we return an error.
+	if token == "" {
+		resp.Diagnostics.AddError("Missing API token", errMissingAuthToken)
+		return
+	}
+
+	httpClient := http.Client{
+		Transport: &authedTransport{
+			token:   token,
+			wrapped: http.DefaultTransport,
+		},
+	}
+
+	p.client = graphql.NewClient("https://api.linear.app/graphql", &httpClient)
 	p.configured = true
 }
 
 func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
 	return map[string]tfsdk.ResourceType{
-		"scaffolding_example": exampleResourceType{},
+		// "linear_team": teamResourceType{},
 	}, nil
 }
 
 func (p *provider) GetDataSources(ctx context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
 	return map[string]tfsdk.DataSourceType{
-		"scaffolding_example": exampleDataSourceType{},
+		"linear_workspace": workspaceDataSourceType{},
 	}, nil
 }
 
 func (p *provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Attributes: map[string]tfsdk.Attribute{
-			"example": {
-				MarkdownDescription: "Example provider attribute",
+			"token": {
+				MarkdownDescription: "The token used to authenticate with Linear.",
 				Optional:            true,
 				Type:                types.StringType,
 			},

@@ -1,0 +1,27 @@
+query getTeam($key: String!) {
+  team(id: $key) {
+    id
+    name
+    key
+    description
+  }
+}
+
+mutation createTeam($input: TeamCreateInput!) {
+  teamCreate(input: $input) {
+    team {
+      id
+      name
+      key
+      description
+      icon
+      color
+    }
+  }
+}
+
+mutation deleteTeam($key: String!) {
+  teamDelete(id: $key) {
+    success
+  }
+}

@@ -1,0 +1,7 @@
+query getWorkspace() {
+  organization {
+    id
+    urlKey
+    name
+  }
+}
