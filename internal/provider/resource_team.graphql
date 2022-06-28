@@ -3,19 +3,83 @@ query getTeam($key: String!) {
     id
     name
     key
+    private
     description
+    icon
+    color
+    timezone
+    groupIssueHistory
+    issueOrderingNoPriorityFirst
   }
 }
 
-mutation createTeam($input: TeamCreateInput!) {
+# @genqlient(for: "TeamCreateInput.id", omitempty: true)
+# @genqlient(for: "TeamCreateInput.organizationId", omitempty: true)
+# @genqlient(for: "TeamCreateInput.description", omitempty: true)
+# @genqlient(for: "TeamCreateInput.icon", omitempty: true)
+# @genqlient(for: "TeamCreateInput.color", omitempty: true)
+# @genqlient(for: "TeamCreateInput.issueEstimationType", omitempty: true)
+# @genqlient(for: "TeamCreateInput.cycleDuration", omitempty: true)
+# @genqlient(for: "TeamCreateInput.upcomingCycleCount", omitempty: true)
+# @genqlient(for: "TeamCreateInput.defaultTemplateForMembersId", omitempty: true)
+# @genqlient(for: "TeamCreateInput.defaultTemplateForNonMembersId", omitempty: true)
+# @genqlient(for: "TeamCreateInput.autoCloseStateId", omitempty: true)
+# @genqlient(for: "TeamCreateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamCreateInput.autoClosePeriod", omitempty: true)
+# @genqlient(for: "TeamCreateInput.autoArchivePeriod", omitempty: true)
+mutation createTeam(
+  $input: TeamCreateInput!
+) {
   teamCreate(input: $input) {
     team {
       id
       name
       key
+      private
       description
       icon
       color
+      timezone
+      groupIssueHistory
+      issueOrderingNoPriorityFirst
+    }
+  }
+}
+
+# @genqlient(for: "TeamUpdateInput.description", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.icon", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.color", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.issueEstimationType", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.cycleDuration", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.cycleEnabledStartWeek", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.upcomingCycleCount", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.draftWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.startWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.reviewWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.mergeWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.defaultTemplateForMembersId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.defaultTemplateForNonMembersId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.defaultIssueStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.autoCloseStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.autoClosePeriod", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.autoArchivePeriod", omitempty: true)
+mutation updateTeam(
+  $input: TeamUpdateInput!,
+  $id: String!
+) {
+  teamUpdate(input: $input, id: $id) {
+    team {
+      id
+      name
+      key
+      private
+      description
+      icon
+      color
+      timezone
+      groupIssueHistory
+      issueOrderingNoPriorityFirst
     }
   }
 }

@@ -40,20 +40,68 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Type:                types.StringType,
 				Required:            true,
 			},
+			"private": {
+				MarkdownDescription: "Privacy of the team. Default `false`.",
+				Type:                types.BoolType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
+			},
 			"description": {
 				MarkdownDescription: "Description of the team.",
 				Type:                types.StringType,
 				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
 			},
 			"icon": {
 				MarkdownDescription: "Icon of the team.",
 				Type:                types.StringType,
 				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
 			},
 			"color": {
 				MarkdownDescription: "Color of the team.",
 				Type:                types.StringType,
 				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
+			},
+			"timezone": {
+				MarkdownDescription: "Timezone of the team. Default `Etc/GMT`.",
+				Type:                types.StringType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
+			},
+			"enable_issue_history_grouping": {
+				MarkdownDescription: "Enable issue history grouping for the team. Default `true`.",
+				Type:                types.BoolType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
+			},
+			"no_priority_issues_first": {
+				MarkdownDescription: "Prefer issues without priority during issue prioritization order. Default `true`.",
+				Type:                types.BoolType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
 			},
 		},
 	}, nil
@@ -68,12 +116,16 @@ func (t teamResourceType) NewResource(ctx context.Context, in tfsdk.Provider) (t
 }
 
 type teamResourceData struct {
-	Id          types.String `tfsdk:"id"`
-	Key         types.String `tfsdk:"key"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	Icon        types.String `tfsdk:"icon"`
-	Color       types.String `tfsdk:"color"`
+	Id                         types.String `tfsdk:"id"`
+	Key                        types.String `tfsdk:"key"`
+	Name                       types.String `tfsdk:"name"`
+	Private                    types.Bool   `tfsdk:"private"`
+	Description                types.String `tfsdk:"description"`
+	Icon                       types.String `tfsdk:"icon"`
+	Color                      types.String `tfsdk:"color"`
+	Timezone                   types.String `tfsdk:"timezone"`
+	EnableIssueHistoryGrouping types.Bool   `tfsdk:"enable_issue_history_grouping"`
+	NoPriorityIssuesFirst      types.Bool   `tfsdk:"no_priority_issues_first"`
 }
 
 type teamResource struct {
@@ -91,34 +143,49 @@ func (r teamResource) Create(ctx context.Context, req tfsdk.CreateResourceReques
 	}
 
 	input := TeamCreateInput{
-		Key:  data.Key.Value,
-		Name: data.Name.Value,
+		Key:         data.Key.Value,
+		Name:        data.Name.Value,
+		Private:     data.Private.Value,
+		Description: data.Description.Value,
+		Icon:        data.Icon.Value,
+		Color:       data.Color.Value,
 	}
 
-	if !data.Description.IsNull() {
-		input.Description = data.Description.Value
+	if data.Timezone.IsNull() {
+		input.Timezone = "Etc/GMT"
+	} else {
+		input.Timezone = data.Timezone.Value
 	}
 
-	if !data.Icon.IsNull() {
-		input.Icon = data.Icon.Value
+	if data.EnableIssueHistoryGrouping.IsNull() {
+		input.GroupIssueHistory = true
+	} else {
+		input.GroupIssueHistory = data.EnableIssueHistoryGrouping.Value
 	}
 
-	if !data.Color.IsNull() {
-		input.Color = data.Color.Value
+	if data.NoPriorityIssuesFirst.IsNull() {
+		input.IssueOrderingNoPriorityFirst = true
+	} else {
+		input.IssueOrderingNoPriorityFirst = data.NoPriorityIssuesFirst.Value
 	}
 
 	response, err := createTeam(context.Background(), r.provider.client, input)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create example, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create team, got error: %s", err))
 		return
 	}
 
 	tflog.Trace(ctx, "created a team")
 
 	data.Id = types.String{Value: response.TeamCreate.Team.Id}
+	data.Private = types.Bool{Value: response.TeamCreate.Team.Private}
+	data.Description = types.String{Value: response.TeamCreate.Team.Description}
 	data.Icon = types.String{Value: response.TeamCreate.Team.Icon}
 	data.Color = types.String{Value: response.TeamCreate.Team.Color}
+	data.Timezone = types.String{Value: response.TeamCreate.Team.Timezone}
+	data.EnableIssueHistoryGrouping = types.Bool{Value: response.TeamCreate.Team.GroupIssueHistory}
+	data.NoPriorityIssuesFirst = types.Bool{Value: response.TeamCreate.Team.IssueOrderingNoPriorityFirst}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -142,6 +209,13 @@ func (r teamResource) Read(ctx context.Context, req tfsdk.ReadResourceRequest, r
 	}
 
 	data.Id = types.String{Value: response.Team.Id}
+	data.Private = types.Bool{Value: response.Team.Private}
+	data.Description = types.String{Value: response.Team.Description}
+	data.Icon = types.String{Value: response.Team.Icon}
+	data.Color = types.String{Value: response.Team.Color}
+	data.Timezone = types.String{Value: response.Team.Timezone}
+	data.EnableIssueHistoryGrouping = types.Bool{Value: response.Team.GroupIssueHistory}
+	data.NoPriorityIssuesFirst = types.Bool{Value: response.Team.IssueOrderingNoPriorityFirst}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -157,15 +231,44 @@ func (r teamResource) Update(ctx context.Context, req tfsdk.UpdateResourceReques
 		return
 	}
 
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// example, err := d.provider.client.UpdateExample(...)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update example, got error: %s", err))
-	//     return
-	// }
+	input := TeamUpdateInput{
+		Key:                          data.Key.Value,
+		Name:                         data.Name.Value,
+		Private:                      data.Private.Value,
+		Description:                  data.Description.Value,
+		Icon:                         data.Icon.Value,
+		Color:                        data.Color.Value,
+		Timezone:                     data.Timezone.Value,
+		GroupIssueHistory:            data.EnableIssueHistoryGrouping.Value,
+		IssueOrderingNoPriorityFirst: data.NoPriorityIssuesFirst.Value,
+	}
+
+	var key string
+
+	diags = req.State.GetAttribute(ctx, tftypes.NewAttributePath().WithAttributeName("key"), &key)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	response, err := updateTeam(context.Background(), r.provider.client, input, key)
+
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team, got error: %s", err))
+		return
+	}
 
 	tflog.Trace(ctx, "updated a team")
+
+	data.Id = types.String{Value: response.TeamUpdate.Team.Id}
+	data.Private = types.Bool{Value: response.TeamUpdate.Team.Private}
+	data.Description = types.String{Value: response.TeamUpdate.Team.Description}
+	data.Icon = types.String{Value: response.TeamUpdate.Team.Icon}
+	data.Color = types.String{Value: response.TeamUpdate.Team.Color}
+	data.Timezone = types.String{Value: response.TeamUpdate.Team.Timezone}
+	data.EnableIssueHistoryGrouping = types.Bool{Value: response.TeamUpdate.Team.GroupIssueHistory}
+	data.NoPriorityIssuesFirst = types.Bool{Value: response.TeamUpdate.Team.IssueOrderingNoPriorityFirst}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -192,5 +295,5 @@ func (r teamResource) Delete(ctx context.Context, req tfsdk.DeleteResourceReques
 }
 
 func (r teamResource) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
-	tfsdk.ResourceImportStatePassthroughID(ctx, tftypes.NewAttributePath().WithAttributeName("id"), req, resp)
+	tfsdk.ResourceImportStatePassthroughID(ctx, tftypes.NewAttributePath().WithAttributeName("key"), req, resp)
 }

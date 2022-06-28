@@ -10,17 +10,17 @@ import (
 
 type TeamCreateInput struct {
 	// Period after which closed and completed issues are automatically archived, in months. 0 means disabled.
-	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
+	AutoArchivePeriod float64 `json:"autoArchivePeriod,omitempty"`
 	// Period after which issues are automatically closed, in months.
-	AutoClosePeriod float64 `json:"autoClosePeriod"`
+	AutoClosePeriod float64 `json:"autoClosePeriod,omitempty"`
 	// The canceled workflow state which auto closed issues will be set to.
-	AutoCloseStateId string `json:"autoCloseStateId"`
+	AutoCloseStateId string `json:"autoCloseStateId,omitempty"`
 	// The color of the team.
-	Color string `json:"color"`
+	Color string `json:"color,omitempty"`
 	// The cooldown time after each cycle in weeks.
 	CycleCooldownTime int `json:"cycleCooldownTime"`
 	// The duration of each cycle in weeks.
-	CycleDuration int `json:"cycleDuration"`
+	CycleDuration int `json:"cycleDuration,omitempty"`
 	// Auto assign completed issues to current active cycle setting.
 	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
 	// Auto assign started issues to current active cycle setting.
@@ -34,33 +34,33 @@ type TeamCreateInput struct {
 	// What to use as an default estimate for unestimated issues.
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
 	// The identifier of the default template for members of this team.
-	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId"`
+	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId,omitempty"`
 	// The identifier of the default template for non-members of this team.
-	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId"`
+	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId,omitempty"`
 	// The description of the team.
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	// Whether to group recent issue history entries.
 	GroupIssueHistory bool `json:"groupIssueHistory"`
 	// The icon of the team.
-	Icon string `json:"icon"`
+	Icon string `json:"icon,omitempty"`
 	// The identifier. If none is provided, the backend will generate one.
-	Id string `json:"id"`
+	Id string `json:"id,omitempty"`
 	// Whether to allow zeros in issues estimates.
 	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
 	// Whether to add additional points to the estimate scale.
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 	// The issue estimation type to use.
-	IssueEstimationType string `json:"issueEstimationType"`
+	IssueEstimationType string `json:"issueEstimationType,omitempty"`
 	// Whether issues without priority should be sorted first.
 	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
 	// The key of the team. If not given, the key will be generated based on the name of the team.
 	Key string `json:"key"`
 	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
-	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId"`
+	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
 	// The name of the team.
 	Name string `json:"name"`
 	// The organization associated with the team.
-	OrganizationId string `json:"organizationId"`
+	OrganizationId string `json:"organizationId,omitempty"`
 	// Internal. Whether the team is private or not.
 	Private bool `json:"private"`
 	// The timezone of the team.
@@ -68,7 +68,7 @@ type TeamCreateInput struct {
 	// Whether triage mode is enabled for the team.
 	TriageEnabled bool `json:"triageEnabled"`
 	// How many upcoming cycles to create.
-	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
+	UpcomingCycleCount float64 `json:"upcomingCycleCount,omitempty"`
 }
 
 // GetAutoArchivePeriod returns TeamCreateInput.AutoArchivePeriod, and is useful for accessing the field via an interface.
@@ -171,6 +171,204 @@ func (v *TeamCreateInput) GetTriageEnabled() bool { return v.TriageEnabled }
 // GetUpcomingCycleCount returns TeamCreateInput.UpcomingCycleCount, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetUpcomingCycleCount() float64 { return v.UpcomingCycleCount }
 
+type TeamUpdateInput struct {
+	// Period after which closed and completed issues are automatically archived, in months.
+	AutoArchivePeriod float64 `json:"autoArchivePeriod,omitempty"`
+	// Period after which issues are automatically closed, in months.
+	AutoClosePeriod float64 `json:"autoClosePeriod,omitempty"`
+	// The canceled workflow state which auto closed issues will be set to.
+	AutoCloseStateId string `json:"autoCloseStateId,omitempty"`
+	// The color of the team.
+	Color string `json:"color,omitempty"`
+	// The cooldown time after each cycle in weeks.
+	CycleCooldownTime int `json:"cycleCooldownTime"`
+	// The duration of each cycle in weeks.
+	CycleDuration int `json:"cycleDuration,omitempty"`
+	// Whether the first cycle should start in the current or the next week.
+	CycleEnabledStartWeek string `json:"cycleEnabledStartWeek,omitempty"`
+	// Auto assign completed issues to current active cycle setting.
+	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
+	// Auto assign started issues to current active cycle setting.
+	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
+	// Only allow issues with cycles in Active Issues.
+	CycleLockToActive bool `json:"cycleLockToActive"`
+	// The day of the week that a new cycle starts.
+	CycleStartDay float64 `json:"cycleStartDay"`
+	// Whether the team uses cycles.
+	CyclesEnabled bool `json:"cyclesEnabled"`
+	// What to use as an default estimate for unestimated issues.
+	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+	// Default status for newly created issues.
+	DefaultIssueStateId string `json:"defaultIssueStateId,omitempty"`
+	// The identifier of the default template for members of this team.
+	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId,omitempty"`
+	// The identifier of the default template for non-members of this team.
+	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId,omitempty"`
+	// The description of the team.
+	Description string `json:"description,omitempty"`
+	// The workflow state into which issues are moved when a draft PR has been opened.
+	DraftWorkflowStateId string `json:"draftWorkflowStateId,omitempty"`
+	// Whether to group recent issue history entries.
+	GroupIssueHistory bool `json:"groupIssueHistory"`
+	// The icon of the team.
+	Icon string `json:"icon,omitempty"`
+	// Whether to allow zeros in issues estimates.
+	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
+	// Whether to add additional points to the estimate scale.
+	IssueEstimationExtended bool `json:"issueEstimationExtended"`
+	// The issue estimation type to use.
+	IssueEstimationType string `json:"issueEstimationType,omitempty"`
+	// Whether issues without priority should be sorted first.
+	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
+	// The key of the team.
+	Key string `json:"key"`
+	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
+	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
+	// The workflow state into which issues are moved when a PR has been merged.
+	MergeWorkflowStateId string `json:"mergeWorkflowStateId,omitempty"`
+	// The name of the team.
+	Name string `json:"name"`
+	// Whether the team is private or not.
+	Private bool `json:"private"`
+	// The workflow state into which issues are moved when a review has been requested for the PR.
+	ReviewWorkflowStateId string `json:"reviewWorkflowStateId,omitempty"`
+	// Whether to send new issue comment notifications to Slack.
+	SlackIssueComments bool `json:"slackIssueComments"`
+	// Whether to send issue status update notifications to Slack.
+	SlackIssueStatuses bool `json:"slackIssueStatuses"`
+	// Whether to send new issue notifications to Slack.
+	SlackNewIssue bool `json:"slackNewIssue"`
+	// The workflow state into which issues are moved when a PR has been opened.
+	StartWorkflowStateId string `json:"startWorkflowStateId,omitempty"`
+	// The timezone of the team.
+	Timezone string `json:"timezone"`
+	// Whether triage mode is enabled for the team.
+	TriageEnabled bool `json:"triageEnabled"`
+	// How many upcoming cycles to create.
+	UpcomingCycleCount float64 `json:"upcomingCycleCount,omitempty"`
+}
+
+// GetAutoArchivePeriod returns TeamUpdateInput.AutoArchivePeriod, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAutoArchivePeriod() float64 { return v.AutoArchivePeriod }
+
+// GetAutoClosePeriod returns TeamUpdateInput.AutoClosePeriod, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAutoClosePeriod() float64 { return v.AutoClosePeriod }
+
+// GetAutoCloseStateId returns TeamUpdateInput.AutoCloseStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAutoCloseStateId() string { return v.AutoCloseStateId }
+
+// GetColor returns TeamUpdateInput.Color, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetColor() string { return v.Color }
+
+// GetCycleCooldownTime returns TeamUpdateInput.CycleCooldownTime, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleCooldownTime() int { return v.CycleCooldownTime }
+
+// GetCycleDuration returns TeamUpdateInput.CycleDuration, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleDuration() int { return v.CycleDuration }
+
+// GetCycleEnabledStartWeek returns TeamUpdateInput.CycleEnabledStartWeek, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleEnabledStartWeek() string { return v.CycleEnabledStartWeek }
+
+// GetCycleIssueAutoAssignCompleted returns TeamUpdateInput.CycleIssueAutoAssignCompleted, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleIssueAutoAssignCompleted() bool {
+	return v.CycleIssueAutoAssignCompleted
+}
+
+// GetCycleIssueAutoAssignStarted returns TeamUpdateInput.CycleIssueAutoAssignStarted, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleIssueAutoAssignStarted() bool { return v.CycleIssueAutoAssignStarted }
+
+// GetCycleLockToActive returns TeamUpdateInput.CycleLockToActive, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleLockToActive() bool { return v.CycleLockToActive }
+
+// GetCycleStartDay returns TeamUpdateInput.CycleStartDay, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleStartDay() float64 { return v.CycleStartDay }
+
+// GetCyclesEnabled returns TeamUpdateInput.CyclesEnabled, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCyclesEnabled() bool { return v.CyclesEnabled }
+
+// GetDefaultIssueEstimate returns TeamUpdateInput.DefaultIssueEstimate, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
+
+// GetDefaultIssueStateId returns TeamUpdateInput.DefaultIssueStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetDefaultIssueStateId() string { return v.DefaultIssueStateId }
+
+// GetDefaultTemplateForMembersId returns TeamUpdateInput.DefaultTemplateForMembersId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetDefaultTemplateForMembersId() string {
+	return v.DefaultTemplateForMembersId
+}
+
+// GetDefaultTemplateForNonMembersId returns TeamUpdateInput.DefaultTemplateForNonMembersId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetDefaultTemplateForNonMembersId() string {
+	return v.DefaultTemplateForNonMembersId
+}
+
+// GetDescription returns TeamUpdateInput.Description, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetDescription() string { return v.Description }
+
+// GetDraftWorkflowStateId returns TeamUpdateInput.DraftWorkflowStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetDraftWorkflowStateId() string { return v.DraftWorkflowStateId }
+
+// GetGroupIssueHistory returns TeamUpdateInput.GroupIssueHistory, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
+
+// GetIcon returns TeamUpdateInput.Icon, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIcon() string { return v.Icon }
+
+// GetIssueEstimationAllowZero returns TeamUpdateInput.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIssueEstimationAllowZero() bool { return v.IssueEstimationAllowZero }
+
+// GetIssueEstimationExtended returns TeamUpdateInput.IssueEstimationExtended, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIssueEstimationExtended() bool { return v.IssueEstimationExtended }
+
+// GetIssueEstimationType returns TeamUpdateInput.IssueEstimationType, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIssueEstimationType() string { return v.IssueEstimationType }
+
+// GetIssueOrderingNoPriorityFirst returns TeamUpdateInput.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIssueOrderingNoPriorityFirst() bool {
+	return v.IssueOrderingNoPriorityFirst
+}
+
+// GetKey returns TeamUpdateInput.Key, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetKey() string { return v.Key }
+
+// GetMarkedAsDuplicateWorkflowStateId returns TeamUpdateInput.MarkedAsDuplicateWorkflowStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetMarkedAsDuplicateWorkflowStateId() string {
+	return v.MarkedAsDuplicateWorkflowStateId
+}
+
+// GetMergeWorkflowStateId returns TeamUpdateInput.MergeWorkflowStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetMergeWorkflowStateId() string { return v.MergeWorkflowStateId }
+
+// GetName returns TeamUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetName() string { return v.Name }
+
+// GetPrivate returns TeamUpdateInput.Private, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetPrivate() bool { return v.Private }
+
+// GetReviewWorkflowStateId returns TeamUpdateInput.ReviewWorkflowStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetReviewWorkflowStateId() string { return v.ReviewWorkflowStateId }
+
+// GetSlackIssueComments returns TeamUpdateInput.SlackIssueComments, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSlackIssueComments() bool { return v.SlackIssueComments }
+
+// GetSlackIssueStatuses returns TeamUpdateInput.SlackIssueStatuses, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSlackIssueStatuses() bool { return v.SlackIssueStatuses }
+
+// GetSlackNewIssue returns TeamUpdateInput.SlackNewIssue, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSlackNewIssue() bool { return v.SlackNewIssue }
+
+// GetStartWorkflowStateId returns TeamUpdateInput.StartWorkflowStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetStartWorkflowStateId() string { return v.StartWorkflowStateId }
+
+// GetTimezone returns TeamUpdateInput.Timezone, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetTimezone() string { return v.Timezone }
+
+// GetTriageEnabled returns TeamUpdateInput.TriageEnabled, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetTriageEnabled() bool { return v.TriageEnabled }
+
+// GetUpcomingCycleCount returns TeamUpdateInput.UpcomingCycleCount, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetUpcomingCycleCount() float64 { return v.UpcomingCycleCount }
+
 // __createTeamInput is used internally by genqlient
 type __createTeamInput struct {
 	Input TeamCreateInput `json:"input"`
@@ -194,6 +392,18 @@ type __getTeamInput struct {
 
 // GetKey returns __getTeamInput.Key, and is useful for accessing the field via an interface.
 func (v *__getTeamInput) GetKey() string { return v.Key }
+
+// __updateTeamInput is used internally by genqlient
+type __updateTeamInput struct {
+	Input TeamUpdateInput `json:"input"`
+	Id    string          `json:"id"`
+}
+
+// GetInput returns __updateTeamInput.Input, and is useful for accessing the field via an interface.
+func (v *__updateTeamInput) GetInput() TeamUpdateInput { return v.Input }
+
+// GetId returns __updateTeamInput.Id, and is useful for accessing the field via an interface.
+func (v *__updateTeamInput) GetId() string { return v.Id }
 
 // createTeamResponse is returned by createTeam on success.
 type createTeamResponse struct {
@@ -226,12 +436,20 @@ type createTeamTeamCreateTeamPayloadTeam struct {
 	Name string `json:"name"`
 	// The team's unique key. The key is used in URLs.
 	Key string `json:"key"`
+	// Whether the team is private or not.
+	Private bool `json:"private"`
 	// The team's description.
 	Description string `json:"description"`
 	// The icon of the team.
 	Icon string `json:"icon"`
 	// The team's color.
 	Color string `json:"color"`
+	// The timezone of the team. Defaults to "America/Los_Angeles"
+	Timezone string `json:"timezone"`
+	// Whether to group recent issue history entries.
+	GroupIssueHistory bool `json:"groupIssueHistory"`
+	// Whether issues without priority should be sorted first.
+	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
 }
 
 // GetId returns createTeamTeamCreateTeamPayloadTeam.Id, and is useful for accessing the field via an interface.
@@ -243,6 +461,9 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetName() string { return v.Name }
 // GetKey returns createTeamTeamCreateTeamPayloadTeam.Key, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetKey() string { return v.Key }
 
+// GetPrivate returns createTeamTeamCreateTeamPayloadTeam.Private, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetPrivate() bool { return v.Private }
+
 // GetDescription returns createTeamTeamCreateTeamPayloadTeam.Description, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetDescription() string { return v.Description }
 
@@ -251,6 +472,17 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetIcon() string { return v.Icon }
 
 // GetColor returns createTeamTeamCreateTeamPayloadTeam.Color, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetColor() string { return v.Color }
+
+// GetTimezone returns createTeamTeamCreateTeamPayloadTeam.Timezone, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetTimezone() string { return v.Timezone }
+
+// GetGroupIssueHistory returns createTeamTeamCreateTeamPayloadTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
+
+// GetIssueOrderingNoPriorityFirst returns createTeamTeamCreateTeamPayloadTeam.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetIssueOrderingNoPriorityFirst() bool {
+	return v.IssueOrderingNoPriorityFirst
+}
 
 // deleteTeamResponse is returned by deleteTeam on success.
 type deleteTeamResponse struct {
@@ -290,8 +522,20 @@ type getTeamTeam struct {
 	Name string `json:"name"`
 	// The team's unique key. The key is used in URLs.
 	Key string `json:"key"`
+	// Whether the team is private or not.
+	Private bool `json:"private"`
 	// The team's description.
 	Description string `json:"description"`
+	// The icon of the team.
+	Icon string `json:"icon"`
+	// The team's color.
+	Color string `json:"color"`
+	// The timezone of the team. Defaults to "America/Los_Angeles"
+	Timezone string `json:"timezone"`
+	// Whether to group recent issue history entries.
+	GroupIssueHistory bool `json:"groupIssueHistory"`
+	// Whether issues without priority should be sorted first.
+	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
 }
 
 // GetId returns getTeamTeam.Id, and is useful for accessing the field via an interface.
@@ -303,8 +547,26 @@ func (v *getTeamTeam) GetName() string { return v.Name }
 // GetKey returns getTeamTeam.Key, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetKey() string { return v.Key }
 
+// GetPrivate returns getTeamTeam.Private, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetPrivate() bool { return v.Private }
+
 // GetDescription returns getTeamTeam.Description, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetDescription() string { return v.Description }
+
+// GetIcon returns getTeamTeam.Icon, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetIcon() string { return v.Icon }
+
+// GetColor returns getTeamTeam.Color, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetColor() string { return v.Color }
+
+// GetTimezone returns getTeamTeam.Timezone, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetTimezone() string { return v.Timezone }
+
+// GetGroupIssueHistory returns getTeamTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
+
+// GetIssueOrderingNoPriorityFirst returns getTeamTeam.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetIssueOrderingNoPriorityFirst() bool { return v.IssueOrderingNoPriorityFirst }
 
 // getWorkspaceOrganization includes the requested fields of the GraphQL type Organization.
 // The GraphQL type's documentation follows.
@@ -337,6 +599,85 @@ type getWorkspaceResponse struct {
 // GetOrganization returns getWorkspaceResponse.Organization, and is useful for accessing the field via an interface.
 func (v *getWorkspaceResponse) GetOrganization() getWorkspaceOrganization { return v.Organization }
 
+// updateTeamResponse is returned by updateTeam on success.
+type updateTeamResponse struct {
+	// Updates a team.
+	TeamUpdate updateTeamTeamUpdateTeamPayload `json:"teamUpdate"`
+}
+
+// GetTeamUpdate returns updateTeamResponse.TeamUpdate, and is useful for accessing the field via an interface.
+func (v *updateTeamResponse) GetTeamUpdate() updateTeamTeamUpdateTeamPayload { return v.TeamUpdate }
+
+// updateTeamTeamUpdateTeamPayload includes the requested fields of the GraphQL type TeamPayload.
+type updateTeamTeamUpdateTeamPayload struct {
+	// The team that was created or updated.
+	Team updateTeamTeamUpdateTeamPayloadTeam `json:"team"`
+}
+
+// GetTeam returns updateTeamTeamUpdateTeamPayload.Team, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayload) GetTeam() updateTeamTeamUpdateTeamPayloadTeam {
+	return v.Team
+}
+
+// updateTeamTeamUpdateTeamPayloadTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type updateTeamTeamUpdateTeamPayloadTeam struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The team's name.
+	Name string `json:"name"`
+	// The team's unique key. The key is used in URLs.
+	Key string `json:"key"`
+	// Whether the team is private or not.
+	Private bool `json:"private"`
+	// The team's description.
+	Description string `json:"description"`
+	// The icon of the team.
+	Icon string `json:"icon"`
+	// The team's color.
+	Color string `json:"color"`
+	// The timezone of the team. Defaults to "America/Los_Angeles"
+	Timezone string `json:"timezone"`
+	// Whether to group recent issue history entries.
+	GroupIssueHistory bool `json:"groupIssueHistory"`
+	// Whether issues without priority should be sorted first.
+	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
+}
+
+// GetId returns updateTeamTeamUpdateTeamPayloadTeam.Id, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetId() string { return v.Id }
+
+// GetName returns updateTeamTeamUpdateTeamPayloadTeam.Name, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetName() string { return v.Name }
+
+// GetKey returns updateTeamTeamUpdateTeamPayloadTeam.Key, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetKey() string { return v.Key }
+
+// GetPrivate returns updateTeamTeamUpdateTeamPayloadTeam.Private, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetPrivate() bool { return v.Private }
+
+// GetDescription returns updateTeamTeamUpdateTeamPayloadTeam.Description, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetDescription() string { return v.Description }
+
+// GetIcon returns updateTeamTeamUpdateTeamPayloadTeam.Icon, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIcon() string { return v.Icon }
+
+// GetColor returns updateTeamTeamUpdateTeamPayloadTeam.Color, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetColor() string { return v.Color }
+
+// GetTimezone returns updateTeamTeamUpdateTeamPayloadTeam.Timezone, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetTimezone() string { return v.Timezone }
+
+// GetGroupIssueHistory returns updateTeamTeamUpdateTeamPayloadTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
+
+// GetIssueOrderingNoPriorityFirst returns updateTeamTeamUpdateTeamPayloadTeam.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIssueOrderingNoPriorityFirst() bool {
+	return v.IssueOrderingNoPriorityFirst
+}
+
 func createTeam(
 	ctx context.Context,
 	client graphql.Client,
@@ -351,9 +692,13 @@ mutation createTeam ($input: TeamCreateInput!) {
 			id
 			name
 			key
+			private
 			description
 			icon
 			color
+			timezone
+			groupIssueHistory
+			issueOrderingNoPriorityFirst
 		}
 	}
 }
@@ -421,7 +766,13 @@ query getTeam ($key: String!) {
 		id
 		name
 		key
+		private
 		description
+		icon
+		color
+		timezone
+		groupIssueHistory
+		issueOrderingNoPriorityFirst
 	}
 }
 `,
@@ -462,6 +813,51 @@ query getWorkspace {
 	var err error
 
 	var data getWorkspaceResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func updateTeam(
+	ctx context.Context,
+	client graphql.Client,
+	input TeamUpdateInput,
+	id string,
+) (*updateTeamResponse, error) {
+	req := &graphql.Request{
+		OpName: "updateTeam",
+		Query: `
+mutation updateTeam ($input: TeamUpdateInput!, $id: String!) {
+	teamUpdate(input: $input, id: $id) {
+		team {
+			id
+			name
+			key
+			private
+			description
+			icon
+			color
+			timezone
+			groupIssueHistory
+			issueOrderingNoPriorityFirst
+		}
+	}
+}
+`,
+		Variables: &__updateTeamInput{
+			Input: input,
+			Id:    id,
+		},
+	}
+	var err error
+
+	var data updateTeamResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

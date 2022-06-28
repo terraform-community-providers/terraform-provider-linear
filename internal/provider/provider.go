@@ -96,7 +96,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 
 func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
 	return map[string]tfsdk.ResourceType{
-		// "linear_team": teamResourceType{},
+		"linear_team": teamResourceType{},
 	}, nil
 }
 
