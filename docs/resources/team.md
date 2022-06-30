@@ -29,15 +29,53 @@ resource "linear_team" "example" {
 ### Optional
 
 - `color` (String) Color of the team.
+- `cycles` (Attributes) Cycle settings of the team. (see [below for nested schema](#nestedatt--cycles))
 - `description` (String) Description of the team.
-- `enable_issue_history_grouping` (Boolean) Enable issue history grouping for the team. Default `true`.
+- `enable_issue_default_to_bottom` (Boolean) Enable moving issues to bottom of the column when changing state. **Default** `false`.
+- `enable_issue_history_grouping` (Boolean) Enable issue history grouping for the team. **Default** `true`.
+- `estimation` (Attributes) Issue estimation settings of the team. (see [below for nested schema](#nestedatt--estimation))
 - `icon` (String) Icon of the team.
-- `no_priority_issues_first` (Boolean) Prefer issues without priority during issue prioritization order. Default `true`.
-- `private` (Boolean) Privacy of the team. Default `false`.
-- `timezone` (String) Timezone of the team. Default `Etc/GMT`.
+- `no_priority_issues_first` (Boolean) Prefer issues without priority at the top during issue prioritization order. **Default** `true`.
+- `private` (Boolean) Privacy of the team. **Default** `false`.
+- `timezone` (String) Timezone of the team. **Default** `Etc/GMT`.
+- `triage` (Attributes) Triage settings of the team. (see [below for nested schema](#nestedatt--triage))
 
 ### Read-Only
 
+- `auto_archive_period` (Number) Period after which closed and completed issues are automatically archived, in months. **Default** `3`.
 - `id` (String) Identifier of the team.
+
+<a id="nestedatt--cycles"></a>
+### Nested Schema for `cycles`
+
+Optional:
+
+- `auto_add_completed` (Boolean) Auto add completed issues that don't belong to any cycle to the active cycle. **Default** `true`.
+- `auto_add_started` (Boolean) Auto add started issues that don't belong to any cycle to the active cycle. **Default** `true`.
+- `cooldown` (Number) Cooldown time between cycles in weeks. **Default** `0`.
+- `duration` (Number) Duration of the cycle in weeks. **Default** `1`.
+- `enabled` (Boolean) Enable cycles for the team. **Default** `false`.
+- `need_for_active` (Boolean) Whether all active issues need to have a cycle. **Default** `false`.
+- `start_day` (Number) Start day of the cycle. Sunday is 0, Saturday is 6. **Default** `0`.
+- `upcoming` (Number) Number of upcoming cycles to automatically create. **Default** `2`.
+
+
+<a id="nestedatt--estimation"></a>
+### Nested Schema for `estimation`
+
+Optional:
+
+- `allow_zero` (Boolean) Whether zero is allowed as an estimation. **Default** `false`.
+- `default` (Number) Default estimation for issues that are unestimated. **Default** `1`.
+- `extended` (Boolean) Whether the team uses extended estimation. **Default** `false`.
+- `type` (String) Issue estimation type for the team. **Default** `notUsed`.
+
+
+<a id="nestedatt--triage"></a>
+### Nested Schema for `triage`
+
+Optional:
+
+- `enabled` (Boolean) Enable triage mode for the team. **Default** `false`.
 
 

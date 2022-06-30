@@ -8,8 +8,24 @@ query getTeam($key: String!) {
     icon
     color
     timezone
-    groupIssueHistory
     issueOrderingNoPriorityFirst
+    groupIssueHistory
+    issueSortOrderDefaultToBottom
+    autoArchivePeriod
+    autoClosePeriod
+    triageEnabled
+    cyclesEnabled
+    cycleStartDay
+    cycleDuration
+    cycleCooldownTime
+    upcomingCycleCount
+    cycleIssueAutoAssignStarted
+    cycleIssueAutoAssignCompleted
+    cycleLockToActive
+    issueEstimationType
+    issueEstimationAllowZero
+    issueEstimationExtended
+    defaultIssueEstimate
   }
 }
 
@@ -18,15 +34,11 @@ query getTeam($key: String!) {
 # @genqlient(for: "TeamCreateInput.description", omitempty: true)
 # @genqlient(for: "TeamCreateInput.icon", omitempty: true)
 # @genqlient(for: "TeamCreateInput.color", omitempty: true)
-# @genqlient(for: "TeamCreateInput.issueEstimationType", omitempty: true)
-# @genqlient(for: "TeamCreateInput.cycleDuration", omitempty: true)
-# @genqlient(for: "TeamCreateInput.upcomingCycleCount", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForMembersId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForNonMembersId", omitempty: true)
-# @genqlient(for: "TeamCreateInput.autoCloseStateId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.autoClosePeriod", omitempty: true)
-# @genqlient(for: "TeamCreateInput.autoArchivePeriod", omitempty: true)
+# @genqlient(for: "TeamCreateInput.autoCloseStateId", omitempty: true)
 mutation createTeam(
   $input: TeamCreateInput!
 ) {
@@ -40,19 +52,32 @@ mutation createTeam(
       icon
       color
       timezone
-      groupIssueHistory
       issueOrderingNoPriorityFirst
+      groupIssueHistory
+      issueSortOrderDefaultToBottom
+      autoArchivePeriod
+      autoClosePeriod
+      triageEnabled
+      cyclesEnabled
+      cycleStartDay
+      cycleDuration
+      cycleCooldownTime
+      upcomingCycleCount
+      cycleIssueAutoAssignStarted
+      cycleIssueAutoAssignCompleted
+      cycleLockToActive
+      issueEstimationType
+      issueEstimationAllowZero
+      issueEstimationExtended
+      defaultIssueEstimate
     }
   }
 }
 
+# @genqlient(for: "TeamUpdateInput.key", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.description", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.icon", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.color", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.issueEstimationType", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.cycleDuration", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.cycleEnabledStartWeek", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.upcomingCycleCount", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.draftWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.startWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.reviewWorkflowStateId", omitempty: true)
@@ -60,10 +85,9 @@ mutation createTeam(
 # @genqlient(for: "TeamUpdateInput.defaultTemplateForMembersId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.defaultTemplateForNonMembersId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.defaultIssueStateId", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.autoCloseStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.autoClosePeriod", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.autoArchivePeriod", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.autoCloseStateId", omitempty: true)
 mutation updateTeam(
   $input: TeamUpdateInput!,
   $id: String!
@@ -78,8 +102,24 @@ mutation updateTeam(
       icon
       color
       timezone
-      groupIssueHistory
       issueOrderingNoPriorityFirst
+      groupIssueHistory
+      issueSortOrderDefaultToBottom
+      autoArchivePeriod
+      autoClosePeriod
+      triageEnabled
+      cyclesEnabled
+      cycleStartDay
+      cycleDuration
+      cycleCooldownTime
+      upcomingCycleCount
+      cycleIssueAutoAssignStarted
+      cycleIssueAutoAssignCompleted
+      cycleLockToActive
+      issueEstimationType
+      issueEstimationAllowZero
+      issueEstimationExtended
+      defaultIssueEstimate
     }
   }
 }
