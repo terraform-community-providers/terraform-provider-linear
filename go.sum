@@ -161,8 +161,8 @@ github.com/hashicorp/terraform-exec v0.17.1 h1:Hd7Z0WfPYiwFZwzczSnkCJCxOensv0x93
 github.com/hashicorp/terraform-exec v0.17.1/go.mod h1:0J3KZWwroWCS+ObFZMEUSMD9GztU+CS8eLnUm+vfl5k=
 github.com/hashicorp/terraform-json v0.14.0 h1:sh9iZ1Y8IFJLx+xQiKHGud6/TSUCM0N8e17dKDpqV7s=
 github.com/hashicorp/terraform-json v0.14.0/go.mod h1:5A9HIWPkk4e5aeeXIBbkcOvaZbIYnAIkEyqP2pNSckM=
-github.com/hashicorp/terraform-plugin-docs v0.11.0 h1:CO7AetK71PjeLHlavvgClzncWtrAZo+rST5M3yNX0UM=
-github.com/hashicorp/terraform-plugin-docs v0.11.0/go.mod h1:HVn60yjtl4XxLINPgNmPCwX8SQ4T99Ut9CTD/ac6i5w=
+github.com/hashicorp/terraform-plugin-docs v0.12.0 h1:EAvFVEoV/wj15t/VSeKVpnAd+BBnIxzYepAnScBWrU4=
+github.com/hashicorp/terraform-plugin-docs v0.12.0/go.mod h1:HVn60yjtl4XxLINPgNmPCwX8SQ4T99Ut9CTD/ac6i5w=
 github.com/hashicorp/terraform-plugin-framework v0.9.0 h1:vOKG9+keJv062zGhXFgfOFEuGcfgV6LHciwleFTSek0=
 github.com/hashicorp/terraform-plugin-framework v0.9.0/go.mod h1:ActelD2V6yt2m0MwIX4jESGDYJ573rAvZswGjSGm1rY=
 github.com/hashicorp/terraform-plugin-go v0.9.1 h1:vXdHaQ6aqL+OF076nMSBV+JKPdmXlzG5mzVDD04WyPs=
@@ -309,8 +309,6 @@ golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5y
 golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d h1:sK3txAijHtOK88l68nt020reeT1ZdKLIYetKl95FzVY=
 golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
-golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d h1:vtUKgx8dahOomfFzLREU8nSv25YHnTgLBn4rDnWZdU0=
-golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d/go.mod h1:Kr81I6Kryrl9sr8s2FK3vxD90NdsKWRuOIl2O4CvYbA=
 golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3/go.mod h1:UVdnD1Gm6xHRNCYTkRU2/jEulfH38KcIWyp/GAMgvoE=
 golang.org/x/lint v0.0.0-20190227174305-5b3e6a55c961/go.mod h1:wehouNa3lNwaWXcvxsM5YxQ5yQlVC4a0KAMCusXpPoU=
 golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3/go.mod h1:6SW0HCj/g11FgYtHlgUYUwCkIfeOF89ocIRzGO/8vkc=

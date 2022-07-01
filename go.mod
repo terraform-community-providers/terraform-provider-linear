@@ -5,12 +5,11 @@ go 1.18
 require (
 	github.com/Khan/genqlient v0.5.0
 	github.com/frankgreco/terraform-helpers v0.1.0
-	github.com/hashicorp/terraform-plugin-docs v0.11.0
+	github.com/hashicorp/terraform-plugin-docs v0.12.0
 	github.com/hashicorp/terraform-plugin-framework v0.9.0
 	github.com/hashicorp/terraform-plugin-go v0.9.1
 	github.com/hashicorp/terraform-plugin-log v0.4.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.17.0
-	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d
 )
 
 require (

@@ -14,6 +14,7 @@ Linear team.
 
 ```terraform
 resource "linear_team" "example" {
+  key  = "SOME"
   name = "something"
 }
 ```
@@ -78,4 +79,10 @@ Optional:
 
 - `enabled` (Boolean) Enable triage mode for the team. **Default** `false`.
 
+## Import
 
+Import is supported using the following syntax:
+
+```shell
+terraform import linear_team.team SOME
+```
