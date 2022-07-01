@@ -567,6 +567,7 @@ func (r teamResource) Read(ctx context.Context, req tfsdk.ReadResourceRequest, r
 	}
 
 	data.Id = types.String{Value: response.Team.Id}
+	data.Name = types.String{Value: response.Team.Name}
 	data.Private = types.Bool{Value: response.Team.Private}
 	data.Description = types.String{Value: response.Team.Description}
 	data.Icon = types.String{Value: response.Team.Icon}

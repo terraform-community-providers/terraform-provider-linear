@@ -44,12 +44,12 @@ func TestAccTeamResourceDefault(t *testing.T) {
 				),
 			},
 			// ImportState testing
-			// {
-			// 	ResourceName:      "linear_team.test",
-			// 	ImportState:       true,
-			// 	ImportStateId:     "ACC",
-			// 	ImportStateVerify: true,
-			// },
+			{
+				ResourceName:      "linear_team.test",
+				ImportState:       true,
+				ImportStateId:     "ACC",
+				ImportStateVerify: true,
+			},
 			// Update with null values
 			{
 				Config: testAccTeamResourceConfigDefault("ACC", "Acc Tests"),
@@ -112,12 +112,12 @@ func TestAccTeamResourceDefault(t *testing.T) {
 				),
 			},
 			// ImportState testing
-			// {
-			// 	ResourceName:      "linear_team.test",
-			// 	ImportState:       true,
-			// 	ImportStateId:     "AC",
-			// 	ImportStateVerify: true,
-			// },
+			{
+				ResourceName:      "linear_team.test",
+				ImportState:       true,
+				ImportStateId:     "AC",
+				ImportStateVerify: true,
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})
@@ -160,12 +160,12 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 				),
 			},
 			// ImportState testing
-			// {
-			// 	ResourceName:      "linear_team.test",
-			// 	ImportState:       true,
-			// 	ImportStateId:     "DEV",
-			// 	ImportStateVerify: true,
-			// },
+			{
+				ResourceName:      "linear_team.test",
+				ImportState:       true,
+				ImportStateId:     "DEV",
+				ImportStateVerify: true,
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})
