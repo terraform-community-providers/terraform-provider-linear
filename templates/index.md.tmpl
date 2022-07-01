@@ -1,5 +1,6 @@
+---
 page_title: "Linear Provider"
-description: |-
+---
 
 # Linear Provider
 
