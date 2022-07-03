@@ -1,1 +1,1 @@
-terraform import linear_team.team SOME
+terraform import linear_team.example SOME

@@ -175,6 +175,10 @@ func colorRegex() *regexp.Regexp {
 	return regexp.MustCompile("^#[0-9a-fA-F]{6}$")
 }
 
+func uuidRegex() *regexp.Regexp {
+	return regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+}
+
 func testAccTeamResourceConfigDefault(key string, name string) string {
 	return fmt.Sprintf(`
 resource "linear_team" "test" {
