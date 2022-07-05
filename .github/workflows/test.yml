@@ -42,16 +42,10 @@ jobs:
           git diff --compact-summary --exit-code || \
             (echo; echo "Unexpected difference in directories after code generation. Run 'go generate ./...' command and commit."; exit 1)
   test:
-    name: Terraform Provider Acceptance Tests
+    name: Terraform Provider Acceptance Test
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        terraform:
-          - '1.0.*'
-          - '1.1.*'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -63,12 +57,13 @@ jobs:
       - name: Install terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: ${{ matrix.terraform }}
+          terraform_version: 1.1.*
           terraform_wrapper: false
       - name: Install deps
         run: go mod download
       - name: Test
         env:
-          TF_ACC: "1"
+          TF_ACC: 1
+          LINEAR_TOKEN: ${{ secrets.LINEAR_TOKEN }}
         run: go test -v -cover ./internal/provider/
         timeout-minutes: 10
