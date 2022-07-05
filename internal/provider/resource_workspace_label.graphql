@@ -1,25 +1,23 @@
-query getTeamLabel($id: String!) {
+query getWorkspaceLabel($id: String!) {
   issueLabel(id: $id) {
     id
     name
     description
     color
-    team {
-      id
-    }
   }
 }
 
-query findTeamLabel($name: String!, $key: String!) {
+query findWorkspaceLabel($name: String!) {
   issueLabels(filter: {
     name: {
       eq: $name
     },
-    team: {
-      key: {
-        eq: $key
-      }
-    }
+    #4
+    # team: {
+    #   key: {
+    #     eq: $key
+    #   }
+    # }
   }) {
     nodes {
       id
@@ -31,7 +29,7 @@ query findTeamLabel($name: String!, $key: String!) {
 # @genqlient(for: "IssueLabelCreateInput.description", omitempty: true)
 # @genqlient(for: "IssueLabelCreateInput.color", omitempty: true)
 # @genqlient(for: "IssueLabelCreateInput.teamId", omitempty: true)
-mutation createTeamLabel(
+mutation createWorkspaceLabel(
   $input: IssueLabelCreateInput!
 ) {
   issueLabelCreate(input: $input) {
@@ -40,9 +38,6 @@ mutation createTeamLabel(
       name
       description
       color
-      team {
-        id
-      }
     }
   }
 }
@@ -50,7 +45,7 @@ mutation createTeamLabel(
 # @genqlient(for: "IssueLabelUpdateInput.name", omitempty: true)
 # @genqlient(for: "IssueLabelUpdateInput.description", omitempty: true)
 # @genqlient(for: "IssueLabelUpdateInput.color", omitempty: true)
-mutation updateTeamLabel(
+mutation updateWorkspaceLabel(
   $input: IssueLabelUpdateInput!,
   $id: String!
 ) {
@@ -60,14 +55,11 @@ mutation updateTeamLabel(
       name
       description
       color
-      team {
-        id
-      }
     }
   }
 }
 
-mutation deleteTeamLabel($id: String!) {
+mutation deleteWorkspaceLabel($id: String!) {
   issueLabelDelete(id: $id) {
     success
   }

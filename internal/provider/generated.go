@@ -18,7 +18,7 @@ type IssueLabelCreateInput struct {
 	// The color of the label.
 	Color string `json:"color,omitempty"`
 	// The team associated with the label. If not given, the label will be associated with the entire workspace.
-	TeamId string `json:"teamId"`
+	TeamId string `json:"teamId,omitempty"`
 }
 
 // GetId returns IssueLabelCreateInput.Id, and is useful for accessing the field via an interface.
@@ -445,6 +445,14 @@ type __createTeamLabelInput struct {
 // GetInput returns __createTeamLabelInput.Input, and is useful for accessing the field via an interface.
 func (v *__createTeamLabelInput) GetInput() IssueLabelCreateInput { return v.Input }
 
+// __createWorkspaceLabelInput is used internally by genqlient
+type __createWorkspaceLabelInput struct {
+	Input IssueLabelCreateInput `json:"input"`
+}
+
+// GetInput returns __createWorkspaceLabelInput.Input, and is useful for accessing the field via an interface.
+func (v *__createWorkspaceLabelInput) GetInput() IssueLabelCreateInput { return v.Input }
+
 // __deleteTeamInput is used internally by genqlient
 type __deleteTeamInput struct {
 	Key string `json:"key"`
@@ -461,6 +469,14 @@ type __deleteTeamLabelInput struct {
 // GetId returns __deleteTeamLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__deleteTeamLabelInput) GetId() string { return v.Id }
 
+// __deleteWorkspaceLabelInput is used internally by genqlient
+type __deleteWorkspaceLabelInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __deleteWorkspaceLabelInput.Id, and is useful for accessing the field via an interface.
+func (v *__deleteWorkspaceLabelInput) GetId() string { return v.Id }
+
 // __findTeamLabelInput is used internally by genqlient
 type __findTeamLabelInput struct {
 	Name string `json:"name"`
@@ -472,6 +488,14 @@ func (v *__findTeamLabelInput) GetName() string { return v.Name }
 
 // GetKey returns __findTeamLabelInput.Key, and is useful for accessing the field via an interface.
 func (v *__findTeamLabelInput) GetKey() string { return v.Key }
+
+// __findWorkspaceLabelInput is used internally by genqlient
+type __findWorkspaceLabelInput struct {
+	Name string `json:"name"`
+}
+
+// GetName returns __findWorkspaceLabelInput.Name, and is useful for accessing the field via an interface.
+func (v *__findWorkspaceLabelInput) GetName() string { return v.Name }
 
 // __getTeamInput is used internally by genqlient
 type __getTeamInput struct {
@@ -488,6 +512,14 @@ type __getTeamLabelInput struct {
 
 // GetId returns __getTeamLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__getTeamLabelInput) GetId() string { return v.Id }
+
+// __getWorkspaceLabelInput is used internally by genqlient
+type __getWorkspaceLabelInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __getWorkspaceLabelInput.Id, and is useful for accessing the field via an interface.
+func (v *__getWorkspaceLabelInput) GetId() string { return v.Id }
 
 // __updateTeamInput is used internally by genqlient
 type __updateTeamInput struct {
@@ -512,6 +544,18 @@ func (v *__updateTeamLabelInput) GetInput() IssueLabelUpdateInput { return v.Inp
 
 // GetId returns __updateTeamLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__updateTeamLabelInput) GetId() string { return v.Id }
+
+// __updateWorkspaceLabelInput is used internally by genqlient
+type __updateWorkspaceLabelInput struct {
+	Input IssueLabelUpdateInput `json:"input"`
+	Id    string                `json:"id"`
+}
+
+// GetInput returns __updateWorkspaceLabelInput.Input, and is useful for accessing the field via an interface.
+func (v *__updateWorkspaceLabelInput) GetInput() IssueLabelUpdateInput { return v.Input }
+
+// GetId returns __updateWorkspaceLabelInput.Id, and is useful for accessing the field via an interface.
+func (v *__updateWorkspaceLabelInput) GetId() string { return v.Id }
 
 // createTeamLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
 type createTeamLabelIssueLabelCreateIssueLabelPayload struct {
@@ -764,6 +808,61 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetDefaultIssueEstimate() float64 
 	return v.DefaultIssueEstimate
 }
 
+// createWorkspaceLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
+type createWorkspaceLabelIssueLabelCreateIssueLabelPayload struct {
+	// The label that was created or updated.
+	IssueLabel createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel `json:"issueLabel"`
+}
+
+// GetIssueLabel returns createWorkspaceLabelIssueLabelCreateIssueLabelPayload.IssueLabel, and is useful for accessing the field via an interface.
+func (v *createWorkspaceLabelIssueLabelCreateIssueLabelPayload) GetIssueLabel() createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel {
+	return v.IssueLabel
+}
+
+// createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
+// The GraphQL type's documentation follows.
+//
+// Labels that can be associated with issues.
+type createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The label's name.
+	Name string `json:"name"`
+	// The label's description.
+	Description string `json:"description"`
+	// The label's color as a HEX string.
+	Color string `json:"color"`
+}
+
+// GetId returns createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Id, and is useful for accessing the field via an interface.
+func (v *createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetId() string { return v.Id }
+
+// GetName returns createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Name, and is useful for accessing the field via an interface.
+func (v *createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetName() string {
+	return v.Name
+}
+
+// GetDescription returns createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Description, and is useful for accessing the field via an interface.
+func (v *createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetDescription() string {
+	return v.Description
+}
+
+// GetColor returns createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Color, and is useful for accessing the field via an interface.
+func (v *createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetColor() string {
+	return v.Color
+}
+
+// createWorkspaceLabelResponse is returned by createWorkspaceLabel on success.
+type createWorkspaceLabelResponse struct {
+	// Creates a new label.
+	IssueLabelCreate createWorkspaceLabelIssueLabelCreateIssueLabelPayload `json:"issueLabelCreate"`
+}
+
+// GetIssueLabelCreate returns createWorkspaceLabelResponse.IssueLabelCreate, and is useful for accessing the field via an interface.
+func (v *createWorkspaceLabelResponse) GetIssueLabelCreate() createWorkspaceLabelIssueLabelCreateIssueLabelPayload {
+	return v.IssueLabelCreate
+}
+
 // deleteTeamLabelIssueLabelDeleteArchivePayload includes the requested fields of the GraphQL type ArchivePayload.
 type deleteTeamLabelIssueLabelDeleteArchivePayload struct {
 	// Whether the operation was successful.
@@ -802,6 +901,26 @@ type deleteTeamTeamDeleteArchivePayload struct {
 // GetSuccess returns deleteTeamTeamDeleteArchivePayload.Success, and is useful for accessing the field via an interface.
 func (v *deleteTeamTeamDeleteArchivePayload) GetSuccess() bool { return v.Success }
 
+// deleteWorkspaceLabelIssueLabelDeleteArchivePayload includes the requested fields of the GraphQL type ArchivePayload.
+type deleteWorkspaceLabelIssueLabelDeleteArchivePayload struct {
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns deleteWorkspaceLabelIssueLabelDeleteArchivePayload.Success, and is useful for accessing the field via an interface.
+func (v *deleteWorkspaceLabelIssueLabelDeleteArchivePayload) GetSuccess() bool { return v.Success }
+
+// deleteWorkspaceLabelResponse is returned by deleteWorkspaceLabel on success.
+type deleteWorkspaceLabelResponse struct {
+	// Deletes an issue label.
+	IssueLabelDelete deleteWorkspaceLabelIssueLabelDeleteArchivePayload `json:"issueLabelDelete"`
+}
+
+// GetIssueLabelDelete returns deleteWorkspaceLabelResponse.IssueLabelDelete, and is useful for accessing the field via an interface.
+func (v *deleteWorkspaceLabelResponse) GetIssueLabelDelete() deleteWorkspaceLabelIssueLabelDeleteArchivePayload {
+	return v.IssueLabelDelete
+}
+
 // findTeamLabelIssueLabelsIssueLabelConnection includes the requested fields of the GraphQL type IssueLabelConnection.
 type findTeamLabelIssueLabelsIssueLabelConnection struct {
 	Nodes []findTeamLabelIssueLabelsIssueLabelConnectionNodesIssueLabel `json:"nodes"`
@@ -832,6 +951,41 @@ type findTeamLabelResponse struct {
 
 // GetIssueLabels returns findTeamLabelResponse.IssueLabels, and is useful for accessing the field via an interface.
 func (v *findTeamLabelResponse) GetIssueLabels() findTeamLabelIssueLabelsIssueLabelConnection {
+	return v.IssueLabels
+}
+
+// findWorkspaceLabelIssueLabelsIssueLabelConnection includes the requested fields of the GraphQL type IssueLabelConnection.
+type findWorkspaceLabelIssueLabelsIssueLabelConnection struct {
+	Nodes []findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel `json:"nodes"`
+}
+
+// GetNodes returns findWorkspaceLabelIssueLabelsIssueLabelConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *findWorkspaceLabelIssueLabelsIssueLabelConnection) GetNodes() []findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel {
+	return v.Nodes
+}
+
+// findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel includes the requested fields of the GraphQL type IssueLabel.
+// The GraphQL type's documentation follows.
+//
+// Labels that can be associated with issues.
+type findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel.Id, and is useful for accessing the field via an interface.
+func (v *findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel) GetId() string {
+	return v.Id
+}
+
+// findWorkspaceLabelResponse is returned by findWorkspaceLabel on success.
+type findWorkspaceLabelResponse struct {
+	// All issue labels.
+	IssueLabels findWorkspaceLabelIssueLabelsIssueLabelConnection `json:"issueLabels"`
+}
+
+// GetIssueLabels returns findWorkspaceLabelResponse.IssueLabels, and is useful for accessing the field via an interface.
+func (v *findWorkspaceLabelResponse) GetIssueLabels() findWorkspaceLabelIssueLabelsIssueLabelConnection {
 	return v.IssueLabels
 }
 
@@ -1033,6 +1187,42 @@ func (v *getTeamTeam) GetIssueEstimationExtended() bool { return v.IssueEstimati
 
 // GetDefaultIssueEstimate returns getTeamTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
+
+// getWorkspaceLabelIssueLabel includes the requested fields of the GraphQL type IssueLabel.
+// The GraphQL type's documentation follows.
+//
+// Labels that can be associated with issues.
+type getWorkspaceLabelIssueLabel struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The label's name.
+	Name string `json:"name"`
+	// The label's description.
+	Description string `json:"description"`
+	// The label's color as a HEX string.
+	Color string `json:"color"`
+}
+
+// GetId returns getWorkspaceLabelIssueLabel.Id, and is useful for accessing the field via an interface.
+func (v *getWorkspaceLabelIssueLabel) GetId() string { return v.Id }
+
+// GetName returns getWorkspaceLabelIssueLabel.Name, and is useful for accessing the field via an interface.
+func (v *getWorkspaceLabelIssueLabel) GetName() string { return v.Name }
+
+// GetDescription returns getWorkspaceLabelIssueLabel.Description, and is useful for accessing the field via an interface.
+func (v *getWorkspaceLabelIssueLabel) GetDescription() string { return v.Description }
+
+// GetColor returns getWorkspaceLabelIssueLabel.Color, and is useful for accessing the field via an interface.
+func (v *getWorkspaceLabelIssueLabel) GetColor() string { return v.Color }
+
+// getWorkspaceLabelResponse is returned by getWorkspaceLabel on success.
+type getWorkspaceLabelResponse struct {
+	// One specific label.
+	IssueLabel getWorkspaceLabelIssueLabel `json:"issueLabel"`
+}
+
+// GetIssueLabel returns getWorkspaceLabelResponse.IssueLabel, and is useful for accessing the field via an interface.
+func (v *getWorkspaceLabelResponse) GetIssueLabel() getWorkspaceLabelIssueLabel { return v.IssueLabel }
 
 // getWorkspaceOrganization includes the requested fields of the GraphQL type Organization.
 // The GraphQL type's documentation follows.
@@ -1316,6 +1506,61 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetDefaultIssueEstimate() float64 
 	return v.DefaultIssueEstimate
 }
 
+// updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
+type updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload struct {
+	// The label that was created or updated.
+	IssueLabel updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel `json:"issueLabel"`
+}
+
+// GetIssueLabel returns updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload.IssueLabel, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload) GetIssueLabel() updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel {
+	return v.IssueLabel
+}
+
+// updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
+// The GraphQL type's documentation follows.
+//
+// Labels that can be associated with issues.
+type updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The label's name.
+	Name string `json:"name"`
+	// The label's description.
+	Description string `json:"description"`
+	// The label's color as a HEX string.
+	Color string `json:"color"`
+}
+
+// GetId returns updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Id, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetId() string { return v.Id }
+
+// GetName returns updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Name, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetName() string {
+	return v.Name
+}
+
+// GetDescription returns updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Description, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetDescription() string {
+	return v.Description
+}
+
+// GetColor returns updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Color, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetColor() string {
+	return v.Color
+}
+
+// updateWorkspaceLabelResponse is returned by updateWorkspaceLabel on success.
+type updateWorkspaceLabelResponse struct {
+	// Updates an label.
+	IssueLabelUpdate updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload `json:"issueLabelUpdate"`
+}
+
+// GetIssueLabelUpdate returns updateWorkspaceLabelResponse.IssueLabelUpdate, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceLabelResponse) GetIssueLabelUpdate() updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload {
+	return v.IssueLabelUpdate
+}
+
 func createTeam(
 	ctx context.Context,
 	client graphql.Client,
@@ -1415,6 +1660,43 @@ mutation createTeamLabel ($input: IssueLabelCreateInput!) {
 	return &data, err
 }
 
+func createWorkspaceLabel(
+	ctx context.Context,
+	client graphql.Client,
+	input IssueLabelCreateInput,
+) (*createWorkspaceLabelResponse, error) {
+	req := &graphql.Request{
+		OpName: "createWorkspaceLabel",
+		Query: `
+mutation createWorkspaceLabel ($input: IssueLabelCreateInput!) {
+	issueLabelCreate(input: $input) {
+		issueLabel {
+			id
+			name
+			description
+			color
+		}
+	}
+}
+`,
+		Variables: &__createWorkspaceLabelInput{
+			Input: input,
+		},
+	}
+	var err error
+
+	var data createWorkspaceLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func deleteTeam(
 	ctx context.Context,
 	client graphql.Client,
@@ -1479,6 +1761,38 @@ mutation deleteTeamLabel ($id: String!) {
 	return &data, err
 }
 
+func deleteWorkspaceLabel(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*deleteWorkspaceLabelResponse, error) {
+	req := &graphql.Request{
+		OpName: "deleteWorkspaceLabel",
+		Query: `
+mutation deleteWorkspaceLabel ($id: String!) {
+	issueLabelDelete(id: $id) {
+		success
+	}
+}
+`,
+		Variables: &__deleteWorkspaceLabelInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data deleteWorkspaceLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func findTeamLabel(
 	ctx context.Context,
 	client graphql.Client,
@@ -1504,6 +1818,40 @@ query findTeamLabel ($name: String!, $key: String!) {
 	var err error
 
 	var data findTeamLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func findWorkspaceLabel(
+	ctx context.Context,
+	client graphql.Client,
+	name string,
+) (*findWorkspaceLabelResponse, error) {
+	req := &graphql.Request{
+		OpName: "findWorkspaceLabel",
+		Query: `
+query findWorkspaceLabel ($name: String!) {
+	issueLabels(filter: {name:{eq:$name}}) {
+		nodes {
+			id
+		}
+	}
+}
+`,
+		Variables: &__findWorkspaceLabelInput{
+			Name: name,
+		},
+	}
+	var err error
+
+	var data findWorkspaceLabelResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -1640,6 +1988,41 @@ query getWorkspace {
 	return &data, err
 }
 
+func getWorkspaceLabel(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*getWorkspaceLabelResponse, error) {
+	req := &graphql.Request{
+		OpName: "getWorkspaceLabel",
+		Query: `
+query getWorkspaceLabel ($id: String!) {
+	issueLabel(id: $id) {
+		id
+		name
+		description
+		color
+	}
+}
+`,
+		Variables: &__getWorkspaceLabelInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data getWorkspaceLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func updateTeam(
 	ctx context.Context,
 	client graphql.Client,
@@ -1732,6 +2115,45 @@ mutation updateTeamLabel ($input: IssueLabelUpdateInput!, $id: String!) {
 	var err error
 
 	var data updateTeamLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func updateWorkspaceLabel(
+	ctx context.Context,
+	client graphql.Client,
+	input IssueLabelUpdateInput,
+	id string,
+) (*updateWorkspaceLabelResponse, error) {
+	req := &graphql.Request{
+		OpName: "updateWorkspaceLabel",
+		Query: `
+mutation updateWorkspaceLabel ($input: IssueLabelUpdateInput!, $id: String!) {
+	issueLabelUpdate(input: $input, id: $id) {
+		issueLabel {
+			id
+			name
+			description
+			color
+		}
+	}
+}
+`,
+		Variables: &__updateWorkspaceLabelInput{
+			Input: input,
+			Id:    id,
+		},
+	}
+	var err error
+
+	var data updateWorkspaceLabelResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

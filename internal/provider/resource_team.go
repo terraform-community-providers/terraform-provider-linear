@@ -89,6 +89,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					validators.MinLength(1),
+					validators.NoWhitespace(),
 				},
 			},
 			"name": {
