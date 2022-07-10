@@ -1,0 +1,80 @@
+query getWorkflowState($id: String!) {
+  workflowState(id: $id) {
+    id
+    name
+    description
+    color
+    type
+    position
+    team {
+      id
+    }
+  }
+}
+
+query findWorkflowState($name: String!, $key: String!) {
+  workflowStates(filter: {
+    name: {
+      eq: $name
+    },
+    team: {
+      key: {
+        eq: $key
+      }
+    }
+  }) {
+    nodes {
+      id
+    }
+  }
+}
+
+# @genqlient(for: "WorkflowStateCreateInput.id", omitempty: true)
+# @genqlient(for: "WorkflowStateCreateInput.description", omitempty: true)
+# @genqlient(for: "WorkflowStateCreateInput.position", omitempty: true)
+mutation createWorkflowState(
+  $input: WorkflowStateCreateInput!
+) {
+  workflowStateCreate(input: $input) {
+    workflowState {
+      id
+      name
+      description
+      color
+      type
+      position
+      team {
+        id
+      }
+    }
+  }
+}
+
+# @genqlient(for: "WorkflowStateUpdateInput.name", omitempty: true)
+# @genqlient(for: "WorkflowStateUpdateInput.description", omitempty: true)
+# @genqlient(for: "WorkflowStateUpdateInput.color", omitempty: true)
+# @genqlient(for: "WorkflowStateUpdateInput.position", omitempty: true)
+mutation updateWorkflowState(
+  $input: WorkflowStateUpdateInput!,
+  $id: String!
+) {
+  workflowStateUpdate(input: $input, id: $id) {
+    workflowState {
+      id
+      name
+      description
+      color
+      type
+      position
+      team {
+        id
+      }
+    }
+  }
+}
+
+# mutation deleteWorkflowState($id: String!) {
+#   workflowStateDelete(id: $id) {
+#     success
+#   }
+# }

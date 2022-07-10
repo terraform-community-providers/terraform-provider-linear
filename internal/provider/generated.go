@@ -429,6 +429,67 @@ func (v *TeamUpdateInput) GetMarkedAsDuplicateWorkflowStateId() string {
 	return v.MarkedAsDuplicateWorkflowStateId
 }
 
+type WorkflowStateCreateInput struct {
+	// The identifier. If none is provided, the backend will generate one.
+	Id string `json:"id,omitempty"`
+	// The workflow type.
+	Type string `json:"type"`
+	// The name of the state.
+	Name string `json:"name"`
+	// The color of the state.
+	Color string `json:"color"`
+	// The description of the state.
+	Description string `json:"description,omitempty"`
+	// The position of the state.
+	Position float64 `json:"position,omitempty"`
+	// The team associated with the state.
+	TeamId string `json:"teamId"`
+}
+
+// GetId returns WorkflowStateCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *WorkflowStateCreateInput) GetId() string { return v.Id }
+
+// GetType returns WorkflowStateCreateInput.Type, and is useful for accessing the field via an interface.
+func (v *WorkflowStateCreateInput) GetType() string { return v.Type }
+
+// GetName returns WorkflowStateCreateInput.Name, and is useful for accessing the field via an interface.
+func (v *WorkflowStateCreateInput) GetName() string { return v.Name }
+
+// GetColor returns WorkflowStateCreateInput.Color, and is useful for accessing the field via an interface.
+func (v *WorkflowStateCreateInput) GetColor() string { return v.Color }
+
+// GetDescription returns WorkflowStateCreateInput.Description, and is useful for accessing the field via an interface.
+func (v *WorkflowStateCreateInput) GetDescription() string { return v.Description }
+
+// GetPosition returns WorkflowStateCreateInput.Position, and is useful for accessing the field via an interface.
+func (v *WorkflowStateCreateInput) GetPosition() float64 { return v.Position }
+
+// GetTeamId returns WorkflowStateCreateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *WorkflowStateCreateInput) GetTeamId() string { return v.TeamId }
+
+type WorkflowStateUpdateInput struct {
+	// The name of the state.
+	Name string `json:"name,omitempty"`
+	// The color of the state.
+	Color string `json:"color,omitempty"`
+	// The description of the state.
+	Description string `json:"description,omitempty"`
+	// The position of the state.
+	Position float64 `json:"position,omitempty"`
+}
+
+// GetName returns WorkflowStateUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *WorkflowStateUpdateInput) GetName() string { return v.Name }
+
+// GetColor returns WorkflowStateUpdateInput.Color, and is useful for accessing the field via an interface.
+func (v *WorkflowStateUpdateInput) GetColor() string { return v.Color }
+
+// GetDescription returns WorkflowStateUpdateInput.Description, and is useful for accessing the field via an interface.
+func (v *WorkflowStateUpdateInput) GetDescription() string { return v.Description }
+
+// GetPosition returns WorkflowStateUpdateInput.Position, and is useful for accessing the field via an interface.
+func (v *WorkflowStateUpdateInput) GetPosition() float64 { return v.Position }
+
 // __createTeamInput is used internally by genqlient
 type __createTeamInput struct {
 	Input TeamCreateInput `json:"input"`
@@ -444,6 +505,14 @@ type __createTeamLabelInput struct {
 
 // GetInput returns __createTeamLabelInput.Input, and is useful for accessing the field via an interface.
 func (v *__createTeamLabelInput) GetInput() IssueLabelCreateInput { return v.Input }
+
+// __createWorkflowStateInput is used internally by genqlient
+type __createWorkflowStateInput struct {
+	Input WorkflowStateCreateInput `json:"input"`
+}
+
+// GetInput returns __createWorkflowStateInput.Input, and is useful for accessing the field via an interface.
+func (v *__createWorkflowStateInput) GetInput() WorkflowStateCreateInput { return v.Input }
 
 // __createWorkspaceLabelInput is used internally by genqlient
 type __createWorkspaceLabelInput struct {
@@ -489,6 +558,18 @@ func (v *__findTeamLabelInput) GetName() string { return v.Name }
 // GetKey returns __findTeamLabelInput.Key, and is useful for accessing the field via an interface.
 func (v *__findTeamLabelInput) GetKey() string { return v.Key }
 
+// __findWorkflowStateInput is used internally by genqlient
+type __findWorkflowStateInput struct {
+	Name string `json:"name"`
+	Key  string `json:"key"`
+}
+
+// GetName returns __findWorkflowStateInput.Name, and is useful for accessing the field via an interface.
+func (v *__findWorkflowStateInput) GetName() string { return v.Name }
+
+// GetKey returns __findWorkflowStateInput.Key, and is useful for accessing the field via an interface.
+func (v *__findWorkflowStateInput) GetKey() string { return v.Key }
+
 // __findWorkspaceLabelInput is used internally by genqlient
 type __findWorkspaceLabelInput struct {
 	Name string `json:"name"`
@@ -512,6 +593,14 @@ type __getTeamLabelInput struct {
 
 // GetId returns __getTeamLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__getTeamLabelInput) GetId() string { return v.Id }
+
+// __getWorkflowStateInput is used internally by genqlient
+type __getWorkflowStateInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __getWorkflowStateInput.Id, and is useful for accessing the field via an interface.
+func (v *__getWorkflowStateInput) GetId() string { return v.Id }
 
 // __getWorkspaceLabelInput is used internally by genqlient
 type __getWorkspaceLabelInput struct {
@@ -544,6 +633,18 @@ func (v *__updateTeamLabelInput) GetInput() IssueLabelUpdateInput { return v.Inp
 
 // GetId returns __updateTeamLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__updateTeamLabelInput) GetId() string { return v.Id }
+
+// __updateWorkflowStateInput is used internally by genqlient
+type __updateWorkflowStateInput struct {
+	Input WorkflowStateUpdateInput `json:"input"`
+	Id    string                   `json:"id"`
+}
+
+// GetInput returns __updateWorkflowStateInput.Input, and is useful for accessing the field via an interface.
+func (v *__updateWorkflowStateInput) GetInput() WorkflowStateUpdateInput { return v.Input }
+
+// GetId returns __updateWorkflowStateInput.Id, and is useful for accessing the field via an interface.
+func (v *__updateWorkflowStateInput) GetId() string { return v.Id }
 
 // __updateWorkspaceLabelInput is used internally by genqlient
 type __updateWorkspaceLabelInput struct {
@@ -808,6 +909,98 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetDefaultIssueEstimate() float64 
 	return v.DefaultIssueEstimate
 }
 
+// createWorkflowStateResponse is returned by createWorkflowState on success.
+type createWorkflowStateResponse struct {
+	// Creates a new state, adding it to the workflow of a team.
+	WorkflowStateCreate createWorkflowStateWorkflowStateCreateWorkflowStatePayload `json:"workflowStateCreate"`
+}
+
+// GetWorkflowStateCreate returns createWorkflowStateResponse.WorkflowStateCreate, and is useful for accessing the field via an interface.
+func (v *createWorkflowStateResponse) GetWorkflowStateCreate() createWorkflowStateWorkflowStateCreateWorkflowStatePayload {
+	return v.WorkflowStateCreate
+}
+
+// createWorkflowStateWorkflowStateCreateWorkflowStatePayload includes the requested fields of the GraphQL type WorkflowStatePayload.
+type createWorkflowStateWorkflowStateCreateWorkflowStatePayload struct {
+	// The state that was created or updated.
+	WorkflowState createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState `json:"workflowState"`
+}
+
+// GetWorkflowState returns createWorkflowStateWorkflowStateCreateWorkflowStatePayload.WorkflowState, and is useful for accessing the field via an interface.
+func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayload) GetWorkflowState() createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState {
+	return v.WorkflowState
+}
+
+// createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The state's name.
+	Name string `json:"name"`
+	// Description of the state.
+	Description string `json:"description"`
+	// The state's UI color as a HEX string.
+	Color string `json:"color"`
+	// The type of the state.
+	Type string `json:"type"`
+	// The position of the state in the team flow.
+	Position float64 `json:"position"`
+	// The team to which this state belongs to.
+	Team createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowStateTeam `json:"team"`
+}
+
+// GetId returns createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState) GetId() string {
+	return v.Id
+}
+
+// GetName returns createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState.Name, and is useful for accessing the field via an interface.
+func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState) GetName() string {
+	return v.Name
+}
+
+// GetDescription returns createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState.Description, and is useful for accessing the field via an interface.
+func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState) GetDescription() string {
+	return v.Description
+}
+
+// GetColor returns createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState.Color, and is useful for accessing the field via an interface.
+func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState) GetColor() string {
+	return v.Color
+}
+
+// GetType returns createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState.Type, and is useful for accessing the field via an interface.
+func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState) GetType() string {
+	return v.Type
+}
+
+// GetPosition returns createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState.Position, and is useful for accessing the field via an interface.
+func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState) GetPosition() float64 {
+	return v.Position
+}
+
+// GetTeam returns createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState.Team, and is useful for accessing the field via an interface.
+func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState) GetTeam() createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowStateTeam {
+	return v.Team
+}
+
+// createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowStateTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowStateTeam struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowStateTeam.Id, and is useful for accessing the field via an interface.
+func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowStateTeam) GetId() string {
+	return v.Id
+}
+
 // createWorkspaceLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
 type createWorkspaceLabelIssueLabelCreateIssueLabelPayload struct {
 	// The label that was created or updated.
@@ -952,6 +1145,41 @@ type findTeamLabelResponse struct {
 // GetIssueLabels returns findTeamLabelResponse.IssueLabels, and is useful for accessing the field via an interface.
 func (v *findTeamLabelResponse) GetIssueLabels() findTeamLabelIssueLabelsIssueLabelConnection {
 	return v.IssueLabels
+}
+
+// findWorkflowStateResponse is returned by findWorkflowState on success.
+type findWorkflowStateResponse struct {
+	// All issue workflow states.
+	WorkflowStates findWorkflowStateWorkflowStatesWorkflowStateConnection `json:"workflowStates"`
+}
+
+// GetWorkflowStates returns findWorkflowStateResponse.WorkflowStates, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateResponse) GetWorkflowStates() findWorkflowStateWorkflowStatesWorkflowStateConnection {
+	return v.WorkflowStates
+}
+
+// findWorkflowStateWorkflowStatesWorkflowStateConnection includes the requested fields of the GraphQL type WorkflowStateConnection.
+type findWorkflowStateWorkflowStatesWorkflowStateConnection struct {
+	Nodes []findWorkflowStateWorkflowStatesWorkflowStateConnectionNodesWorkflowState `json:"nodes"`
+}
+
+// GetNodes returns findWorkflowStateWorkflowStatesWorkflowStateConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateWorkflowStatesWorkflowStateConnection) GetNodes() []findWorkflowStateWorkflowStatesWorkflowStateConnectionNodesWorkflowState {
+	return v.Nodes
+}
+
+// findWorkflowStateWorkflowStatesWorkflowStateConnectionNodesWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type findWorkflowStateWorkflowStatesWorkflowStateConnectionNodesWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns findWorkflowStateWorkflowStatesWorkflowStateConnectionNodesWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateWorkflowStatesWorkflowStateConnectionNodesWorkflowState) GetId() string {
+	return v.Id
 }
 
 // findWorkspaceLabelIssueLabelsIssueLabelConnection includes the requested fields of the GraphQL type IssueLabelConnection.
@@ -1187,6 +1415,71 @@ func (v *getTeamTeam) GetIssueEstimationExtended() bool { return v.IssueEstimati
 
 // GetDefaultIssueEstimate returns getTeamTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
+
+// getWorkflowStateResponse is returned by getWorkflowState on success.
+type getWorkflowStateResponse struct {
+	// One specific state.
+	WorkflowState getWorkflowStateWorkflowState `json:"workflowState"`
+}
+
+// GetWorkflowState returns getWorkflowStateResponse.WorkflowState, and is useful for accessing the field via an interface.
+func (v *getWorkflowStateResponse) GetWorkflowState() getWorkflowStateWorkflowState {
+	return v.WorkflowState
+}
+
+// getWorkflowStateWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type getWorkflowStateWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The state's name.
+	Name string `json:"name"`
+	// Description of the state.
+	Description string `json:"description"`
+	// The state's UI color as a HEX string.
+	Color string `json:"color"`
+	// The type of the state.
+	Type string `json:"type"`
+	// The position of the state in the team flow.
+	Position float64 `json:"position"`
+	// The team to which this state belongs to.
+	Team getWorkflowStateWorkflowStateTeam `json:"team"`
+}
+
+// GetId returns getWorkflowStateWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *getWorkflowStateWorkflowState) GetId() string { return v.Id }
+
+// GetName returns getWorkflowStateWorkflowState.Name, and is useful for accessing the field via an interface.
+func (v *getWorkflowStateWorkflowState) GetName() string { return v.Name }
+
+// GetDescription returns getWorkflowStateWorkflowState.Description, and is useful for accessing the field via an interface.
+func (v *getWorkflowStateWorkflowState) GetDescription() string { return v.Description }
+
+// GetColor returns getWorkflowStateWorkflowState.Color, and is useful for accessing the field via an interface.
+func (v *getWorkflowStateWorkflowState) GetColor() string { return v.Color }
+
+// GetType returns getWorkflowStateWorkflowState.Type, and is useful for accessing the field via an interface.
+func (v *getWorkflowStateWorkflowState) GetType() string { return v.Type }
+
+// GetPosition returns getWorkflowStateWorkflowState.Position, and is useful for accessing the field via an interface.
+func (v *getWorkflowStateWorkflowState) GetPosition() float64 { return v.Position }
+
+// GetTeam returns getWorkflowStateWorkflowState.Team, and is useful for accessing the field via an interface.
+func (v *getWorkflowStateWorkflowState) GetTeam() getWorkflowStateWorkflowStateTeam { return v.Team }
+
+// getWorkflowStateWorkflowStateTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type getWorkflowStateWorkflowStateTeam struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns getWorkflowStateWorkflowStateTeam.Id, and is useful for accessing the field via an interface.
+func (v *getWorkflowStateWorkflowStateTeam) GetId() string { return v.Id }
 
 // getWorkspaceLabelIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
@@ -1506,6 +1799,98 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetDefaultIssueEstimate() float64 
 	return v.DefaultIssueEstimate
 }
 
+// updateWorkflowStateResponse is returned by updateWorkflowState on success.
+type updateWorkflowStateResponse struct {
+	// Updates a state.
+	WorkflowStateUpdate updateWorkflowStateWorkflowStateUpdateWorkflowStatePayload `json:"workflowStateUpdate"`
+}
+
+// GetWorkflowStateUpdate returns updateWorkflowStateResponse.WorkflowStateUpdate, and is useful for accessing the field via an interface.
+func (v *updateWorkflowStateResponse) GetWorkflowStateUpdate() updateWorkflowStateWorkflowStateUpdateWorkflowStatePayload {
+	return v.WorkflowStateUpdate
+}
+
+// updateWorkflowStateWorkflowStateUpdateWorkflowStatePayload includes the requested fields of the GraphQL type WorkflowStatePayload.
+type updateWorkflowStateWorkflowStateUpdateWorkflowStatePayload struct {
+	// The state that was created or updated.
+	WorkflowState updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState `json:"workflowState"`
+}
+
+// GetWorkflowState returns updateWorkflowStateWorkflowStateUpdateWorkflowStatePayload.WorkflowState, and is useful for accessing the field via an interface.
+func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayload) GetWorkflowState() updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState {
+	return v.WorkflowState
+}
+
+// updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The state's name.
+	Name string `json:"name"`
+	// Description of the state.
+	Description string `json:"description"`
+	// The state's UI color as a HEX string.
+	Color string `json:"color"`
+	// The type of the state.
+	Type string `json:"type"`
+	// The position of the state in the team flow.
+	Position float64 `json:"position"`
+	// The team to which this state belongs to.
+	Team updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowStateTeam `json:"team"`
+}
+
+// GetId returns updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState) GetId() string {
+	return v.Id
+}
+
+// GetName returns updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState.Name, and is useful for accessing the field via an interface.
+func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState) GetName() string {
+	return v.Name
+}
+
+// GetDescription returns updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState.Description, and is useful for accessing the field via an interface.
+func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState) GetDescription() string {
+	return v.Description
+}
+
+// GetColor returns updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState.Color, and is useful for accessing the field via an interface.
+func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState) GetColor() string {
+	return v.Color
+}
+
+// GetType returns updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState.Type, and is useful for accessing the field via an interface.
+func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState) GetType() string {
+	return v.Type
+}
+
+// GetPosition returns updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState.Position, and is useful for accessing the field via an interface.
+func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState) GetPosition() float64 {
+	return v.Position
+}
+
+// GetTeam returns updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState.Team, and is useful for accessing the field via an interface.
+func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState) GetTeam() updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowStateTeam {
+	return v.Team
+}
+
+// updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowStateTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowStateTeam struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowStateTeam.Id, and is useful for accessing the field via an interface.
+func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowStateTeam) GetId() string {
+	return v.Id
+}
+
 // updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
 type updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload struct {
 	// The label that was created or updated.
@@ -1649,6 +2034,48 @@ mutation createTeamLabel ($input: IssueLabelCreateInput!) {
 	var err error
 
 	var data createTeamLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func createWorkflowState(
+	ctx context.Context,
+	client graphql.Client,
+	input WorkflowStateCreateInput,
+) (*createWorkflowStateResponse, error) {
+	req := &graphql.Request{
+		OpName: "createWorkflowState",
+		Query: `
+mutation createWorkflowState ($input: WorkflowStateCreateInput!) {
+	workflowStateCreate(input: $input) {
+		workflowState {
+			id
+			name
+			description
+			color
+			type
+			position
+			team {
+				id
+			}
+		}
+	}
+}
+`,
+		Variables: &__createWorkflowStateInput{
+			Input: input,
+		},
+	}
+	var err error
+
+	var data createWorkflowStateResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -1829,6 +2256,42 @@ query findTeamLabel ($name: String!, $key: String!) {
 	return &data, err
 }
 
+func findWorkflowState(
+	ctx context.Context,
+	client graphql.Client,
+	name string,
+	key string,
+) (*findWorkflowStateResponse, error) {
+	req := &graphql.Request{
+		OpName: "findWorkflowState",
+		Query: `
+query findWorkflowState ($name: String!, $key: String!) {
+	workflowStates(filter: {name:{eq:$name},team:{key:{eq:$key}}}) {
+		nodes {
+			id
+		}
+	}
+}
+`,
+		Variables: &__findWorkflowStateInput{
+			Name: name,
+			Key:  key,
+		},
+	}
+	var err error
+
+	var data findWorkflowStateResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func findWorkspaceLabel(
 	ctx context.Context,
 	client graphql.Client,
@@ -1947,6 +2410,46 @@ query getTeamLabel ($id: String!) {
 	var err error
 
 	var data getTeamLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func getWorkflowState(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*getWorkflowStateResponse, error) {
+	req := &graphql.Request{
+		OpName: "getWorkflowState",
+		Query: `
+query getWorkflowState ($id: String!) {
+	workflowState(id: $id) {
+		id
+		name
+		description
+		color
+		type
+		position
+		team {
+			id
+		}
+	}
+}
+`,
+		Variables: &__getWorkflowStateInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data getWorkflowStateResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2115,6 +2618,50 @@ mutation updateTeamLabel ($input: IssueLabelUpdateInput!, $id: String!) {
 	var err error
 
 	var data updateTeamLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func updateWorkflowState(
+	ctx context.Context,
+	client graphql.Client,
+	input WorkflowStateUpdateInput,
+	id string,
+) (*updateWorkflowStateResponse, error) {
+	req := &graphql.Request{
+		OpName: "updateWorkflowState",
+		Query: `
+mutation updateWorkflowState ($input: WorkflowStateUpdateInput!, $id: String!) {
+	workflowStateUpdate(input: $input, id: $id) {
+		workflowState {
+			id
+			name
+			description
+			color
+			type
+			position
+			team {
+				id
+			}
+		}
+	}
+}
+`,
+		Variables: &__updateWorkflowStateInput{
+			Input: input,
+			Id:    id,
+		},
+	}
+	var err error
+
+	var data updateWorkflowStateResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

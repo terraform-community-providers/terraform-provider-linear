@@ -98,6 +98,7 @@ func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceT
 	return map[string]tfsdk.ResourceType{
 		"linear_team":            teamResourceType{},
 		"linear_team_label":      teamLabelResourceType{},
+		"linear_workflow_state":  workflowStateResourceType{},
 		"linear_workspace_label": workspaceLabelResourceType{},
 	}, nil
 }
