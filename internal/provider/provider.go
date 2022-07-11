@@ -105,10 +105,11 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 
 func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
 	return map[string]tfsdk.ResourceType{
-		"linear_team":            teamResourceType{},
-		"linear_team_label":      teamLabelResourceType{},
-		"linear_workflow_state":  workflowStateResourceType{},
-		"linear_workspace_label": workspaceLabelResourceType{},
+		"linear_team":               teamResourceType{},
+		"linear_team_label":         teamLabelResourceType{},
+		"linear_workflow_state":     workflowStateResourceType{},
+		"linear_workspace_label":    workspaceLabelResourceType{},
+		"linear_workspace_settings": workspaceSettingsResourceType{},
 	}, nil
 }
 

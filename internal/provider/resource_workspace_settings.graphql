@@ -1,0 +1,30 @@
+query getWorkspaceSettings {
+  organization {
+    id
+    roadmapEnabled
+    gitLinkbackMessagesEnabled
+    gitPublicLinkbackMessagesEnabled
+  }
+}
+
+# @genqlient(for: "UpdateOrganizationInput.name", omitempty: true)
+# @genqlient(for: "UpdateOrganizationInput.urlKey", omitempty: true)
+# @genqlient(for: "UpdateOrganizationInput.logoUrl", omitempty: true)
+# @genqlient(for: "UpdateOrganizationInput.gitBranchFormat", omitempty: true)
+# @genqlient(for: "UpdateOrganizationInput.projectUpdatesEnabled", omitempty: true)
+# @genqlient(for: "UpdateOrganizationInput.projectUpdatesReminderFrequency", omitempty: true)
+# @genqlient(for: "UpdateOrganizationInput.reducedPersonalInformation", omitempty: true)
+# @genqlient(for: "UpdateOrganizationInput.linearPreviewFlags", omitempty: true)
+# @genqlient(for: "UpdateOrganizationInput.allowedAuthServices", omitempty: true)
+mutation updateWorkspaceSettings(
+  $input: UpdateOrganizationInput!,
+) {
+  organizationUpdate(input: $input) {
+    organization {
+      id
+      roadmapEnabled
+      gitLinkbackMessagesEnabled
+      gitPublicLinkbackMessagesEnabled
+    }
+  }
+}

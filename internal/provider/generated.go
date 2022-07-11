@@ -54,6 +54,15 @@ func (v *IssueLabelUpdateInput) GetDescription() string { return v.Description }
 // GetColor returns IssueLabelUpdateInput.Color, and is useful for accessing the field via an interface.
 func (v *IssueLabelUpdateInput) GetColor() string { return v.Color }
 
+// The frequency at which to send project update reminders.
+type ProjectUpdateReminderFrequency string
+
+const (
+	ProjectUpdateReminderFrequencyWeek     ProjectUpdateReminderFrequency = "week"
+	ProjectUpdateReminderFrequencyTwoweeks ProjectUpdateReminderFrequency = "twoWeeks"
+	ProjectUpdateReminderFrequencyNever    ProjectUpdateReminderFrequency = "never"
+)
+
 type TeamCreateInput struct {
 	// The identifier. If none is provided, the backend will generate one.
 	Id string `json:"id,omitempty"`
@@ -429,6 +438,79 @@ func (v *TeamUpdateInput) GetMarkedAsDuplicateWorkflowStateId() string {
 	return v.MarkedAsDuplicateWorkflowStateId
 }
 
+type UpdateOrganizationInput struct {
+	// The name of the organization.
+	Name string `json:"name,omitempty"`
+	// The logo of the organization.
+	LogoUrl string `json:"logoUrl,omitempty"`
+	// The URL key of the organization.
+	UrlKey string `json:"urlKey,omitempty"`
+	// How git branches are formatted. If null, default formatting will be used.
+	GitBranchFormat string `json:"gitBranchFormat,omitempty"`
+	// Whether the Git integration linkback messages should be sent for private repositories.
+	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
+	// Whether the Git integration linkback messages should be sent for public repositories.
+	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+	// Whether the organization is using project milestones.
+	RoadmapEnabled bool `json:"roadmapEnabled"`
+	// Whether the organization is using project updates.
+	ProjectUpdatesEnabled bool `json:"projectUpdatesEnabled,omitempty"`
+	// The frequency at which project updates are sent.
+	ProjectUpdatesReminderFrequency ProjectUpdateReminderFrequency `json:"projectUpdatesReminderFrequency,omitempty"`
+	// Whether the organization has opted for reduced customer support attachment information.
+	ReducedPersonalInformation bool `json:"reducedPersonalInformation,omitempty"`
+	// Linear Preview feature flags
+	LinearPreviewFlags map[string]interface{} `json:"linearPreviewFlags,omitempty"`
+	// List of services that are allowed to be used for login.
+	AllowedAuthServices []string `json:"allowedAuthServices,omitempty"`
+}
+
+// GetName returns UpdateOrganizationInput.Name, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetName() string { return v.Name }
+
+// GetLogoUrl returns UpdateOrganizationInput.LogoUrl, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetLogoUrl() string { return v.LogoUrl }
+
+// GetUrlKey returns UpdateOrganizationInput.UrlKey, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetUrlKey() string { return v.UrlKey }
+
+// GetGitBranchFormat returns UpdateOrganizationInput.GitBranchFormat, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetGitBranchFormat() string { return v.GitBranchFormat }
+
+// GetGitLinkbackMessagesEnabled returns UpdateOrganizationInput.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetGitLinkbackMessagesEnabled() bool {
+	return v.GitLinkbackMessagesEnabled
+}
+
+// GetGitPublicLinkbackMessagesEnabled returns UpdateOrganizationInput.GitPublicLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetGitPublicLinkbackMessagesEnabled() bool {
+	return v.GitPublicLinkbackMessagesEnabled
+}
+
+// GetRoadmapEnabled returns UpdateOrganizationInput.RoadmapEnabled, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
+
+// GetProjectUpdatesEnabled returns UpdateOrganizationInput.ProjectUpdatesEnabled, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetProjectUpdatesEnabled() bool { return v.ProjectUpdatesEnabled }
+
+// GetProjectUpdatesReminderFrequency returns UpdateOrganizationInput.ProjectUpdatesReminderFrequency, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetProjectUpdatesReminderFrequency() ProjectUpdateReminderFrequency {
+	return v.ProjectUpdatesReminderFrequency
+}
+
+// GetReducedPersonalInformation returns UpdateOrganizationInput.ReducedPersonalInformation, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetReducedPersonalInformation() bool {
+	return v.ReducedPersonalInformation
+}
+
+// GetLinearPreviewFlags returns UpdateOrganizationInput.LinearPreviewFlags, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetLinearPreviewFlags() map[string]interface{} {
+	return v.LinearPreviewFlags
+}
+
+// GetAllowedAuthServices returns UpdateOrganizationInput.AllowedAuthServices, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetAllowedAuthServices() []string { return v.AllowedAuthServices }
+
 type WorkflowStateCreateInput struct {
 	// The identifier. If none is provided, the backend will generate one.
 	Id string `json:"id,omitempty"`
@@ -657,6 +739,14 @@ func (v *__updateWorkspaceLabelInput) GetInput() IssueLabelUpdateInput { return 
 
 // GetId returns __updateWorkspaceLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__updateWorkspaceLabelInput) GetId() string { return v.Id }
+
+// __updateWorkspaceSettingsInput is used internally by genqlient
+type __updateWorkspaceSettingsInput struct {
+	Input UpdateOrganizationInput `json:"input"`
+}
+
+// GetInput returns __updateWorkspaceSettingsInput.Input, and is useful for accessing the field via an interface.
+func (v *__updateWorkspaceSettingsInput) GetInput() UpdateOrganizationInput { return v.Input }
 
 // createTeamLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
 type createTeamLabelIssueLabelCreateIssueLabelPayload struct {
@@ -1548,6 +1638,48 @@ type getWorkspaceResponse struct {
 // GetOrganization returns getWorkspaceResponse.Organization, and is useful for accessing the field via an interface.
 func (v *getWorkspaceResponse) GetOrganization() getWorkspaceOrganization { return v.Organization }
 
+// getWorkspaceSettingsOrganization includes the requested fields of the GraphQL type Organization.
+// The GraphQL type's documentation follows.
+//
+// An organization. Organizations are root-level objects that contain user accounts and teams.
+type getWorkspaceSettingsOrganization struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// Whether the organization is using a roadmap.
+	RoadmapEnabled bool `json:"roadmapEnabled"`
+	// Whether the Git integration linkback messages should be sent to private repositories.
+	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
+	// Whether the Git integration linkback messages should be sent to public repositories.
+	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+}
+
+// GetId returns getWorkspaceSettingsOrganization.Id, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetId() string { return v.Id }
+
+// GetRoadmapEnabled returns getWorkspaceSettingsOrganization.RoadmapEnabled, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
+
+// GetGitLinkbackMessagesEnabled returns getWorkspaceSettingsOrganization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetGitLinkbackMessagesEnabled() bool {
+	return v.GitLinkbackMessagesEnabled
+}
+
+// GetGitPublicLinkbackMessagesEnabled returns getWorkspaceSettingsOrganization.GitPublicLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetGitPublicLinkbackMessagesEnabled() bool {
+	return v.GitPublicLinkbackMessagesEnabled
+}
+
+// getWorkspaceSettingsResponse is returned by getWorkspaceSettings on success.
+type getWorkspaceSettingsResponse struct {
+	// The user's organization.
+	Organization getWorkspaceSettingsOrganization `json:"organization"`
+}
+
+// GetOrganization returns getWorkspaceSettingsResponse.Organization, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsResponse) GetOrganization() getWorkspaceSettingsOrganization {
+	return v.Organization
+}
+
 // updateTeamLabelIssueLabelUpdateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
 type updateTeamLabelIssueLabelUpdateIssueLabelPayload struct {
 	// The label that was created or updated.
@@ -1944,6 +2076,63 @@ type updateWorkspaceLabelResponse struct {
 // GetIssueLabelUpdate returns updateWorkspaceLabelResponse.IssueLabelUpdate, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceLabelResponse) GetIssueLabelUpdate() updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload {
 	return v.IssueLabelUpdate
+}
+
+// updateWorkspaceSettingsOrganizationUpdateOrganizationPayload includes the requested fields of the GraphQL type OrganizationPayload.
+type updateWorkspaceSettingsOrganizationUpdateOrganizationPayload struct {
+	// The organization that was created or updated.
+	Organization updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization `json:"organization"`
+}
+
+// GetOrganization returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayload.Organization, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayload) GetOrganization() updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization {
+	return v.Organization
+}
+
+// updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization includes the requested fields of the GraphQL type Organization.
+// The GraphQL type's documentation follows.
+//
+// An organization. Organizations are root-level objects that contain user accounts and teams.
+type updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// Whether the organization is using a roadmap.
+	RoadmapEnabled bool `json:"roadmapEnabled"`
+	// Whether the Git integration linkback messages should be sent to private repositories.
+	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
+	// Whether the Git integration linkback messages should be sent to public repositories.
+	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+}
+
+// GetId returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.Id, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetId() string {
+	return v.Id
+}
+
+// GetRoadmapEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RoadmapEnabled, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRoadmapEnabled() bool {
+	return v.RoadmapEnabled
+}
+
+// GetGitLinkbackMessagesEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetGitLinkbackMessagesEnabled() bool {
+	return v.GitLinkbackMessagesEnabled
+}
+
+// GetGitPublicLinkbackMessagesEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.GitPublicLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetGitPublicLinkbackMessagesEnabled() bool {
+	return v.GitPublicLinkbackMessagesEnabled
+}
+
+// updateWorkspaceSettingsResponse is returned by updateWorkspaceSettings on success.
+type updateWorkspaceSettingsResponse struct {
+	// Updates the user's organization.
+	OrganizationUpdate updateWorkspaceSettingsOrganizationUpdateOrganizationPayload `json:"organizationUpdate"`
+}
+
+// GetOrganizationUpdate returns updateWorkspaceSettingsResponse.OrganizationUpdate, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsResponse) GetOrganizationUpdate() updateWorkspaceSettingsOrganizationUpdateOrganizationPayload {
+	return v.OrganizationUpdate
 }
 
 func createTeam(
@@ -2526,6 +2715,37 @@ query getWorkspaceLabel ($id: String!) {
 	return &data, err
 }
 
+func getWorkspaceSettings(
+	ctx context.Context,
+	client graphql.Client,
+) (*getWorkspaceSettingsResponse, error) {
+	req := &graphql.Request{
+		OpName: "getWorkspaceSettings",
+		Query: `
+query getWorkspaceSettings {
+	organization {
+		id
+		roadmapEnabled
+		gitLinkbackMessagesEnabled
+		gitPublicLinkbackMessagesEnabled
+	}
+}
+`,
+	}
+	var err error
+
+	var data getWorkspaceSettingsResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func updateTeam(
 	ctx context.Context,
 	client graphql.Client,
@@ -2701,6 +2921,43 @@ mutation updateWorkspaceLabel ($input: IssueLabelUpdateInput!, $id: String!) {
 	var err error
 
 	var data updateWorkspaceLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func updateWorkspaceSettings(
+	ctx context.Context,
+	client graphql.Client,
+	input UpdateOrganizationInput,
+) (*updateWorkspaceSettingsResponse, error) {
+	req := &graphql.Request{
+		OpName: "updateWorkspaceSettings",
+		Query: `
+mutation updateWorkspaceSettings ($input: UpdateOrganizationInput!) {
+	organizationUpdate(input: $input) {
+		organization {
+			id
+			roadmapEnabled
+			gitLinkbackMessagesEnabled
+			gitPublicLinkbackMessagesEnabled
+		}
+	}
+}
+`,
+		Variables: &__updateWorkspaceSettingsInput{
+			Input: input,
+		},
+	}
+	var err error
+
+	var data updateWorkspaceSettingsResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

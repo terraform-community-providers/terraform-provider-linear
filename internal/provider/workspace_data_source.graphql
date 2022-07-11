@@ -1,4 +1,4 @@
-query getWorkspace() {
+query getWorkspace {
   organization {
     id
     urlKey

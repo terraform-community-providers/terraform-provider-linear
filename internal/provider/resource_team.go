@@ -377,26 +377,26 @@ func (r teamResource) Create(ctx context.Context, req tfsdk.CreateResourceReques
 		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.Value,
 	}
 
-	if data.Timezone.IsNull() {
+	if data.Timezone.IsNull() || data.Timezone.IsUnknown() {
 		input.Timezone = "Etc/GMT"
 	} else {
 		input.Timezone = data.Timezone.Value
 	}
 
-	if data.NoPriorityIssuesFirst.IsNull() {
+	if data.NoPriorityIssuesFirst.IsNull() || data.NoPriorityIssuesFirst.IsUnknown() {
 		input.IssueOrderingNoPriorityFirst = true
 	} else {
 		input.IssueOrderingNoPriorityFirst = data.NoPriorityIssuesFirst.Value
 	}
 
-	if data.EnableIssueHistoryGrouping.IsNull() {
+	if data.EnableIssueHistoryGrouping.IsNull() || data.EnableIssueHistoryGrouping.IsUnknown() {
 		input.GroupIssueHistory = true
 	} else {
 		input.GroupIssueHistory = data.EnableIssueHistoryGrouping.Value
 	}
 
 	// #2
-	// if data.AutoArchivePeriod.IsNull() {
+	// if data.AutoArchivePeriod.IsNull() || data.AutoArchivePeriod.IsUnknown() {
 	input.AutoArchivePeriod = 3
 	// } else {
 	// 	input.AutoArchivePeriod = data.AutoArchivePeriod.Value
@@ -413,25 +413,25 @@ func (r teamResource) Create(ctx context.Context, req tfsdk.CreateResourceReques
 		input.CycleLockToActive = data.Cycles.NeedForActive.Value
 	}
 
-	if data.Cycles == nil || data.Cycles.Duration.IsNull() {
+	if data.Cycles == nil || data.Cycles.Duration.IsNull() || data.Cycles.Duration.IsUnknown() {
 		input.CycleDuration = 1
 	} else {
 		input.CycleDuration = int(data.Cycles.Duration.Value)
 	}
 
-	if data.Cycles == nil || data.Cycles.Upcoming.IsNull() {
+	if data.Cycles == nil || data.Cycles.Upcoming.IsNull() || data.Cycles.Upcoming.IsUnknown() {
 		input.UpcomingCycleCount = 2
 	} else {
 		input.UpcomingCycleCount = data.Cycles.Upcoming.Value
 	}
 
-	if data.Cycles == nil || data.Cycles.AutoAddStarted.IsNull() {
+	if data.Cycles == nil || data.Cycles.AutoAddStarted.IsNull() || data.Cycles.AutoAddStarted.IsUnknown() {
 		input.CycleIssueAutoAssignStarted = true
 	} else {
 		input.CycleIssueAutoAssignStarted = data.Cycles.AutoAddStarted.Value
 	}
 
-	if data.Cycles == nil || data.Cycles.AutoAddCompleted.IsNull() {
+	if data.Cycles == nil || data.Cycles.AutoAddCompleted.IsNull() || data.Cycles.AutoAddCompleted.IsUnknown() {
 		input.CycleIssueAutoAssignCompleted = true
 	} else {
 		input.CycleIssueAutoAssignCompleted = data.Cycles.AutoAddCompleted.Value
@@ -442,13 +442,13 @@ func (r teamResource) Create(ctx context.Context, req tfsdk.CreateResourceReques
 		input.IssueEstimationAllowZero = data.Estimation.AllowZero.Value
 	}
 
-	if data.Estimation == nil || data.Estimation.Type.IsNull() {
+	if data.Estimation == nil || data.Estimation.Type.IsNull() || data.Estimation.Type.IsUnknown() {
 		input.IssueEstimationType = "notUsed"
 	} else {
 		input.IssueEstimationType = data.Estimation.Type.Value
 	}
 
-	if data.Estimation == nil || data.Estimation.Default.IsNull() {
+	if data.Estimation == nil || data.Estimation.Default.IsNull() || data.Estimation.Default.IsUnknown() {
 		input.DefaultIssueEstimate = 1
 	} else {
 		input.DefaultIssueEstimate = data.Estimation.Default.Value
