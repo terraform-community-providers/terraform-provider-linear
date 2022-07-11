@@ -58,7 +58,7 @@ func (t teamLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, dia
 					tfsdk.UseStateForUnknown(),
 				},
 				Validators: []tfsdk.AttributeValidator{
-					// TODO: Color value validation
+					validators.Match(colorRegex()),
 				},
 			},
 			"team_id": {
@@ -69,8 +69,7 @@ func (t teamLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, dia
 					tfsdk.RequiresReplace(),
 				},
 				Validators: []tfsdk.AttributeValidator{
-					// TODO: UUID validation
-					validators.MinLength(1),
+					validators.Match(uuidRegex()),
 				},
 			},
 		},

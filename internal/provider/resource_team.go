@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
+	"regexp"
 
 	"github.com/frankgreco/terraform-helpers/validators"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -17,57 +17,6 @@ import (
 var _ tfsdk.ResourceType = teamResourceType{}
 var _ tfsdk.Resource = teamResource{}
 var _ tfsdk.ResourceWithImportState = teamResource{}
-
-const (
-	floatInSliceValidatorErr = "number must be one of [%s]"
-)
-
-type floatInSliceValidator struct {
-	values   []float64
-	errormsg string
-}
-
-func floatInSlice(values ...float64) tfsdk.AttributeValidator {
-	return floatInSliceValidator{
-		values:   values,
-		errormsg: strings.Trim(strings.Replace(fmt.Sprint(values), " ", ", ", -1), "[]"),
-	}
-}
-
-func (v floatInSliceValidator) Description(context.Context) string {
-	return fmt.Sprintf(floatInSliceValidatorErr, v.errormsg)
-}
-
-func (v floatInSliceValidator) MarkdownDescription(context.Context) string {
-	return fmt.Sprintf(floatInSliceValidatorErr, v.errormsg)
-}
-
-func (v floatInSliceValidator) Validate(ctx context.Context, req tfsdk.ValidateAttributeRequest, resp *tfsdk.ValidateAttributeResponse) {
-	var str types.Float64
-	{
-		diags := tfsdk.ValueAs(ctx, req.AttributeConfig, &str)
-		resp.Diagnostics.Append(diags...)
-		if diags.HasError() {
-			return
-		}
-	}
-
-	if str.Unknown || str.Null {
-		return
-	}
-
-	for _, val := range v.values {
-		if val == str.Value {
-			return
-		}
-	}
-
-	resp.Diagnostics.AddAttributeError(
-		req.AttributePath,
-		"Invalid Number",
-		fmt.Sprintf(floatInSliceValidatorErr, v.errormsg),
-	)
-}
 
 type teamResourceType struct{}
 
@@ -89,6 +38,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
 					validators.MinLength(1),
+					validators.MaxLength(5),
 					validators.NoWhitespace(),
 				},
 			},
@@ -127,7 +77,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 					tfsdk.UseStateForUnknown(),
 				},
 				Validators: []tfsdk.AttributeValidator{
-					// TODO: Allow only valid icons
+					validators.Match(regexp.MustCompile("^[a-zA-Z]+$")),
 				},
 			},
 			"color": {
@@ -139,7 +89,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 					tfsdk.UseStateForUnknown(),
 				},
 				Validators: []tfsdk.AttributeValidator{
-					// TODO: Color value validation
+					validators.Match(colorRegex()),
 				},
 			},
 			"timezone": {
@@ -151,7 +101,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 					tfsdk.UseStateForUnknown(),
 				},
 				Validators: []tfsdk.AttributeValidator{
-					// TODO: Allow only valid timezones
+					validators.MinLength(1),
 				},
 			},
 			"no_priority_issues_first": {
@@ -191,7 +141,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 					tfsdk.UseStateForUnknown(),
 				},
 				Validators: []tfsdk.AttributeValidator{
-					floatInSlice(1, 3, 6, 9, 12),
+					validators.FloatInSlice(1, 3, 6, 9, 12),
 				},
 			},
 			"triage": {
@@ -231,7 +181,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 							tfsdk.UseStateForUnknown(),
 						},
 						Validators: []tfsdk.AttributeValidator{
-							floatInSlice(0, 1, 2, 3, 4, 5, 6),
+							validators.FloatInSlice(0, 1, 2, 3, 4, 5, 6),
 						},
 					},
 					"duration": {
@@ -243,7 +193,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 							tfsdk.UseStateForUnknown(),
 						},
 						Validators: []tfsdk.AttributeValidator{
-							floatInSlice(1, 2, 3, 4, 5, 6, 7, 8),
+							validators.FloatInSlice(1, 2, 3, 4, 5, 6, 7, 8),
 						},
 					},
 					"cooldown": {
@@ -255,7 +205,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 							tfsdk.UseStateForUnknown(),
 						},
 						Validators: []tfsdk.AttributeValidator{
-							floatInSlice(0, 1, 2, 3),
+							validators.FloatInSlice(0, 1, 2, 3),
 						},
 					},
 					"upcoming": {
@@ -267,7 +217,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 							tfsdk.UseStateForUnknown(),
 						},
 						Validators: []tfsdk.AttributeValidator{
-							floatInSlice(1, 2, 3, 4, 6, 8, 10),
+							validators.FloatInSlice(1, 2, 3, 4, 6, 8, 10),
 						},
 					},
 					"auto_add_started": {
@@ -346,7 +296,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 							tfsdk.UseStateForUnknown(),
 						},
 						Validators: []tfsdk.AttributeValidator{
-							floatInSlice(0, 1),
+							validators.FloatInSlice(0, 1),
 						},
 					},
 				}),

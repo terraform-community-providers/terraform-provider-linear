@@ -65,8 +65,8 @@ func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema,
 				MarkdownDescription: "Color of the workflow state.",
 				Type:                types.StringType,
 				Required:            true,
-				Validators:          []tfsdk.AttributeValidator{
-					// TODO: Color value validation
+				Validators: []tfsdk.AttributeValidator{
+					validators.Match(colorRegex()),
 				},
 			},
 			"position": {
@@ -86,8 +86,7 @@ func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema,
 					tfsdk.RequiresReplace(),
 				},
 				Validators: []tfsdk.AttributeValidator{
-					// TODO: UUID validation
-					validators.MinLength(1),
+					validators.Match(uuidRegex()),
 				},
 			},
 		},

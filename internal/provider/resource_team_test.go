@@ -2,7 +2,6 @@ package provider
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -169,14 +168,6 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 			// Delete testing automatically occurs in TestCase
 		},
 	})
-}
-
-func colorRegex() *regexp.Regexp {
-	return regexp.MustCompile("^#[0-9a-fA-F]{6}$")
-}
-
-func uuidRegex() *regexp.Regexp {
-	return regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 }
 
 func testAccTeamResourceConfigDefault(key string, name string) string {

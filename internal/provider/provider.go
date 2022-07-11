@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -17,6 +18,14 @@ var (
 	envVarName          = "LINEAR_TOKEN"
 	errMissingAuthToken = "Required token could not be found. Please set the token using an input variable in the provider configuration block or by using the `" + envVarName + "` environment variable."
 )
+
+func colorRegex() *regexp.Regexp {
+	return regexp.MustCompile("^#[0-9a-fA-F]{6}$")
+}
+
+func uuidRegex() *regexp.Regexp {
+	return regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+}
 
 // Ensure provider defined types fully satisfy framework interfaces
 var _ tfsdk.Provider = &provider{}

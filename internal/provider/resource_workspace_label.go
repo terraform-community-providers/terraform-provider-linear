@@ -57,7 +57,7 @@ func (t workspaceLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema
 					tfsdk.UseStateForUnknown(),
 				},
 				Validators: []tfsdk.AttributeValidator{
-					// TODO: Color value validation
+					validators.Match(colorRegex()),
 				},
 			},
 		},
