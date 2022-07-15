@@ -89,6 +89,51 @@ func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema,
 					validators.Match(uuidRegex()),
 				},
 			},
+			"default": {
+				MarkdownDescription: "Whether the workflow state is used for issues that are opened.",
+				Type:                types.BoolType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
+			},
+			"draft": {
+				MarkdownDescription: "Whether the workflow state is used for PRs that are opened as drafts.",
+				Type:                types.BoolType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
+			},
+			"start": {
+				MarkdownDescription: "Whether the workflow state is used for PRs that are opened.",
+				Type:                types.BoolType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
+			},
+			"review": {
+				MarkdownDescription: "Whether the workflow state is used for PRs that have reviews requested.",
+				Type:                types.BoolType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
+			},
+			"merge": {
+				MarkdownDescription: "Whether the workflow state is used for PRs that are merged.",
+				Type:                types.BoolType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
+			},
 		},
 	}, nil
 }
@@ -109,6 +154,11 @@ type workflowStateResourceData struct {
 	Color       types.String `tfsdk:"color"`
 	Position    types.Number `tfsdk:"position"`
 	TeamId      types.String `tfsdk:"team_id"`
+	Default     types.Bool   `tfsdk:"default"`
+	Draft       types.Bool   `tfsdk:"draft"`
+	Start       types.Bool   `tfsdk:"start"`
+	Review      types.Bool   `tfsdk:"review"`
+	Merge       types.Bool   `tfsdk:"merge"`
 }
 
 type workflowStateResource struct {
@@ -150,6 +200,67 @@ func (r workflowStateResource) Create(ctx context.Context, req tfsdk.CreateResou
 	data.Description = types.String{Value: response.WorkflowStateCreate.WorkflowState.Description}
 	data.Position = types.Number{Value: big.NewFloat(response.WorkflowStateCreate.WorkflowState.Position)}
 
+	teamInput := TeamUpdateInput{}
+
+	if !data.Default.IsNull() && !data.Default.IsUnknown() && data.Default.Value {
+		teamInput.DefaultIssueStateId = data.Id.Value
+	}
+
+	if !data.Draft.IsNull() && !data.Draft.IsUnknown() && data.Draft.Value {
+		teamInput.DraftWorkflowStateId = data.Id.Value
+	}
+
+	if !data.Start.IsNull() && !data.Start.IsUnknown() && data.Start.Value {
+		teamInput.StartWorkflowStateId = data.Id.Value
+	}
+
+	if !data.Review.IsNull() && !data.Review.IsUnknown() && data.Review.Value {
+		teamInput.ReviewWorkflowStateId = data.Id.Value
+	}
+
+	if !data.Merge.IsNull() && !data.Merge.IsUnknown() && data.Merge.Value {
+		teamInput.MergeWorkflowStateId = data.Id.Value
+	}
+
+	teamResponse, teamErr := updateTeamWorkflowAutomation(context.Background(), r.provider.client, teamInput, data.TeamId.Value)
+
+	if teamErr != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team, got error: %s", teamErr))
+		return
+	}
+
+	tflog.Trace(ctx, "updated a team")
+
+	if teamResponse.TeamUpdate.Team.DefaultIssueState.Id == data.Id.Value {
+		data.Default = types.Bool{Value: true}
+	} else {
+		data.Default = types.Bool{Value: false}
+	}
+
+	if teamResponse.TeamUpdate.Team.DraftWorkflowState.Id == data.Id.Value {
+		data.Draft = types.Bool{Value: true}
+	} else {
+		data.Draft = types.Bool{Value: false}
+	}
+
+	if teamResponse.TeamUpdate.Team.StartWorkflowState.Id == data.Id.Value {
+		data.Start = types.Bool{Value: true}
+	} else {
+		data.Start = types.Bool{Value: false}
+	}
+
+	if teamResponse.TeamUpdate.Team.ReviewWorkflowState.Id == data.Id.Value {
+		data.Review = types.Bool{Value: true}
+	} else {
+		data.Review = types.Bool{Value: false}
+	}
+
+	if teamResponse.TeamUpdate.Team.MergeWorkflowState.Id == data.Id.Value {
+		data.Merge = types.Bool{Value: true}
+	} else {
+		data.Merge = types.Bool{Value: false}
+	}
+
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -177,6 +288,43 @@ func (r workflowStateResource) Read(ctx context.Context, req tfsdk.ReadResourceR
 	data.Color = types.String{Value: response.WorkflowState.Color}
 	data.Position = types.Number{Value: big.NewFloat(response.WorkflowState.Position)}
 	data.TeamId = types.String{Value: response.WorkflowState.Team.Id}
+
+	teamResponse, teamErr := getTeamWorkflowAutomation(context.Background(), r.provider.client, data.TeamId.Value)
+
+	if teamErr != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read team, got error: %s", teamErr))
+		return
+	}
+
+	if teamResponse.Team.DefaultIssueState.Id == data.Id.Value {
+		data.Default = types.Bool{Value: true}
+	} else {
+		data.Default = types.Bool{Value: false}
+	}
+
+	if teamResponse.Team.DraftWorkflowState.Id == data.Id.Value {
+		data.Draft = types.Bool{Value: true}
+	} else {
+		data.Draft = types.Bool{Value: false}
+	}
+
+	if teamResponse.Team.StartWorkflowState.Id == data.Id.Value {
+		data.Start = types.Bool{Value: true}
+	} else {
+		data.Start = types.Bool{Value: false}
+	}
+
+	if teamResponse.Team.ReviewWorkflowState.Id == data.Id.Value {
+		data.Review = types.Bool{Value: true}
+	} else {
+		data.Review = types.Bool{Value: false}
+	}
+
+	if teamResponse.Team.MergeWorkflowState.Id == data.Id.Value {
+		data.Merge = types.Bool{Value: true}
+	} else {
+		data.Merge = types.Bool{Value: false}
+	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -215,6 +363,67 @@ func (r workflowStateResource) Update(ctx context.Context, req tfsdk.UpdateResou
 	data.Description = types.String{Value: response.WorkflowStateUpdate.WorkflowState.Description}
 	data.Color = types.String{Value: response.WorkflowStateUpdate.WorkflowState.Color}
 	data.Position = types.Number{Value: big.NewFloat(response.WorkflowStateUpdate.WorkflowState.Position)}
+
+	teamInput := TeamUpdateInput{}
+
+	if !data.Default.IsNull() && !data.Default.IsUnknown() {
+		teamInput.DefaultIssueStateId = data.Id.Value
+	}
+
+	if !data.Draft.IsNull() && !data.Draft.IsUnknown() {
+		teamInput.DraftWorkflowStateId = data.Id.Value
+	}
+
+	if !data.Start.IsNull() && !data.Start.IsUnknown() {
+		teamInput.StartWorkflowStateId = data.Id.Value
+	}
+
+	if !data.Review.IsNull() && !data.Review.IsUnknown() {
+		teamInput.ReviewWorkflowStateId = data.Id.Value
+	}
+
+	if !data.Merge.IsNull() && !data.Merge.IsUnknown() {
+		teamInput.MergeWorkflowStateId = data.Id.Value
+	}
+
+	teamResponse, teamErr := updateTeamWorkflowAutomation(context.Background(), r.provider.client, teamInput, data.TeamId.Value)
+
+	if teamErr != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team, got error: %s", teamErr))
+		return
+	}
+
+	tflog.Trace(ctx, "updated a team")
+
+	if teamResponse.TeamUpdate.Team.DefaultIssueState.Id == data.Id.Value {
+		data.Default = types.Bool{Value: true}
+	} else {
+		data.Default = types.Bool{Value: false}
+	}
+
+	if teamResponse.TeamUpdate.Team.DraftWorkflowState.Id == data.Id.Value {
+		data.Draft = types.Bool{Value: true}
+	} else {
+		data.Draft = types.Bool{Value: false}
+	}
+
+	if teamResponse.TeamUpdate.Team.StartWorkflowState.Id == data.Id.Value {
+		data.Start = types.Bool{Value: true}
+	} else {
+		data.Start = types.Bool{Value: false}
+	}
+
+	if teamResponse.TeamUpdate.Team.ReviewWorkflowState.Id == data.Id.Value {
+		data.Review = types.Bool{Value: true}
+	} else {
+		data.Review = types.Bool{Value: false}
+	}
+
+	if teamResponse.TeamUpdate.Team.MergeWorkflowState.Id == data.Id.Value {
+		data.Merge = types.Bool{Value: true}
+	} else {
+		data.Merge = types.Bool{Value: false}
+	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)

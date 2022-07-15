@@ -33,8 +33,13 @@ resource "linear_workflow_state" "example" {
 
 ### Optional
 
+- `default` (Boolean) Whether the workflow state is used for issues that are opened.
 - `description` (String) Description of the workflow state.
+- `draft` (Boolean) Whether the workflow state is used for PRs that are opened as drafts.
+- `merge` (Boolean) Whether the workflow state is used for PRs that are merged.
 - `position` (Number) Position of the workflow state.
+- `review` (Boolean) Whether the workflow state is used for PRs that have reviews requested.
+- `start` (Boolean) Whether the workflow state is used for PRs that are opened.
 
 ### Read-Only
 

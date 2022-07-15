@@ -676,6 +676,14 @@ type __getTeamLabelInput struct {
 // GetId returns __getTeamLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__getTeamLabelInput) GetId() string { return v.Id }
 
+// __getTeamWorkflowAutomationInput is used internally by genqlient
+type __getTeamWorkflowAutomationInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __getTeamWorkflowAutomationInput.Id, and is useful for accessing the field via an interface.
+func (v *__getTeamWorkflowAutomationInput) GetId() string { return v.Id }
+
 // __getWorkflowStateInput is used internally by genqlient
 type __getWorkflowStateInput struct {
 	Id string `json:"id"`
@@ -715,6 +723,18 @@ func (v *__updateTeamLabelInput) GetInput() IssueLabelUpdateInput { return v.Inp
 
 // GetId returns __updateTeamLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__updateTeamLabelInput) GetId() string { return v.Id }
+
+// __updateTeamWorkflowAutomationInput is used internally by genqlient
+type __updateTeamWorkflowAutomationInput struct {
+	Input TeamUpdateInput `json:"input"`
+	Id    string          `json:"id"`
+}
+
+// GetInput returns __updateTeamWorkflowAutomationInput.Input, and is useful for accessing the field via an interface.
+func (v *__updateTeamWorkflowAutomationInput) GetInput() TeamUpdateInput { return v.Input }
+
+// GetId returns __updateTeamWorkflowAutomationInput.Id, and is useful for accessing the field via an interface.
+func (v *__updateTeamWorkflowAutomationInput) GetId() string { return v.Id }
 
 // __updateWorkflowStateInput is used internally by genqlient
 type __updateWorkflowStateInput struct {
@@ -1241,12 +1261,119 @@ func (v *findTeamLabelResponse) GetIssueLabels() findTeamLabelIssueLabelsIssueLa
 type findWorkflowStateResponse struct {
 	// All issue workflow states.
 	WorkflowStates findWorkflowStateWorkflowStatesWorkflowStateConnection `json:"workflowStates"`
+	// One specific team.
+	Team findWorkflowStateTeam `json:"team"`
 }
 
 // GetWorkflowStates returns findWorkflowStateResponse.WorkflowStates, and is useful for accessing the field via an interface.
 func (v *findWorkflowStateResponse) GetWorkflowStates() findWorkflowStateWorkflowStatesWorkflowStateConnection {
 	return v.WorkflowStates
 }
+
+// GetTeam returns findWorkflowStateResponse.Team, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateResponse) GetTeam() findWorkflowStateTeam { return v.Team }
+
+// findWorkflowStateTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type findWorkflowStateTeam struct {
+	// The default workflow state into which issues are set when they are opened by team members.
+	DefaultIssueState findWorkflowStateTeamDefaultIssueStateWorkflowState `json:"defaultIssueState"`
+	// The workflow state into which issues are moved when a PR has been opened as draft.
+	DraftWorkflowState findWorkflowStateTeamDraftWorkflowState `json:"draftWorkflowState"`
+	// The workflow state into which issues are moved when a PR has been opened.
+	StartWorkflowState findWorkflowStateTeamStartWorkflowState `json:"startWorkflowState"`
+	// The workflow state into which issues are moved when a review has been requested for the PR.
+	ReviewWorkflowState findWorkflowStateTeamReviewWorkflowState `json:"reviewWorkflowState"`
+	// The workflow state into which issues are moved when a PR has been merged.
+	MergeWorkflowState findWorkflowStateTeamMergeWorkflowState `json:"mergeWorkflowState"`
+}
+
+// GetDefaultIssueState returns findWorkflowStateTeam.DefaultIssueState, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateTeam) GetDefaultIssueState() findWorkflowStateTeamDefaultIssueStateWorkflowState {
+	return v.DefaultIssueState
+}
+
+// GetDraftWorkflowState returns findWorkflowStateTeam.DraftWorkflowState, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateTeam) GetDraftWorkflowState() findWorkflowStateTeamDraftWorkflowState {
+	return v.DraftWorkflowState
+}
+
+// GetStartWorkflowState returns findWorkflowStateTeam.StartWorkflowState, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateTeam) GetStartWorkflowState() findWorkflowStateTeamStartWorkflowState {
+	return v.StartWorkflowState
+}
+
+// GetReviewWorkflowState returns findWorkflowStateTeam.ReviewWorkflowState, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateTeam) GetReviewWorkflowState() findWorkflowStateTeamReviewWorkflowState {
+	return v.ReviewWorkflowState
+}
+
+// GetMergeWorkflowState returns findWorkflowStateTeam.MergeWorkflowState, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateTeam) GetMergeWorkflowState() findWorkflowStateTeamMergeWorkflowState {
+	return v.MergeWorkflowState
+}
+
+// findWorkflowStateTeamDefaultIssueStateWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type findWorkflowStateTeamDefaultIssueStateWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns findWorkflowStateTeamDefaultIssueStateWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateTeamDefaultIssueStateWorkflowState) GetId() string { return v.Id }
+
+// findWorkflowStateTeamDraftWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type findWorkflowStateTeamDraftWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns findWorkflowStateTeamDraftWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateTeamDraftWorkflowState) GetId() string { return v.Id }
+
+// findWorkflowStateTeamMergeWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type findWorkflowStateTeamMergeWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns findWorkflowStateTeamMergeWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateTeamMergeWorkflowState) GetId() string { return v.Id }
+
+// findWorkflowStateTeamReviewWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type findWorkflowStateTeamReviewWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns findWorkflowStateTeamReviewWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateTeamReviewWorkflowState) GetId() string { return v.Id }
+
+// findWorkflowStateTeamStartWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type findWorkflowStateTeamStartWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns findWorkflowStateTeamStartWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *findWorkflowStateTeamStartWorkflowState) GetId() string { return v.Id }
 
 // findWorkflowStateWorkflowStatesWorkflowStateConnection includes the requested fields of the GraphQL type WorkflowStateConnection.
 type findWorkflowStateWorkflowStatesWorkflowStateConnection struct {
@@ -1505,6 +1632,117 @@ func (v *getTeamTeam) GetIssueEstimationExtended() bool { return v.IssueEstimati
 
 // GetDefaultIssueEstimate returns getTeamTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
+
+// getTeamWorkflowAutomationResponse is returned by getTeamWorkflowAutomation on success.
+type getTeamWorkflowAutomationResponse struct {
+	// One specific team.
+	Team getTeamWorkflowAutomationTeam `json:"team"`
+}
+
+// GetTeam returns getTeamWorkflowAutomationResponse.Team, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationResponse) GetTeam() getTeamWorkflowAutomationTeam { return v.Team }
+
+// getTeamWorkflowAutomationTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type getTeamWorkflowAutomationTeam struct {
+	// The default workflow state into which issues are set when they are opened by team members.
+	DefaultIssueState getTeamWorkflowAutomationTeamDefaultIssueStateWorkflowState `json:"defaultIssueState"`
+	// The workflow state into which issues are moved when a PR has been opened as draft.
+	DraftWorkflowState getTeamWorkflowAutomationTeamDraftWorkflowState `json:"draftWorkflowState"`
+	// The workflow state into which issues are moved when a PR has been opened.
+	StartWorkflowState getTeamWorkflowAutomationTeamStartWorkflowState `json:"startWorkflowState"`
+	// The workflow state into which issues are moved when a review has been requested for the PR.
+	ReviewWorkflowState getTeamWorkflowAutomationTeamReviewWorkflowState `json:"reviewWorkflowState"`
+	// The workflow state into which issues are moved when a PR has been merged.
+	MergeWorkflowState getTeamWorkflowAutomationTeamMergeWorkflowState `json:"mergeWorkflowState"`
+}
+
+// GetDefaultIssueState returns getTeamWorkflowAutomationTeam.DefaultIssueState, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationTeam) GetDefaultIssueState() getTeamWorkflowAutomationTeamDefaultIssueStateWorkflowState {
+	return v.DefaultIssueState
+}
+
+// GetDraftWorkflowState returns getTeamWorkflowAutomationTeam.DraftWorkflowState, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationTeam) GetDraftWorkflowState() getTeamWorkflowAutomationTeamDraftWorkflowState {
+	return v.DraftWorkflowState
+}
+
+// GetStartWorkflowState returns getTeamWorkflowAutomationTeam.StartWorkflowState, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationTeam) GetStartWorkflowState() getTeamWorkflowAutomationTeamStartWorkflowState {
+	return v.StartWorkflowState
+}
+
+// GetReviewWorkflowState returns getTeamWorkflowAutomationTeam.ReviewWorkflowState, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationTeam) GetReviewWorkflowState() getTeamWorkflowAutomationTeamReviewWorkflowState {
+	return v.ReviewWorkflowState
+}
+
+// GetMergeWorkflowState returns getTeamWorkflowAutomationTeam.MergeWorkflowState, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationTeam) GetMergeWorkflowState() getTeamWorkflowAutomationTeamMergeWorkflowState {
+	return v.MergeWorkflowState
+}
+
+// getTeamWorkflowAutomationTeamDefaultIssueStateWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type getTeamWorkflowAutomationTeamDefaultIssueStateWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns getTeamWorkflowAutomationTeamDefaultIssueStateWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationTeamDefaultIssueStateWorkflowState) GetId() string { return v.Id }
+
+// getTeamWorkflowAutomationTeamDraftWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type getTeamWorkflowAutomationTeamDraftWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns getTeamWorkflowAutomationTeamDraftWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationTeamDraftWorkflowState) GetId() string { return v.Id }
+
+// getTeamWorkflowAutomationTeamMergeWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type getTeamWorkflowAutomationTeamMergeWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns getTeamWorkflowAutomationTeamMergeWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationTeamMergeWorkflowState) GetId() string { return v.Id }
+
+// getTeamWorkflowAutomationTeamReviewWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type getTeamWorkflowAutomationTeamReviewWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns getTeamWorkflowAutomationTeamReviewWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationTeamReviewWorkflowState) GetId() string { return v.Id }
+
+// getTeamWorkflowAutomationTeamStartWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type getTeamWorkflowAutomationTeamStartWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns getTeamWorkflowAutomationTeamStartWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowAutomationTeamStartWorkflowState) GetId() string { return v.Id }
 
 // getWorkflowStateResponse is returned by getWorkflowState on success.
 type getWorkflowStateResponse struct {
@@ -1929,6 +2167,140 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIssueEstimationExtended() bool 
 // GetDefaultIssueEstimate returns updateTeamTeamUpdateTeamPayloadTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetDefaultIssueEstimate() float64 {
 	return v.DefaultIssueEstimate
+}
+
+// updateTeamWorkflowAutomationResponse is returned by updateTeamWorkflowAutomation on success.
+type updateTeamWorkflowAutomationResponse struct {
+	// Updates a team.
+	TeamUpdate updateTeamWorkflowAutomationTeamUpdateTeamPayload `json:"teamUpdate"`
+}
+
+// GetTeamUpdate returns updateTeamWorkflowAutomationResponse.TeamUpdate, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationResponse) GetTeamUpdate() updateTeamWorkflowAutomationTeamUpdateTeamPayload {
+	return v.TeamUpdate
+}
+
+// updateTeamWorkflowAutomationTeamUpdateTeamPayload includes the requested fields of the GraphQL type TeamPayload.
+type updateTeamWorkflowAutomationTeamUpdateTeamPayload struct {
+	// The team that was created or updated.
+	Team updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam `json:"team"`
+}
+
+// GetTeam returns updateTeamWorkflowAutomationTeamUpdateTeamPayload.Team, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayload) GetTeam() updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam {
+	return v.Team
+}
+
+// updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam struct {
+	// The default workflow state into which issues are set when they are opened by team members.
+	DefaultIssueState updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDefaultIssueStateWorkflowState `json:"defaultIssueState"`
+	// The workflow state into which issues are moved when a PR has been opened as draft.
+	DraftWorkflowState updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDraftWorkflowState `json:"draftWorkflowState"`
+	// The workflow state into which issues are moved when a PR has been opened.
+	StartWorkflowState updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamStartWorkflowState `json:"startWorkflowState"`
+	// The workflow state into which issues are moved when a review has been requested for the PR.
+	ReviewWorkflowState updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamReviewWorkflowState `json:"reviewWorkflowState"`
+	// The workflow state into which issues are moved when a PR has been merged.
+	MergeWorkflowState updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamMergeWorkflowState `json:"mergeWorkflowState"`
+}
+
+// GetDefaultIssueState returns updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam.DefaultIssueState, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam) GetDefaultIssueState() updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDefaultIssueStateWorkflowState {
+	return v.DefaultIssueState
+}
+
+// GetDraftWorkflowState returns updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam.DraftWorkflowState, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam) GetDraftWorkflowState() updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDraftWorkflowState {
+	return v.DraftWorkflowState
+}
+
+// GetStartWorkflowState returns updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam.StartWorkflowState, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam) GetStartWorkflowState() updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamStartWorkflowState {
+	return v.StartWorkflowState
+}
+
+// GetReviewWorkflowState returns updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam.ReviewWorkflowState, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam) GetReviewWorkflowState() updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamReviewWorkflowState {
+	return v.ReviewWorkflowState
+}
+
+// GetMergeWorkflowState returns updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam.MergeWorkflowState, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeam) GetMergeWorkflowState() updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamMergeWorkflowState {
+	return v.MergeWorkflowState
+}
+
+// updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDefaultIssueStateWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDefaultIssueStateWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDefaultIssueStateWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDefaultIssueStateWorkflowState) GetId() string {
+	return v.Id
+}
+
+// updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDraftWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDraftWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDraftWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamDraftWorkflowState) GetId() string {
+	return v.Id
+}
+
+// updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamMergeWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamMergeWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamMergeWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamMergeWorkflowState) GetId() string {
+	return v.Id
+}
+
+// updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamReviewWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamReviewWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamReviewWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamReviewWorkflowState) GetId() string {
+	return v.Id
+}
+
+// updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamStartWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamStartWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamStartWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowAutomationTeamUpdateTeamPayloadTeamStartWorkflowState) GetId() string {
+	return v.Id
 }
 
 // updateWorkflowStateResponse is returned by updateWorkflowState on success.
@@ -2460,6 +2832,23 @@ query findWorkflowState ($name: String!, $key: String!) {
 			id
 		}
 	}
+	team(id: $key) {
+		defaultIssueState {
+			id
+		}
+		draftWorkflowState {
+			id
+		}
+		startWorkflowState {
+			id
+		}
+		reviewWorkflowState {
+			id
+		}
+		mergeWorkflowState {
+			id
+		}
+	}
 }
 `,
 		Variables: &__findWorkflowStateInput{
@@ -2599,6 +2988,52 @@ query getTeamLabel ($id: String!) {
 	var err error
 
 	var data getTeamLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func getTeamWorkflowAutomation(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*getTeamWorkflowAutomationResponse, error) {
+	req := &graphql.Request{
+		OpName: "getTeamWorkflowAutomation",
+		Query: `
+query getTeamWorkflowAutomation ($id: String!) {
+	team(id: $id) {
+		defaultIssueState {
+			id
+		}
+		draftWorkflowState {
+			id
+		}
+		startWorkflowState {
+			id
+		}
+		reviewWorkflowState {
+			id
+		}
+		mergeWorkflowState {
+			id
+		}
+	}
+}
+`,
+		Variables: &__getTeamWorkflowAutomationInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data getTeamWorkflowAutomationResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2838,6 +3273,56 @@ mutation updateTeamLabel ($input: IssueLabelUpdateInput!, $id: String!) {
 	var err error
 
 	var data updateTeamLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func updateTeamWorkflowAutomation(
+	ctx context.Context,
+	client graphql.Client,
+	input TeamUpdateInput,
+	id string,
+) (*updateTeamWorkflowAutomationResponse, error) {
+	req := &graphql.Request{
+		OpName: "updateTeamWorkflowAutomation",
+		Query: `
+mutation updateTeamWorkflowAutomation ($input: TeamUpdateInput!, $id: String!) {
+	teamUpdate(input: $input, id: $id) {
+		team {
+			defaultIssueState {
+				id
+			}
+			draftWorkflowState {
+				id
+			}
+			startWorkflowState {
+				id
+			}
+			reviewWorkflowState {
+				id
+			}
+			mergeWorkflowState {
+				id
+			}
+		}
+	}
+}
+`,
+		Variables: &__updateTeamWorkflowAutomationInput{
+			Input: input,
+			Id:    id,
+		},
+	}
+	var err error
+
+	var data updateTeamWorkflowAutomationResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

@@ -27,6 +27,23 @@ query findWorkflowState($name: String!, $key: String!) {
       id
     }
   }
+  team(id: $key) {
+    defaultIssueState {
+      id
+    }
+    draftWorkflowState {
+      id
+    }
+    startWorkflowState {
+      id
+    }
+    reviewWorkflowState {
+      id
+    }
+    mergeWorkflowState {
+      id
+    }
+  }
 }
 
 # @genqlient(for: "WorkflowStateCreateInput.id", omitempty: true)
@@ -78,3 +95,53 @@ mutation updateWorkflowState(
 #     success
 #   }
 # }
+
+query getTeamWorkflowAutomation($id: String!) {
+  team(id: $id) {
+    defaultIssueState {
+      id
+    }
+    draftWorkflowState {
+      id
+    }
+    startWorkflowState {
+      id
+    }
+    reviewWorkflowState {
+      id
+    }
+    mergeWorkflowState {
+      id
+    }
+  }
+}
+
+# @genqlient(for: "TeamUpdateInput.draftWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.startWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.reviewWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.mergeWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.defaultIssueStateId", omitempty: true)
+mutation updateTeamWorkflowAutomation(
+  $input: TeamUpdateInput!,
+  $id: String!
+) {
+  teamUpdate(input: $input, id: $id) {
+    team {
+      defaultIssueState {
+        id
+      }
+      draftWorkflowState {
+        id
+      }
+      startWorkflowState {
+        id
+      }
+      reviewWorkflowState {
+        id
+      }
+      mergeWorkflowState {
+        id
+      }
+    }
+  }
+}
