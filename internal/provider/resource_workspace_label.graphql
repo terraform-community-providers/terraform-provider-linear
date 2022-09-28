@@ -1,9 +1,19 @@
-query getWorkspaceLabel($id: String!) {
-  issueLabel(id: $id) {
+# @genqlient(for: "IssueLabel.description", pointer: true)
+# @genqlient(for: "IssueLabel.color", pointer: true)
+# @genqlient(for: "IssueLabel.team", pointer: true)
+fragment IssueLabel on IssueLabel {
+  id
+  name
+  description
+  color
+  team {
     id
-    name
-    description
-    color
+  }
+}
+
+query getLabel($id: String!) {
+  issueLabel(id: $id) {
+    ...IssueLabel
   }
 }
 
@@ -26,40 +36,34 @@ query findWorkspaceLabel($name: String!) {
 }
 
 # @genqlient(for: "IssueLabelCreateInput.id", omitempty: true)
-# @genqlient(for: "IssueLabelCreateInput.description", omitempty: true)
-# @genqlient(for: "IssueLabelCreateInput.color", omitempty: true)
-# @genqlient(for: "IssueLabelCreateInput.teamId", omitempty: true)
-mutation createWorkspaceLabel(
+# @genqlient(for: "IssueLabelCreateInput.description", pointer: true)
+# @genqlient(for: "IssueLabelCreateInput.color", omitempty: true, pointer: true)
+# @genqlient(for: "IssueLabelCreateInput.teamId", pointer: true)
+mutation createLabel(
   $input: IssueLabelCreateInput!
 ) {
   issueLabelCreate(input: $input) {
     issueLabel {
-      id
-      name
-      description
-      color
+      ...IssueLabel
     }
   }
 }
 
 # @genqlient(for: "IssueLabelUpdateInput.name", omitempty: true)
-# @genqlient(for: "IssueLabelUpdateInput.description", omitempty: true)
-# @genqlient(for: "IssueLabelUpdateInput.color", omitempty: true)
-mutation updateWorkspaceLabel(
+# @genqlient(for: "IssueLabelUpdateInput.description", pointer: true)
+# @genqlient(for: "IssueLabelUpdateInput.color", omitempty: true, pointer: true)
+mutation updateLabel(
   $input: IssueLabelUpdateInput!,
   $id: String!
 ) {
   issueLabelUpdate(input: $input, id: $id) {
     issueLabel {
-      id
-      name
-      description
-      color
+      ...IssueLabel
     }
   }
 }
 
-mutation deleteWorkspaceLabel($id: String!) {
+mutation deleteLabel($id: String!) {
   issueLabelDelete(id: $id) {
     success
   }

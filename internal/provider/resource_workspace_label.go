@@ -4,18 +4,21 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/frankgreco/terraform-helpers/validators"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
+	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ tfsdk.ResourceType = workspaceLabelResourceType{}
-var _ tfsdk.Resource = workspaceLabelResource{}
-var _ tfsdk.ResourceWithImportState = workspaceLabelResource{}
+var _ provider.ResourceType = workspaceLabelResourceType{}
+var _ resource.Resource = workspaceLabelResource{}
+var _ resource.ResourceWithImportState = workspaceLabelResource{}
 
 type workspaceLabelResourceType struct{}
 
@@ -28,7 +31,7 @@ func (t workspaceLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema
 				Type:                types.StringType,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 			},
 			"name": {
@@ -45,7 +48,7 @@ func (t workspaceLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.NullableString(),
 				},
 			},
 			"color": {
@@ -54,7 +57,7 @@ func (t workspaceLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					validators.Match(colorRegex()),
@@ -64,7 +67,7 @@ func (t workspaceLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema
 	}, nil
 }
 
-func (t workspaceLabelResourceType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+func (t workspaceLabelResourceType) NewResource(ctx context.Context, in provider.Provider) (resource.Resource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
 	return workspaceLabelResource{
@@ -80,13 +83,13 @@ type workspaceLabelResourceData struct {
 }
 
 type workspaceLabelResource struct {
-	provider provider
+	provider linearProvider
 }
 
-func (r workspaceLabelResource) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+func (r workspaceLabelResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data workspaceLabelResourceData
 
-	diags := req.Config.Get(ctx, &data)
+	diags := req.Plan.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
@@ -94,12 +97,18 @@ func (r workspaceLabelResource) Create(ctx context.Context, req tfsdk.CreateReso
 	}
 
 	input := IssueLabelCreateInput{
-		Name:        data.Name.Value,
-		Description: data.Description.Value,
-		Color:       data.Color.Value,
+		Name: data.Name.Value,
 	}
 
-	response, err := createWorkspaceLabel(context.Background(), r.provider.client, input)
+	if !data.Description.IsNull() {
+		input.Description = &data.Description.Value
+	}
+
+	if !data.Color.IsUnknown() {
+		input.Color = &data.Color.Value
+	}
+
+	response, err := createLabel(context.Background(), r.provider.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create workspace label, got error: %s", err))
@@ -108,15 +117,24 @@ func (r workspaceLabelResource) Create(ctx context.Context, req tfsdk.CreateReso
 
 	tflog.Trace(ctx, "created a workspace label")
 
-	data.Id = types.String{Value: response.IssueLabelCreate.IssueLabel.Id}
-	data.Description = types.String{Value: response.IssueLabelCreate.IssueLabel.Description}
-	data.Color = types.String{Value: response.IssueLabelCreate.IssueLabel.Color}
+	issueLabel := response.IssueLabelCreate.IssueLabel
+
+	data.Id = types.String{Value: issueLabel.Id}
+	data.Name = types.String{Value: issueLabel.Name}
+
+	if issueLabel.Description != nil {
+		data.Description = types.String{Value: *issueLabel.Description}
+	}
+
+	if issueLabel.Color != nil {
+		data.Color = types.String{Value: *issueLabel.Color}
+	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r workspaceLabelResource) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+func (r workspaceLabelResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data workspaceLabelResourceData
 
 	diags := req.State.Get(ctx, &data)
@@ -126,22 +144,31 @@ func (r workspaceLabelResource) Read(ctx context.Context, req tfsdk.ReadResource
 		return
 	}
 
-	response, err := getWorkspaceLabel(context.Background(), r.provider.client, data.Id.Value)
+	response, err := getLabel(context.Background(), r.provider.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workspace label, got error: %s", err))
 		return
 	}
 
-	data.Name = types.String{Value: response.IssueLabel.Name}
-	data.Description = types.String{Value: response.IssueLabel.Description}
-	data.Color = types.String{Value: response.IssueLabel.Color}
+	issueLabel := response.IssueLabel
+
+	data.Id = types.String{Value: issueLabel.Id}
+	data.Name = types.String{Value: issueLabel.Name}
+
+	if issueLabel.Description != nil {
+		data.Description = types.String{Value: *issueLabel.Description}
+	}
+
+	if issueLabel.Color != nil {
+		data.Color = types.String{Value: *issueLabel.Color}
+	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r workspaceLabelResource) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+func (r workspaceLabelResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data workspaceLabelResourceData
 
 	diags := req.Plan.Get(ctx, &data)
@@ -152,12 +179,18 @@ func (r workspaceLabelResource) Update(ctx context.Context, req tfsdk.UpdateReso
 	}
 
 	input := IssueLabelUpdateInput{
-		Name:        data.Name.Value,
-		Description: data.Description.Value,
-		Color:       data.Color.Value,
+		Name: data.Name.Value,
 	}
 
-	response, err := updateWorkspaceLabel(context.Background(), r.provider.client, input, data.Id.Value)
+	if !data.Description.IsNull() {
+		input.Description = &data.Description.Value
+	}
+
+	if !data.Color.IsUnknown() {
+		input.Color = &data.Color.Value
+	}
+
+	response, err := updateLabel(context.Background(), r.provider.client, input, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workspace label, got error: %s", err))
@@ -166,15 +199,24 @@ func (r workspaceLabelResource) Update(ctx context.Context, req tfsdk.UpdateReso
 
 	tflog.Trace(ctx, "updated a workspace label")
 
-	data.Name = types.String{Value: response.IssueLabelUpdate.IssueLabel.Name}
-	data.Description = types.String{Value: response.IssueLabelUpdate.IssueLabel.Description}
-	data.Color = types.String{Value: response.IssueLabelUpdate.IssueLabel.Color}
+	issueLabel := response.IssueLabelUpdate.IssueLabel
+
+	data.Id = types.String{Value: issueLabel.Id}
+	data.Name = types.String{Value: issueLabel.Name}
+
+	if issueLabel.Description != nil {
+		data.Description = types.String{Value: *issueLabel.Description}
+	}
+
+	if issueLabel.Color != nil {
+		data.Color = types.String{Value: *issueLabel.Color}
+	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r workspaceLabelResource) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+func (r workspaceLabelResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data workspaceLabelResourceData
 
 	diags := req.State.Get(ctx, &data)
@@ -184,7 +226,7 @@ func (r workspaceLabelResource) Delete(ctx context.Context, req tfsdk.DeleteReso
 		return
 	}
 
-	_, err := deleteWorkspaceLabel(context.Background(), r.provider.client, data.Id.Value)
+	_, err := deleteLabel(context.Background(), r.provider.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete workspace label, got error: %s", err))
@@ -194,7 +236,7 @@ func (r workspaceLabelResource) Delete(ctx context.Context, req tfsdk.DeleteReso
 	tflog.Trace(ctx, "deleted a workspace label")
 }
 
-func (r workspaceLabelResource) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
+func (r workspaceLabelResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	response, err := findWorkspaceLabel(context.Background(), r.provider.client, req.ID)
 
 	if err != nil || len(response.IssueLabels.Nodes) != 1 {
@@ -202,5 +244,5 @@ func (r workspaceLabelResource) ImportState(ctx context.Context, req tfsdk.Impor
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, tftypes.NewAttributePath().WithAttributeName("id"), response.IssueLabels.Nodes[0].Id)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.IssueLabels.Nodes[0].Id)...)
 }

@@ -4,9 +4,42 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/Khan/genqlient/graphql"
 )
+
+// IssueLabel includes the GraphQL fields of IssueLabel requested by the fragment IssueLabel.
+// The GraphQL type's documentation follows.
+//
+// Labels that can be associated with issues.
+type IssueLabel struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The label's name.
+	Name string `json:"name"`
+	// The label's description.
+	Description *string `json:"description"`
+	// The label's color as a HEX string.
+	Color *string `json:"color"`
+	// The team that the label is associated with. If null, the label is associated with the global workspace..
+	Team *IssueLabelTeam `json:"team"`
+}
+
+// GetId returns IssueLabel.Id, and is useful for accessing the field via an interface.
+func (v *IssueLabel) GetId() string { return v.Id }
+
+// GetName returns IssueLabel.Name, and is useful for accessing the field via an interface.
+func (v *IssueLabel) GetName() string { return v.Name }
+
+// GetDescription returns IssueLabel.Description, and is useful for accessing the field via an interface.
+func (v *IssueLabel) GetDescription() *string { return v.Description }
+
+// GetColor returns IssueLabel.Color, and is useful for accessing the field via an interface.
+func (v *IssueLabel) GetColor() *string { return v.Color }
+
+// GetTeam returns IssueLabel.Team, and is useful for accessing the field via an interface.
+func (v *IssueLabel) GetTeam() *IssueLabelTeam { return v.Team }
 
 type IssueLabelCreateInput struct {
 	// The identifier. If none is provided, the backend will generate one.
@@ -14,11 +47,11 @@ type IssueLabelCreateInput struct {
 	// The name of the label.
 	Name string `json:"name"`
 	// The description of the label.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description"`
 	// The color of the label.
-	Color string `json:"color,omitempty"`
+	Color *string `json:"color,omitempty"`
 	// The team associated with the label. If not given, the label will be associated with the entire workspace.
-	TeamId string `json:"teamId,omitempty"`
+	TeamId *string `json:"teamId"`
 }
 
 // GetId returns IssueLabelCreateInput.Id, and is useful for accessing the field via an interface.
@@ -28,31 +61,72 @@ func (v *IssueLabelCreateInput) GetId() string { return v.Id }
 func (v *IssueLabelCreateInput) GetName() string { return v.Name }
 
 // GetDescription returns IssueLabelCreateInput.Description, and is useful for accessing the field via an interface.
-func (v *IssueLabelCreateInput) GetDescription() string { return v.Description }
+func (v *IssueLabelCreateInput) GetDescription() *string { return v.Description }
 
 // GetColor returns IssueLabelCreateInput.Color, and is useful for accessing the field via an interface.
-func (v *IssueLabelCreateInput) GetColor() string { return v.Color }
+func (v *IssueLabelCreateInput) GetColor() *string { return v.Color }
 
 // GetTeamId returns IssueLabelCreateInput.TeamId, and is useful for accessing the field via an interface.
-func (v *IssueLabelCreateInput) GetTeamId() string { return v.TeamId }
+func (v *IssueLabelCreateInput) GetTeamId() *string { return v.TeamId }
+
+// IssueLabelTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type IssueLabelTeam struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns IssueLabelTeam.Id, and is useful for accessing the field via an interface.
+func (v *IssueLabelTeam) GetId() string { return v.Id }
 
 type IssueLabelUpdateInput struct {
 	// The name of the label.
 	Name string `json:"name,omitempty"`
 	// The description of the label.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description"`
 	// The color of the label.
-	Color string `json:"color,omitempty"`
+	Color *string `json:"color,omitempty"`
 }
 
 // GetName returns IssueLabelUpdateInput.Name, and is useful for accessing the field via an interface.
 func (v *IssueLabelUpdateInput) GetName() string { return v.Name }
 
 // GetDescription returns IssueLabelUpdateInput.Description, and is useful for accessing the field via an interface.
-func (v *IssueLabelUpdateInput) GetDescription() string { return v.Description }
+func (v *IssueLabelUpdateInput) GetDescription() *string { return v.Description }
 
 // GetColor returns IssueLabelUpdateInput.Color, and is useful for accessing the field via an interface.
-func (v *IssueLabelUpdateInput) GetColor() string { return v.Color }
+func (v *IssueLabelUpdateInput) GetColor() *string { return v.Color }
+
+// Organization includes the GraphQL fields of Organization requested by the fragment Organization.
+// The GraphQL type's documentation follows.
+//
+// An organization. Organizations are root-level objects that contain user accounts and teams.
+type Organization struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// Whether the organization is using a roadmap.
+	RoadmapEnabled bool `json:"roadmapEnabled"`
+	// Whether the Git integration linkback messages should be sent to private repositories.
+	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
+	// Whether the Git integration linkback messages should be sent to public repositories.
+	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+}
+
+// GetId returns Organization.Id, and is useful for accessing the field via an interface.
+func (v *Organization) GetId() string { return v.Id }
+
+// GetRoadmapEnabled returns Organization.RoadmapEnabled, and is useful for accessing the field via an interface.
+func (v *Organization) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
+
+// GetGitLinkbackMessagesEnabled returns Organization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
+func (v *Organization) GetGitLinkbackMessagesEnabled() bool { return v.GitLinkbackMessagesEnabled }
+
+// GetGitPublicLinkbackMessagesEnabled returns Organization.GitPublicLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
+func (v *Organization) GetGitPublicLinkbackMessagesEnabled() bool {
+	return v.GitPublicLinkbackMessagesEnabled
+}
 
 // The frequency at which to send project update reminders.
 type ProjectUpdateReminderFrequency string
@@ -63,19 +137,156 @@ const (
 	ProjectUpdateReminderFrequencyNever    ProjectUpdateReminderFrequency = "never"
 )
 
+// Team includes the GraphQL fields of Team requested by the fragment Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type Team struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The team's name.
+	Name string `json:"name"`
+	// The team's unique key. The key is used in URLs.
+	Key string `json:"key"`
+	// Whether the team is private or not.
+	Private bool `json:"private"`
+	// The team's description.
+	Description *string `json:"description"`
+	// The icon of the team.
+	Icon *string `json:"icon"`
+	// The team's color.
+	Color *string `json:"color"`
+	// The timezone of the team. Defaults to "America/Los_Angeles"
+	Timezone string `json:"timezone"`
+	// Whether issues without priority should be sorted first.
+	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
+	// Whether to group recent issue history entries.
+	GroupIssueHistory bool `json:"groupIssueHistory"`
+	// Whether to move issues to bottom of the column when changing state.
+	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
+	// Period after which automatically closed and completed issues are automatically archived in months.
+	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
+	// Period after which issues are automatically closed in months. Null/undefined means disabled.
+	AutoClosePeriod *float64 `json:"autoClosePeriod"`
+	// Whether triage mode is enabled for the team or not.
+	TriageEnabled bool `json:"triageEnabled"`
+	// Whether the team uses cycles.
+	CyclesEnabled bool `json:"cyclesEnabled"`
+	// The day of the week that a new cycle starts.
+	CycleStartDay float64 `json:"cycleStartDay"`
+	// The duration of a cycle in weeks.
+	CycleDuration float64 `json:"cycleDuration"`
+	// The cooldown time after each cycle in weeks.
+	CycleCooldownTime float64 `json:"cycleCooldownTime"`
+	// How many upcoming cycles to create.
+	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
+	// Auto assign started issues to current cycle.
+	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
+	// Auto assign completed issues to current cycle.
+	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
+	// Only allow issues issues with cycles in Active Issues.
+	CycleLockToActive bool `json:"cycleLockToActive"`
+	// The issue estimation type to use.
+	IssueEstimationType string `json:"issueEstimationType"`
+	// Whether to allow zeros in issues estimates.
+	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
+	// Whether to add additional points to the estimate scale.
+	IssueEstimationExtended bool `json:"issueEstimationExtended"`
+	// What to use as an default estimate for unestimated issues.
+	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+}
+
+// GetId returns Team.Id, and is useful for accessing the field via an interface.
+func (v *Team) GetId() string { return v.Id }
+
+// GetName returns Team.Name, and is useful for accessing the field via an interface.
+func (v *Team) GetName() string { return v.Name }
+
+// GetKey returns Team.Key, and is useful for accessing the field via an interface.
+func (v *Team) GetKey() string { return v.Key }
+
+// GetPrivate returns Team.Private, and is useful for accessing the field via an interface.
+func (v *Team) GetPrivate() bool { return v.Private }
+
+// GetDescription returns Team.Description, and is useful for accessing the field via an interface.
+func (v *Team) GetDescription() *string { return v.Description }
+
+// GetIcon returns Team.Icon, and is useful for accessing the field via an interface.
+func (v *Team) GetIcon() *string { return v.Icon }
+
+// GetColor returns Team.Color, and is useful for accessing the field via an interface.
+func (v *Team) GetColor() *string { return v.Color }
+
+// GetTimezone returns Team.Timezone, and is useful for accessing the field via an interface.
+func (v *Team) GetTimezone() string { return v.Timezone }
+
+// GetIssueOrderingNoPriorityFirst returns Team.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
+func (v *Team) GetIssueOrderingNoPriorityFirst() bool { return v.IssueOrderingNoPriorityFirst }
+
+// GetGroupIssueHistory returns Team.GroupIssueHistory, and is useful for accessing the field via an interface.
+func (v *Team) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
+
+// GetIssueSortOrderDefaultToBottom returns Team.IssueSortOrderDefaultToBottom, and is useful for accessing the field via an interface.
+func (v *Team) GetIssueSortOrderDefaultToBottom() bool { return v.IssueSortOrderDefaultToBottom }
+
+// GetAutoArchivePeriod returns Team.AutoArchivePeriod, and is useful for accessing the field via an interface.
+func (v *Team) GetAutoArchivePeriod() float64 { return v.AutoArchivePeriod }
+
+// GetAutoClosePeriod returns Team.AutoClosePeriod, and is useful for accessing the field via an interface.
+func (v *Team) GetAutoClosePeriod() *float64 { return v.AutoClosePeriod }
+
+// GetTriageEnabled returns Team.TriageEnabled, and is useful for accessing the field via an interface.
+func (v *Team) GetTriageEnabled() bool { return v.TriageEnabled }
+
+// GetCyclesEnabled returns Team.CyclesEnabled, and is useful for accessing the field via an interface.
+func (v *Team) GetCyclesEnabled() bool { return v.CyclesEnabled }
+
+// GetCycleStartDay returns Team.CycleStartDay, and is useful for accessing the field via an interface.
+func (v *Team) GetCycleStartDay() float64 { return v.CycleStartDay }
+
+// GetCycleDuration returns Team.CycleDuration, and is useful for accessing the field via an interface.
+func (v *Team) GetCycleDuration() float64 { return v.CycleDuration }
+
+// GetCycleCooldownTime returns Team.CycleCooldownTime, and is useful for accessing the field via an interface.
+func (v *Team) GetCycleCooldownTime() float64 { return v.CycleCooldownTime }
+
+// GetUpcomingCycleCount returns Team.UpcomingCycleCount, and is useful for accessing the field via an interface.
+func (v *Team) GetUpcomingCycleCount() float64 { return v.UpcomingCycleCount }
+
+// GetCycleIssueAutoAssignStarted returns Team.CycleIssueAutoAssignStarted, and is useful for accessing the field via an interface.
+func (v *Team) GetCycleIssueAutoAssignStarted() bool { return v.CycleIssueAutoAssignStarted }
+
+// GetCycleIssueAutoAssignCompleted returns Team.CycleIssueAutoAssignCompleted, and is useful for accessing the field via an interface.
+func (v *Team) GetCycleIssueAutoAssignCompleted() bool { return v.CycleIssueAutoAssignCompleted }
+
+// GetCycleLockToActive returns Team.CycleLockToActive, and is useful for accessing the field via an interface.
+func (v *Team) GetCycleLockToActive() bool { return v.CycleLockToActive }
+
+// GetIssueEstimationType returns Team.IssueEstimationType, and is useful for accessing the field via an interface.
+func (v *Team) GetIssueEstimationType() string { return v.IssueEstimationType }
+
+// GetIssueEstimationAllowZero returns Team.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
+func (v *Team) GetIssueEstimationAllowZero() bool { return v.IssueEstimationAllowZero }
+
+// GetIssueEstimationExtended returns Team.IssueEstimationExtended, and is useful for accessing the field via an interface.
+func (v *Team) GetIssueEstimationExtended() bool { return v.IssueEstimationExtended }
+
+// GetDefaultIssueEstimate returns Team.DefaultIssueEstimate, and is useful for accessing the field via an interface.
+func (v *Team) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
+
 type TeamCreateInput struct {
 	// The identifier. If none is provided, the backend will generate one.
 	Id string `json:"id,omitempty"`
 	// The name of the team.
 	Name string `json:"name"`
 	// The description of the team.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description"`
 	// The key of the team. If not given, the key will be generated based on the name of the team.
 	Key string `json:"key"`
 	// The icon of the team.
-	Icon string `json:"icon,omitempty"`
+	Icon *string `json:"icon,omitempty"`
 	// The color of the team.
-	Color string `json:"color,omitempty"`
+	Color *string `json:"color,omitempty"`
 	// The organization associated with the team.
 	OrganizationId string `json:"organizationId,omitempty"`
 	// Whether the team uses cycles.
@@ -135,16 +346,16 @@ func (v *TeamCreateInput) GetId() string { return v.Id }
 func (v *TeamCreateInput) GetName() string { return v.Name }
 
 // GetDescription returns TeamCreateInput.Description, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetDescription() string { return v.Description }
+func (v *TeamCreateInput) GetDescription() *string { return v.Description }
 
 // GetKey returns TeamCreateInput.Key, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetKey() string { return v.Key }
 
 // GetIcon returns TeamCreateInput.Icon, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetIcon() string { return v.Icon }
+func (v *TeamCreateInput) GetIcon() *string { return v.Icon }
 
 // GetColor returns TeamCreateInput.Color, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetColor() string { return v.Color }
+func (v *TeamCreateInput) GetColor() *string { return v.Color }
 
 // GetOrganizationId returns TeamCreateInput.OrganizationId, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetOrganizationId() string { return v.OrganizationId }
@@ -235,15 +446,15 @@ func (v *TeamCreateInput) GetMarkedAsDuplicateWorkflowStateId() string {
 
 type TeamUpdateInput struct {
 	// The name of the team.
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 	// The description of the team.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description"`
 	// The key of the team.
 	Key string `json:"key,omitempty"`
 	// The icon of the team.
-	Icon string `json:"icon,omitempty"`
+	Icon *string `json:"icon,omitempty"`
 	// The color of the team.
-	Color string `json:"color,omitempty"`
+	Color *string `json:"color,omitempty"`
 	// Whether the team uses cycles.
 	CyclesEnabled bool `json:"cyclesEnabled"`
 	// The day of the week that a new cycle starts.
@@ -259,7 +470,7 @@ type TeamUpdateInput struct {
 	// Only allow issues with cycles in Active Issues.
 	CycleLockToActive bool `json:"cycleLockToActive"`
 	// Whether the first cycle should start in the current or the next week.
-	CycleEnabledStartWeek string `json:"cycleEnabledStartWeek"`
+	CycleEnabledStartWeek string `json:"cycleEnabledStartWeek,omitempty"`
 	// How many upcoming cycles to create.
 	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
 	// The timezone of the team.
@@ -316,16 +527,16 @@ type TeamUpdateInput struct {
 func (v *TeamUpdateInput) GetName() string { return v.Name }
 
 // GetDescription returns TeamUpdateInput.Description, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetDescription() string { return v.Description }
+func (v *TeamUpdateInput) GetDescription() *string { return v.Description }
 
 // GetKey returns TeamUpdateInput.Key, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetKey() string { return v.Key }
 
 // GetIcon returns TeamUpdateInput.Icon, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetIcon() string { return v.Icon }
+func (v *TeamUpdateInput) GetIcon() *string { return v.Icon }
 
 // GetColor returns TeamUpdateInput.Color, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetColor() string { return v.Color }
+func (v *TeamUpdateInput) GetColor() *string { return v.Color }
 
 // GetCyclesEnabled returns TeamUpdateInput.CyclesEnabled, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetCyclesEnabled() bool { return v.CyclesEnabled }
@@ -572,6 +783,14 @@ func (v *WorkflowStateUpdateInput) GetDescription() string { return v.Descriptio
 // GetPosition returns WorkflowStateUpdateInput.Position, and is useful for accessing the field via an interface.
 func (v *WorkflowStateUpdateInput) GetPosition() float64 { return v.Position }
 
+// __createLabelInput is used internally by genqlient
+type __createLabelInput struct {
+	Input IssueLabelCreateInput `json:"input"`
+}
+
+// GetInput returns __createLabelInput.Input, and is useful for accessing the field via an interface.
+func (v *__createLabelInput) GetInput() IssueLabelCreateInput { return v.Input }
+
 // __createTeamInput is used internally by genqlient
 type __createTeamInput struct {
 	Input TeamCreateInput `json:"input"`
@@ -579,14 +798,6 @@ type __createTeamInput struct {
 
 // GetInput returns __createTeamInput.Input, and is useful for accessing the field via an interface.
 func (v *__createTeamInput) GetInput() TeamCreateInput { return v.Input }
-
-// __createTeamLabelInput is used internally by genqlient
-type __createTeamLabelInput struct {
-	Input IssueLabelCreateInput `json:"input"`
-}
-
-// GetInput returns __createTeamLabelInput.Input, and is useful for accessing the field via an interface.
-func (v *__createTeamLabelInput) GetInput() IssueLabelCreateInput { return v.Input }
 
 // __createWorkflowStateInput is used internally by genqlient
 type __createWorkflowStateInput struct {
@@ -596,13 +807,13 @@ type __createWorkflowStateInput struct {
 // GetInput returns __createWorkflowStateInput.Input, and is useful for accessing the field via an interface.
 func (v *__createWorkflowStateInput) GetInput() WorkflowStateCreateInput { return v.Input }
 
-// __createWorkspaceLabelInput is used internally by genqlient
-type __createWorkspaceLabelInput struct {
-	Input IssueLabelCreateInput `json:"input"`
+// __deleteLabelInput is used internally by genqlient
+type __deleteLabelInput struct {
+	Id string `json:"id"`
 }
 
-// GetInput returns __createWorkspaceLabelInput.Input, and is useful for accessing the field via an interface.
-func (v *__createWorkspaceLabelInput) GetInput() IssueLabelCreateInput { return v.Input }
+// GetId returns __deleteLabelInput.Id, and is useful for accessing the field via an interface.
+func (v *__deleteLabelInput) GetId() string { return v.Id }
 
 // __deleteTeamInput is used internally by genqlient
 type __deleteTeamInput struct {
@@ -611,22 +822,6 @@ type __deleteTeamInput struct {
 
 // GetKey returns __deleteTeamInput.Key, and is useful for accessing the field via an interface.
 func (v *__deleteTeamInput) GetKey() string { return v.Key }
-
-// __deleteTeamLabelInput is used internally by genqlient
-type __deleteTeamLabelInput struct {
-	Id string `json:"id"`
-}
-
-// GetId returns __deleteTeamLabelInput.Id, and is useful for accessing the field via an interface.
-func (v *__deleteTeamLabelInput) GetId() string { return v.Id }
-
-// __deleteWorkspaceLabelInput is used internally by genqlient
-type __deleteWorkspaceLabelInput struct {
-	Id string `json:"id"`
-}
-
-// GetId returns __deleteWorkspaceLabelInput.Id, and is useful for accessing the field via an interface.
-func (v *__deleteWorkspaceLabelInput) GetId() string { return v.Id }
 
 // __findTeamLabelInput is used internally by genqlient
 type __findTeamLabelInput struct {
@@ -660,6 +855,14 @@ type __findWorkspaceLabelInput struct {
 // GetName returns __findWorkspaceLabelInput.Name, and is useful for accessing the field via an interface.
 func (v *__findWorkspaceLabelInput) GetName() string { return v.Name }
 
+// __getLabelInput is used internally by genqlient
+type __getLabelInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __getLabelInput.Id, and is useful for accessing the field via an interface.
+func (v *__getLabelInput) GetId() string { return v.Id }
+
 // __getTeamInput is used internally by genqlient
 type __getTeamInput struct {
 	Key string `json:"key"`
@@ -667,14 +870,6 @@ type __getTeamInput struct {
 
 // GetKey returns __getTeamInput.Key, and is useful for accessing the field via an interface.
 func (v *__getTeamInput) GetKey() string { return v.Key }
-
-// __getTeamLabelInput is used internally by genqlient
-type __getTeamLabelInput struct {
-	Id string `json:"id"`
-}
-
-// GetId returns __getTeamLabelInput.Id, and is useful for accessing the field via an interface.
-func (v *__getTeamLabelInput) GetId() string { return v.Id }
 
 // __getWorkflowStateInput is used internally by genqlient
 type __getWorkflowStateInput struct {
@@ -684,13 +879,17 @@ type __getWorkflowStateInput struct {
 // GetId returns __getWorkflowStateInput.Id, and is useful for accessing the field via an interface.
 func (v *__getWorkflowStateInput) GetId() string { return v.Id }
 
-// __getWorkspaceLabelInput is used internally by genqlient
-type __getWorkspaceLabelInput struct {
-	Id string `json:"id"`
+// __updateLabelInput is used internally by genqlient
+type __updateLabelInput struct {
+	Input IssueLabelUpdateInput `json:"input"`
+	Id    string                `json:"id"`
 }
 
-// GetId returns __getWorkspaceLabelInput.Id, and is useful for accessing the field via an interface.
-func (v *__getWorkspaceLabelInput) GetId() string { return v.Id }
+// GetInput returns __updateLabelInput.Input, and is useful for accessing the field via an interface.
+func (v *__updateLabelInput) GetInput() IssueLabelUpdateInput { return v.Input }
+
+// GetId returns __updateLabelInput.Id, and is useful for accessing the field via an interface.
+func (v *__updateLabelInput) GetId() string { return v.Id }
 
 // __updateTeamInput is used internally by genqlient
 type __updateTeamInput struct {
@@ -704,18 +903,6 @@ func (v *__updateTeamInput) GetInput() TeamUpdateInput { return v.Input }
 // GetId returns __updateTeamInput.Id, and is useful for accessing the field via an interface.
 func (v *__updateTeamInput) GetId() string { return v.Id }
 
-// __updateTeamLabelInput is used internally by genqlient
-type __updateTeamLabelInput struct {
-	Input IssueLabelUpdateInput `json:"input"`
-	Id    string                `json:"id"`
-}
-
-// GetInput returns __updateTeamLabelInput.Input, and is useful for accessing the field via an interface.
-func (v *__updateTeamLabelInput) GetInput() IssueLabelUpdateInput { return v.Input }
-
-// GetId returns __updateTeamLabelInput.Id, and is useful for accessing the field via an interface.
-func (v *__updateTeamLabelInput) GetId() string { return v.Id }
-
 // __updateWorkflowStateInput is used internally by genqlient
 type __updateWorkflowStateInput struct {
 	Input WorkflowStateUpdateInput `json:"input"`
@@ -728,18 +915,6 @@ func (v *__updateWorkflowStateInput) GetInput() WorkflowStateUpdateInput { retur
 // GetId returns __updateWorkflowStateInput.Id, and is useful for accessing the field via an interface.
 func (v *__updateWorkflowStateInput) GetId() string { return v.Id }
 
-// __updateWorkspaceLabelInput is used internally by genqlient
-type __updateWorkspaceLabelInput struct {
-	Input IssueLabelUpdateInput `json:"input"`
-	Id    string                `json:"id"`
-}
-
-// GetInput returns __updateWorkspaceLabelInput.Input, and is useful for accessing the field via an interface.
-func (v *__updateWorkspaceLabelInput) GetInput() IssueLabelUpdateInput { return v.Input }
-
-// GetId returns __updateWorkspaceLabelInput.Id, and is useful for accessing the field via an interface.
-func (v *__updateWorkspaceLabelInput) GetId() string { return v.Id }
-
 // __updateWorkspaceSettingsInput is used internally by genqlient
 type __updateWorkspaceSettingsInput struct {
 	Input UpdateOrganizationInput `json:"input"`
@@ -748,75 +923,114 @@ type __updateWorkspaceSettingsInput struct {
 // GetInput returns __updateWorkspaceSettingsInput.Input, and is useful for accessing the field via an interface.
 func (v *__updateWorkspaceSettingsInput) GetInput() UpdateOrganizationInput { return v.Input }
 
-// createTeamLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
-type createTeamLabelIssueLabelCreateIssueLabelPayload struct {
+// createLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
+type createLabelIssueLabelCreateIssueLabelPayload struct {
 	// The label that was created or updated.
-	IssueLabel createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel `json:"issueLabel"`
+	IssueLabel createLabelIssueLabelCreateIssueLabelPayloadIssueLabel `json:"issueLabel"`
 }
 
-// GetIssueLabel returns createTeamLabelIssueLabelCreateIssueLabelPayload.IssueLabel, and is useful for accessing the field via an interface.
-func (v *createTeamLabelIssueLabelCreateIssueLabelPayload) GetIssueLabel() createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel {
+// GetIssueLabel returns createLabelIssueLabelCreateIssueLabelPayload.IssueLabel, and is useful for accessing the field via an interface.
+func (v *createLabelIssueLabelCreateIssueLabelPayload) GetIssueLabel() createLabelIssueLabelCreateIssueLabelPayloadIssueLabel {
 	return v.IssueLabel
 }
 
-// createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
+// createLabelIssueLabelCreateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
 // Labels that can be associated with issues.
-type createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel struct {
-	// The unique identifier of the entity.
+type createLabelIssueLabelCreateIssueLabelPayloadIssueLabel struct {
+	IssueLabel `json:"-"`
+}
+
+// GetId returns createLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Id, and is useful for accessing the field via an interface.
+func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetId() string {
+	return v.IssueLabel.Id
+}
+
+// GetName returns createLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Name, and is useful for accessing the field via an interface.
+func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetName() string {
+	return v.IssueLabel.Name
+}
+
+// GetDescription returns createLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Description, and is useful for accessing the field via an interface.
+func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetDescription() *string {
+	return v.IssueLabel.Description
+}
+
+// GetColor returns createLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Color, and is useful for accessing the field via an interface.
+func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetColor() *string {
+	return v.IssueLabel.Color
+}
+
+// GetTeam returns createLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Team, and is useful for accessing the field via an interface.
+func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetTeam() *IssueLabelTeam {
+	return v.IssueLabel.Team
+}
+
+func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*createLabelIssueLabelCreateIssueLabelPayloadIssueLabel
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.createLabelIssueLabelCreateIssueLabelPayloadIssueLabel = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.IssueLabel)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalcreateLabelIssueLabelCreateIssueLabelPayloadIssueLabel struct {
 	Id string `json:"id"`
-	// The label's name.
+
 	Name string `json:"name"`
-	// The label's description.
-	Description string `json:"description"`
-	// The label's color as a HEX string.
-	Color string `json:"color"`
-	// The team that the label is associated with. If null, the label is associated with the global workspace..
-	Team createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabelTeam `json:"team"`
+
+	Description *string `json:"description"`
+
+	Color *string `json:"color"`
+
+	Team *IssueLabelTeam `json:"team"`
 }
 
-// GetId returns createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Id, and is useful for accessing the field via an interface.
-func (v *createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetId() string { return v.Id }
-
-// GetName returns createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Name, and is useful for accessing the field via an interface.
-func (v *createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetName() string { return v.Name }
-
-// GetDescription returns createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Description, and is useful for accessing the field via an interface.
-func (v *createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetDescription() string {
-	return v.Description
+func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
 }
 
-// GetColor returns createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Color, and is useful for accessing the field via an interface.
-func (v *createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetColor() string {
-	return v.Color
+func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) __premarshalJSON() (*__premarshalcreateLabelIssueLabelCreateIssueLabelPayloadIssueLabel, error) {
+	var retval __premarshalcreateLabelIssueLabelCreateIssueLabelPayloadIssueLabel
+
+	retval.Id = v.IssueLabel.Id
+	retval.Name = v.IssueLabel.Name
+	retval.Description = v.IssueLabel.Description
+	retval.Color = v.IssueLabel.Color
+	retval.Team = v.IssueLabel.Team
+	return &retval, nil
 }
 
-// GetTeam returns createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Team, and is useful for accessing the field via an interface.
-func (v *createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetTeam() createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabelTeam {
-	return v.Team
-}
-
-// createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabelTeam includes the requested fields of the GraphQL type Team.
-// The GraphQL type's documentation follows.
-//
-// An organizational unit that contains issues.
-type createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabelTeam struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-}
-
-// GetId returns createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabelTeam.Id, and is useful for accessing the field via an interface.
-func (v *createTeamLabelIssueLabelCreateIssueLabelPayloadIssueLabelTeam) GetId() string { return v.Id }
-
-// createTeamLabelResponse is returned by createTeamLabel on success.
-type createTeamLabelResponse struct {
+// createLabelResponse is returned by createLabel on success.
+type createLabelResponse struct {
 	// Creates a new label.
-	IssueLabelCreate createTeamLabelIssueLabelCreateIssueLabelPayload `json:"issueLabelCreate"`
+	IssueLabelCreate createLabelIssueLabelCreateIssueLabelPayload `json:"issueLabelCreate"`
 }
 
-// GetIssueLabelCreate returns createTeamLabelResponse.IssueLabelCreate, and is useful for accessing the field via an interface.
-func (v *createTeamLabelResponse) GetIssueLabelCreate() createTeamLabelIssueLabelCreateIssueLabelPayload {
+// GetIssueLabelCreate returns createLabelResponse.IssueLabelCreate, and is useful for accessing the field via an interface.
+func (v *createLabelResponse) GetIssueLabelCreate() createLabelIssueLabelCreateIssueLabelPayload {
 	return v.IssueLabelCreate
 }
 
@@ -845,158 +1059,232 @@ func (v *createTeamTeamCreateTeamPayload) GetTeam() createTeamTeamCreateTeamPayl
 //
 // An organizational unit that contains issues.
 type createTeamTeamCreateTeamPayloadTeam struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-	// The team's name.
-	Name string `json:"name"`
-	// The team's unique key. The key is used in URLs.
-	Key string `json:"key"`
-	// Whether the team is private or not.
-	Private bool `json:"private"`
-	// The team's description.
-	Description string `json:"description"`
-	// The icon of the team.
-	Icon string `json:"icon"`
-	// The team's color.
-	Color string `json:"color"`
-	// The timezone of the team. Defaults to "America/Los_Angeles"
-	Timezone string `json:"timezone"`
-	// Whether issues without priority should be sorted first.
-	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
-	// Whether to group recent issue history entries.
-	GroupIssueHistory bool `json:"groupIssueHistory"`
-	// Whether to move issues to bottom of the column when changing state.
-	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
-	// Period after which automatically closed and completed issues are automatically archived in months.
-	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
-	// Period after which issues are automatically closed in months. Null/undefined means disabled.
-	AutoClosePeriod float64 `json:"autoClosePeriod"`
-	// Whether triage mode is enabled for the team or not.
-	TriageEnabled bool `json:"triageEnabled"`
-	// Whether the team uses cycles.
-	CyclesEnabled bool `json:"cyclesEnabled"`
-	// The day of the week that a new cycle starts.
-	CycleStartDay float64 `json:"cycleStartDay"`
-	// The duration of a cycle in weeks.
-	CycleDuration float64 `json:"cycleDuration"`
-	// The cooldown time after each cycle in weeks.
-	CycleCooldownTime float64 `json:"cycleCooldownTime"`
-	// How many upcoming cycles to create.
-	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
-	// Auto assign started issues to current cycle.
-	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
-	// Auto assign completed issues to current cycle.
-	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
-	// Only allow issues issues with cycles in Active Issues.
-	CycleLockToActive bool `json:"cycleLockToActive"`
-	// The issue estimation type to use.
-	IssueEstimationType string `json:"issueEstimationType"`
-	// Whether to allow zeros in issues estimates.
-	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
-	// Whether to add additional points to the estimate scale.
-	IssueEstimationExtended bool `json:"issueEstimationExtended"`
-	// What to use as an default estimate for unestimated issues.
-	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+	Team `json:"-"`
 }
 
 // GetId returns createTeamTeamCreateTeamPayloadTeam.Id, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetId() string { return v.Id }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetId() string { return v.Team.Id }
 
 // GetName returns createTeamTeamCreateTeamPayloadTeam.Name, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetName() string { return v.Name }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetName() string { return v.Team.Name }
 
 // GetKey returns createTeamTeamCreateTeamPayloadTeam.Key, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetKey() string { return v.Key }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetKey() string { return v.Team.Key }
 
 // GetPrivate returns createTeamTeamCreateTeamPayloadTeam.Private, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetPrivate() bool { return v.Private }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetPrivate() bool { return v.Team.Private }
 
 // GetDescription returns createTeamTeamCreateTeamPayloadTeam.Description, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetDescription() string { return v.Description }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetDescription() *string { return v.Team.Description }
 
 // GetIcon returns createTeamTeamCreateTeamPayloadTeam.Icon, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetIcon() string { return v.Icon }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetIcon() *string { return v.Team.Icon }
 
 // GetColor returns createTeamTeamCreateTeamPayloadTeam.Color, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetColor() string { return v.Color }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetColor() *string { return v.Team.Color }
 
 // GetTimezone returns createTeamTeamCreateTeamPayloadTeam.Timezone, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetTimezone() string { return v.Timezone }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetTimezone() string { return v.Team.Timezone }
 
 // GetIssueOrderingNoPriorityFirst returns createTeamTeamCreateTeamPayloadTeam.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetIssueOrderingNoPriorityFirst() bool {
-	return v.IssueOrderingNoPriorityFirst
+	return v.Team.IssueOrderingNoPriorityFirst
 }
 
 // GetGroupIssueHistory returns createTeamTeamCreateTeamPayloadTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetGroupIssueHistory() bool {
+	return v.Team.GroupIssueHistory
+}
 
 // GetIssueSortOrderDefaultToBottom returns createTeamTeamCreateTeamPayloadTeam.IssueSortOrderDefaultToBottom, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetIssueSortOrderDefaultToBottom() bool {
-	return v.IssueSortOrderDefaultToBottom
+	return v.Team.IssueSortOrderDefaultToBottom
 }
 
 // GetAutoArchivePeriod returns createTeamTeamCreateTeamPayloadTeam.AutoArchivePeriod, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetAutoArchivePeriod() float64 {
-	return v.AutoArchivePeriod
+	return v.Team.AutoArchivePeriod
 }
 
 // GetAutoClosePeriod returns createTeamTeamCreateTeamPayloadTeam.AutoClosePeriod, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetAutoClosePeriod() float64 { return v.AutoClosePeriod }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetAutoClosePeriod() *float64 {
+	return v.Team.AutoClosePeriod
+}
 
 // GetTriageEnabled returns createTeamTeamCreateTeamPayloadTeam.TriageEnabled, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetTriageEnabled() bool { return v.TriageEnabled }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetTriageEnabled() bool { return v.Team.TriageEnabled }
 
 // GetCyclesEnabled returns createTeamTeamCreateTeamPayloadTeam.CyclesEnabled, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetCyclesEnabled() bool { return v.CyclesEnabled }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetCyclesEnabled() bool { return v.Team.CyclesEnabled }
 
 // GetCycleStartDay returns createTeamTeamCreateTeamPayloadTeam.CycleStartDay, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetCycleStartDay() float64 { return v.CycleStartDay }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetCycleStartDay() float64 { return v.Team.CycleStartDay }
 
 // GetCycleDuration returns createTeamTeamCreateTeamPayloadTeam.CycleDuration, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetCycleDuration() float64 { return v.CycleDuration }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetCycleDuration() float64 { return v.Team.CycleDuration }
 
 // GetCycleCooldownTime returns createTeamTeamCreateTeamPayloadTeam.CycleCooldownTime, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetCycleCooldownTime() float64 {
-	return v.CycleCooldownTime
+	return v.Team.CycleCooldownTime
 }
 
 // GetUpcomingCycleCount returns createTeamTeamCreateTeamPayloadTeam.UpcomingCycleCount, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetUpcomingCycleCount() float64 {
-	return v.UpcomingCycleCount
+	return v.Team.UpcomingCycleCount
 }
 
 // GetCycleIssueAutoAssignStarted returns createTeamTeamCreateTeamPayloadTeam.CycleIssueAutoAssignStarted, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetCycleIssueAutoAssignStarted() bool {
-	return v.CycleIssueAutoAssignStarted
+	return v.Team.CycleIssueAutoAssignStarted
 }
 
 // GetCycleIssueAutoAssignCompleted returns createTeamTeamCreateTeamPayloadTeam.CycleIssueAutoAssignCompleted, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetCycleIssueAutoAssignCompleted() bool {
-	return v.CycleIssueAutoAssignCompleted
+	return v.Team.CycleIssueAutoAssignCompleted
 }
 
 // GetCycleLockToActive returns createTeamTeamCreateTeamPayloadTeam.CycleLockToActive, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetCycleLockToActive() bool { return v.CycleLockToActive }
+func (v *createTeamTeamCreateTeamPayloadTeam) GetCycleLockToActive() bool {
+	return v.Team.CycleLockToActive
+}
 
 // GetIssueEstimationType returns createTeamTeamCreateTeamPayloadTeam.IssueEstimationType, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetIssueEstimationType() string {
-	return v.IssueEstimationType
+	return v.Team.IssueEstimationType
 }
 
 // GetIssueEstimationAllowZero returns createTeamTeamCreateTeamPayloadTeam.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetIssueEstimationAllowZero() bool {
-	return v.IssueEstimationAllowZero
+	return v.Team.IssueEstimationAllowZero
 }
 
 // GetIssueEstimationExtended returns createTeamTeamCreateTeamPayloadTeam.IssueEstimationExtended, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetIssueEstimationExtended() bool {
-	return v.IssueEstimationExtended
+	return v.Team.IssueEstimationExtended
 }
 
 // GetDefaultIssueEstimate returns createTeamTeamCreateTeamPayloadTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetDefaultIssueEstimate() float64 {
-	return v.DefaultIssueEstimate
+	return v.Team.DefaultIssueEstimate
+}
+
+func (v *createTeamTeamCreateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*createTeamTeamCreateTeamPayloadTeam
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.createTeamTeamCreateTeamPayloadTeam = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.Team)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalcreateTeamTeamCreateTeamPayloadTeam struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Key string `json:"key"`
+
+	Private bool `json:"private"`
+
+	Description *string `json:"description"`
+
+	Icon *string `json:"icon"`
+
+	Color *string `json:"color"`
+
+	Timezone string `json:"timezone"`
+
+	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
+
+	GroupIssueHistory bool `json:"groupIssueHistory"`
+
+	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
+
+	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
+
+	AutoClosePeriod *float64 `json:"autoClosePeriod"`
+
+	TriageEnabled bool `json:"triageEnabled"`
+
+	CyclesEnabled bool `json:"cyclesEnabled"`
+
+	CycleStartDay float64 `json:"cycleStartDay"`
+
+	CycleDuration float64 `json:"cycleDuration"`
+
+	CycleCooldownTime float64 `json:"cycleCooldownTime"`
+
+	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
+
+	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
+
+	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
+
+	CycleLockToActive bool `json:"cycleLockToActive"`
+
+	IssueEstimationType string `json:"issueEstimationType"`
+
+	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
+
+	IssueEstimationExtended bool `json:"issueEstimationExtended"`
+
+	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+}
+
+func (v *createTeamTeamCreateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *createTeamTeamCreateTeamPayloadTeam) __premarshalJSON() (*__premarshalcreateTeamTeamCreateTeamPayloadTeam, error) {
+	var retval __premarshalcreateTeamTeamCreateTeamPayloadTeam
+
+	retval.Id = v.Team.Id
+	retval.Name = v.Team.Name
+	retval.Key = v.Team.Key
+	retval.Private = v.Team.Private
+	retval.Description = v.Team.Description
+	retval.Icon = v.Team.Icon
+	retval.Color = v.Team.Color
+	retval.Timezone = v.Team.Timezone
+	retval.IssueOrderingNoPriorityFirst = v.Team.IssueOrderingNoPriorityFirst
+	retval.GroupIssueHistory = v.Team.GroupIssueHistory
+	retval.IssueSortOrderDefaultToBottom = v.Team.IssueSortOrderDefaultToBottom
+	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
+	retval.AutoClosePeriod = v.Team.AutoClosePeriod
+	retval.TriageEnabled = v.Team.TriageEnabled
+	retval.CyclesEnabled = v.Team.CyclesEnabled
+	retval.CycleStartDay = v.Team.CycleStartDay
+	retval.CycleDuration = v.Team.CycleDuration
+	retval.CycleCooldownTime = v.Team.CycleCooldownTime
+	retval.UpcomingCycleCount = v.Team.UpcomingCycleCount
+	retval.CycleIssueAutoAssignStarted = v.Team.CycleIssueAutoAssignStarted
+	retval.CycleIssueAutoAssignCompleted = v.Team.CycleIssueAutoAssignCompleted
+	retval.CycleLockToActive = v.Team.CycleLockToActive
+	retval.IssueEstimationType = v.Team.IssueEstimationType
+	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
+	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
+	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	return &retval, nil
 }
 
 // createWorkflowStateResponse is returned by createWorkflowState on success.
@@ -1091,78 +1379,23 @@ func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState
 	return v.Id
 }
 
-// createWorkspaceLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
-type createWorkspaceLabelIssueLabelCreateIssueLabelPayload struct {
-	// The label that was created or updated.
-	IssueLabel createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel `json:"issueLabel"`
-}
-
-// GetIssueLabel returns createWorkspaceLabelIssueLabelCreateIssueLabelPayload.IssueLabel, and is useful for accessing the field via an interface.
-func (v *createWorkspaceLabelIssueLabelCreateIssueLabelPayload) GetIssueLabel() createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel {
-	return v.IssueLabel
-}
-
-// createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
-// The GraphQL type's documentation follows.
-//
-// Labels that can be associated with issues.
-type createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-	// The label's name.
-	Name string `json:"name"`
-	// The label's description.
-	Description string `json:"description"`
-	// The label's color as a HEX string.
-	Color string `json:"color"`
-}
-
-// GetId returns createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Id, and is useful for accessing the field via an interface.
-func (v *createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetId() string { return v.Id }
-
-// GetName returns createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Name, and is useful for accessing the field via an interface.
-func (v *createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetName() string {
-	return v.Name
-}
-
-// GetDescription returns createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Description, and is useful for accessing the field via an interface.
-func (v *createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetDescription() string {
-	return v.Description
-}
-
-// GetColor returns createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Color, and is useful for accessing the field via an interface.
-func (v *createWorkspaceLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetColor() string {
-	return v.Color
-}
-
-// createWorkspaceLabelResponse is returned by createWorkspaceLabel on success.
-type createWorkspaceLabelResponse struct {
-	// Creates a new label.
-	IssueLabelCreate createWorkspaceLabelIssueLabelCreateIssueLabelPayload `json:"issueLabelCreate"`
-}
-
-// GetIssueLabelCreate returns createWorkspaceLabelResponse.IssueLabelCreate, and is useful for accessing the field via an interface.
-func (v *createWorkspaceLabelResponse) GetIssueLabelCreate() createWorkspaceLabelIssueLabelCreateIssueLabelPayload {
-	return v.IssueLabelCreate
-}
-
-// deleteTeamLabelIssueLabelDeleteArchivePayload includes the requested fields of the GraphQL type ArchivePayload.
-type deleteTeamLabelIssueLabelDeleteArchivePayload struct {
+// deleteLabelIssueLabelDeleteArchivePayload includes the requested fields of the GraphQL type ArchivePayload.
+type deleteLabelIssueLabelDeleteArchivePayload struct {
 	// Whether the operation was successful.
 	Success bool `json:"success"`
 }
 
-// GetSuccess returns deleteTeamLabelIssueLabelDeleteArchivePayload.Success, and is useful for accessing the field via an interface.
-func (v *deleteTeamLabelIssueLabelDeleteArchivePayload) GetSuccess() bool { return v.Success }
+// GetSuccess returns deleteLabelIssueLabelDeleteArchivePayload.Success, and is useful for accessing the field via an interface.
+func (v *deleteLabelIssueLabelDeleteArchivePayload) GetSuccess() bool { return v.Success }
 
-// deleteTeamLabelResponse is returned by deleteTeamLabel on success.
-type deleteTeamLabelResponse struct {
+// deleteLabelResponse is returned by deleteLabel on success.
+type deleteLabelResponse struct {
 	// Deletes an issue label.
-	IssueLabelDelete deleteTeamLabelIssueLabelDeleteArchivePayload `json:"issueLabelDelete"`
+	IssueLabelDelete deleteLabelIssueLabelDeleteArchivePayload `json:"issueLabelDelete"`
 }
 
-// GetIssueLabelDelete returns deleteTeamLabelResponse.IssueLabelDelete, and is useful for accessing the field via an interface.
-func (v *deleteTeamLabelResponse) GetIssueLabelDelete() deleteTeamLabelIssueLabelDeleteArchivePayload {
+// GetIssueLabelDelete returns deleteLabelResponse.IssueLabelDelete, and is useful for accessing the field via an interface.
+func (v *deleteLabelResponse) GetIssueLabelDelete() deleteLabelIssueLabelDeleteArchivePayload {
 	return v.IssueLabelDelete
 }
 
@@ -1183,26 +1416,6 @@ type deleteTeamTeamDeleteArchivePayload struct {
 
 // GetSuccess returns deleteTeamTeamDeleteArchivePayload.Success, and is useful for accessing the field via an interface.
 func (v *deleteTeamTeamDeleteArchivePayload) GetSuccess() bool { return v.Success }
-
-// deleteWorkspaceLabelIssueLabelDeleteArchivePayload includes the requested fields of the GraphQL type ArchivePayload.
-type deleteWorkspaceLabelIssueLabelDeleteArchivePayload struct {
-	// Whether the operation was successful.
-	Success bool `json:"success"`
-}
-
-// GetSuccess returns deleteWorkspaceLabelIssueLabelDeleteArchivePayload.Success, and is useful for accessing the field via an interface.
-func (v *deleteWorkspaceLabelIssueLabelDeleteArchivePayload) GetSuccess() bool { return v.Success }
-
-// deleteWorkspaceLabelResponse is returned by deleteWorkspaceLabel on success.
-type deleteWorkspaceLabelResponse struct {
-	// Deletes an issue label.
-	IssueLabelDelete deleteWorkspaceLabelIssueLabelDeleteArchivePayload `json:"issueLabelDelete"`
-}
-
-// GetIssueLabelDelete returns deleteWorkspaceLabelResponse.IssueLabelDelete, and is useful for accessing the field via an interface.
-func (v *deleteWorkspaceLabelResponse) GetIssueLabelDelete() deleteWorkspaceLabelIssueLabelDeleteArchivePayload {
-	return v.IssueLabelDelete
-}
 
 // findTeamLabelIssueLabelsIssueLabelConnection includes the requested fields of the GraphQL type IssueLabelConnection.
 type findTeamLabelIssueLabelsIssueLabelConnection struct {
@@ -1307,58 +1520,93 @@ func (v *findWorkspaceLabelResponse) GetIssueLabels() findWorkspaceLabelIssueLab
 	return v.IssueLabels
 }
 
-// getTeamLabelIssueLabel includes the requested fields of the GraphQL type IssueLabel.
+// getLabelIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
 // Labels that can be associated with issues.
-type getTeamLabelIssueLabel struct {
-	// The unique identifier of the entity.
+type getLabelIssueLabel struct {
+	IssueLabel `json:"-"`
+}
+
+// GetId returns getLabelIssueLabel.Id, and is useful for accessing the field via an interface.
+func (v *getLabelIssueLabel) GetId() string { return v.IssueLabel.Id }
+
+// GetName returns getLabelIssueLabel.Name, and is useful for accessing the field via an interface.
+func (v *getLabelIssueLabel) GetName() string { return v.IssueLabel.Name }
+
+// GetDescription returns getLabelIssueLabel.Description, and is useful for accessing the field via an interface.
+func (v *getLabelIssueLabel) GetDescription() *string { return v.IssueLabel.Description }
+
+// GetColor returns getLabelIssueLabel.Color, and is useful for accessing the field via an interface.
+func (v *getLabelIssueLabel) GetColor() *string { return v.IssueLabel.Color }
+
+// GetTeam returns getLabelIssueLabel.Team, and is useful for accessing the field via an interface.
+func (v *getLabelIssueLabel) GetTeam() *IssueLabelTeam { return v.IssueLabel.Team }
+
+func (v *getLabelIssueLabel) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*getLabelIssueLabel
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.getLabelIssueLabel = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.IssueLabel)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalgetLabelIssueLabel struct {
 	Id string `json:"id"`
-	// The label's name.
+
 	Name string `json:"name"`
-	// The label's description.
-	Description string `json:"description"`
-	// The label's color as a HEX string.
-	Color string `json:"color"`
-	// The team that the label is associated with. If null, the label is associated with the global workspace..
-	Team getTeamLabelIssueLabelTeam `json:"team"`
+
+	Description *string `json:"description"`
+
+	Color *string `json:"color"`
+
+	Team *IssueLabelTeam `json:"team"`
 }
 
-// GetId returns getTeamLabelIssueLabel.Id, and is useful for accessing the field via an interface.
-func (v *getTeamLabelIssueLabel) GetId() string { return v.Id }
-
-// GetName returns getTeamLabelIssueLabel.Name, and is useful for accessing the field via an interface.
-func (v *getTeamLabelIssueLabel) GetName() string { return v.Name }
-
-// GetDescription returns getTeamLabelIssueLabel.Description, and is useful for accessing the field via an interface.
-func (v *getTeamLabelIssueLabel) GetDescription() string { return v.Description }
-
-// GetColor returns getTeamLabelIssueLabel.Color, and is useful for accessing the field via an interface.
-func (v *getTeamLabelIssueLabel) GetColor() string { return v.Color }
-
-// GetTeam returns getTeamLabelIssueLabel.Team, and is useful for accessing the field via an interface.
-func (v *getTeamLabelIssueLabel) GetTeam() getTeamLabelIssueLabelTeam { return v.Team }
-
-// getTeamLabelIssueLabelTeam includes the requested fields of the GraphQL type Team.
-// The GraphQL type's documentation follows.
-//
-// An organizational unit that contains issues.
-type getTeamLabelIssueLabelTeam struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
+func (v *getLabelIssueLabel) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
 }
 
-// GetId returns getTeamLabelIssueLabelTeam.Id, and is useful for accessing the field via an interface.
-func (v *getTeamLabelIssueLabelTeam) GetId() string { return v.Id }
+func (v *getLabelIssueLabel) __premarshalJSON() (*__premarshalgetLabelIssueLabel, error) {
+	var retval __premarshalgetLabelIssueLabel
 
-// getTeamLabelResponse is returned by getTeamLabel on success.
-type getTeamLabelResponse struct {
+	retval.Id = v.IssueLabel.Id
+	retval.Name = v.IssueLabel.Name
+	retval.Description = v.IssueLabel.Description
+	retval.Color = v.IssueLabel.Color
+	retval.Team = v.IssueLabel.Team
+	return &retval, nil
+}
+
+// getLabelResponse is returned by getLabel on success.
+type getLabelResponse struct {
 	// One specific label.
-	IssueLabel getTeamLabelIssueLabel `json:"issueLabel"`
+	IssueLabel getLabelIssueLabel `json:"issueLabel"`
 }
 
-// GetIssueLabel returns getTeamLabelResponse.IssueLabel, and is useful for accessing the field via an interface.
-func (v *getTeamLabelResponse) GetIssueLabel() getTeamLabelIssueLabel { return v.IssueLabel }
+// GetIssueLabel returns getLabelResponse.IssueLabel, and is useful for accessing the field via an interface.
+func (v *getLabelResponse) GetIssueLabel() getLabelIssueLabel { return v.IssueLabel }
 
 // getTeamResponse is returned by getTeam on success.
 type getTeamResponse struct {
@@ -1374,137 +1622,213 @@ func (v *getTeamResponse) GetTeam() getTeamTeam { return v.Team }
 //
 // An organizational unit that contains issues.
 type getTeamTeam struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-	// The team's name.
-	Name string `json:"name"`
-	// The team's unique key. The key is used in URLs.
-	Key string `json:"key"`
-	// Whether the team is private or not.
-	Private bool `json:"private"`
-	// The team's description.
-	Description string `json:"description"`
-	// The icon of the team.
-	Icon string `json:"icon"`
-	// The team's color.
-	Color string `json:"color"`
-	// The timezone of the team. Defaults to "America/Los_Angeles"
-	Timezone string `json:"timezone"`
-	// Whether issues without priority should be sorted first.
-	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
-	// Whether to group recent issue history entries.
-	GroupIssueHistory bool `json:"groupIssueHistory"`
-	// Whether to move issues to bottom of the column when changing state.
-	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
-	// Period after which automatically closed and completed issues are automatically archived in months.
-	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
-	// Period after which issues are automatically closed in months. Null/undefined means disabled.
-	AutoClosePeriod float64 `json:"autoClosePeriod"`
-	// Whether triage mode is enabled for the team or not.
-	TriageEnabled bool `json:"triageEnabled"`
-	// Whether the team uses cycles.
-	CyclesEnabled bool `json:"cyclesEnabled"`
-	// The day of the week that a new cycle starts.
-	CycleStartDay float64 `json:"cycleStartDay"`
-	// The duration of a cycle in weeks.
-	CycleDuration float64 `json:"cycleDuration"`
-	// The cooldown time after each cycle in weeks.
-	CycleCooldownTime float64 `json:"cycleCooldownTime"`
-	// How many upcoming cycles to create.
-	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
-	// Auto assign started issues to current cycle.
-	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
-	// Auto assign completed issues to current cycle.
-	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
-	// Only allow issues issues with cycles in Active Issues.
-	CycleLockToActive bool `json:"cycleLockToActive"`
-	// The issue estimation type to use.
-	IssueEstimationType string `json:"issueEstimationType"`
-	// Whether to allow zeros in issues estimates.
-	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
-	// Whether to add additional points to the estimate scale.
-	IssueEstimationExtended bool `json:"issueEstimationExtended"`
-	// What to use as an default estimate for unestimated issues.
-	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+	Team `json:"-"`
 }
 
 // GetId returns getTeamTeam.Id, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetId() string { return v.Id }
+func (v *getTeamTeam) GetId() string { return v.Team.Id }
 
 // GetName returns getTeamTeam.Name, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetName() string { return v.Name }
+func (v *getTeamTeam) GetName() string { return v.Team.Name }
 
 // GetKey returns getTeamTeam.Key, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetKey() string { return v.Key }
+func (v *getTeamTeam) GetKey() string { return v.Team.Key }
 
 // GetPrivate returns getTeamTeam.Private, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetPrivate() bool { return v.Private }
+func (v *getTeamTeam) GetPrivate() bool { return v.Team.Private }
 
 // GetDescription returns getTeamTeam.Description, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetDescription() string { return v.Description }
+func (v *getTeamTeam) GetDescription() *string { return v.Team.Description }
 
 // GetIcon returns getTeamTeam.Icon, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetIcon() string { return v.Icon }
+func (v *getTeamTeam) GetIcon() *string { return v.Team.Icon }
 
 // GetColor returns getTeamTeam.Color, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetColor() string { return v.Color }
+func (v *getTeamTeam) GetColor() *string { return v.Team.Color }
 
 // GetTimezone returns getTeamTeam.Timezone, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetTimezone() string { return v.Timezone }
+func (v *getTeamTeam) GetTimezone() string { return v.Team.Timezone }
 
 // GetIssueOrderingNoPriorityFirst returns getTeamTeam.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetIssueOrderingNoPriorityFirst() bool { return v.IssueOrderingNoPriorityFirst }
+func (v *getTeamTeam) GetIssueOrderingNoPriorityFirst() bool {
+	return v.Team.IssueOrderingNoPriorityFirst
+}
 
 // GetGroupIssueHistory returns getTeamTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
+func (v *getTeamTeam) GetGroupIssueHistory() bool { return v.Team.GroupIssueHistory }
 
 // GetIssueSortOrderDefaultToBottom returns getTeamTeam.IssueSortOrderDefaultToBottom, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetIssueSortOrderDefaultToBottom() bool { return v.IssueSortOrderDefaultToBottom }
+func (v *getTeamTeam) GetIssueSortOrderDefaultToBottom() bool {
+	return v.Team.IssueSortOrderDefaultToBottom
+}
 
 // GetAutoArchivePeriod returns getTeamTeam.AutoArchivePeriod, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetAutoArchivePeriod() float64 { return v.AutoArchivePeriod }
+func (v *getTeamTeam) GetAutoArchivePeriod() float64 { return v.Team.AutoArchivePeriod }
 
 // GetAutoClosePeriod returns getTeamTeam.AutoClosePeriod, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetAutoClosePeriod() float64 { return v.AutoClosePeriod }
+func (v *getTeamTeam) GetAutoClosePeriod() *float64 { return v.Team.AutoClosePeriod }
 
 // GetTriageEnabled returns getTeamTeam.TriageEnabled, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetTriageEnabled() bool { return v.TriageEnabled }
+func (v *getTeamTeam) GetTriageEnabled() bool { return v.Team.TriageEnabled }
 
 // GetCyclesEnabled returns getTeamTeam.CyclesEnabled, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetCyclesEnabled() bool { return v.CyclesEnabled }
+func (v *getTeamTeam) GetCyclesEnabled() bool { return v.Team.CyclesEnabled }
 
 // GetCycleStartDay returns getTeamTeam.CycleStartDay, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetCycleStartDay() float64 { return v.CycleStartDay }
+func (v *getTeamTeam) GetCycleStartDay() float64 { return v.Team.CycleStartDay }
 
 // GetCycleDuration returns getTeamTeam.CycleDuration, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetCycleDuration() float64 { return v.CycleDuration }
+func (v *getTeamTeam) GetCycleDuration() float64 { return v.Team.CycleDuration }
 
 // GetCycleCooldownTime returns getTeamTeam.CycleCooldownTime, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetCycleCooldownTime() float64 { return v.CycleCooldownTime }
+func (v *getTeamTeam) GetCycleCooldownTime() float64 { return v.Team.CycleCooldownTime }
 
 // GetUpcomingCycleCount returns getTeamTeam.UpcomingCycleCount, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetUpcomingCycleCount() float64 { return v.UpcomingCycleCount }
+func (v *getTeamTeam) GetUpcomingCycleCount() float64 { return v.Team.UpcomingCycleCount }
 
 // GetCycleIssueAutoAssignStarted returns getTeamTeam.CycleIssueAutoAssignStarted, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetCycleIssueAutoAssignStarted() bool { return v.CycleIssueAutoAssignStarted }
+func (v *getTeamTeam) GetCycleIssueAutoAssignStarted() bool {
+	return v.Team.CycleIssueAutoAssignStarted
+}
 
 // GetCycleIssueAutoAssignCompleted returns getTeamTeam.CycleIssueAutoAssignCompleted, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetCycleIssueAutoAssignCompleted() bool { return v.CycleIssueAutoAssignCompleted }
+func (v *getTeamTeam) GetCycleIssueAutoAssignCompleted() bool {
+	return v.Team.CycleIssueAutoAssignCompleted
+}
 
 // GetCycleLockToActive returns getTeamTeam.CycleLockToActive, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetCycleLockToActive() bool { return v.CycleLockToActive }
+func (v *getTeamTeam) GetCycleLockToActive() bool { return v.Team.CycleLockToActive }
 
 // GetIssueEstimationType returns getTeamTeam.IssueEstimationType, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetIssueEstimationType() string { return v.IssueEstimationType }
+func (v *getTeamTeam) GetIssueEstimationType() string { return v.Team.IssueEstimationType }
 
 // GetIssueEstimationAllowZero returns getTeamTeam.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetIssueEstimationAllowZero() bool { return v.IssueEstimationAllowZero }
+func (v *getTeamTeam) GetIssueEstimationAllowZero() bool { return v.Team.IssueEstimationAllowZero }
 
 // GetIssueEstimationExtended returns getTeamTeam.IssueEstimationExtended, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetIssueEstimationExtended() bool { return v.IssueEstimationExtended }
+func (v *getTeamTeam) GetIssueEstimationExtended() bool { return v.Team.IssueEstimationExtended }
 
 // GetDefaultIssueEstimate returns getTeamTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
+func (v *getTeamTeam) GetDefaultIssueEstimate() float64 { return v.Team.DefaultIssueEstimate }
+
+func (v *getTeamTeam) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*getTeamTeam
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.getTeamTeam = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.Team)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalgetTeamTeam struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Key string `json:"key"`
+
+	Private bool `json:"private"`
+
+	Description *string `json:"description"`
+
+	Icon *string `json:"icon"`
+
+	Color *string `json:"color"`
+
+	Timezone string `json:"timezone"`
+
+	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
+
+	GroupIssueHistory bool `json:"groupIssueHistory"`
+
+	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
+
+	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
+
+	AutoClosePeriod *float64 `json:"autoClosePeriod"`
+
+	TriageEnabled bool `json:"triageEnabled"`
+
+	CyclesEnabled bool `json:"cyclesEnabled"`
+
+	CycleStartDay float64 `json:"cycleStartDay"`
+
+	CycleDuration float64 `json:"cycleDuration"`
+
+	CycleCooldownTime float64 `json:"cycleCooldownTime"`
+
+	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
+
+	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
+
+	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
+
+	CycleLockToActive bool `json:"cycleLockToActive"`
+
+	IssueEstimationType string `json:"issueEstimationType"`
+
+	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
+
+	IssueEstimationExtended bool `json:"issueEstimationExtended"`
+
+	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+}
+
+func (v *getTeamTeam) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
+	var retval __premarshalgetTeamTeam
+
+	retval.Id = v.Team.Id
+	retval.Name = v.Team.Name
+	retval.Key = v.Team.Key
+	retval.Private = v.Team.Private
+	retval.Description = v.Team.Description
+	retval.Icon = v.Team.Icon
+	retval.Color = v.Team.Color
+	retval.Timezone = v.Team.Timezone
+	retval.IssueOrderingNoPriorityFirst = v.Team.IssueOrderingNoPriorityFirst
+	retval.GroupIssueHistory = v.Team.GroupIssueHistory
+	retval.IssueSortOrderDefaultToBottom = v.Team.IssueSortOrderDefaultToBottom
+	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
+	retval.AutoClosePeriod = v.Team.AutoClosePeriod
+	retval.TriageEnabled = v.Team.TriageEnabled
+	retval.CyclesEnabled = v.Team.CyclesEnabled
+	retval.CycleStartDay = v.Team.CycleStartDay
+	retval.CycleDuration = v.Team.CycleDuration
+	retval.CycleCooldownTime = v.Team.CycleCooldownTime
+	retval.UpcomingCycleCount = v.Team.UpcomingCycleCount
+	retval.CycleIssueAutoAssignStarted = v.Team.CycleIssueAutoAssignStarted
+	retval.CycleIssueAutoAssignCompleted = v.Team.CycleIssueAutoAssignCompleted
+	retval.CycleLockToActive = v.Team.CycleLockToActive
+	retval.IssueEstimationType = v.Team.IssueEstimationType
+	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
+	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
+	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	return &retval, nil
+}
 
 // getWorkflowStateResponse is returned by getWorkflowState on success.
 type getWorkflowStateResponse struct {
@@ -1571,42 +1895,6 @@ type getWorkflowStateWorkflowStateTeam struct {
 // GetId returns getWorkflowStateWorkflowStateTeam.Id, and is useful for accessing the field via an interface.
 func (v *getWorkflowStateWorkflowStateTeam) GetId() string { return v.Id }
 
-// getWorkspaceLabelIssueLabel includes the requested fields of the GraphQL type IssueLabel.
-// The GraphQL type's documentation follows.
-//
-// Labels that can be associated with issues.
-type getWorkspaceLabelIssueLabel struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-	// The label's name.
-	Name string `json:"name"`
-	// The label's description.
-	Description string `json:"description"`
-	// The label's color as a HEX string.
-	Color string `json:"color"`
-}
-
-// GetId returns getWorkspaceLabelIssueLabel.Id, and is useful for accessing the field via an interface.
-func (v *getWorkspaceLabelIssueLabel) GetId() string { return v.Id }
-
-// GetName returns getWorkspaceLabelIssueLabel.Name, and is useful for accessing the field via an interface.
-func (v *getWorkspaceLabelIssueLabel) GetName() string { return v.Name }
-
-// GetDescription returns getWorkspaceLabelIssueLabel.Description, and is useful for accessing the field via an interface.
-func (v *getWorkspaceLabelIssueLabel) GetDescription() string { return v.Description }
-
-// GetColor returns getWorkspaceLabelIssueLabel.Color, and is useful for accessing the field via an interface.
-func (v *getWorkspaceLabelIssueLabel) GetColor() string { return v.Color }
-
-// getWorkspaceLabelResponse is returned by getWorkspaceLabel on success.
-type getWorkspaceLabelResponse struct {
-	// One specific label.
-	IssueLabel getWorkspaceLabelIssueLabel `json:"issueLabel"`
-}
-
-// GetIssueLabel returns getWorkspaceLabelResponse.IssueLabel, and is useful for accessing the field via an interface.
-func (v *getWorkspaceLabelResponse) GetIssueLabel() getWorkspaceLabelIssueLabel { return v.IssueLabel }
-
 // getWorkspaceOrganization includes the requested fields of the GraphQL type Organization.
 // The GraphQL type's documentation follows.
 //
@@ -1643,30 +1931,78 @@ func (v *getWorkspaceResponse) GetOrganization() getWorkspaceOrganization { retu
 //
 // An organization. Organizations are root-level objects that contain user accounts and teams.
 type getWorkspaceSettingsOrganization struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-	// Whether the organization is using a roadmap.
-	RoadmapEnabled bool `json:"roadmapEnabled"`
-	// Whether the Git integration linkback messages should be sent to private repositories.
-	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
-	// Whether the Git integration linkback messages should be sent to public repositories.
-	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+	Organization `json:"-"`
 }
 
 // GetId returns getWorkspaceSettingsOrganization.Id, and is useful for accessing the field via an interface.
-func (v *getWorkspaceSettingsOrganization) GetId() string { return v.Id }
+func (v *getWorkspaceSettingsOrganization) GetId() string { return v.Organization.Id }
 
 // GetRoadmapEnabled returns getWorkspaceSettingsOrganization.RoadmapEnabled, and is useful for accessing the field via an interface.
-func (v *getWorkspaceSettingsOrganization) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
+func (v *getWorkspaceSettingsOrganization) GetRoadmapEnabled() bool {
+	return v.Organization.RoadmapEnabled
+}
 
 // GetGitLinkbackMessagesEnabled returns getWorkspaceSettingsOrganization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *getWorkspaceSettingsOrganization) GetGitLinkbackMessagesEnabled() bool {
-	return v.GitLinkbackMessagesEnabled
+	return v.Organization.GitLinkbackMessagesEnabled
 }
 
 // GetGitPublicLinkbackMessagesEnabled returns getWorkspaceSettingsOrganization.GitPublicLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *getWorkspaceSettingsOrganization) GetGitPublicLinkbackMessagesEnabled() bool {
-	return v.GitPublicLinkbackMessagesEnabled
+	return v.Organization.GitPublicLinkbackMessagesEnabled
+}
+
+func (v *getWorkspaceSettingsOrganization) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*getWorkspaceSettingsOrganization
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.getWorkspaceSettingsOrganization = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.Organization)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalgetWorkspaceSettingsOrganization struct {
+	Id string `json:"id"`
+
+	RoadmapEnabled bool `json:"roadmapEnabled"`
+
+	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
+
+	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+}
+
+func (v *getWorkspaceSettingsOrganization) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetWorkspaceSettingsOrganization, error) {
+	var retval __premarshalgetWorkspaceSettingsOrganization
+
+	retval.Id = v.Organization.Id
+	retval.RoadmapEnabled = v.Organization.RoadmapEnabled
+	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
+	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
+	return &retval, nil
 }
 
 // getWorkspaceSettingsResponse is returned by getWorkspaceSettings on success.
@@ -1680,75 +2016,114 @@ func (v *getWorkspaceSettingsResponse) GetOrganization() getWorkspaceSettingsOrg
 	return v.Organization
 }
 
-// updateTeamLabelIssueLabelUpdateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
-type updateTeamLabelIssueLabelUpdateIssueLabelPayload struct {
+// updateLabelIssueLabelUpdateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
+type updateLabelIssueLabelUpdateIssueLabelPayload struct {
 	// The label that was created or updated.
-	IssueLabel updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel `json:"issueLabel"`
+	IssueLabel updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel `json:"issueLabel"`
 }
 
-// GetIssueLabel returns updateTeamLabelIssueLabelUpdateIssueLabelPayload.IssueLabel, and is useful for accessing the field via an interface.
-func (v *updateTeamLabelIssueLabelUpdateIssueLabelPayload) GetIssueLabel() updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel {
+// GetIssueLabel returns updateLabelIssueLabelUpdateIssueLabelPayload.IssueLabel, and is useful for accessing the field via an interface.
+func (v *updateLabelIssueLabelUpdateIssueLabelPayload) GetIssueLabel() updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel {
 	return v.IssueLabel
 }
 
-// updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
+// updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
 // Labels that can be associated with issues.
-type updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel struct {
-	// The unique identifier of the entity.
+type updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel struct {
+	IssueLabel `json:"-"`
+}
+
+// GetId returns updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Id, and is useful for accessing the field via an interface.
+func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetId() string {
+	return v.IssueLabel.Id
+}
+
+// GetName returns updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Name, and is useful for accessing the field via an interface.
+func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetName() string {
+	return v.IssueLabel.Name
+}
+
+// GetDescription returns updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Description, and is useful for accessing the field via an interface.
+func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetDescription() *string {
+	return v.IssueLabel.Description
+}
+
+// GetColor returns updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Color, and is useful for accessing the field via an interface.
+func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetColor() *string {
+	return v.IssueLabel.Color
+}
+
+// GetTeam returns updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Team, and is useful for accessing the field via an interface.
+func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetTeam() *IssueLabelTeam {
+	return v.IssueLabel.Team
+}
+
+func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.IssueLabel)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalupdateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel struct {
 	Id string `json:"id"`
-	// The label's name.
+
 	Name string `json:"name"`
-	// The label's description.
-	Description string `json:"description"`
-	// The label's color as a HEX string.
-	Color string `json:"color"`
-	// The team that the label is associated with. If null, the label is associated with the global workspace..
-	Team updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabelTeam `json:"team"`
+
+	Description *string `json:"description"`
+
+	Color *string `json:"color"`
+
+	Team *IssueLabelTeam `json:"team"`
 }
 
-// GetId returns updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Id, and is useful for accessing the field via an interface.
-func (v *updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetId() string { return v.Id }
-
-// GetName returns updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Name, and is useful for accessing the field via an interface.
-func (v *updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetName() string { return v.Name }
-
-// GetDescription returns updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Description, and is useful for accessing the field via an interface.
-func (v *updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetDescription() string {
-	return v.Description
+func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
 }
 
-// GetColor returns updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Color, and is useful for accessing the field via an interface.
-func (v *updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetColor() string {
-	return v.Color
+func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) __premarshalJSON() (*__premarshalupdateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel, error) {
+	var retval __premarshalupdateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel
+
+	retval.Id = v.IssueLabel.Id
+	retval.Name = v.IssueLabel.Name
+	retval.Description = v.IssueLabel.Description
+	retval.Color = v.IssueLabel.Color
+	retval.Team = v.IssueLabel.Team
+	return &retval, nil
 }
 
-// GetTeam returns updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Team, and is useful for accessing the field via an interface.
-func (v *updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetTeam() updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabelTeam {
-	return v.Team
-}
-
-// updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabelTeam includes the requested fields of the GraphQL type Team.
-// The GraphQL type's documentation follows.
-//
-// An organizational unit that contains issues.
-type updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabelTeam struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-}
-
-// GetId returns updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabelTeam.Id, and is useful for accessing the field via an interface.
-func (v *updateTeamLabelIssueLabelUpdateIssueLabelPayloadIssueLabelTeam) GetId() string { return v.Id }
-
-// updateTeamLabelResponse is returned by updateTeamLabel on success.
-type updateTeamLabelResponse struct {
+// updateLabelResponse is returned by updateLabel on success.
+type updateLabelResponse struct {
 	// Updates an label.
-	IssueLabelUpdate updateTeamLabelIssueLabelUpdateIssueLabelPayload `json:"issueLabelUpdate"`
+	IssueLabelUpdate updateLabelIssueLabelUpdateIssueLabelPayload `json:"issueLabelUpdate"`
 }
 
-// GetIssueLabelUpdate returns updateTeamLabelResponse.IssueLabelUpdate, and is useful for accessing the field via an interface.
-func (v *updateTeamLabelResponse) GetIssueLabelUpdate() updateTeamLabelIssueLabelUpdateIssueLabelPayload {
+// GetIssueLabelUpdate returns updateLabelResponse.IssueLabelUpdate, and is useful for accessing the field via an interface.
+func (v *updateLabelResponse) GetIssueLabelUpdate() updateLabelIssueLabelUpdateIssueLabelPayload {
 	return v.IssueLabelUpdate
 }
 
@@ -1777,158 +2152,232 @@ func (v *updateTeamTeamUpdateTeamPayload) GetTeam() updateTeamTeamUpdateTeamPayl
 //
 // An organizational unit that contains issues.
 type updateTeamTeamUpdateTeamPayloadTeam struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-	// The team's name.
-	Name string `json:"name"`
-	// The team's unique key. The key is used in URLs.
-	Key string `json:"key"`
-	// Whether the team is private or not.
-	Private bool `json:"private"`
-	// The team's description.
-	Description string `json:"description"`
-	// The icon of the team.
-	Icon string `json:"icon"`
-	// The team's color.
-	Color string `json:"color"`
-	// The timezone of the team. Defaults to "America/Los_Angeles"
-	Timezone string `json:"timezone"`
-	// Whether issues without priority should be sorted first.
-	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
-	// Whether to group recent issue history entries.
-	GroupIssueHistory bool `json:"groupIssueHistory"`
-	// Whether to move issues to bottom of the column when changing state.
-	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
-	// Period after which automatically closed and completed issues are automatically archived in months.
-	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
-	// Period after which issues are automatically closed in months. Null/undefined means disabled.
-	AutoClosePeriod float64 `json:"autoClosePeriod"`
-	// Whether triage mode is enabled for the team or not.
-	TriageEnabled bool `json:"triageEnabled"`
-	// Whether the team uses cycles.
-	CyclesEnabled bool `json:"cyclesEnabled"`
-	// The day of the week that a new cycle starts.
-	CycleStartDay float64 `json:"cycleStartDay"`
-	// The duration of a cycle in weeks.
-	CycleDuration float64 `json:"cycleDuration"`
-	// The cooldown time after each cycle in weeks.
-	CycleCooldownTime float64 `json:"cycleCooldownTime"`
-	// How many upcoming cycles to create.
-	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
-	// Auto assign started issues to current cycle.
-	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
-	// Auto assign completed issues to current cycle.
-	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
-	// Only allow issues issues with cycles in Active Issues.
-	CycleLockToActive bool `json:"cycleLockToActive"`
-	// The issue estimation type to use.
-	IssueEstimationType string `json:"issueEstimationType"`
-	// Whether to allow zeros in issues estimates.
-	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
-	// Whether to add additional points to the estimate scale.
-	IssueEstimationExtended bool `json:"issueEstimationExtended"`
-	// What to use as an default estimate for unestimated issues.
-	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+	Team `json:"-"`
 }
 
 // GetId returns updateTeamTeamUpdateTeamPayloadTeam.Id, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetId() string { return v.Id }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetId() string { return v.Team.Id }
 
 // GetName returns updateTeamTeamUpdateTeamPayloadTeam.Name, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetName() string { return v.Name }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetName() string { return v.Team.Name }
 
 // GetKey returns updateTeamTeamUpdateTeamPayloadTeam.Key, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetKey() string { return v.Key }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetKey() string { return v.Team.Key }
 
 // GetPrivate returns updateTeamTeamUpdateTeamPayloadTeam.Private, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetPrivate() bool { return v.Private }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetPrivate() bool { return v.Team.Private }
 
 // GetDescription returns updateTeamTeamUpdateTeamPayloadTeam.Description, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetDescription() string { return v.Description }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetDescription() *string { return v.Team.Description }
 
 // GetIcon returns updateTeamTeamUpdateTeamPayloadTeam.Icon, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIcon() string { return v.Icon }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIcon() *string { return v.Team.Icon }
 
 // GetColor returns updateTeamTeamUpdateTeamPayloadTeam.Color, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetColor() string { return v.Color }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetColor() *string { return v.Team.Color }
 
 // GetTimezone returns updateTeamTeamUpdateTeamPayloadTeam.Timezone, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetTimezone() string { return v.Timezone }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetTimezone() string { return v.Team.Timezone }
 
 // GetIssueOrderingNoPriorityFirst returns updateTeamTeamUpdateTeamPayloadTeam.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIssueOrderingNoPriorityFirst() bool {
-	return v.IssueOrderingNoPriorityFirst
+	return v.Team.IssueOrderingNoPriorityFirst
 }
 
 // GetGroupIssueHistory returns updateTeamTeamUpdateTeamPayloadTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetGroupIssueHistory() bool {
+	return v.Team.GroupIssueHistory
+}
 
 // GetIssueSortOrderDefaultToBottom returns updateTeamTeamUpdateTeamPayloadTeam.IssueSortOrderDefaultToBottom, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIssueSortOrderDefaultToBottom() bool {
-	return v.IssueSortOrderDefaultToBottom
+	return v.Team.IssueSortOrderDefaultToBottom
 }
 
 // GetAutoArchivePeriod returns updateTeamTeamUpdateTeamPayloadTeam.AutoArchivePeriod, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAutoArchivePeriod() float64 {
-	return v.AutoArchivePeriod
+	return v.Team.AutoArchivePeriod
 }
 
 // GetAutoClosePeriod returns updateTeamTeamUpdateTeamPayloadTeam.AutoClosePeriod, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAutoClosePeriod() float64 { return v.AutoClosePeriod }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAutoClosePeriod() *float64 {
+	return v.Team.AutoClosePeriod
+}
 
 // GetTriageEnabled returns updateTeamTeamUpdateTeamPayloadTeam.TriageEnabled, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetTriageEnabled() bool { return v.TriageEnabled }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetTriageEnabled() bool { return v.Team.TriageEnabled }
 
 // GetCyclesEnabled returns updateTeamTeamUpdateTeamPayloadTeam.CyclesEnabled, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCyclesEnabled() bool { return v.CyclesEnabled }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCyclesEnabled() bool { return v.Team.CyclesEnabled }
 
 // GetCycleStartDay returns updateTeamTeamUpdateTeamPayloadTeam.CycleStartDay, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCycleStartDay() float64 { return v.CycleStartDay }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCycleStartDay() float64 { return v.Team.CycleStartDay }
 
 // GetCycleDuration returns updateTeamTeamUpdateTeamPayloadTeam.CycleDuration, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCycleDuration() float64 { return v.CycleDuration }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCycleDuration() float64 { return v.Team.CycleDuration }
 
 // GetCycleCooldownTime returns updateTeamTeamUpdateTeamPayloadTeam.CycleCooldownTime, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCycleCooldownTime() float64 {
-	return v.CycleCooldownTime
+	return v.Team.CycleCooldownTime
 }
 
 // GetUpcomingCycleCount returns updateTeamTeamUpdateTeamPayloadTeam.UpcomingCycleCount, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetUpcomingCycleCount() float64 {
-	return v.UpcomingCycleCount
+	return v.Team.UpcomingCycleCount
 }
 
 // GetCycleIssueAutoAssignStarted returns updateTeamTeamUpdateTeamPayloadTeam.CycleIssueAutoAssignStarted, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCycleIssueAutoAssignStarted() bool {
-	return v.CycleIssueAutoAssignStarted
+	return v.Team.CycleIssueAutoAssignStarted
 }
 
 // GetCycleIssueAutoAssignCompleted returns updateTeamTeamUpdateTeamPayloadTeam.CycleIssueAutoAssignCompleted, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCycleIssueAutoAssignCompleted() bool {
-	return v.CycleIssueAutoAssignCompleted
+	return v.Team.CycleIssueAutoAssignCompleted
 }
 
 // GetCycleLockToActive returns updateTeamTeamUpdateTeamPayloadTeam.CycleLockToActive, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCycleLockToActive() bool { return v.CycleLockToActive }
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCycleLockToActive() bool {
+	return v.Team.CycleLockToActive
+}
 
 // GetIssueEstimationType returns updateTeamTeamUpdateTeamPayloadTeam.IssueEstimationType, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIssueEstimationType() string {
-	return v.IssueEstimationType
+	return v.Team.IssueEstimationType
 }
 
 // GetIssueEstimationAllowZero returns updateTeamTeamUpdateTeamPayloadTeam.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIssueEstimationAllowZero() bool {
-	return v.IssueEstimationAllowZero
+	return v.Team.IssueEstimationAllowZero
 }
 
 // GetIssueEstimationExtended returns updateTeamTeamUpdateTeamPayloadTeam.IssueEstimationExtended, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIssueEstimationExtended() bool {
-	return v.IssueEstimationExtended
+	return v.Team.IssueEstimationExtended
 }
 
 // GetDefaultIssueEstimate returns updateTeamTeamUpdateTeamPayloadTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetDefaultIssueEstimate() float64 {
-	return v.DefaultIssueEstimate
+	return v.Team.DefaultIssueEstimate
+}
+
+func (v *updateTeamTeamUpdateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*updateTeamTeamUpdateTeamPayloadTeam
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.updateTeamTeamUpdateTeamPayloadTeam = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.Team)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalupdateTeamTeamUpdateTeamPayloadTeam struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Key string `json:"key"`
+
+	Private bool `json:"private"`
+
+	Description *string `json:"description"`
+
+	Icon *string `json:"icon"`
+
+	Color *string `json:"color"`
+
+	Timezone string `json:"timezone"`
+
+	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
+
+	GroupIssueHistory bool `json:"groupIssueHistory"`
+
+	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
+
+	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
+
+	AutoClosePeriod *float64 `json:"autoClosePeriod"`
+
+	TriageEnabled bool `json:"triageEnabled"`
+
+	CyclesEnabled bool `json:"cyclesEnabled"`
+
+	CycleStartDay float64 `json:"cycleStartDay"`
+
+	CycleDuration float64 `json:"cycleDuration"`
+
+	CycleCooldownTime float64 `json:"cycleCooldownTime"`
+
+	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
+
+	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
+
+	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
+
+	CycleLockToActive bool `json:"cycleLockToActive"`
+
+	IssueEstimationType string `json:"issueEstimationType"`
+
+	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
+
+	IssueEstimationExtended bool `json:"issueEstimationExtended"`
+
+	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+}
+
+func (v *updateTeamTeamUpdateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalupdateTeamTeamUpdateTeamPayloadTeam, error) {
+	var retval __premarshalupdateTeamTeamUpdateTeamPayloadTeam
+
+	retval.Id = v.Team.Id
+	retval.Name = v.Team.Name
+	retval.Key = v.Team.Key
+	retval.Private = v.Team.Private
+	retval.Description = v.Team.Description
+	retval.Icon = v.Team.Icon
+	retval.Color = v.Team.Color
+	retval.Timezone = v.Team.Timezone
+	retval.IssueOrderingNoPriorityFirst = v.Team.IssueOrderingNoPriorityFirst
+	retval.GroupIssueHistory = v.Team.GroupIssueHistory
+	retval.IssueSortOrderDefaultToBottom = v.Team.IssueSortOrderDefaultToBottom
+	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
+	retval.AutoClosePeriod = v.Team.AutoClosePeriod
+	retval.TriageEnabled = v.Team.TriageEnabled
+	retval.CyclesEnabled = v.Team.CyclesEnabled
+	retval.CycleStartDay = v.Team.CycleStartDay
+	retval.CycleDuration = v.Team.CycleDuration
+	retval.CycleCooldownTime = v.Team.CycleCooldownTime
+	retval.UpcomingCycleCount = v.Team.UpcomingCycleCount
+	retval.CycleIssueAutoAssignStarted = v.Team.CycleIssueAutoAssignStarted
+	retval.CycleIssueAutoAssignCompleted = v.Team.CycleIssueAutoAssignCompleted
+	retval.CycleLockToActive = v.Team.CycleLockToActive
+	retval.IssueEstimationType = v.Team.IssueEstimationType
+	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
+	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
+	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	return &retval, nil
 }
 
 // updateWorkflowStateResponse is returned by updateWorkflowState on success.
@@ -2023,61 +2472,6 @@ func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState
 	return v.Id
 }
 
-// updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
-type updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload struct {
-	// The label that was created or updated.
-	IssueLabel updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel `json:"issueLabel"`
-}
-
-// GetIssueLabel returns updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload.IssueLabel, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload) GetIssueLabel() updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel {
-	return v.IssueLabel
-}
-
-// updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
-// The GraphQL type's documentation follows.
-//
-// Labels that can be associated with issues.
-type updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-	// The label's name.
-	Name string `json:"name"`
-	// The label's description.
-	Description string `json:"description"`
-	// The label's color as a HEX string.
-	Color string `json:"color"`
-}
-
-// GetId returns updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Id, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetId() string { return v.Id }
-
-// GetName returns updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Name, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetName() string {
-	return v.Name
-}
-
-// GetDescription returns updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Description, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetDescription() string {
-	return v.Description
-}
-
-// GetColor returns updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Color, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetColor() string {
-	return v.Color
-}
-
-// updateWorkspaceLabelResponse is returned by updateWorkspaceLabel on success.
-type updateWorkspaceLabelResponse struct {
-	// Updates an label.
-	IssueLabelUpdate updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload `json:"issueLabelUpdate"`
-}
-
-// GetIssueLabelUpdate returns updateWorkspaceLabelResponse.IssueLabelUpdate, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceLabelResponse) GetIssueLabelUpdate() updateWorkspaceLabelIssueLabelUpdateIssueLabelPayload {
-	return v.IssueLabelUpdate
-}
-
 // updateWorkspaceSettingsOrganizationUpdateOrganizationPayload includes the requested fields of the GraphQL type OrganizationPayload.
 type updateWorkspaceSettingsOrganizationUpdateOrganizationPayload struct {
 	// The organization that was created or updated.
@@ -2094,34 +2488,80 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayload) GetOrgani
 //
 // An organization. Organizations are root-level objects that contain user accounts and teams.
 type updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-	// Whether the organization is using a roadmap.
-	RoadmapEnabled bool `json:"roadmapEnabled"`
-	// Whether the Git integration linkback messages should be sent to private repositories.
-	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
-	// Whether the Git integration linkback messages should be sent to public repositories.
-	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+	Organization `json:"-"`
 }
 
 // GetId returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.Id, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetId() string {
-	return v.Id
+	return v.Organization.Id
 }
 
 // GetRoadmapEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RoadmapEnabled, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRoadmapEnabled() bool {
-	return v.RoadmapEnabled
+	return v.Organization.RoadmapEnabled
 }
 
 // GetGitLinkbackMessagesEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetGitLinkbackMessagesEnabled() bool {
-	return v.GitLinkbackMessagesEnabled
+	return v.Organization.GitLinkbackMessagesEnabled
 }
 
 // GetGitPublicLinkbackMessagesEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.GitPublicLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetGitPublicLinkbackMessagesEnabled() bool {
-	return v.GitPublicLinkbackMessagesEnabled
+	return v.Organization.GitPublicLinkbackMessagesEnabled
+}
+
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.Organization)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization struct {
+	Id string `json:"id"`
+
+	RoadmapEnabled bool `json:"roadmapEnabled"`
+
+	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
+
+	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+}
+
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) __premarshalJSON() (*__premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization, error) {
+	var retval __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization
+
+	retval.Id = v.Organization.Id
+	retval.RoadmapEnabled = v.Organization.RoadmapEnabled
+	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
+	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
+	return &retval, nil
 }
 
 // updateWorkspaceSettingsResponse is returned by updateWorkspaceSettings on success.
@@ -2135,54 +2575,38 @@ func (v *updateWorkspaceSettingsResponse) GetOrganizationUpdate() updateWorkspac
 	return v.OrganizationUpdate
 }
 
-func createTeam(
+func createLabel(
 	ctx context.Context,
 	client graphql.Client,
-	input TeamCreateInput,
-) (*createTeamResponse, error) {
+	input IssueLabelCreateInput,
+) (*createLabelResponse, error) {
 	req := &graphql.Request{
-		OpName: "createTeam",
+		OpName: "createLabel",
 		Query: `
-mutation createTeam ($input: TeamCreateInput!) {
-	teamCreate(input: $input) {
-		team {
-			id
-			name
-			key
-			private
-			description
-			icon
-			color
-			timezone
-			issueOrderingNoPriorityFirst
-			groupIssueHistory
-			issueSortOrderDefaultToBottom
-			autoArchivePeriod
-			autoClosePeriod
-			triageEnabled
-			cyclesEnabled
-			cycleStartDay
-			cycleDuration
-			cycleCooldownTime
-			upcomingCycleCount
-			cycleIssueAutoAssignStarted
-			cycleIssueAutoAssignCompleted
-			cycleLockToActive
-			issueEstimationType
-			issueEstimationAllowZero
-			issueEstimationExtended
-			defaultIssueEstimate
+mutation createLabel ($input: IssueLabelCreateInput!) {
+	issueLabelCreate(input: $input) {
+		issueLabel {
+			... IssueLabel
 		}
 	}
 }
+fragment IssueLabel on IssueLabel {
+	id
+	name
+	description
+	color
+	team {
+		id
+	}
+}
 `,
-		Variables: &__createTeamInput{
+		Variables: &__createLabelInput{
 			Input: input,
 		},
 	}
 	var err error
 
-	var data createTeamResponse
+	var data createLabelResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2194,35 +2618,57 @@ mutation createTeam ($input: TeamCreateInput!) {
 	return &data, err
 }
 
-func createTeamLabel(
+func createTeam(
 	ctx context.Context,
 	client graphql.Client,
-	input IssueLabelCreateInput,
-) (*createTeamLabelResponse, error) {
+	input TeamCreateInput,
+) (*createTeamResponse, error) {
 	req := &graphql.Request{
-		OpName: "createTeamLabel",
+		OpName: "createTeam",
 		Query: `
-mutation createTeamLabel ($input: IssueLabelCreateInput!) {
-	issueLabelCreate(input: $input) {
-		issueLabel {
-			id
-			name
-			description
-			color
-			team {
-				id
-			}
+mutation createTeam ($input: TeamCreateInput!) {
+	teamCreate(input: $input) {
+		team {
+			... Team
 		}
 	}
 }
+fragment Team on Team {
+	id
+	name
+	key
+	private
+	description
+	icon
+	color
+	timezone
+	issueOrderingNoPriorityFirst
+	groupIssueHistory
+	issueSortOrderDefaultToBottom
+	autoArchivePeriod
+	autoClosePeriod
+	triageEnabled
+	cyclesEnabled
+	cycleStartDay
+	cycleDuration
+	cycleCooldownTime
+	upcomingCycleCount
+	cycleIssueAutoAssignStarted
+	cycleIssueAutoAssignCompleted
+	cycleLockToActive
+	issueEstimationType
+	issueEstimationAllowZero
+	issueEstimationExtended
+	defaultIssueEstimate
+}
 `,
-		Variables: &__createTeamLabelInput{
+		Variables: &__createTeamInput{
 			Input: input,
 		},
 	}
 	var err error
 
-	var data createTeamLabelResponse
+	var data createTeamResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2276,32 +2722,27 @@ mutation createWorkflowState ($input: WorkflowStateCreateInput!) {
 	return &data, err
 }
 
-func createWorkspaceLabel(
+func deleteLabel(
 	ctx context.Context,
 	client graphql.Client,
-	input IssueLabelCreateInput,
-) (*createWorkspaceLabelResponse, error) {
+	id string,
+) (*deleteLabelResponse, error) {
 	req := &graphql.Request{
-		OpName: "createWorkspaceLabel",
+		OpName: "deleteLabel",
 		Query: `
-mutation createWorkspaceLabel ($input: IssueLabelCreateInput!) {
-	issueLabelCreate(input: $input) {
-		issueLabel {
-			id
-			name
-			description
-			color
-		}
+mutation deleteLabel ($id: String!) {
+	issueLabelDelete(id: $id) {
+		success
 	}
 }
 `,
-		Variables: &__createWorkspaceLabelInput{
-			Input: input,
+		Variables: &__deleteLabelInput{
+			Id: id,
 		},
 	}
 	var err error
 
-	var data createWorkspaceLabelResponse
+	var data deleteLabelResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2334,70 +2775,6 @@ mutation deleteTeam ($key: String!) {
 	var err error
 
 	var data deleteTeamResponse
-	resp := &graphql.Response{Data: &data}
-
-	err = client.MakeRequest(
-		ctx,
-		req,
-		resp,
-	)
-
-	return &data, err
-}
-
-func deleteTeamLabel(
-	ctx context.Context,
-	client graphql.Client,
-	id string,
-) (*deleteTeamLabelResponse, error) {
-	req := &graphql.Request{
-		OpName: "deleteTeamLabel",
-		Query: `
-mutation deleteTeamLabel ($id: String!) {
-	issueLabelDelete(id: $id) {
-		success
-	}
-}
-`,
-		Variables: &__deleteTeamLabelInput{
-			Id: id,
-		},
-	}
-	var err error
-
-	var data deleteTeamLabelResponse
-	resp := &graphql.Response{Data: &data}
-
-	err = client.MakeRequest(
-		ctx,
-		req,
-		resp,
-	)
-
-	return &data, err
-}
-
-func deleteWorkspaceLabel(
-	ctx context.Context,
-	client graphql.Client,
-	id string,
-) (*deleteWorkspaceLabelResponse, error) {
-	req := &graphql.Request{
-		OpName: "deleteWorkspaceLabel",
-		Query: `
-mutation deleteWorkspaceLabel ($id: String!) {
-	issueLabelDelete(id: $id) {
-		success
-	}
-}
-`,
-		Variables: &__deleteWorkspaceLabelInput{
-			Id: id,
-		},
-	}
-	var err error
-
-	var data deleteWorkspaceLabelResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2515,52 +2892,36 @@ query findWorkspaceLabel ($name: String!) {
 	return &data, err
 }
 
-func getTeam(
+func getLabel(
 	ctx context.Context,
 	client graphql.Client,
-	key string,
-) (*getTeamResponse, error) {
+	id string,
+) (*getLabelResponse, error) {
 	req := &graphql.Request{
-		OpName: "getTeam",
+		OpName: "getLabel",
 		Query: `
-query getTeam ($key: String!) {
-	team(id: $key) {
+query getLabel ($id: String!) {
+	issueLabel(id: $id) {
+		... IssueLabel
+	}
+}
+fragment IssueLabel on IssueLabel {
+	id
+	name
+	description
+	color
+	team {
 		id
-		name
-		key
-		private
-		description
-		icon
-		color
-		timezone
-		issueOrderingNoPriorityFirst
-		groupIssueHistory
-		issueSortOrderDefaultToBottom
-		autoArchivePeriod
-		autoClosePeriod
-		triageEnabled
-		cyclesEnabled
-		cycleStartDay
-		cycleDuration
-		cycleCooldownTime
-		upcomingCycleCount
-		cycleIssueAutoAssignStarted
-		cycleIssueAutoAssignCompleted
-		cycleLockToActive
-		issueEstimationType
-		issueEstimationAllowZero
-		issueEstimationExtended
-		defaultIssueEstimate
 	}
 }
 `,
-		Variables: &__getTeamInput{
-			Key: key,
+		Variables: &__getLabelInput{
+			Id: id,
 		},
 	}
 	var err error
 
-	var data getTeamResponse
+	var data getLabelResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2572,33 +2933,55 @@ query getTeam ($key: String!) {
 	return &data, err
 }
 
-func getTeamLabel(
+func getTeam(
 	ctx context.Context,
 	client graphql.Client,
-	id string,
-) (*getTeamLabelResponse, error) {
+	key string,
+) (*getTeamResponse, error) {
 	req := &graphql.Request{
-		OpName: "getTeamLabel",
+		OpName: "getTeam",
 		Query: `
-query getTeamLabel ($id: String!) {
-	issueLabel(id: $id) {
-		id
-		name
-		description
-		color
-		team {
-			id
-		}
+query getTeam ($key: String!) {
+	team(id: $key) {
+		... Team
 	}
 }
+fragment Team on Team {
+	id
+	name
+	key
+	private
+	description
+	icon
+	color
+	timezone
+	issueOrderingNoPriorityFirst
+	groupIssueHistory
+	issueSortOrderDefaultToBottom
+	autoArchivePeriod
+	autoClosePeriod
+	triageEnabled
+	cyclesEnabled
+	cycleStartDay
+	cycleDuration
+	cycleCooldownTime
+	upcomingCycleCount
+	cycleIssueAutoAssignStarted
+	cycleIssueAutoAssignCompleted
+	cycleLockToActive
+	issueEstimationType
+	issueEstimationAllowZero
+	issueEstimationExtended
+	defaultIssueEstimate
+}
 `,
-		Variables: &__getTeamLabelInput{
-			Id: id,
+		Variables: &__getTeamInput{
+			Key: key,
 		},
 	}
 	var err error
 
-	var data getTeamLabelResponse
+	var data getTeamResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2680,30 +3063,29 @@ query getWorkspace {
 	return &data, err
 }
 
-func getWorkspaceLabel(
+func getWorkspaceSettings(
 	ctx context.Context,
 	client graphql.Client,
-	id string,
-) (*getWorkspaceLabelResponse, error) {
+) (*getWorkspaceSettingsResponse, error) {
 	req := &graphql.Request{
-		OpName: "getWorkspaceLabel",
+		OpName: "getWorkspaceSettings",
 		Query: `
-query getWorkspaceLabel ($id: String!) {
-	issueLabel(id: $id) {
-		id
-		name
-		description
-		color
+query getWorkspaceSettings {
+	organization {
+		... Organization
 	}
 }
+fragment Organization on Organization {
+	id
+	roadmapEnabled
+	gitLinkbackMessagesEnabled
+	gitPublicLinkbackMessagesEnabled
+}
 `,
-		Variables: &__getWorkspaceLabelInput{
-			Id: id,
-		},
 	}
 	var err error
 
-	var data getWorkspaceLabelResponse
+	var data getWorkspaceSettingsResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2715,26 +3097,40 @@ query getWorkspaceLabel ($id: String!) {
 	return &data, err
 }
 
-func getWorkspaceSettings(
+func updateLabel(
 	ctx context.Context,
 	client graphql.Client,
-) (*getWorkspaceSettingsResponse, error) {
+	input IssueLabelUpdateInput,
+	id string,
+) (*updateLabelResponse, error) {
 	req := &graphql.Request{
-		OpName: "getWorkspaceSettings",
+		OpName: "updateLabel",
 		Query: `
-query getWorkspaceSettings {
-	organization {
+mutation updateLabel ($input: IssueLabelUpdateInput!, $id: String!) {
+	issueLabelUpdate(input: $input, id: $id) {
+		issueLabel {
+			... IssueLabel
+		}
+	}
+}
+fragment IssueLabel on IssueLabel {
+	id
+	name
+	description
+	color
+	team {
 		id
-		roadmapEnabled
-		gitLinkbackMessagesEnabled
-		gitPublicLinkbackMessagesEnabled
 	}
 }
 `,
+		Variables: &__updateLabelInput{
+			Input: input,
+			Id:    id,
+		},
 	}
 	var err error
 
-	var data getWorkspaceSettingsResponse
+	var data updateLabelResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2758,34 +3154,37 @@ func updateTeam(
 mutation updateTeam ($input: TeamUpdateInput!, $id: String!) {
 	teamUpdate(input: $input, id: $id) {
 		team {
-			id
-			name
-			key
-			private
-			description
-			icon
-			color
-			timezone
-			issueOrderingNoPriorityFirst
-			groupIssueHistory
-			issueSortOrderDefaultToBottom
-			autoArchivePeriod
-			autoClosePeriod
-			triageEnabled
-			cyclesEnabled
-			cycleStartDay
-			cycleDuration
-			cycleCooldownTime
-			upcomingCycleCount
-			cycleIssueAutoAssignStarted
-			cycleIssueAutoAssignCompleted
-			cycleLockToActive
-			issueEstimationType
-			issueEstimationAllowZero
-			issueEstimationExtended
-			defaultIssueEstimate
+			... Team
 		}
 	}
+}
+fragment Team on Team {
+	id
+	name
+	key
+	private
+	description
+	icon
+	color
+	timezone
+	issueOrderingNoPriorityFirst
+	groupIssueHistory
+	issueSortOrderDefaultToBottom
+	autoArchivePeriod
+	autoClosePeriod
+	triageEnabled
+	cyclesEnabled
+	cycleStartDay
+	cycleDuration
+	cycleCooldownTime
+	upcomingCycleCount
+	cycleIssueAutoAssignStarted
+	cycleIssueAutoAssignCompleted
+	cycleLockToActive
+	issueEstimationType
+	issueEstimationAllowZero
+	issueEstimationExtended
+	defaultIssueEstimate
 }
 `,
 		Variables: &__updateTeamInput{
@@ -2796,48 +3195,6 @@ mutation updateTeam ($input: TeamUpdateInput!, $id: String!) {
 	var err error
 
 	var data updateTeamResponse
-	resp := &graphql.Response{Data: &data}
-
-	err = client.MakeRequest(
-		ctx,
-		req,
-		resp,
-	)
-
-	return &data, err
-}
-
-func updateTeamLabel(
-	ctx context.Context,
-	client graphql.Client,
-	input IssueLabelUpdateInput,
-	id string,
-) (*updateTeamLabelResponse, error) {
-	req := &graphql.Request{
-		OpName: "updateTeamLabel",
-		Query: `
-mutation updateTeamLabel ($input: IssueLabelUpdateInput!, $id: String!) {
-	issueLabelUpdate(input: $input, id: $id) {
-		issueLabel {
-			id
-			name
-			description
-			color
-			team {
-				id
-			}
-		}
-	}
-}
-`,
-		Variables: &__updateTeamLabelInput{
-			Input: input,
-			Id:    id,
-		},
-	}
-	var err error
-
-	var data updateTeamLabelResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -2893,45 +3250,6 @@ mutation updateWorkflowState ($input: WorkflowStateUpdateInput!, $id: String!) {
 	return &data, err
 }
 
-func updateWorkspaceLabel(
-	ctx context.Context,
-	client graphql.Client,
-	input IssueLabelUpdateInput,
-	id string,
-) (*updateWorkspaceLabelResponse, error) {
-	req := &graphql.Request{
-		OpName: "updateWorkspaceLabel",
-		Query: `
-mutation updateWorkspaceLabel ($input: IssueLabelUpdateInput!, $id: String!) {
-	issueLabelUpdate(input: $input, id: $id) {
-		issueLabel {
-			id
-			name
-			description
-			color
-		}
-	}
-}
-`,
-		Variables: &__updateWorkspaceLabelInput{
-			Input: input,
-			Id:    id,
-		},
-	}
-	var err error
-
-	var data updateWorkspaceLabelResponse
-	resp := &graphql.Response{Data: &data}
-
-	err = client.MakeRequest(
-		ctx,
-		req,
-		resp,
-	)
-
-	return &data, err
-}
-
 func updateWorkspaceSettings(
 	ctx context.Context,
 	client graphql.Client,
@@ -2943,12 +3261,15 @@ func updateWorkspaceSettings(
 mutation updateWorkspaceSettings ($input: UpdateOrganizationInput!) {
 	organizationUpdate(input: $input) {
 		organization {
-			id
-			roadmapEnabled
-			gitLinkbackMessagesEnabled
-			gitPublicLinkbackMessagesEnabled
+			... Organization
 		}
 	}
+}
+fragment Organization on Organization {
+	id
+	roadmapEnabled
+	gitLinkbackMessagesEnabled
+	gitPublicLinkbackMessagesEnabled
 }
 `,
 		Variables: &__updateWorkspaceSettingsInput{

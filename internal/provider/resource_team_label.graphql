@@ -1,15 +1,3 @@
-query getTeamLabel($id: String!) {
-  issueLabel(id: $id) {
-    id
-    name
-    description
-    color
-    team {
-      id
-    }
-  }
-}
-
 query findTeamLabel($name: String!, $key: String!) {
   issueLabels(filter: {
     name: {
@@ -24,51 +12,5 @@ query findTeamLabel($name: String!, $key: String!) {
     nodes {
       id
     }
-  }
-}
-
-# @genqlient(for: "IssueLabelCreateInput.id", omitempty: true)
-# @genqlient(for: "IssueLabelCreateInput.description", omitempty: true)
-# @genqlient(for: "IssueLabelCreateInput.color", omitempty: true)
-# @genqlient(for: "IssueLabelCreateInput.teamId", omitempty: true)
-mutation createTeamLabel(
-  $input: IssueLabelCreateInput!
-) {
-  issueLabelCreate(input: $input) {
-    issueLabel {
-      id
-      name
-      description
-      color
-      team {
-        id
-      }
-    }
-  }
-}
-
-# @genqlient(for: "IssueLabelUpdateInput.name", omitempty: true)
-# @genqlient(for: "IssueLabelUpdateInput.description", omitempty: true)
-# @genqlient(for: "IssueLabelUpdateInput.color", omitempty: true)
-mutation updateTeamLabel(
-  $input: IssueLabelUpdateInput!,
-  $id: String!
-) {
-  issueLabelUpdate(input: $input, id: $id) {
-    issueLabel {
-      id
-      name
-      description
-      color
-      team {
-        id
-      }
-    }
-  }
-}
-
-mutation deleteTeamLabel($id: String!) {
-  issueLabelDelete(id: $id) {
-    success
   }
 }

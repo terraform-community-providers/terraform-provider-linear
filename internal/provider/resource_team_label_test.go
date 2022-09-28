@@ -18,7 +18,7 @@ func TestAccTeamLabelResourceDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_team_label.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team_label.test", "name", "Tech Debt"),
-					resource.TestCheckResourceAttr("linear_team_label.test", "description", ""),
+					resource.TestCheckNoResourceAttr("linear_team_label.test", "description"),
 					resource.TestMatchResourceAttr("linear_team_label.test", "color", colorRegex()),
 					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "4486be5a-706b-47be-81ab-1937d6ecf193"),
 				),
@@ -36,7 +36,7 @@ func TestAccTeamLabelResourceDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_team_label.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team_label.test", "name", "Tech Debt"),
-					resource.TestCheckResourceAttr("linear_team_label.test", "description", ""),
+					resource.TestCheckNoResourceAttr("linear_team_label.test", "description"),
 					resource.TestMatchResourceAttr("linear_team_label.test", "color", colorRegex()),
 					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "4486be5a-706b-47be-81ab-1937d6ecf193"),
 				),
@@ -86,6 +86,28 @@ func TestAccTeamLabelResourceNonDefault(t *testing.T) {
 				ImportState:       true,
 				ImportStateId:     "Needs design:TEST",
 				ImportStateVerify: true,
+			},
+			// Update with same values
+			{
+				Config: testAccTeamLabelResourceConfigNonDefault("Needs design"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_team_label.test", "id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team_label.test", "name", "Needs design"),
+					resource.TestCheckResourceAttr("linear_team_label.test", "description", "lots of it"),
+					resource.TestCheckResourceAttr("linear_team_label.test", "color", "#00ff00"),
+					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "4486be5a-706b-47be-81ab-1937d6ecf193"),
+				),
+			},
+			// Update with null values
+			{
+				Config: testAccTeamLabelResourceConfigDefault("Tech Debt"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_team_label.test", "id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team_label.test", "name", "Tech Debt"),
+					resource.TestCheckNoResourceAttr("linear_team_label.test", "description"),
+					resource.TestMatchResourceAttr("linear_team_label.test", "color", colorRegex()),
+					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "4486be5a-706b-47be-81ab-1937d6ecf193"),
+				),
 			},
 			// Delete testing automatically occurs in TestCase
 		},

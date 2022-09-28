@@ -5,18 +5,21 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/frankgreco/terraform-helpers/validators"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
+	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ tfsdk.ResourceType = teamLabelResourceType{}
-var _ tfsdk.Resource = teamLabelResource{}
-var _ tfsdk.ResourceWithImportState = teamLabelResource{}
+var _ provider.ResourceType = teamLabelResourceType{}
+var _ resource.Resource = teamLabelResource{}
+var _ resource.ResourceWithImportState = teamLabelResource{}
 
 type teamLabelResourceType struct{}
 
@@ -29,7 +32,7 @@ func (t teamLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, dia
 				Type:                types.StringType,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 			},
 			"name": {
@@ -46,7 +49,7 @@ func (t teamLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.NullableString(),
 				},
 			},
 			"color": {
@@ -55,7 +58,7 @@ func (t teamLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					validators.Match(colorRegex()),
@@ -66,7 +69,7 @@ func (t teamLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, dia
 				Type:                types.StringType,
 				Required:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					validators.Match(uuidRegex()),
@@ -76,7 +79,7 @@ func (t teamLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, dia
 	}, nil
 }
 
-func (t teamLabelResourceType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+func (t teamLabelResourceType) NewResource(ctx context.Context, in provider.Provider) (resource.Resource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
 	return teamLabelResource{
@@ -93,13 +96,13 @@ type teamLabelResourceData struct {
 }
 
 type teamLabelResource struct {
-	provider provider
+	provider linearProvider
 }
 
-func (r teamLabelResource) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+func (r teamLabelResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data teamLabelResourceData
 
-	diags := req.Config.Get(ctx, &data)
+	diags := req.Plan.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
@@ -107,13 +110,19 @@ func (r teamLabelResource) Create(ctx context.Context, req tfsdk.CreateResourceR
 	}
 
 	input := IssueLabelCreateInput{
-		Name:        data.Name.Value,
-		Description: data.Description.Value,
-		Color:       data.Color.Value,
-		TeamId:      data.TeamId.Value,
+		Name:   data.Name.Value,
+		TeamId: &data.TeamId.Value,
 	}
 
-	response, err := createTeamLabel(context.Background(), r.provider.client, input)
+	if !data.Description.IsNull() {
+		input.Description = &data.Description.Value
+	}
+
+	if !data.Color.IsUnknown() {
+		input.Color = &data.Color.Value
+	}
+
+	response, err := createLabel(context.Background(), r.provider.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create team label, got error: %s", err))
@@ -122,15 +131,28 @@ func (r teamLabelResource) Create(ctx context.Context, req tfsdk.CreateResourceR
 
 	tflog.Trace(ctx, "created a team label")
 
-	data.Id = types.String{Value: response.IssueLabelCreate.IssueLabel.Id}
-	data.Description = types.String{Value: response.IssueLabelCreate.IssueLabel.Description}
-	data.Color = types.String{Value: response.IssueLabelCreate.IssueLabel.Color}
+	issueLabel := response.IssueLabelCreate.IssueLabel
+
+	data.Id = types.String{Value: issueLabel.Id}
+	data.Name = types.String{Value: issueLabel.Name}
+
+	if issueLabel.Description != nil {
+		data.Description = types.String{Value: *issueLabel.Description}
+	}
+
+	if issueLabel.Color != nil {
+		data.Color = types.String{Value: *issueLabel.Color}
+	}
+
+	if issueLabel.Team != nil {
+		data.TeamId = types.String{Value: issueLabel.Team.Id}
+	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r teamLabelResource) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+func (r teamLabelResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data teamLabelResourceData
 
 	diags := req.State.Get(ctx, &data)
@@ -140,23 +162,35 @@ func (r teamLabelResource) Read(ctx context.Context, req tfsdk.ReadResourceReque
 		return
 	}
 
-	response, err := getTeamLabel(context.Background(), r.provider.client, data.Id.Value)
+	response, err := getLabel(context.Background(), r.provider.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read team label, got error: %s", err))
 		return
 	}
 
-	data.Name = types.String{Value: response.IssueLabel.Name}
-	data.Description = types.String{Value: response.IssueLabel.Description}
-	data.Color = types.String{Value: response.IssueLabel.Color}
-	data.TeamId = types.String{Value: response.IssueLabel.Team.Id}
+	issueLabel := response.IssueLabel
+
+	data.Id = types.String{Value: issueLabel.Id}
+	data.Name = types.String{Value: issueLabel.Name}
+
+	if issueLabel.Description != nil {
+		data.Description = types.String{Value: *issueLabel.Description}
+	}
+
+	if issueLabel.Color != nil {
+		data.Color = types.String{Value: *issueLabel.Color}
+	}
+
+	if issueLabel.Team != nil {
+		data.TeamId = types.String{Value: issueLabel.Team.Id}
+	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r teamLabelResource) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+func (r teamLabelResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data teamLabelResourceData
 
 	diags := req.Plan.Get(ctx, &data)
@@ -167,12 +201,18 @@ func (r teamLabelResource) Update(ctx context.Context, req tfsdk.UpdateResourceR
 	}
 
 	input := IssueLabelUpdateInput{
-		Name:        data.Name.Value,
-		Description: data.Description.Value,
-		Color:       data.Color.Value,
+		Name: data.Name.Value,
 	}
 
-	response, err := updateTeamLabel(context.Background(), r.provider.client, input, data.Id.Value)
+	if !data.Description.IsNull() {
+		input.Description = &data.Description.Value
+	}
+
+	if !data.Color.IsUnknown() {
+		input.Color = &data.Color.Value
+	}
+
+	response, err := updateLabel(context.Background(), r.provider.client, input, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team label, got error: %s", err))
@@ -181,15 +221,28 @@ func (r teamLabelResource) Update(ctx context.Context, req tfsdk.UpdateResourceR
 
 	tflog.Trace(ctx, "updated a team label")
 
-	data.Name = types.String{Value: response.IssueLabelUpdate.IssueLabel.Name}
-	data.Description = types.String{Value: response.IssueLabelUpdate.IssueLabel.Description}
-	data.Color = types.String{Value: response.IssueLabelUpdate.IssueLabel.Color}
+	issueLabel := response.IssueLabelUpdate.IssueLabel
+
+	data.Id = types.String{Value: issueLabel.Id}
+	data.Name = types.String{Value: issueLabel.Name}
+
+	if issueLabel.Description != nil {
+		data.Description = types.String{Value: *issueLabel.Description}
+	}
+
+	if issueLabel.Color != nil {
+		data.Color = types.String{Value: *issueLabel.Color}
+	}
+
+	if issueLabel.Team != nil {
+		data.TeamId = types.String{Value: issueLabel.Team.Id}
+	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r teamLabelResource) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+func (r teamLabelResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data teamLabelResourceData
 
 	diags := req.State.Get(ctx, &data)
@@ -199,7 +252,7 @@ func (r teamLabelResource) Delete(ctx context.Context, req tfsdk.DeleteResourceR
 		return
 	}
 
-	_, err := deleteTeamLabel(context.Background(), r.provider.client, data.Id.Value)
+	_, err := deleteLabel(context.Background(), r.provider.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete team label, got error: %s", err))
@@ -209,7 +262,7 @@ func (r teamLabelResource) Delete(ctx context.Context, req tfsdk.DeleteResourceR
 	tflog.Trace(ctx, "deleted a team label")
 }
 
-func (r teamLabelResource) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
+func (r teamLabelResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.Split(req.ID, ":")
 
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
@@ -228,5 +281,5 @@ func (r teamLabelResource) ImportState(ctx context.Context, req tfsdk.ImportReso
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, tftypes.NewAttributePath().WithAttributeName("id"), response.IssueLabels.Nodes[0].Id)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.IssueLabels.Nodes[0].Id)...)
 }

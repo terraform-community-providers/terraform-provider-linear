@@ -18,7 +18,7 @@ func TestAccWorkspaceLabelResourceDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_workspace_label.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "name", "UX"),
-					resource.TestCheckResourceAttr("linear_workspace_label.test", "description", ""),
+					resource.TestCheckNoResourceAttr("linear_workspace_label.test", "description"),
 					resource.TestMatchResourceAttr("linear_workspace_label.test", "color", colorRegex()),
 				),
 			},
@@ -36,7 +36,7 @@ func TestAccWorkspaceLabelResourceDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_workspace_label.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "name", "UX"),
-					resource.TestCheckResourceAttr("linear_workspace_label.test", "description", ""),
+					resource.TestCheckNoResourceAttr("linear_workspace_label.test", "description"),
 					resource.TestMatchResourceAttr("linear_workspace_label.test", "color", colorRegex()),
 				),
 			},
@@ -86,6 +86,26 @@ func TestAccWorkspaceLabelResourceNonDefault(t *testing.T) {
 			// 	ImportStateId:     "Needs product",
 			// 	ImportStateVerify: true,
 			// },
+			// Update with same values
+			{
+				Config: testAccWorkspaceLabelResourceConfigNonDefault("Needs product"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_workspace_label.test", "id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_workspace_label.test", "name", "Needs product"),
+					resource.TestCheckResourceAttr("linear_workspace_label.test", "description", "lots of it"),
+					resource.TestCheckResourceAttr("linear_workspace_label.test", "color", "#00ff00"),
+				),
+			},
+			// Update with null values
+			{
+				Config: testAccWorkspaceLabelResourceConfigDefault("UX"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_workspace_label.test", "id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_workspace_label.test", "name", "UX"),
+					resource.TestCheckNoResourceAttr("linear_workspace_label.test", "description"),
+					resource.TestMatchResourceAttr("linear_workspace_label.test", "color", colorRegex()),
+				),
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})

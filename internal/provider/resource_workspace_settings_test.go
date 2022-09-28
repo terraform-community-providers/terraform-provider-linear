@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -83,24 +82,44 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 				ImportStateId:     "Needs product",
 				ImportStateVerify: true,
 			},
+			// Update with same values
+			{
+				Config: testAccWorkspaceSettingsResourceConfigNonDefault(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_workspace_settings.test", "id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
+				),
+			},
+			// Update with null values
+			{
+				Config: testAccWorkspaceSettingsResourceConfigDefault(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_workspace_settings.test", "id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
+				),
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})
 }
 
 func testAccWorkspaceSettingsResourceConfigDefault() string {
-	return fmt.Sprintf(`
+	return `
 resource "linear_workspace_settings" "test" {
 }
-`)
+`
 }
 
 func testAccWorkspaceSettingsResourceConfigNonDefault() string {
-	return fmt.Sprintf(`
+	return `
 resource "linear_workspace_settings" "test" {
 	enable_roadmap = true
 	enable_git_linkback_messages = true
 	enable_git_linkback_messages_public = true
 }
-`)
+`
 }

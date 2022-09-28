@@ -4,14 +4,16 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ tfsdk.DataSourceType = workspaceDataSourceType{}
-var _ tfsdk.DataSource = workspaceDataSource{}
+var _ provider.DataSourceType = workspaceDataSourceType{}
+var _ datasource.DataSource = workspaceDataSource{}
 
 type workspaceDataSourceType struct{}
 
@@ -38,7 +40,7 @@ func (t workspaceDataSourceType) GetSchema(ctx context.Context) (tfsdk.Schema, d
 	}, nil
 }
 
-func (t workspaceDataSourceType) NewDataSource(ctx context.Context, in tfsdk.Provider) (tfsdk.DataSource, diag.Diagnostics) {
+func (t workspaceDataSourceType) NewDataSource(ctx context.Context, in provider.Provider) (datasource.DataSource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
 	return workspaceDataSource{
@@ -53,10 +55,10 @@ type workspaceDataSourceData struct {
 }
 
 type workspaceDataSource struct {
-	provider provider
+	provider linearProvider
 }
 
-func (d workspaceDataSource) Read(ctx context.Context, req tfsdk.ReadDataSourceRequest, resp *tfsdk.ReadDataSourceResponse) {
+func (d workspaceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var data workspaceDataSourceData
 
 	diags := req.Config.Get(ctx, &data)

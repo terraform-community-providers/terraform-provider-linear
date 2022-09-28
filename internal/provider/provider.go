@@ -8,6 +8,7 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -28,11 +29,11 @@ func uuidRegex() *regexp.Regexp {
 }
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ tfsdk.Provider = &provider{}
+var _ provider.Provider = &linearProvider{}
 
-// provider satisfies the tfsdk.Provider interface and usually is included
+// provider satisfies the provider.Provider interface and usually is included
 // with all Resource and DataSource implementations.
-type provider struct {
+type linearProvider struct {
 	// client can contain the upstream provider SDK or HTTP client used to
 	// communicate with the upstream service. Resource and DataSource
 	// implementations can then make calls using this client.
@@ -64,7 +65,7 @@ func (t *authedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	return t.wrapped.RoundTrip(req)
 }
 
-func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
+func (p *linearProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	var data providerData
 
 	diags := req.Config.Get(ctx, &data)
@@ -103,8 +104,8 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 	p.configured = true
 }
 
-func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
-	return map[string]tfsdk.ResourceType{
+func (p *linearProvider) GetResources(ctx context.Context) (map[string]provider.ResourceType, diag.Diagnostics) {
+	return map[string]provider.ResourceType{
 		"linear_team":               teamResourceType{},
 		"linear_team_label":         teamLabelResourceType{},
 		"linear_workflow_state":     workflowStateResourceType{},
@@ -113,13 +114,13 @@ func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceT
 	}, nil
 }
 
-func (p *provider) GetDataSources(ctx context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
-	return map[string]tfsdk.DataSourceType{
+func (p *linearProvider) GetDataSources(ctx context.Context) (map[string]provider.DataSourceType, diag.Diagnostics) {
+	return map[string]provider.DataSourceType{
 		"linear_workspace": workspaceDataSourceType{},
 	}, nil
 }
 
-func (p *provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (p *linearProvider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Attributes: map[string]tfsdk.Attribute{
 			"token": {
@@ -131,9 +132,9 @@ func (p *provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostic
 	}, nil
 }
 
-func New(version string) func() tfsdk.Provider {
-	return func() tfsdk.Provider {
-		return &provider{
+func New(version string) func() provider.Provider {
+	return func() provider.Provider {
+		return &linearProvider{
 			version: version,
 		}
 	}
@@ -144,17 +145,17 @@ func New(version string) func() tfsdk.Provider {
 // this helper can be skipped and the provider type can be directly type
 // asserted (e.g. provider: in.(*provider)), however using this can prevent
 // potential panics.
-func convertProviderType(in tfsdk.Provider) (provider, diag.Diagnostics) {
+func convertProviderType(in provider.Provider) (linearProvider, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	p, ok := in.(*provider)
+	p, ok := in.(*linearProvider)
 
 	if !ok {
 		diags.AddError(
 			"Unexpected Provider Instance Type",
 			fmt.Sprintf("While creating the data source or resource, an unexpected provider type (%T) was received. This is always a bug in the provider code and should be reported to the provider developers.", p),
 		)
-		return provider{}, diags
+		return linearProvider{}, diags
 	}
 
 	if p == nil {
@@ -162,7 +163,7 @@ func convertProviderType(in tfsdk.Provider) (provider, diag.Diagnostics) {
 			"Unexpected Provider Instance Type",
 			"While creating the data source or resource, an unexpected empty provider instance was received. This is always a bug in the provider code and should be reported to the provider developers.",
 		)
-		return provider{}, diags
+		return linearProvider{}, diags
 	}
 
 	return *p, diags

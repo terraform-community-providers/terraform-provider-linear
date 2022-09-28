@@ -5,18 +5,22 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/frankgreco/terraform-helpers/validators"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
+	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ tfsdk.ResourceType = teamResourceType{}
-var _ tfsdk.Resource = teamResource{}
-var _ tfsdk.ResourceWithImportState = teamResource{}
+var _ provider.ResourceType = teamResourceType{}
+var _ resource.Resource = teamResource{}
+var _ resource.ResourceWithImportState = teamResource{}
 
 type teamResourceType struct{}
 
@@ -29,7 +33,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Type:                types.StringType,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 			},
 			"key": {
@@ -37,9 +41,8 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Type:                types.StringType,
 				Required:            true,
 				Validators: []tfsdk.AttributeValidator{
-					validators.MinLength(1),
 					validators.MaxLength(5),
-					validators.NoWhitespace(),
+					validators.Match(regexp.MustCompile("^[A-Z0-9]+$")),
 				},
 			},
 			"name": {
@@ -56,7 +59,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.DefaultBool(false),
 				},
 			},
 			"description": {
@@ -65,7 +68,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.NullableString(),
 				},
 			},
 			"icon": {
@@ -74,7 +77,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					validators.Match(regexp.MustCompile("^[a-zA-Z]+$")),
@@ -86,7 +89,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					validators.Match(colorRegex()),
@@ -98,7 +101,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.DefaultString("Etc/GMT"),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					validators.MinLength(1),
@@ -110,7 +113,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.DefaultBool(true),
 				},
 			},
 			"enable_issue_history_grouping": {
@@ -119,7 +122,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.DefaultBool(true),
 				},
 			},
 			"enable_issue_default_to_bottom": {
@@ -128,7 +131,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.DefaultBool(false),
 				},
 			},
 			"auto_archive_period": {
@@ -138,7 +141,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				// Optional:            true,
 				Computed: true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.DefaultFloat(3),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					validators.FloatInSlice(1, 3, 6, 9, 12),
@@ -149,13 +152,17 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.UnknownAttributesOnUnknown(),
 				},
 				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
 					"enabled": {
 						MarkdownDescription: "Enable triage mode for the team. **Default** `false`.",
 						Type:                types.BoolType,
-						Required:            true,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultBool(false),
+						},
 					},
 				}),
 			},
@@ -164,13 +171,17 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.UnknownAttributesOnUnknown(),
 				},
 				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
 					"enabled": {
 						MarkdownDescription: "Enable cycles for the team. **Default** `false`.",
 						Type:                types.BoolType,
-						Required:            true,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultBool(false),
+						},
 					},
 					"start_day": {
 						MarkdownDescription: "Start day of the cycle. Sunday is 0, Saturday is 6. **Default** `0`.",
@@ -178,7 +189,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultFloat(0),
 						},
 						Validators: []tfsdk.AttributeValidator{
 							validators.FloatInSlice(0, 1, 2, 3, 4, 5, 6),
@@ -190,7 +201,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultFloat(1),
 						},
 						Validators: []tfsdk.AttributeValidator{
 							validators.FloatInSlice(1, 2, 3, 4, 5, 6, 7, 8),
@@ -202,7 +213,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultFloat(0),
 						},
 						Validators: []tfsdk.AttributeValidator{
 							validators.FloatInSlice(0, 1, 2, 3),
@@ -214,7 +225,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultFloat(2),
 						},
 						Validators: []tfsdk.AttributeValidator{
 							validators.FloatInSlice(1, 2, 3, 4, 6, 8, 10),
@@ -226,7 +237,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultBool(true),
 						},
 					},
 					"auto_add_completed": {
@@ -235,7 +246,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultBool(true),
 						},
 					},
 					"need_for_active": {
@@ -244,7 +255,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultBool(false),
 						},
 					},
 				}),
@@ -254,7 +265,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.UnknownAttributesOnUnknown(),
 				},
 				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
 					"type": {
@@ -263,7 +274,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultString("notUsed"),
 						},
 						Validators: []tfsdk.AttributeValidator{
 							validators.StringInSlice(true, "notUsed", "exponential", "fibonacci", "linear", "tShirt"),
@@ -275,7 +286,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultBool(false),
 						},
 					},
 					"allow_zero": {
@@ -284,7 +295,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultBool(false),
 						},
 					},
 					"default": {
@@ -293,7 +304,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						Optional:            true,
 						Computed:            true,
 						PlanModifiers: tfsdk.AttributePlanModifiers{
-							tfsdk.UseStateForUnknown(),
+							modifiers.DefaultFloat(1),
 						},
 						Validators: []tfsdk.AttributeValidator{
 							validators.FloatInSlice(0, 1),
@@ -305,7 +316,7 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 	}, nil
 }
 
-func (t teamResourceType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+func (t teamResourceType) NewResource(ctx context.Context, in provider.Provider) (resource.Resource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
 	return teamResource{
@@ -348,19 +359,22 @@ type teamResourceData struct {
 	EnableIssueHistoryGrouping types.Bool    `tfsdk:"enable_issue_history_grouping"`
 	EnableIssueDefaultToBottom types.Bool    `tfsdk:"enable_issue_default_to_bottom"`
 	AutoArchivePeriod          types.Float64 `tfsdk:"auto_archive_period"`
-	Triage                     *triage       `tfsdk:"triage"`
-	Cycles                     *cycles       `tfsdk:"cycles"`
-	Estimation                 *estimation   `tfsdk:"estimation"`
+	Triage                     types.Object  `tfsdk:"triage"`
+	Cycles                     types.Object  `tfsdk:"cycles"`
+	Estimation                 types.Object  `tfsdk:"estimation"`
 }
 
 type teamResource struct {
-	provider provider
+	provider linearProvider
 }
 
-func (r teamResource) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+func (r teamResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data teamResourceData
+	var triageData triage
+	var cyclesData cycles
+	var estimationData estimation
 
-	diags := req.Config.Get(ctx, &data)
+	diags := req.Plan.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
@@ -371,88 +385,63 @@ func (r teamResource) Create(ctx context.Context, req tfsdk.CreateResourceReques
 		Key:                           data.Key.Value,
 		Name:                          data.Name.Value,
 		Private:                       data.Private.Value,
-		Description:                   data.Description.Value,
-		Icon:                          data.Icon.Value,
-		Color:                         data.Color.Value,
+		Timezone:                      data.Timezone.Value,
+		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.Value,
+		GroupIssueHistory:             data.EnableIssueHistoryGrouping.Value,
 		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.Value,
+		// #2
+		// AutoArchivePeriod:             data.AutoArchivePeriod.Value,
+		AutoArchivePeriod: 3,
 	}
 
-	if data.Timezone.IsNull() || data.Timezone.IsUnknown() {
-		input.Timezone = "Etc/GMT"
-	} else {
-		input.Timezone = data.Timezone.Value
+	if !data.Description.IsNull() {
+		input.Description = &data.Description.Value
 	}
 
-	if data.NoPriorityIssuesFirst.IsNull() || data.NoPriorityIssuesFirst.IsUnknown() {
-		input.IssueOrderingNoPriorityFirst = true
-	} else {
-		input.IssueOrderingNoPriorityFirst = data.NoPriorityIssuesFirst.Value
+	if !data.Icon.IsUnknown() {
+		input.Icon = &data.Icon.Value
 	}
 
-	if data.EnableIssueHistoryGrouping.IsNull() || data.EnableIssueHistoryGrouping.IsUnknown() {
-		input.GroupIssueHistory = true
-	} else {
-		input.GroupIssueHistory = data.EnableIssueHistoryGrouping.Value
+	if !data.Color.IsUnknown() {
+		input.Color = &data.Color.Value
 	}
 
-	// #2
-	// if data.AutoArchivePeriod.IsNull() || data.AutoArchivePeriod.IsUnknown() {
-	input.AutoArchivePeriod = 3
-	// } else {
-	// 	input.AutoArchivePeriod = data.AutoArchivePeriod.Value
-	// }
+	diags = data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})
+	resp.Diagnostics.Append(diags...)
 
-	if data.Triage != nil {
-		input.TriageEnabled = data.Triage.Enabled.Value
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	if data.Cycles != nil {
-		input.CyclesEnabled = data.Cycles.Enabled.Value
-		input.CycleStartDay = data.Cycles.StartDay.Value
-		input.CycleCooldownTime = int(data.Cycles.Cooldown.Value)
-		input.CycleLockToActive = data.Cycles.NeedForActive.Value
+	input.TriageEnabled = triageData.Enabled.Value
+
+	diags = data.Cycles.As(ctx, &cyclesData, types.ObjectAsOptions{})
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	if data.Cycles == nil || data.Cycles.Duration.IsNull() || data.Cycles.Duration.IsUnknown() {
-		input.CycleDuration = 1
-	} else {
-		input.CycleDuration = int(data.Cycles.Duration.Value)
+	input.CyclesEnabled = cyclesData.Enabled.Value
+	input.CycleStartDay = cyclesData.StartDay.Value
+	input.CycleDuration = int(cyclesData.Duration.Value)
+	input.CycleCooldownTime = int(cyclesData.Cooldown.Value)
+	input.UpcomingCycleCount = cyclesData.Upcoming.Value
+	input.CycleIssueAutoAssignStarted = cyclesData.AutoAddStarted.Value
+	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.Value
+	input.CycleLockToActive = cyclesData.NeedForActive.Value
+
+	diags = data.Estimation.As(ctx, &estimationData, types.ObjectAsOptions{})
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
-	if data.Cycles == nil || data.Cycles.Upcoming.IsNull() || data.Cycles.Upcoming.IsUnknown() {
-		input.UpcomingCycleCount = 2
-	} else {
-		input.UpcomingCycleCount = data.Cycles.Upcoming.Value
-	}
-
-	if data.Cycles == nil || data.Cycles.AutoAddStarted.IsNull() || data.Cycles.AutoAddStarted.IsUnknown() {
-		input.CycleIssueAutoAssignStarted = true
-	} else {
-		input.CycleIssueAutoAssignStarted = data.Cycles.AutoAddStarted.Value
-	}
-
-	if data.Cycles == nil || data.Cycles.AutoAddCompleted.IsNull() || data.Cycles.AutoAddCompleted.IsUnknown() {
-		input.CycleIssueAutoAssignCompleted = true
-	} else {
-		input.CycleIssueAutoAssignCompleted = data.Cycles.AutoAddCompleted.Value
-	}
-
-	if data.Estimation != nil {
-		input.IssueEstimationExtended = data.Estimation.Extended.Value
-		input.IssueEstimationAllowZero = data.Estimation.AllowZero.Value
-	}
-
-	if data.Estimation == nil || data.Estimation.Type.IsNull() || data.Estimation.Type.IsUnknown() {
-		input.IssueEstimationType = "notUsed"
-	} else {
-		input.IssueEstimationType = data.Estimation.Type.Value
-	}
-
-	if data.Estimation == nil || data.Estimation.Default.IsNull() || data.Estimation.Default.IsUnknown() {
-		input.DefaultIssueEstimate = 1
-	} else {
-		input.DefaultIssueEstimate = data.Estimation.Default.Value
-	}
+	input.IssueEstimationType = estimationData.Type.Value
+	input.IssueEstimationExtended = estimationData.Extended.Value
+	input.IssueEstimationAllowZero = estimationData.AllowZero.Value
+	input.DefaultIssueEstimate = estimationData.Default.Value
 
 	response, err := createTeam(context.Background(), r.provider.client, input)
 
@@ -463,44 +452,80 @@ func (r teamResource) Create(ctx context.Context, req tfsdk.CreateResourceReques
 
 	tflog.Trace(ctx, "created a team")
 
-	data.Id = types.String{Value: response.TeamCreate.Team.Id}
-	data.Private = types.Bool{Value: response.TeamCreate.Team.Private}
-	data.Description = types.String{Value: response.TeamCreate.Team.Description}
-	data.Icon = types.String{Value: response.TeamCreate.Team.Icon}
-	data.Color = types.String{Value: response.TeamCreate.Team.Color}
-	data.Timezone = types.String{Value: response.TeamCreate.Team.Timezone}
-	data.NoPriorityIssuesFirst = types.Bool{Value: response.TeamCreate.Team.IssueOrderingNoPriorityFirst}
-	data.EnableIssueHistoryGrouping = types.Bool{Value: response.TeamCreate.Team.GroupIssueHistory}
-	data.EnableIssueDefaultToBottom = types.Bool{Value: response.TeamCreate.Team.IssueSortOrderDefaultToBottom}
-	data.AutoArchivePeriod = types.Float64{Value: response.TeamCreate.Team.AutoArchivePeriod}
+	team := response.TeamCreate.Team
 
-	data.Triage = &triage{
-		Enabled: types.Bool{Value: response.TeamCreate.Team.TriageEnabled},
+	data.Id = types.String{Value: team.Id}
+	data.Private = types.Bool{Value: team.Private}
+	data.Timezone = types.String{Value: team.Timezone}
+	data.NoPriorityIssuesFirst = types.Bool{Value: team.IssueOrderingNoPriorityFirst}
+	data.EnableIssueHistoryGrouping = types.Bool{Value: team.GroupIssueHistory}
+	data.EnableIssueDefaultToBottom = types.Bool{Value: team.IssueSortOrderDefaultToBottom}
+	data.AutoArchivePeriod = types.Float64{Value: team.AutoArchivePeriod}
+
+	if team.Description != nil {
+		data.Description = types.String{Value: *team.Description}
 	}
 
-	data.Cycles = &cycles{
-		Enabled:          types.Bool{Value: response.TeamCreate.Team.CyclesEnabled},
-		StartDay:         types.Float64{Value: response.TeamCreate.Team.CycleStartDay},
-		Duration:         types.Float64{Value: response.TeamCreate.Team.CycleDuration},
-		Cooldown:         types.Float64{Value: response.TeamCreate.Team.CycleCooldownTime},
-		Upcoming:         types.Float64{Value: response.TeamCreate.Team.UpcomingCycleCount},
-		AutoAddStarted:   types.Bool{Value: response.TeamCreate.Team.CycleIssueAutoAssignStarted},
-		AutoAddCompleted: types.Bool{Value: response.TeamCreate.Team.CycleIssueAutoAssignCompleted},
-		NeedForActive:    types.Bool{Value: response.TeamCreate.Team.CycleLockToActive},
+	if team.Icon != nil {
+		data.Icon = types.String{Value: *team.Icon}
 	}
 
-	data.Estimation = &estimation{
-		Type:      types.String{Value: response.TeamCreate.Team.IssueEstimationType},
-		Extended:  types.Bool{Value: response.TeamCreate.Team.IssueEstimationExtended},
-		AllowZero: types.Bool{Value: response.TeamCreate.Team.IssueEstimationAllowZero},
-		Default:   types.Float64{Value: response.TeamCreate.Team.DefaultIssueEstimate},
+	if team.Color != nil {
+		data.Color = types.String{Value: *team.Color}
+	}
+
+	data.Triage = types.Object{
+		AttrTypes: map[string]attr.Type{
+			"enabled": types.BoolType,
+		},
+		Attrs: map[string]attr.Value{
+			"enabled": types.Bool{Value: team.TriageEnabled},
+		},
+	}
+
+	data.Cycles = types.Object{
+		AttrTypes: map[string]attr.Type{
+			"enabled":            types.BoolType,
+			"start_day":          types.Float64Type,
+			"duration":           types.Float64Type,
+			"cooldown":           types.Float64Type,
+			"upcoming":           types.Float64Type,
+			"auto_add_started":   types.BoolType,
+			"auto_add_completed": types.BoolType,
+			"need_for_active":    types.BoolType,
+		},
+		Attrs: map[string]attr.Value{
+			"enabled":            types.Bool{Value: team.CyclesEnabled},
+			"start_day":          types.Float64{Value: team.CycleStartDay},
+			"duration":           types.Float64{Value: team.CycleDuration},
+			"cooldown":           types.Float64{Value: team.CycleCooldownTime},
+			"upcoming":           types.Float64{Value: team.UpcomingCycleCount},
+			"auto_add_started":   types.Bool{Value: team.CycleIssueAutoAssignStarted},
+			"auto_add_completed": types.Bool{Value: team.CycleIssueAutoAssignCompleted},
+			"need_for_active":    types.Bool{Value: team.CycleLockToActive},
+		},
+	}
+
+	data.Estimation = types.Object{
+		AttrTypes: map[string]attr.Type{
+			"type":       types.StringType,
+			"extended":   types.BoolType,
+			"allow_zero": types.BoolType,
+			"default":    types.Float64Type,
+		},
+		Attrs: map[string]attr.Value{
+			"type":       types.String{Value: team.IssueEstimationType},
+			"extended":   types.Bool{Value: team.IssueEstimationExtended},
+			"allow_zero": types.Bool{Value: team.IssueEstimationAllowZero},
+			"default":    types.Float64{Value: team.DefaultIssueEstimate},
+		},
 	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r teamResource) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+func (r teamResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data teamResourceData
 
 	diags := req.State.Get(ctx, &data)
@@ -517,46 +542,87 @@ func (r teamResource) Read(ctx context.Context, req tfsdk.ReadResourceRequest, r
 		return
 	}
 
-	data.Id = types.String{Value: response.Team.Id}
-	data.Name = types.String{Value: response.Team.Name}
-	data.Private = types.Bool{Value: response.Team.Private}
-	data.Description = types.String{Value: response.Team.Description}
-	data.Icon = types.String{Value: response.Team.Icon}
-	data.Color = types.String{Value: response.Team.Color}
-	data.Timezone = types.String{Value: response.Team.Timezone}
-	data.NoPriorityIssuesFirst = types.Bool{Value: response.Team.IssueOrderingNoPriorityFirst}
-	data.EnableIssueHistoryGrouping = types.Bool{Value: response.Team.GroupIssueHistory}
-	data.EnableIssueDefaultToBottom = types.Bool{Value: response.Team.IssueSortOrderDefaultToBottom}
-	data.AutoArchivePeriod = types.Float64{Value: response.Team.AutoArchivePeriod}
+	team := response.Team
 
-	data.Triage = &triage{
-		Enabled: types.Bool{Value: response.Team.TriageEnabled},
+	data.Id = types.String{Value: team.Id}
+	data.Name = types.String{Value: team.Name}
+	data.Private = types.Bool{Value: team.Private}
+	data.Timezone = types.String{Value: team.Timezone}
+	data.NoPriorityIssuesFirst = types.Bool{Value: team.IssueOrderingNoPriorityFirst}
+	data.EnableIssueHistoryGrouping = types.Bool{Value: team.GroupIssueHistory}
+	data.EnableIssueDefaultToBottom = types.Bool{Value: team.IssueSortOrderDefaultToBottom}
+	data.AutoArchivePeriod = types.Float64{Value: team.AutoArchivePeriod}
+
+	if team.Description != nil {
+		data.Description = types.String{Value: *team.Description}
 	}
 
-	data.Cycles = &cycles{
-		Enabled:          types.Bool{Value: response.Team.CyclesEnabled},
-		StartDay:         types.Float64{Value: response.Team.CycleStartDay},
-		Duration:         types.Float64{Value: response.Team.CycleDuration},
-		Cooldown:         types.Float64{Value: response.Team.CycleCooldownTime},
-		Upcoming:         types.Float64{Value: response.Team.UpcomingCycleCount},
-		AutoAddStarted:   types.Bool{Value: response.Team.CycleIssueAutoAssignStarted},
-		AutoAddCompleted: types.Bool{Value: response.Team.CycleIssueAutoAssignCompleted},
-		NeedForActive:    types.Bool{Value: response.Team.CycleLockToActive},
+	if team.Icon != nil {
+		data.Icon = types.String{Value: *team.Icon}
 	}
 
-	data.Estimation = &estimation{
-		Type:      types.String{Value: response.Team.IssueEstimationType},
-		Extended:  types.Bool{Value: response.Team.IssueEstimationExtended},
-		AllowZero: types.Bool{Value: response.Team.IssueEstimationAllowZero},
-		Default:   types.Float64{Value: response.Team.DefaultIssueEstimate},
+	if team.Color != nil {
+		data.Color = types.String{Value: *team.Color}
+	}
+
+	data.Triage = types.Object{
+		AttrTypes: map[string]attr.Type{
+			"enabled": types.BoolType,
+		},
+		Attrs: map[string]attr.Value{
+			"enabled": types.Bool{Value: team.TriageEnabled},
+		},
+	}
+
+	data.Cycles = types.Object{
+		AttrTypes: map[string]attr.Type{
+			"enabled":            types.BoolType,
+			"start_day":          types.Float64Type,
+			"duration":           types.Float64Type,
+			"cooldown":           types.Float64Type,
+			"upcoming":           types.Float64Type,
+			"auto_add_started":   types.BoolType,
+			"auto_add_completed": types.BoolType,
+			"need_for_active":    types.BoolType,
+		},
+		Attrs: map[string]attr.Value{
+			"enabled":            types.Bool{Value: team.CyclesEnabled},
+			"start_day":          types.Float64{Value: team.CycleStartDay},
+			"duration":           types.Float64{Value: team.CycleDuration},
+			"cooldown":           types.Float64{Value: team.CycleCooldownTime},
+			"upcoming":           types.Float64{Value: team.UpcomingCycleCount},
+			"auto_add_started":   types.Bool{Value: team.CycleIssueAutoAssignStarted},
+			"auto_add_completed": types.Bool{Value: team.CycleIssueAutoAssignCompleted},
+			"need_for_active":    types.Bool{Value: team.CycleLockToActive},
+		},
+	}
+
+	data.Estimation = types.Object{
+		AttrTypes: map[string]attr.Type{
+			"type":       types.StringType,
+			"extended":   types.BoolType,
+			"allow_zero": types.BoolType,
+			"default":    types.Float64Type,
+		},
+		Attrs: map[string]attr.Value{
+			"type":       types.String{Value: team.IssueEstimationType},
+			"extended":   types.Bool{Value: team.IssueEstimationExtended},
+			"allow_zero": types.Bool{Value: team.IssueEstimationAllowZero},
+			"default":    types.Float64{Value: team.DefaultIssueEstimate},
+		},
 	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r teamResource) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data teamResourceData
+	var triageData triage
+	var cyclesData cycles
+	var estimationData estimation
+
+	var state teamResourceData
 
 	diags := req.Plan.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -565,36 +631,84 @@ func (r teamResource) Update(ctx context.Context, req tfsdk.UpdateResourceReques
 		return
 	}
 
+	diags = req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	input := TeamUpdateInput{
-		Name:                          data.Name.Value,
 		Private:                       data.Private.Value,
-		Description:                   data.Description.Value,
-		Icon:                          data.Icon.Value,
-		Color:                         data.Color.Value,
 		Timezone:                      data.Timezone.Value,
 		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.Value,
 		GroupIssueHistory:             data.EnableIssueHistoryGrouping.Value,
 		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.Value,
-		AutoArchivePeriod:             data.AutoArchivePeriod.Value,
-		TriageEnabled:                 data.Triage.Enabled.Value,
-		CyclesEnabled:                 data.Cycles.Enabled.Value,
-		CycleStartDay:                 data.Cycles.StartDay.Value,
-		CycleDuration:                 int(data.Cycles.Duration.Value),
-		CycleCooldownTime:             int(data.Cycles.Cooldown.Value),
-		UpcomingCycleCount:            data.Cycles.Upcoming.Value,
-		CycleIssueAutoAssignStarted:   data.Cycles.AutoAddStarted.Value,
-		CycleIssueAutoAssignCompleted: data.Cycles.AutoAddCompleted.Value,
-		CycleLockToActive:             data.Cycles.NeedForActive.Value,
-		CycleEnabledStartWeek:         "nextWeek",
-		IssueEstimationType:           data.Estimation.Type.Value,
-		IssueEstimationExtended:       data.Estimation.Extended.Value,
-		IssueEstimationAllowZero:      data.Estimation.AllowZero.Value,
-		DefaultIssueEstimate:          data.Estimation.Default.Value,
+		// #2
+		// AutoArchivePeriod:             data.AutoArchivePeriod.Value,
+		AutoArchivePeriod: 3,
+	}
+
+	if data.Name.Value != state.Name.Value {
+		input.Name = data.Name.Value
+	}
+
+	if !data.Description.IsNull() {
+		input.Description = &data.Description.Value
+	}
+
+	if !data.Icon.IsUnknown() {
+		input.Icon = &data.Icon.Value
+	}
+
+	if !data.Color.IsUnknown() {
+		input.Color = &data.Color.Value
+	}
+
+	diags = data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	input.TriageEnabled = triageData.Enabled.Value
+
+	diags = data.Cycles.As(ctx, &cyclesData, types.ObjectAsOptions{})
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	input.CyclesEnabled = cyclesData.Enabled.Value
+	input.CycleStartDay = cyclesData.StartDay.Value
+	input.CycleDuration = int(cyclesData.Duration.Value)
+	input.CycleCooldownTime = int(cyclesData.Cooldown.Value)
+	input.UpcomingCycleCount = cyclesData.Upcoming.Value
+	input.CycleIssueAutoAssignStarted = cyclesData.AutoAddStarted.Value
+	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.Value
+	input.CycleLockToActive = cyclesData.NeedForActive.Value
+
+	diags = data.Estimation.As(ctx, &estimationData, types.ObjectAsOptions{})
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	input.IssueEstimationType = estimationData.Type.Value
+	input.IssueEstimationExtended = estimationData.Extended.Value
+	input.IssueEstimationAllowZero = estimationData.AllowZero.Value
+	input.DefaultIssueEstimate = estimationData.Default.Value
+
+	if input.CyclesEnabled {
+		input.CycleEnabledStartWeek = "nextWeek"
 	}
 
 	var key string
 
-	diags = req.State.GetAttribute(ctx, tftypes.NewAttributePath().WithAttributeName("key"), &key)
+	diags = req.State.GetAttribute(ctx, path.Root("key"), &key)
 	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
@@ -614,44 +728,80 @@ func (r teamResource) Update(ctx context.Context, req tfsdk.UpdateResourceReques
 
 	tflog.Trace(ctx, "updated a team")
 
-	data.Id = types.String{Value: response.TeamUpdate.Team.Id}
-	data.Private = types.Bool{Value: response.TeamUpdate.Team.Private}
-	data.Description = types.String{Value: response.TeamUpdate.Team.Description}
-	data.Icon = types.String{Value: response.TeamUpdate.Team.Icon}
-	data.Color = types.String{Value: response.TeamUpdate.Team.Color}
-	data.Timezone = types.String{Value: response.TeamUpdate.Team.Timezone}
-	data.NoPriorityIssuesFirst = types.Bool{Value: response.TeamUpdate.Team.IssueOrderingNoPriorityFirst}
-	data.EnableIssueHistoryGrouping = types.Bool{Value: response.TeamUpdate.Team.GroupIssueHistory}
-	data.EnableIssueDefaultToBottom = types.Bool{Value: response.TeamUpdate.Team.IssueSortOrderDefaultToBottom}
-	data.AutoArchivePeriod = types.Float64{Value: response.TeamUpdate.Team.AutoArchivePeriod}
+	team := response.TeamUpdate.Team
 
-	data.Triage = &triage{
-		Enabled: types.Bool{Value: response.TeamUpdate.Team.TriageEnabled},
+	data.Id = types.String{Value: team.Id}
+	data.Private = types.Bool{Value: team.Private}
+	data.Timezone = types.String{Value: team.Timezone}
+	data.NoPriorityIssuesFirst = types.Bool{Value: team.IssueOrderingNoPriorityFirst}
+	data.EnableIssueHistoryGrouping = types.Bool{Value: team.GroupIssueHistory}
+	data.EnableIssueDefaultToBottom = types.Bool{Value: team.IssueSortOrderDefaultToBottom}
+	data.AutoArchivePeriod = types.Float64{Value: team.AutoArchivePeriod}
+
+	if team.Description != nil {
+		data.Description = types.String{Value: *team.Description}
 	}
 
-	data.Cycles = &cycles{
-		Enabled:          types.Bool{Value: response.TeamUpdate.Team.CyclesEnabled},
-		StartDay:         types.Float64{Value: response.TeamUpdate.Team.CycleStartDay},
-		Duration:         types.Float64{Value: response.TeamUpdate.Team.CycleDuration},
-		Cooldown:         types.Float64{Value: response.TeamUpdate.Team.CycleCooldownTime},
-		Upcoming:         types.Float64{Value: response.TeamUpdate.Team.UpcomingCycleCount},
-		AutoAddStarted:   types.Bool{Value: response.TeamUpdate.Team.CycleIssueAutoAssignStarted},
-		AutoAddCompleted: types.Bool{Value: response.TeamUpdate.Team.CycleIssueAutoAssignCompleted},
-		NeedForActive:    types.Bool{Value: response.TeamUpdate.Team.CycleLockToActive},
+	if team.Icon != nil {
+		data.Icon = types.String{Value: *team.Icon}
 	}
 
-	data.Estimation = &estimation{
-		Type:      types.String{Value: response.TeamUpdate.Team.IssueEstimationType},
-		Extended:  types.Bool{Value: response.TeamUpdate.Team.IssueEstimationExtended},
-		AllowZero: types.Bool{Value: response.TeamUpdate.Team.IssueEstimationAllowZero},
-		Default:   types.Float64{Value: response.TeamUpdate.Team.DefaultIssueEstimate},
+	if team.Color != nil {
+		data.Color = types.String{Value: *team.Color}
+	}
+
+	data.Triage = types.Object{
+		AttrTypes: map[string]attr.Type{
+			"enabled": types.BoolType,
+		},
+		Attrs: map[string]attr.Value{
+			"enabled": types.Bool{Value: team.TriageEnabled},
+		},
+	}
+
+	data.Cycles = types.Object{
+		AttrTypes: map[string]attr.Type{
+			"enabled":            types.BoolType,
+			"start_day":          types.Float64Type,
+			"duration":           types.Float64Type,
+			"cooldown":           types.Float64Type,
+			"upcoming":           types.Float64Type,
+			"auto_add_started":   types.BoolType,
+			"auto_add_completed": types.BoolType,
+			"need_for_active":    types.BoolType,
+		},
+		Attrs: map[string]attr.Value{
+			"enabled":            types.Bool{Value: team.CyclesEnabled},
+			"start_day":          types.Float64{Value: team.CycleStartDay},
+			"duration":           types.Float64{Value: team.CycleDuration},
+			"cooldown":           types.Float64{Value: team.CycleCooldownTime},
+			"upcoming":           types.Float64{Value: team.UpcomingCycleCount},
+			"auto_add_started":   types.Bool{Value: team.CycleIssueAutoAssignStarted},
+			"auto_add_completed": types.Bool{Value: team.CycleIssueAutoAssignCompleted},
+			"need_for_active":    types.Bool{Value: team.CycleLockToActive},
+		},
+	}
+
+	data.Estimation = types.Object{
+		AttrTypes: map[string]attr.Type{
+			"type":       types.StringType,
+			"extended":   types.BoolType,
+			"allow_zero": types.BoolType,
+			"default":    types.Float64Type,
+		},
+		Attrs: map[string]attr.Value{
+			"type":       types.String{Value: team.IssueEstimationType},
+			"extended":   types.Bool{Value: team.IssueEstimationExtended},
+			"allow_zero": types.Bool{Value: team.IssueEstimationAllowZero},
+			"default":    types.Float64{Value: team.DefaultIssueEstimate},
+		},
 	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r teamResource) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+func (r teamResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data teamResourceData
 
 	diags := req.State.Get(ctx, &data)
@@ -671,6 +821,6 @@ func (r teamResource) Delete(ctx context.Context, req tfsdk.DeleteResourceReques
 	tflog.Trace(ctx, "deleted a team")
 }
 
-func (r teamResource) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
-	tfsdk.ResourceImportStatePassthroughID(ctx, tftypes.NewAttributePath().WithAttributeName("key"), req, resp)
+func (r teamResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("key"), req, resp)
 }

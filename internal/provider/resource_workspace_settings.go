@@ -5,16 +5,19 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ tfsdk.ResourceType = workspaceSettingsResourceType{}
-var _ tfsdk.Resource = workspaceSettingsResource{}
-var _ tfsdk.ResourceWithImportState = workspaceSettingsResource{}
+var _ provider.ResourceType = workspaceSettingsResourceType{}
+var _ resource.Resource = workspaceSettingsResource{}
+var _ resource.ResourceWithImportState = workspaceSettingsResource{}
 
 type workspaceSettingsResourceType struct{}
 
@@ -27,7 +30,7 @@ func (t workspaceSettingsResourceType) GetSchema(ctx context.Context) (tfsdk.Sch
 				Type:                types.StringType,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 			},
 			"enable_roadmap": {
@@ -36,7 +39,7 @@ func (t workspaceSettingsResourceType) GetSchema(ctx context.Context) (tfsdk.Sch
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.DefaultBool(false),
 				},
 			},
 			"enable_git_linkback_messages": {
@@ -45,7 +48,7 @@ func (t workspaceSettingsResourceType) GetSchema(ctx context.Context) (tfsdk.Sch
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.DefaultBool(false),
 				},
 			},
 			"enable_git_linkback_messages_public": {
@@ -54,14 +57,14 @@ func (t workspaceSettingsResourceType) GetSchema(ctx context.Context) (tfsdk.Sch
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					modifiers.DefaultBool(false),
 				},
 			},
 		},
 	}, nil
 }
 
-func (t workspaceSettingsResourceType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+func (t workspaceSettingsResourceType) NewResource(ctx context.Context, in provider.Provider) (resource.Resource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
 	return workspaceSettingsResource{
@@ -77,37 +80,23 @@ type workspaceSettingsResourceData struct {
 }
 
 type workspaceSettingsResource struct {
-	provider provider
+	provider linearProvider
 }
 
-func (r workspaceSettingsResource) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+func (r workspaceSettingsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data workspaceSettingsResourceData
 
-	diags := req.Config.Get(ctx, &data)
+	diags := req.Plan.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	input := UpdateOrganizationInput{}
-
-	if data.EnableRoadmap.IsNull() || data.EnableRoadmap.IsUnknown() {
-		input.RoadmapEnabled = false
-	} else {
-		input.RoadmapEnabled = data.EnableRoadmap.Value
-	}
-
-	if data.EnableGitLinkbackMessages.IsNull() || data.EnableGitLinkbackMessages.IsUnknown() {
-		input.GitLinkbackMessagesEnabled = false
-	} else {
-		input.GitLinkbackMessagesEnabled = data.EnableGitLinkbackMessages.Value
-	}
-
-	if data.EnableGitLinkbackMessagesPublic.IsNull() || data.EnableGitLinkbackMessagesPublic.IsUnknown() {
-		input.GitPublicLinkbackMessagesEnabled = false
-	} else {
-		input.GitPublicLinkbackMessagesEnabled = data.EnableGitLinkbackMessagesPublic.Value
+	input := UpdateOrganizationInput{
+		RoadmapEnabled:                   data.EnableRoadmap.Value,
+		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.Value,
+		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.Value,
 	}
 
 	response, err := updateWorkspaceSettings(context.Background(), r.provider.client, input)
@@ -117,16 +106,18 @@ func (r workspaceSettingsResource) Create(ctx context.Context, req tfsdk.CreateR
 		return
 	}
 
-	data.Id = types.String{Value: response.OrganizationUpdate.Organization.Id}
-	data.EnableRoadmap = types.Bool{Value: response.OrganizationUpdate.Organization.RoadmapEnabled}
-	data.EnableGitLinkbackMessages = types.Bool{Value: response.OrganizationUpdate.Organization.GitLinkbackMessagesEnabled}
-	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: response.OrganizationUpdate.Organization.GitPublicLinkbackMessagesEnabled}
+	organization := response.OrganizationUpdate.Organization
+
+	data.Id = types.String{Value: organization.Id}
+	data.EnableRoadmap = types.Bool{Value: organization.RoadmapEnabled}
+	data.EnableGitLinkbackMessages = types.Bool{Value: organization.GitLinkbackMessagesEnabled}
+	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: organization.GitPublicLinkbackMessagesEnabled}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r workspaceSettingsResource) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+func (r workspaceSettingsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data workspaceSettingsResourceData
 
 	diags := req.State.Get(ctx, &data)
@@ -143,16 +134,18 @@ func (r workspaceSettingsResource) Read(ctx context.Context, req tfsdk.ReadResou
 		return
 	}
 
-	data.Id = types.String{Value: response.Organization.Id}
-	data.EnableRoadmap = types.Bool{Value: response.Organization.RoadmapEnabled}
-	data.EnableGitLinkbackMessages = types.Bool{Value: response.Organization.GitLinkbackMessagesEnabled}
-	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: response.Organization.GitPublicLinkbackMessagesEnabled}
+	organization := response.Organization
+
+	data.Id = types.String{Value: organization.Id}
+	data.EnableRoadmap = types.Bool{Value: organization.RoadmapEnabled}
+	data.EnableGitLinkbackMessages = types.Bool{Value: organization.GitLinkbackMessagesEnabled}
+	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: organization.GitPublicLinkbackMessagesEnabled}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r workspaceSettingsResource) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+func (r workspaceSettingsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data workspaceSettingsResourceData
 
 	diags := req.Plan.Get(ctx, &data)
@@ -162,24 +155,10 @@ func (r workspaceSettingsResource) Update(ctx context.Context, req tfsdk.UpdateR
 		return
 	}
 
-	input := UpdateOrganizationInput{}
-
-	if data.EnableRoadmap.IsNull() {
-		input.RoadmapEnabled = false
-	} else {
-		input.RoadmapEnabled = data.EnableRoadmap.Value
-	}
-
-	if data.EnableGitLinkbackMessages.IsNull() {
-		input.GitLinkbackMessagesEnabled = false
-	} else {
-		input.GitLinkbackMessagesEnabled = data.EnableGitLinkbackMessages.Value
-	}
-
-	if data.EnableGitLinkbackMessagesPublic.IsNull() {
-		input.GitPublicLinkbackMessagesEnabled = false
-	} else {
-		input.GitPublicLinkbackMessagesEnabled = data.EnableGitLinkbackMessagesPublic.Value
+	input := UpdateOrganizationInput{
+		RoadmapEnabled:                   data.EnableRoadmap.Value,
+		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.Value,
+		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.Value,
 	}
 
 	response, err := updateWorkspaceSettings(context.Background(), r.provider.client, input)
@@ -191,16 +170,18 @@ func (r workspaceSettingsResource) Update(ctx context.Context, req tfsdk.UpdateR
 
 	tflog.Trace(ctx, "updated workspace settings")
 
-	data.Id = types.String{Value: response.OrganizationUpdate.Organization.Id}
-	data.EnableRoadmap = types.Bool{Value: response.OrganizationUpdate.Organization.RoadmapEnabled}
-	data.EnableGitLinkbackMessages = types.Bool{Value: response.OrganizationUpdate.Organization.GitLinkbackMessagesEnabled}
-	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: response.OrganizationUpdate.Organization.GitPublicLinkbackMessagesEnabled}
+	organization := response.OrganizationUpdate.Organization
+
+	data.Id = types.String{Value: organization.Id}
+	data.EnableRoadmap = types.Bool{Value: organization.RoadmapEnabled}
+	data.EnableGitLinkbackMessages = types.Bool{Value: organization.GitLinkbackMessagesEnabled}
+	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: organization.GitPublicLinkbackMessagesEnabled}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r workspaceSettingsResource) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+func (r workspaceSettingsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data workspaceSettingsResourceData
 
 	diags := req.State.Get(ctx, &data)
@@ -226,7 +207,7 @@ func (r workspaceSettingsResource) Delete(ctx context.Context, req tfsdk.DeleteR
 	tflog.Trace(ctx, "deleted workspace settings")
 }
 
-func (r workspaceSettingsResource) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
+func (r workspaceSettingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	response, err := getWorkspaceSettings(context.Background(), r.provider.client)
 
 	if err != nil {
@@ -234,5 +215,5 @@ func (r workspaceSettingsResource) ImportState(ctx context.Context, req tfsdk.Im
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, tftypes.NewAttributePath().WithAttributeName("id"), response.Organization.Id)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.Organization.Id)...)
 }

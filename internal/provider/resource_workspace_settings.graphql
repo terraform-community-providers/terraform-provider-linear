@@ -1,9 +1,13 @@
+fragment Organization on Organization {
+  id
+  roadmapEnabled
+  gitLinkbackMessagesEnabled
+  gitPublicLinkbackMessagesEnabled
+}
+
 query getWorkspaceSettings {
   organization {
-    id
-    roadmapEnabled
-    gitLinkbackMessagesEnabled
-    gitPublicLinkbackMessagesEnabled
+    ...Organization
   }
 }
 
@@ -21,10 +25,7 @@ mutation updateWorkspaceSettings(
 ) {
   organizationUpdate(input: $input) {
     organization {
-      id
-      roadmapEnabled
-      gitLinkbackMessagesEnabled
-      gitPublicLinkbackMessagesEnabled
+      ...Organization
     }
   }
 }

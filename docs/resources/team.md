@@ -49,16 +49,13 @@ resource "linear_team" "example" {
 <a id="nestedatt--cycles"></a>
 ### Nested Schema for `cycles`
 
-Required:
-
-- `enabled` (Boolean) Enable cycles for the team. **Default** `false`.
-
 Optional:
 
 - `auto_add_completed` (Boolean) Auto add completed issues that don't belong to any cycle to the active cycle. **Default** `true`.
 - `auto_add_started` (Boolean) Auto add started issues that don't belong to any cycle to the active cycle. **Default** `true`.
 - `cooldown` (Number) Cooldown time between cycles in weeks. **Default** `0`.
 - `duration` (Number) Duration of the cycle in weeks. **Default** `1`.
+- `enabled` (Boolean) Enable cycles for the team. **Default** `false`.
 - `need_for_active` (Boolean) Whether all active issues need to have a cycle. **Default** `false`.
 - `start_day` (Number) Start day of the cycle. Sunday is 0, Saturday is 6. **Default** `0`.
 - `upcoming` (Number) Number of upcoming cycles to automatically create. **Default** `2`.
@@ -78,7 +75,7 @@ Optional:
 <a id="nestedatt--triage"></a>
 ### Nested Schema for `triage`
 
-Required:
+Optional:
 
 - `enabled` (Boolean) Enable triage mode for the team. **Default** `false`.
 

@@ -6,18 +6,20 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/frankgreco/terraform-helpers/validators"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ tfsdk.ResourceType = workflowStateResourceType{}
-var _ tfsdk.Resource = workflowStateResource{}
-var _ tfsdk.ResourceWithImportState = workflowStateResource{}
+var _ provider.ResourceType = workflowStateResourceType{}
+var _ resource.Resource = workflowStateResource{}
+var _ resource.ResourceWithImportState = workflowStateResource{}
 
 type workflowStateResourceType struct{}
 
@@ -30,7 +32,7 @@ func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema,
 				Type:                types.StringType,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 			},
 			"name": {
@@ -49,7 +51,7 @@ func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema,
 					validators.StringInSlice(true, "backlog", "unstarted", "started", "completed", "canceled"),
 				},
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 			},
 			"description": {
@@ -58,7 +60,7 @@ func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema,
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 			},
 			"color": {
@@ -75,7 +77,7 @@ func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema,
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
+					resource.UseStateForUnknown(),
 				},
 			},
 			"team_id": {
@@ -83,7 +85,7 @@ func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema,
 				Type:                types.StringType,
 				Required:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.RequiresReplace(),
+					resource.RequiresReplace(),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					validators.Match(uuidRegex()),
@@ -93,7 +95,7 @@ func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema,
 	}, nil
 }
 
-func (t workflowStateResourceType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+func (t workflowStateResourceType) NewResource(ctx context.Context, in provider.Provider) (resource.Resource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
 	return workflowStateResource{
@@ -112,13 +114,13 @@ type workflowStateResourceData struct {
 }
 
 type workflowStateResource struct {
-	provider provider
+	provider linearProvider
 }
 
-func (r workflowStateResource) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+func (r workflowStateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data workflowStateResourceData
 
-	diags := req.Config.Get(ctx, &data)
+	diags := req.Plan.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
@@ -154,7 +156,7 @@ func (r workflowStateResource) Create(ctx context.Context, req tfsdk.CreateResou
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r workflowStateResource) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+func (r workflowStateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data workflowStateResourceData
 
 	diags := req.State.Get(ctx, &data)
@@ -182,7 +184,7 @@ func (r workflowStateResource) Read(ctx context.Context, req tfsdk.ReadResourceR
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r workflowStateResource) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+func (r workflowStateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data workflowStateResourceData
 
 	diags := req.Plan.Get(ctx, &data)
@@ -220,7 +222,7 @@ func (r workflowStateResource) Update(ctx context.Context, req tfsdk.UpdateResou
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r workflowStateResource) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+func (r workflowStateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data workflowStateResourceData
 
 	diags := req.State.Get(ctx, &data)
@@ -242,7 +244,7 @@ func (r workflowStateResource) Delete(ctx context.Context, req tfsdk.DeleteResou
 	tflog.Trace(ctx, "deleted a workflow state")
 }
 
-func (r workflowStateResource) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
+func (r workflowStateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.Split(req.ID, ":")
 
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
@@ -261,5 +263,5 @@ func (r workflowStateResource) ImportState(ctx context.Context, req tfsdk.Import
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, tftypes.NewAttributePath().WithAttributeName("id"), response.WorkflowStates.Nodes[0].Id)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.WorkflowStates.Nodes[0].Id)...)
 }

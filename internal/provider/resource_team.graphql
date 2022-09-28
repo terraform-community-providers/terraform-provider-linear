@@ -1,39 +1,47 @@
+# @genqlient(for: "Team.description", pointer: true)
+# @genqlient(for: "Team.icon", pointer: true)
+# @genqlient(for: "Team.color", pointer: true)
+# @genqlient(for: "Team.autoClosePeriod", pointer: true)
+fragment Team on Team {
+  id
+  name
+  key
+  private
+  description
+  icon
+  color
+  timezone
+  issueOrderingNoPriorityFirst
+  groupIssueHistory
+  issueSortOrderDefaultToBottom
+  autoArchivePeriod
+  autoClosePeriod
+  triageEnabled
+  cyclesEnabled
+  cycleStartDay
+  cycleDuration
+  cycleCooldownTime
+  upcomingCycleCount
+  cycleIssueAutoAssignStarted
+  cycleIssueAutoAssignCompleted
+  cycleLockToActive
+  issueEstimationType
+  issueEstimationAllowZero
+  issueEstimationExtended
+  defaultIssueEstimate
+}
+
 query getTeam($key: String!) {
   team(id: $key) {
-    id
-    name
-    key
-    private
-    description
-    icon
-    color
-    timezone
-    issueOrderingNoPriorityFirst
-    groupIssueHistory
-    issueSortOrderDefaultToBottom
-    autoArchivePeriod
-    autoClosePeriod
-    triageEnabled
-    cyclesEnabled
-    cycleStartDay
-    cycleDuration
-    cycleCooldownTime
-    upcomingCycleCount
-    cycleIssueAutoAssignStarted
-    cycleIssueAutoAssignCompleted
-    cycleLockToActive
-    issueEstimationType
-    issueEstimationAllowZero
-    issueEstimationExtended
-    defaultIssueEstimate
+    ...Team
   }
 }
 
 # @genqlient(for: "TeamCreateInput.id", omitempty: true)
+# @genqlient(for: "TeamCreateInput.description", pointer: true)
+# @genqlient(for: "TeamCreateInput.icon", omitempty: true, pointer: true)
+# @genqlient(for: "TeamCreateInput.color", omitempty: true, pointer: true)
 # @genqlient(for: "TeamCreateInput.organizationId", omitempty: true)
-# @genqlient(for: "TeamCreateInput.description", omitempty: true)
-# @genqlient(for: "TeamCreateInput.icon", omitempty: true)
-# @genqlient(for: "TeamCreateInput.color", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForMembersId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForNonMembersId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
@@ -44,40 +52,17 @@ mutation createTeam(
 ) {
   teamCreate(input: $input) {
     team {
-      id
-      name
-      key
-      private
-      description
-      icon
-      color
-      timezone
-      issueOrderingNoPriorityFirst
-      groupIssueHistory
-      issueSortOrderDefaultToBottom
-      autoArchivePeriod
-      autoClosePeriod
-      triageEnabled
-      cyclesEnabled
-      cycleStartDay
-      cycleDuration
-      cycleCooldownTime
-      upcomingCycleCount
-      cycleIssueAutoAssignStarted
-      cycleIssueAutoAssignCompleted
-      cycleLockToActive
-      issueEstimationType
-      issueEstimationAllowZero
-      issueEstimationExtended
-      defaultIssueEstimate
+      ...Team
     }
   }
 }
 
 # @genqlient(for: "TeamUpdateInput.key", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.description", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.icon", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.color", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.name", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.description", pointer: true)
+# @genqlient(for: "TeamUpdateInput.icon", omitempty: true, pointer: true)
+# @genqlient(for: "TeamUpdateInput.color", omitempty: true, pointer: true)
+# @genqlient(for: "TeamUpdateInput.cycleEnabledStartWeek", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.draftWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.startWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.reviewWorkflowStateId", omitempty: true)
@@ -94,32 +79,7 @@ mutation updateTeam(
 ) {
   teamUpdate(input: $input, id: $id) {
     team {
-      id
-      name
-      key
-      private
-      description
-      icon
-      color
-      timezone
-      issueOrderingNoPriorityFirst
-      groupIssueHistory
-      issueSortOrderDefaultToBottom
-      autoArchivePeriod
-      autoClosePeriod
-      triageEnabled
-      cyclesEnabled
-      cycleStartDay
-      cycleDuration
-      cycleCooldownTime
-      upcomingCycleCount
-      cycleIssueAutoAssignStarted
-      cycleIssueAutoAssignCompleted
-      cycleLockToActive
-      issueEstimationType
-      issueEstimationAllowZero
-      issueEstimationExtended
-      defaultIssueEstimate
+      ...Team
     }
   }
 }
