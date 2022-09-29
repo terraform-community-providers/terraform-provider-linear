@@ -22,14 +22,14 @@ func TestAccWorkflowStateResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "description", ""),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "color", "#ffff00"),
 					resource.TestCheckResourceAttrSet("linear_workflow_state.test", "position"),
-					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "4486be5a-706b-47be-81ab-1937d6ecf193"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
 			// ImportState testing
 			{
 				ResourceName:      "linear_workflow_state.test",
 				ImportState:       true,
-				ImportStateId:     "Draft:TEST",
+				ImportStateId:     "Draft:DEF",
 				ImportStateVerify: true,
 			},
 			// Update with null values
@@ -42,7 +42,7 @@ func TestAccWorkflowStateResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "description", ""),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "color", "#ffff00"),
 					resource.TestCheckResourceAttrSet("linear_workflow_state.test", "position"),
-					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "4486be5a-706b-47be-81ab-1937d6ecf193"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
 			// Update and Read testing
@@ -55,14 +55,14 @@ func TestAccWorkflowStateResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "description", "For review"),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "color", "#00ffff"),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "position", "20"),
-					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "4486be5a-706b-47be-81ab-1937d6ecf193"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
 			// ImportState testing
 			{
 				ResourceName:      "linear_workflow_state.test",
 				ImportState:       true,
-				ImportStateId:     "In review:TEST",
+				ImportStateId:     "In review:DEF",
 				ImportStateVerify: true,
 			},
 			// Delete testing automatically occurs in TestCase
@@ -85,14 +85,14 @@ func TestAccWorkflowStateResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "description", "Deployed to prod"),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "color", "#00ffff"),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "position", "20"),
-					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "4486be5a-706b-47be-81ab-1937d6ecf193"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
 			// ImportState testing
 			{
 				ResourceName:      "linear_workflow_state.test",
 				ImportState:       true,
-				ImportStateId:     "Deployed:TEST",
+				ImportStateId:     "Deployed:DEF",
 				ImportStateVerify: true,
 			},
 			// Delete testing automatically occurs in TestCase
@@ -106,7 +106,7 @@ resource "linear_workflow_state" "test" {
   name = "%s"
   type = "started"
   color = "#ffff00"
-  team_id = "4486be5a-706b-47be-81ab-1937d6ecf193"
+  team_id = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
 }
 `, name)
 }
@@ -119,7 +119,7 @@ resource "linear_workflow_state" "test" {
   description = "%s"
   color = "#00ffff"
   position = 20
-  team_id = "4486be5a-706b-47be-81ab-1937d6ecf193"
+  team_id = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
 }
 `, name, ty, description)
 }
