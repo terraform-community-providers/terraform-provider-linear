@@ -135,13 +135,12 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 				},
 			},
 			"auto_archive_period": {
-				MarkdownDescription: "Period after which closed and completed issues are automatically archived, in months. **Default** `3`.",
+				MarkdownDescription: "Period after which closed and completed issues are automatically archived, in months. **Default** `6`.",
 				Type:                types.Float64Type,
-				// #2
-				// Optional:            true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					modifiers.DefaultFloat(3),
+					modifiers.DefaultFloat(6),
 				},
 				Validators: []tfsdk.AttributeValidator{
 					validators.FloatInSlice(1, 3, 6, 9, 12),
@@ -389,9 +388,7 @@ func (r teamResource) Create(ctx context.Context, req resource.CreateRequest, re
 		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.Value,
 		GroupIssueHistory:             data.EnableIssueHistoryGrouping.Value,
 		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.Value,
-		// #2
-		// AutoArchivePeriod:             data.AutoArchivePeriod.Value,
-		AutoArchivePeriod: 3,
+		AutoArchivePeriod:             data.AutoArchivePeriod.Value,
 	}
 
 	if !data.Description.IsNull() {
@@ -644,9 +641,7 @@ func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.Value,
 		GroupIssueHistory:             data.EnableIssueHistoryGrouping.Value,
 		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.Value,
-		// #2
-		// AutoArchivePeriod:             data.AutoArchivePeriod.Value,
-		AutoArchivePeriod: 3,
+		AutoArchivePeriod:             data.AutoArchivePeriod.Value,
 	}
 
 	if data.Name.Value != state.Name.Value {

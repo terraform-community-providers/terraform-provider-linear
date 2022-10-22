@@ -29,6 +29,7 @@ resource "linear_team" "example" {
 
 ### Optional
 
+- `auto_archive_period` (Number) Period after which closed and completed issues are automatically archived, in months. **Default** `6`.
 - `color` (String) Color of the team.
 - `cycles` (Attributes) Cycle settings of the team. (see [below for nested schema](#nestedatt--cycles))
 - `description` (String) Description of the team.
@@ -43,7 +44,6 @@ resource "linear_team" "example" {
 
 ### Read-Only
 
-- `auto_archive_period` (Number) Period after which closed and completed issues are automatically archived, in months. **Default** `3`.
 - `id` (String) Identifier of the team.
 
 <a id="nestedatt--cycles"></a>
