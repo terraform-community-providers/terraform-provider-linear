@@ -43,12 +43,12 @@ func (t workspaceSettingsResourceType) GetSchema(ctx context.Context) (tfsdk.Sch
 				},
 			},
 			"enable_git_linkback_messages": {
-				MarkdownDescription: "Enable git linkbacks for private repositories. **Default** `false`.",
+				MarkdownDescription: "Enable git linkbacks for private repositories. **Default** `true`.",
 				Type:                types.BoolType,
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					modifiers.DefaultBool(false),
+					modifiers.DefaultBool(true),
 				},
 			},
 			"enable_git_linkback_messages_public": {

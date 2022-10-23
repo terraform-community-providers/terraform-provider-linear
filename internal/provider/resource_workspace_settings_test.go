@@ -17,7 +17,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_workspace_settings.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "false"),
-					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
 				),
 			},
@@ -34,7 +34,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_workspace_settings.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "false"),
-					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
 				),
 			},
@@ -44,7 +44,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_workspace_settings.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "true"),
-					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
 				),
 			},
@@ -71,7 +71,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_workspace_settings.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "true"),
-					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
 				),
 			},
@@ -88,7 +88,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_workspace_settings.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "true"),
-					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
 				),
 			},
@@ -98,7 +98,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_workspace_settings.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "false"),
-					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
 				),
 			},
@@ -118,7 +118,7 @@ func testAccWorkspaceSettingsResourceConfigNonDefault() string {
 	return `
 resource "linear_workspace_settings" "test" {
 	enable_roadmap = true
-	enable_git_linkback_messages = true
+	enable_git_linkback_messages = false
 	enable_git_linkback_messages_public = true
 }
 `
