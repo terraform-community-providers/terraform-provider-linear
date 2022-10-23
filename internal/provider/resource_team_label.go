@@ -276,8 +276,13 @@ func (r teamLabelResource) ImportState(ctx context.Context, req resource.ImportS
 
 	response, err := findTeamLabel(context.Background(), r.provider.client, parts[0], parts[1])
 
-	if err != nil || len(response.IssueLabels.Nodes) != 1 {
+	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import team label, got error: %s", err))
+		return
+	}
+
+	if len(response.IssueLabels.Nodes) != 1 {
+		resp.Diagnostics.AddError("Client Error", "Unable to import team label, got error: label not found")
 		return
 	}
 

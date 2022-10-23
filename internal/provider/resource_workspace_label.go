@@ -239,8 +239,18 @@ func (r workspaceLabelResource) Delete(ctx context.Context, req resource.DeleteR
 func (r workspaceLabelResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	response, err := findWorkspaceLabel(context.Background(), r.provider.client, req.ID)
 
-	if err != nil || len(response.IssueLabels.Nodes) != 1 {
+	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import workspace label, got error: %s", err))
+		return
+	}
+
+	if len(response.IssueLabels.Nodes) != 1 {
+		resp.Diagnostics.AddError("Client Error", "Unable to import team label, got error: label not found")
+		return
+	}
+
+	if response.IssueLabels.Nodes[0].Team.Id != "" {
+		resp.Diagnostics.AddError("Client Error", "Unable to import team label, got error: label is a team label")
 		return
 	}
 

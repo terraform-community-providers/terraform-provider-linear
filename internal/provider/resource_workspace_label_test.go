@@ -23,13 +23,12 @@ func TestAccWorkspaceLabelResourceDefault(t *testing.T) {
 				),
 			},
 			// ImportState testing
-			// #4
-			// {
-			// 	ResourceName:      "linear_workspace_label.test",
-			// 	ImportState:       true,
-			// 	ImportStateId:     "UX",
-			// 	ImportStateVerify: true,
-			// },
+			{
+				ResourceName:      "linear_workspace_label.test",
+				ImportState:       true,
+				ImportStateId:     "UX",
+				ImportStateVerify: true,
+			},
 			// Update with null values
 			{
 				Config: testAccWorkspaceLabelResourceConfigDefault("UX"),
@@ -51,13 +50,12 @@ func TestAccWorkspaceLabelResourceDefault(t *testing.T) {
 				),
 			},
 			// ImportState testing
-			// #4
-			// {
-			// 	ResourceName:      "linear_workspace_label.test",
-			// 	ImportState:       true,
-			// 	ImportStateId:     "Easy UX",
-			// 	ImportStateVerify: true,
-			// },
+			{
+				ResourceName:      "linear_workspace_label.test",
+				ImportState:       true,
+				ImportStateId:     "Easy UX",
+				ImportStateVerify: true,
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})
@@ -79,13 +77,12 @@ func TestAccWorkspaceLabelResourceNonDefault(t *testing.T) {
 				),
 			},
 			// ImportState testing
-			// #4
-			// {
-			// 	ResourceName:      "linear_workspace_label.test",
-			// 	ImportState:       true,
-			// 	ImportStateId:     "Needs product",
-			// 	ImportStateVerify: true,
-			// },
+			{
+				ResourceName:      "linear_workspace_label.test",
+				ImportState:       true,
+				ImportStateId:     "Needs product",
+				ImportStateVerify: true,
+			},
 			// Update with same values
 			{
 				Config: testAccWorkspaceLabelResourceConfigNonDefault("Needs product"),

@@ -21,16 +21,13 @@ query findWorkspaceLabel($name: String!) {
   issueLabels(filter: {
     name: {
       eq: $name
-    },
-    #4
-    # team: {
-    #   key: {
-    #     eq: $key
-    #   }
-    # }
+    }
   }) {
     nodes {
       id
+      team {
+        id
+      }
     }
   }
 }

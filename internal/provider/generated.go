@@ -1502,10 +1502,31 @@ func (v *findWorkspaceLabelIssueLabelsIssueLabelConnection) GetNodes() []findWor
 type findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
+	// The team that the label is associated with. If null, the label is associated with the global workspace..
+	Team findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam `json:"team"`
 }
 
 // GetId returns findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel.Id, and is useful for accessing the field via an interface.
 func (v *findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel) GetId() string {
+	return v.Id
+}
+
+// GetTeam returns findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel.Team, and is useful for accessing the field via an interface.
+func (v *findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel) GetTeam() findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam {
+	return v.Team
+}
+
+// findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam.Id, and is useful for accessing the field via an interface.
+func (v *findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam) GetId() string {
 	return v.Id
 }
 
@@ -2870,6 +2891,9 @@ query findWorkspaceLabel ($name: String!) {
 	issueLabels(filter: {name:{eq:$name}}) {
 		nodes {
 			id
+			team {
+				id
+			}
 		}
 	}
 }
