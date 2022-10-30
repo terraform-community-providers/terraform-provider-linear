@@ -330,7 +330,7 @@ type TeamCreateInput struct {
 	// Internal. Whether the team is private or not.
 	Private bool `json:"private"`
 	// Period after which issues are automatically closed, in months.
-	AutoClosePeriod float64 `json:"autoClosePeriod,omitempty"`
+	AutoClosePeriod *float64 `json:"autoClosePeriod"`
 	// The canceled workflow state which auto closed issues will be set to.
 	AutoCloseStateId string `json:"autoCloseStateId,omitempty"`
 	// Period after which closed and completed issues are automatically archived, in months. 0 means disabled.
@@ -431,7 +431,7 @@ func (v *TeamCreateInput) GetDefaultTemplateForNonMembersId() string {
 func (v *TeamCreateInput) GetPrivate() bool { return v.Private }
 
 // GetAutoClosePeriod returns TeamCreateInput.AutoClosePeriod, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetAutoClosePeriod() float64 { return v.AutoClosePeriod }
+func (v *TeamCreateInput) GetAutoClosePeriod() *float64 { return v.AutoClosePeriod }
 
 // GetAutoCloseStateId returns TeamCreateInput.AutoCloseStateId, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetAutoCloseStateId() string { return v.AutoCloseStateId }
@@ -514,7 +514,7 @@ type TeamUpdateInput struct {
 	// Default status for newly created issues.
 	DefaultIssueStateId string `json:"defaultIssueStateId,omitempty"`
 	// Period after which issues are automatically closed, in months.
-	AutoClosePeriod float64 `json:"autoClosePeriod,omitempty"`
+	AutoClosePeriod *float64 `json:"autoClosePeriod"`
 	// The canceled workflow state which auto closed issues will be set to.
 	AutoCloseStateId string `json:"autoCloseStateId,omitempty"`
 	// Period after which closed and completed issues are automatically archived, in months.
@@ -636,7 +636,7 @@ func (v *TeamUpdateInput) GetTriageEnabled() bool { return v.TriageEnabled }
 func (v *TeamUpdateInput) GetDefaultIssueStateId() string { return v.DefaultIssueStateId }
 
 // GetAutoClosePeriod returns TeamUpdateInput.AutoClosePeriod, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetAutoClosePeriod() float64 { return v.AutoClosePeriod }
+func (v *TeamUpdateInput) GetAutoClosePeriod() *float64 { return v.AutoClosePeriod }
 
 // GetAutoCloseStateId returns TeamUpdateInput.AutoCloseStateId, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetAutoCloseStateId() string { return v.AutoCloseStateId }

@@ -41,11 +41,11 @@ query getTeam($key: String!) {
 # @genqlient(for: "TeamCreateInput.description", pointer: true)
 # @genqlient(for: "TeamCreateInput.icon", omitempty: true, pointer: true)
 # @genqlient(for: "TeamCreateInput.color", omitempty: true, pointer: true)
+# @genqlient(for: "TeamCreateInput.autoClosePeriod", pointer: true)
 # @genqlient(for: "TeamCreateInput.organizationId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForMembersId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForNonMembersId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
-# @genqlient(for: "TeamCreateInput.autoClosePeriod", omitempty: true)
 # @genqlient(for: "TeamCreateInput.autoCloseStateId", omitempty: true)
 mutation createTeam(
   $input: TeamCreateInput!
@@ -62,6 +62,7 @@ mutation createTeam(
 # @genqlient(for: "TeamUpdateInput.description", pointer: true)
 # @genqlient(for: "TeamUpdateInput.icon", omitempty: true, pointer: true)
 # @genqlient(for: "TeamUpdateInput.color", omitempty: true, pointer: true)
+# @genqlient(for: "TeamUpdateInput.autoClosePeriod", pointer: true)
 # @genqlient(for: "TeamUpdateInput.cycleEnabledStartWeek", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.draftWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.startWorkflowStateId", omitempty: true)
@@ -71,7 +72,6 @@ mutation createTeam(
 # @genqlient(for: "TeamUpdateInput.defaultTemplateForNonMembersId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.defaultIssueStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.autoClosePeriod", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.autoCloseStateId", omitempty: true)
 mutation updateTeam(
   $input: TeamUpdateInput!,

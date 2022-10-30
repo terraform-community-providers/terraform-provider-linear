@@ -27,6 +27,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
+					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "0"),
@@ -64,6 +65,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
+					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "0"),
@@ -94,6 +96,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
+					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "6"),
@@ -141,6 +144,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
+					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "6"),
@@ -178,6 +182,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
+					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "6"),
@@ -207,6 +212,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "no_priority_issues_first", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "false"),
+					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "false"),
@@ -251,6 +257,7 @@ resource "linear_team" "test" {
   enable_issue_history_grouping = false
   enable_issue_default_to_bottom = true
   auto_archive_period = 3
+  auto_close_period = 0
 
   triage = {
     enabled = true

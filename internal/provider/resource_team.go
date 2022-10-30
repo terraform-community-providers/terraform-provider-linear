@@ -146,6 +146,18 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 					validators.FloatInSlice(1, 3, 6, 9, 12),
 				},
 			},
+			"auto_close_period": {
+				MarkdownDescription: "Period after which non-completed or non-canceled issues are automatically closed, in months. **Default** `6`. *Use `0` for turning this off.*",
+				Type:                types.Float64Type,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					modifiers.DefaultFloat(6),
+				},
+				Validators: []tfsdk.AttributeValidator{
+					validators.FloatInSlice(0, 1, 3, 6, 9, 12),
+				},
+			},
 			"triage": {
 				MarkdownDescription: "Triage settings of the team.",
 				Optional:            true,
@@ -358,6 +370,7 @@ type teamResourceData struct {
 	EnableIssueHistoryGrouping types.Bool    `tfsdk:"enable_issue_history_grouping"`
 	EnableIssueDefaultToBottom types.Bool    `tfsdk:"enable_issue_default_to_bottom"`
 	AutoArchivePeriod          types.Float64 `tfsdk:"auto_archive_period"`
+	AutoClosePeriod            types.Float64 `tfsdk:"auto_close_period"`
 	Triage                     types.Object  `tfsdk:"triage"`
 	Cycles                     types.Object  `tfsdk:"cycles"`
 	Estimation                 types.Object  `tfsdk:"estimation"`
@@ -401,6 +414,10 @@ func (r teamResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	if !data.Color.IsUnknown() {
 		input.Color = &data.Color.Value
+	}
+
+	if data.AutoClosePeriod.Value != 0 {
+		input.AutoClosePeriod = &data.AutoClosePeriod.Value
 	}
 
 	diags = data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})
@@ -469,6 +486,12 @@ func (r teamResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	if team.Color != nil {
 		data.Color = types.String{Value: *team.Color}
+	}
+
+	if team.AutoClosePeriod != nil {
+		data.AutoClosePeriod = types.Float64{Value: *team.AutoClosePeriod}
+	} else {
+		data.AutoClosePeriod = types.Float64{Value: 0}
 	}
 
 	data.Triage = types.Object{
@@ -560,6 +583,12 @@ func (r teamResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 	if team.Color != nil {
 		data.Color = types.String{Value: *team.Color}
+	}
+
+	if team.AutoClosePeriod != nil {
+		data.AutoClosePeriod = types.Float64{Value: *team.AutoClosePeriod}
+	} else {
+		data.AutoClosePeriod = types.Float64{Value: 0}
 	}
 
 	data.Triage = types.Object{
@@ -660,6 +689,10 @@ func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		input.Color = &data.Color.Value
 	}
 
+	if data.AutoClosePeriod.Value != 0 {
+		input.AutoClosePeriod = &data.AutoClosePeriod.Value
+	}
+
 	diags = data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})
 	resp.Diagnostics.Append(diags...)
 
@@ -743,6 +776,12 @@ func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	if team.Color != nil {
 		data.Color = types.String{Value: *team.Color}
+	}
+
+	if team.AutoClosePeriod != nil {
+		data.AutoClosePeriod = types.Float64{Value: *team.AutoClosePeriod}
+	} else {
+		data.AutoClosePeriod = types.Float64{Value: 0}
 	}
 
 	data.Triage = types.Object{
