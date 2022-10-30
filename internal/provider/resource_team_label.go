@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -16,14 +16,30 @@ import (
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
-// Ensure provider defined types fully satisfy framework interfaces
-var _ provider.ResourceType = teamLabelResourceType{}
-var _ resource.Resource = teamLabelResource{}
-var _ resource.ResourceWithImportState = teamLabelResource{}
+var _ resource.Resource = &TeamLabelResource{}
+var _ resource.ResourceWithImportState = &TeamLabelResource{}
 
-type teamLabelResourceType struct{}
+func NewTeamLabelResource() resource.Resource {
+	return &TeamLabelResource{}
+}
 
-func (t teamLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+type TeamLabelResource struct {
+	client *graphql.Client
+}
+
+type TeamLabelResourceModel struct {
+	Id          types.String `tfsdk:"id"`
+	Name        types.String `tfsdk:"name"`
+	Description types.String `tfsdk:"description"`
+	Color       types.String `tfsdk:"color"`
+	TeamId      types.String `tfsdk:"team_id"`
+}
+
+func (r *TeamLabelResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_team_label"
+}
+
+func (r *TeamLabelResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Linear team label.",
 		Attributes: map[string]tfsdk.Attribute{
@@ -79,31 +95,30 @@ func (t teamLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, dia
 	}, nil
 }
 
-func (t teamLabelResourceType) NewResource(ctx context.Context, in provider.Provider) (resource.Resource, diag.Diagnostics) {
-	provider, diags := convertProviderType(in)
+func (r *TeamLabelResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	// Prevent panic if the provider has not been configured.
+	if req.ProviderData == nil {
+		return
+	}
 
-	return teamLabelResource{
-		provider: provider,
-	}, diags
+	client, ok := req.ProviderData.(*graphql.Client)
+
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *graphql.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	r.client = client
 }
 
-type teamLabelResourceData struct {
-	Id          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	Color       types.String `tfsdk:"color"`
-	TeamId      types.String `tfsdk:"team_id"`
-}
+func (r *TeamLabelResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *TeamLabelResourceModel
 
-type teamLabelResource struct {
-	provider linearProvider
-}
-
-func (r teamLabelResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data teamLabelResourceData
-
-	diags := req.Plan.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -122,7 +137,7 @@ func (r teamLabelResource) Create(ctx context.Context, req resource.CreateReques
 		input.Color = &data.Color.Value
 	}
 
-	response, err := createLabel(context.Background(), r.provider.client, input)
+	response, err := createLabel(context.Background(), *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create team label, got error: %s", err))
@@ -148,21 +163,19 @@ func (r teamLabelResource) Create(ctx context.Context, req resource.CreateReques
 		data.TeamId = types.String{Value: issueLabel.Team.Id}
 	}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r teamLabelResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data teamLabelResourceData
+func (r *TeamLabelResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *TeamLabelResourceModel
 
-	diags := req.State.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	response, err := getLabel(context.Background(), r.provider.client, data.Id.Value)
+	response, err := getLabel(context.Background(), *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read team label, got error: %s", err))
@@ -186,15 +199,13 @@ func (r teamLabelResource) Read(ctx context.Context, req resource.ReadRequest, r
 		data.TeamId = types.String{Value: issueLabel.Team.Id}
 	}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r teamLabelResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data teamLabelResourceData
+func (r *TeamLabelResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *TeamLabelResourceModel
 
-	diags := req.Plan.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -212,7 +223,7 @@ func (r teamLabelResource) Update(ctx context.Context, req resource.UpdateReques
 		input.Color = &data.Color.Value
 	}
 
-	response, err := updateLabel(context.Background(), r.provider.client, input, data.Id.Value)
+	response, err := updateLabel(context.Background(), *r.client, input, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team label, got error: %s", err))
@@ -238,21 +249,19 @@ func (r teamLabelResource) Update(ctx context.Context, req resource.UpdateReques
 		data.TeamId = types.String{Value: issueLabel.Team.Id}
 	}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r teamLabelResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data teamLabelResourceData
+func (r *TeamLabelResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *TeamLabelResourceModel
 
-	diags := req.State.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	_, err := deleteLabel(context.Background(), r.provider.client, data.Id.Value)
+	_, err := deleteLabel(context.Background(), *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete team label, got error: %s", err))
@@ -262,7 +271,7 @@ func (r teamLabelResource) Delete(ctx context.Context, req resource.DeleteReques
 	tflog.Trace(ctx, "deleted a team label")
 }
 
-func (r teamLabelResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *TeamLabelResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.Split(req.ID, ":")
 
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
@@ -274,7 +283,7 @@ func (r teamLabelResource) ImportState(ctx context.Context, req resource.ImportS
 		return
 	}
 
-	response, err := findTeamLabel(context.Background(), r.provider.client, parts[0], parts[1])
+	response, err := findTeamLabel(context.Background(), *r.client, parts[0], parts[1])
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import team label, got error: %s", err))

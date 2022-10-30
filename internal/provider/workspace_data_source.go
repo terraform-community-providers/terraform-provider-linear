@@ -4,20 +4,34 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// Ensure provider defined types fully satisfy framework interfaces
-var _ provider.DataSourceType = workspaceDataSourceType{}
-var _ datasource.DataSource = workspaceDataSource{}
+var _ datasource.DataSource = &WorkspaceDataSource{}
 
-type workspaceDataSourceType struct{}
+func NewWorkspaceDataSource() datasource.DataSource {
+	return &WorkspaceDataSource{}
+}
 
-func (t workspaceDataSourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+type WorkspaceDataSource struct {
+	client *graphql.Client
+}
+
+type WorkspaceDataSourceModel struct {
+	Id     types.String `tfsdk:"id"`
+	Name   types.String `tfsdk:"name"`
+	UrlKey types.String `tfsdk:"url_key"`
+}
+
+func (d *WorkspaceDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_workspace"
+}
+
+func (d *WorkspaceDataSource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Linear workspace.",
 		Attributes: map[string]tfsdk.Attribute{
@@ -40,35 +54,36 @@ func (t workspaceDataSourceType) GetSchema(ctx context.Context) (tfsdk.Schema, d
 	}, nil
 }
 
-func (t workspaceDataSourceType) NewDataSource(ctx context.Context, in provider.Provider) (datasource.DataSource, diag.Diagnostics) {
-	provider, diags := convertProviderType(in)
+func (d *WorkspaceDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	// Prevent panic if the provider has not been configured.
+	if req.ProviderData == nil {
+		return
+	}
 
-	return workspaceDataSource{
-		provider: provider,
-	}, diags
+	client, ok := req.ProviderData.(*graphql.Client)
+
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected *graphql.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	d.client = client
 }
 
-type workspaceDataSourceData struct {
-	Id     types.String `tfsdk:"id"`
-	Name   types.String `tfsdk:"name"`
-	UrlKey types.String `tfsdk:"url_key"`
-}
+func (d *WorkspaceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data *WorkspaceDataSourceModel
 
-type workspaceDataSource struct {
-	provider linearProvider
-}
-
-func (d workspaceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data workspaceDataSourceData
-
-	diags := req.Config.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	response, err := getWorkspace(context.Background(), d.provider.client)
+	response, err := getWorkspace(context.Background(), *d.client)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workspace, got error: %s", err))
@@ -79,6 +94,5 @@ func (d workspaceDataSource) Read(ctx context.Context, req datasource.ReadReques
 	data.Name = types.String{Value: response.Organization.Name}
 	data.UrlKey = types.String{Value: response.Organization.UrlKey}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

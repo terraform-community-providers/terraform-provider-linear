@@ -6,9 +6,9 @@ import (
 	"math/big"
 	"strings"
 
+	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -16,14 +16,32 @@ import (
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
-// Ensure provider defined types fully satisfy framework interfaces
-var _ provider.ResourceType = workflowStateResourceType{}
-var _ resource.Resource = workflowStateResource{}
-var _ resource.ResourceWithImportState = workflowStateResource{}
+var _ resource.Resource = &WorkflowStateResource{}
+var _ resource.ResourceWithImportState = &WorkflowStateResource{}
 
-type workflowStateResourceType struct{}
+func NewWorkflowStateResource() resource.Resource {
+	return &WorkflowStateResource{}
+}
 
-func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+type WorkflowStateResource struct {
+	client *graphql.Client
+}
+
+type WorkflowStateResourceModel struct {
+	Id          types.String `tfsdk:"id"`
+	Name        types.String `tfsdk:"name"`
+	Type        types.String `tfsdk:"type"`
+	Description types.String `tfsdk:"description"`
+	Color       types.String `tfsdk:"color"`
+	Position    types.Number `tfsdk:"position"`
+	TeamId      types.String `tfsdk:"team_id"`
+}
+
+func (r *WorkflowStateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_workflow_state"
+}
+
+func (r *WorkflowStateResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Linear team workflow state.",
 		Attributes: map[string]tfsdk.Attribute{
@@ -95,33 +113,30 @@ func (t workflowStateResourceType) GetSchema(ctx context.Context) (tfsdk.Schema,
 	}, nil
 }
 
-func (t workflowStateResourceType) NewResource(ctx context.Context, in provider.Provider) (resource.Resource, diag.Diagnostics) {
-	provider, diags := convertProviderType(in)
+func (r *WorkflowStateResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	// Prevent panic if the provider has not been configured.
+	if req.ProviderData == nil {
+		return
+	}
 
-	return workflowStateResource{
-		provider: provider,
-	}, diags
+	client, ok := req.ProviderData.(*graphql.Client)
+
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *graphql.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	r.client = client
 }
 
-type workflowStateResourceData struct {
-	Id          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Type        types.String `tfsdk:"type"`
-	Description types.String `tfsdk:"description"`
-	Color       types.String `tfsdk:"color"`
-	Position    types.Number `tfsdk:"position"`
-	TeamId      types.String `tfsdk:"team_id"`
-}
+func (r *WorkflowStateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *WorkflowStateResourceModel
 
-type workflowStateResource struct {
-	provider linearProvider
-}
-
-func (r workflowStateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data workflowStateResourceData
-
-	diags := req.Plan.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -139,7 +154,7 @@ func (r workflowStateResource) Create(ctx context.Context, req resource.CreateRe
 		input.Position, _ = data.Position.Value.Float64()
 	}
 
-	response, err := createWorkflowState(context.Background(), r.provider.client, input)
+	response, err := createWorkflowState(context.Background(), *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create workflow state, got error: %s", err))
@@ -152,21 +167,19 @@ func (r workflowStateResource) Create(ctx context.Context, req resource.CreateRe
 	data.Description = types.String{Value: response.WorkflowStateCreate.WorkflowState.Description}
 	data.Position = types.Number{Value: big.NewFloat(response.WorkflowStateCreate.WorkflowState.Position)}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r workflowStateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data workflowStateResourceData
+func (r *WorkflowStateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *WorkflowStateResourceModel
 
-	diags := req.State.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	response, err := getWorkflowState(context.Background(), r.provider.client, data.Id.Value)
+	response, err := getWorkflowState(context.Background(), *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workflow state, got error: %s", err))
@@ -180,15 +193,13 @@ func (r workflowStateResource) Read(ctx context.Context, req resource.ReadReques
 	data.Position = types.Number{Value: big.NewFloat(response.WorkflowState.Position)}
 	data.TeamId = types.String{Value: response.WorkflowState.Team.Id}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r workflowStateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data workflowStateResourceData
+func (r *WorkflowStateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *WorkflowStateResourceModel
 
-	diags := req.Plan.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -204,7 +215,7 @@ func (r workflowStateResource) Update(ctx context.Context, req resource.UpdateRe
 		input.Position, _ = data.Position.Value.Float64()
 	}
 
-	response, err := updateWorkflowState(context.Background(), r.provider.client, input, data.Id.Value)
+	response, err := updateWorkflowState(context.Background(), *r.client, input, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workflow state, got error: %s", err))
@@ -218,22 +229,20 @@ func (r workflowStateResource) Update(ctx context.Context, req resource.UpdateRe
 	data.Color = types.String{Value: response.WorkflowStateUpdate.WorkflowState.Color}
 	data.Position = types.Number{Value: big.NewFloat(response.WorkflowStateUpdate.WorkflowState.Position)}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r workflowStateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data workflowStateResourceData
+func (r *WorkflowStateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *WorkflowStateResourceModel
 
-	diags := req.State.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	// #7: Delete workflow state
-	// _, err := deleteWorkflowState(context.Background(), r.provider.client, data.Id.Value)
+	// _, err := deleteWorkflowState(context.Background(), *r.client, data.Id.Value)
 	var err error
 
 	if err != nil {
@@ -244,7 +253,7 @@ func (r workflowStateResource) Delete(ctx context.Context, req resource.DeleteRe
 	tflog.Trace(ctx, "deleted a workflow state")
 }
 
-func (r workflowStateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *WorkflowStateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.Split(req.ID, ":")
 
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
@@ -256,7 +265,7 @@ func (r workflowStateResource) ImportState(ctx context.Context, req resource.Imp
 		return
 	}
 
-	response, err := findWorkflowState(context.Background(), r.provider.client, parts[0], parts[1])
+	response, err := findWorkflowState(context.Background(), *r.client, parts[0], parts[1])
 
 	if err != nil || len(response.WorkflowStates.Nodes) != 1 {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import workflow state, got error: %s", err))

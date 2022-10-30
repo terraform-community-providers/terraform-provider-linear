@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -17,14 +17,63 @@ import (
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
-// Ensure provider defined types fully satisfy framework interfaces
-var _ provider.ResourceType = teamResourceType{}
-var _ resource.Resource = teamResource{}
-var _ resource.ResourceWithImportState = teamResource{}
+var _ resource.Resource = &TeamResource{}
+var _ resource.ResourceWithImportState = &TeamResource{}
 
-type teamResourceType struct{}
+func NewTeamResource() resource.Resource {
+	return &TeamResource{}
+}
 
-func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+type TeamResource struct {
+	client *graphql.Client
+}
+
+type TeamResourceTriageModel struct {
+	Enabled types.Bool `tfsdk:"enabled"`
+}
+
+type TeamResourceCyclesModel struct {
+	Enabled          types.Bool    `tfsdk:"enabled"`
+	StartDay         types.Float64 `tfsdk:"start_day"`
+	Duration         types.Float64 `tfsdk:"duration"`
+	Cooldown         types.Float64 `tfsdk:"cooldown"`
+	Upcoming         types.Float64 `tfsdk:"upcoming"`
+	AutoAddStarted   types.Bool    `tfsdk:"auto_add_started"`
+	AutoAddCompleted types.Bool    `tfsdk:"auto_add_completed"`
+	NeedForActive    types.Bool    `tfsdk:"need_for_active"`
+}
+
+type TeamResourceEstimationModel struct {
+	Type      types.String  `tfsdk:"type"`
+	Extended  types.Bool    `tfsdk:"extended"`
+	AllowZero types.Bool    `tfsdk:"allow_zero"`
+	Default   types.Float64 `tfsdk:"default"`
+}
+
+type TeamResourceModel struct {
+	Id                         types.String  `tfsdk:"id"`
+	Key                        types.String  `tfsdk:"key"`
+	Name                       types.String  `tfsdk:"name"`
+	Private                    types.Bool    `tfsdk:"private"`
+	Description                types.String  `tfsdk:"description"`
+	Icon                       types.String  `tfsdk:"icon"`
+	Color                      types.String  `tfsdk:"color"`
+	Timezone                   types.String  `tfsdk:"timezone"`
+	NoPriorityIssuesFirst      types.Bool    `tfsdk:"no_priority_issues_first"`
+	EnableIssueHistoryGrouping types.Bool    `tfsdk:"enable_issue_history_grouping"`
+	EnableIssueDefaultToBottom types.Bool    `tfsdk:"enable_issue_default_to_bottom"`
+	AutoArchivePeriod          types.Float64 `tfsdk:"auto_archive_period"`
+	AutoClosePeriod            types.Float64 `tfsdk:"auto_close_period"`
+	Triage                     types.Object  `tfsdk:"triage"`
+	Cycles                     types.Object  `tfsdk:"cycles"`
+	Estimation                 types.Object  `tfsdk:"estimation"`
+}
+
+func (r *TeamResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_team"
+}
+
+func (r *TeamResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Linear team.",
 		Attributes: map[string]tfsdk.Attribute{
@@ -327,67 +376,33 @@ func (t teamResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 	}, nil
 }
 
-func (t teamResourceType) NewResource(ctx context.Context, in provider.Provider) (resource.Resource, diag.Diagnostics) {
-	provider, diags := convertProviderType(in)
+func (r *TeamResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	// Prevent panic if the provider has not been configured.
+	if req.ProviderData == nil {
+		return
+	}
 
-	return teamResource{
-		provider: provider,
-	}, diags
+	client, ok := req.ProviderData.(*graphql.Client)
+
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *graphql.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	r.client = client
 }
 
-type triage struct {
-	Enabled types.Bool `tfsdk:"enabled"`
-}
+func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *TeamResourceModel
+	var triageData *TeamResourceTriageModel
+	var cyclesData *TeamResourceCyclesModel
+	var estimationData *TeamResourceEstimationModel
 
-type cycles struct {
-	Enabled          types.Bool    `tfsdk:"enabled"`
-	StartDay         types.Float64 `tfsdk:"start_day"`
-	Duration         types.Float64 `tfsdk:"duration"`
-	Cooldown         types.Float64 `tfsdk:"cooldown"`
-	Upcoming         types.Float64 `tfsdk:"upcoming"`
-	AutoAddStarted   types.Bool    `tfsdk:"auto_add_started"`
-	AutoAddCompleted types.Bool    `tfsdk:"auto_add_completed"`
-	NeedForActive    types.Bool    `tfsdk:"need_for_active"`
-}
-
-type estimation struct {
-	Type      types.String  `tfsdk:"type"`
-	Extended  types.Bool    `tfsdk:"extended"`
-	AllowZero types.Bool    `tfsdk:"allow_zero"`
-	Default   types.Float64 `tfsdk:"default"`
-}
-
-type teamResourceData struct {
-	Id                         types.String  `tfsdk:"id"`
-	Key                        types.String  `tfsdk:"key"`
-	Name                       types.String  `tfsdk:"name"`
-	Private                    types.Bool    `tfsdk:"private"`
-	Description                types.String  `tfsdk:"description"`
-	Icon                       types.String  `tfsdk:"icon"`
-	Color                      types.String  `tfsdk:"color"`
-	Timezone                   types.String  `tfsdk:"timezone"`
-	NoPriorityIssuesFirst      types.Bool    `tfsdk:"no_priority_issues_first"`
-	EnableIssueHistoryGrouping types.Bool    `tfsdk:"enable_issue_history_grouping"`
-	EnableIssueDefaultToBottom types.Bool    `tfsdk:"enable_issue_default_to_bottom"`
-	AutoArchivePeriod          types.Float64 `tfsdk:"auto_archive_period"`
-	AutoClosePeriod            types.Float64 `tfsdk:"auto_close_period"`
-	Triage                     types.Object  `tfsdk:"triage"`
-	Cycles                     types.Object  `tfsdk:"cycles"`
-	Estimation                 types.Object  `tfsdk:"estimation"`
-}
-
-type teamResource struct {
-	provider linearProvider
-}
-
-func (r teamResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data teamResourceData
-	var triageData triage
-	var cyclesData cycles
-	var estimationData estimation
-
-	diags := req.Plan.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -420,8 +435,7 @@ func (r teamResource) Create(ctx context.Context, req resource.CreateRequest, re
 		input.AutoClosePeriod = &data.AutoClosePeriod.Value
 	}
 
-	diags = data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -429,8 +443,7 @@ func (r teamResource) Create(ctx context.Context, req resource.CreateRequest, re
 
 	input.TriageEnabled = triageData.Enabled.Value
 
-	diags = data.Cycles.As(ctx, &cyclesData, types.ObjectAsOptions{})
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, types.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -445,8 +458,7 @@ func (r teamResource) Create(ctx context.Context, req resource.CreateRequest, re
 	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.Value
 	input.CycleLockToActive = cyclesData.NeedForActive.Value
 
-	diags = data.Estimation.As(ctx, &estimationData, types.ObjectAsOptions{})
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, types.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -457,7 +469,7 @@ func (r teamResource) Create(ctx context.Context, req resource.CreateRequest, re
 	input.IssueEstimationAllowZero = estimationData.AllowZero.Value
 	input.DefaultIssueEstimate = estimationData.Default.Value
 
-	response, err := createTeam(context.Background(), r.provider.client, input)
+	response, err := createTeam(context.Background(), *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create team, got error: %s", err))
@@ -541,21 +553,19 @@ func (r teamResource) Create(ctx context.Context, req resource.CreateRequest, re
 		},
 	}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r teamResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data teamResourceData
+func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *TeamResourceModel
 
-	diags := req.State.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	response, err := getTeam(context.Background(), r.provider.client, data.Key.Value)
+	response, err := getTeam(context.Background(), *r.client, data.Key.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read team, got error: %s", err))
@@ -638,27 +648,24 @@ func (r teamResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		},
 	}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data teamResourceData
-	var triageData triage
-	var cyclesData cycles
-	var estimationData estimation
+func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *TeamResourceModel
+	var triageData *TeamResourceTriageModel
+	var cyclesData *TeamResourceCyclesModel
+	var estimationData *TeamResourceEstimationModel
 
-	var state teamResourceData
+	var state *TeamResourceModel
 
-	diags := req.Plan.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	diags = req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -693,8 +700,7 @@ func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		input.AutoClosePeriod = &data.AutoClosePeriod.Value
 	}
 
-	diags = data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -702,8 +708,7 @@ func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	input.TriageEnabled = triageData.Enabled.Value
 
-	diags = data.Cycles.As(ctx, &cyclesData, types.ObjectAsOptions{})
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, types.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -718,8 +723,7 @@ func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.Value
 	input.CycleLockToActive = cyclesData.NeedForActive.Value
 
-	diags = data.Estimation.As(ctx, &estimationData, types.ObjectAsOptions{})
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, types.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -736,8 +740,7 @@ func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, re
 
 	var key string
 
-	diags = req.State.GetAttribute(ctx, path.Root("key"), &key)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("key"), &key)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -747,7 +750,7 @@ func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		input.Key = data.Key.Value
 	}
 
-	response, err := updateTeam(context.Background(), r.provider.client, input, key)
+	response, err := updateTeam(context.Background(), *r.client, input, key)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team, got error: %s", err))
@@ -831,21 +834,19 @@ func (r teamResource) Update(ctx context.Context, req resource.UpdateRequest, re
 		},
 	}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r teamResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data teamResourceData
+func (r *TeamResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *TeamResourceModel
 
-	diags := req.State.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	_, err := deleteTeam(context.Background(), r.provider.client, data.Key.Value)
+	_, err := deleteTeam(context.Background(), *r.client, data.Key.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete team, got error: %s", err))
@@ -855,6 +856,6 @@ func (r teamResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 	tflog.Trace(ctx, "deleted a team")
 }
 
-func (r teamResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *TeamResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("key"), req, resp)
 }

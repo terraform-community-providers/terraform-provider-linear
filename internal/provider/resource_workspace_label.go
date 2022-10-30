@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -15,14 +15,29 @@ import (
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
-// Ensure provider defined types fully satisfy framework interfaces
-var _ provider.ResourceType = workspaceLabelResourceType{}
-var _ resource.Resource = workspaceLabelResource{}
-var _ resource.ResourceWithImportState = workspaceLabelResource{}
+var _ resource.Resource = &WorkspaceLabelResource{}
+var _ resource.ResourceWithImportState = &WorkspaceLabelResource{}
 
-type workspaceLabelResourceType struct{}
+func NewWorkspaceLabelResource() resource.Resource {
+	return &WorkspaceLabelResource{}
+}
 
-func (t workspaceLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+type WorkspaceLabelResource struct {
+	client *graphql.Client
+}
+
+type WorkspaceLabelResourceModel struct {
+	Id          types.String `tfsdk:"id"`
+	Name        types.String `tfsdk:"name"`
+	Description types.String `tfsdk:"description"`
+	Color       types.String `tfsdk:"color"`
+}
+
+func (r *WorkspaceLabelResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_workspace_label"
+}
+
+func (r *WorkspaceLabelResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Linear workspace label.",
 		Attributes: map[string]tfsdk.Attribute{
@@ -67,30 +82,30 @@ func (t workspaceLabelResourceType) GetSchema(ctx context.Context) (tfsdk.Schema
 	}, nil
 }
 
-func (t workspaceLabelResourceType) NewResource(ctx context.Context, in provider.Provider) (resource.Resource, diag.Diagnostics) {
-	provider, diags := convertProviderType(in)
+func (r *WorkspaceLabelResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	// Prevent panic if the provider has not been configured.
+	if req.ProviderData == nil {
+		return
+	}
 
-	return workspaceLabelResource{
-		provider: provider,
-	}, diags
+	client, ok := req.ProviderData.(*graphql.Client)
+
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *graphql.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	r.client = client
 }
 
-type workspaceLabelResourceData struct {
-	Id          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	Color       types.String `tfsdk:"color"`
-}
+func (r *WorkspaceLabelResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *WorkspaceLabelResourceModel
 
-type workspaceLabelResource struct {
-	provider linearProvider
-}
-
-func (r workspaceLabelResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data workspaceLabelResourceData
-
-	diags := req.Plan.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -108,7 +123,7 @@ func (r workspaceLabelResource) Create(ctx context.Context, req resource.CreateR
 		input.Color = &data.Color.Value
 	}
 
-	response, err := createLabel(context.Background(), r.provider.client, input)
+	response, err := createLabel(context.Background(), *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create workspace label, got error: %s", err))
@@ -130,21 +145,19 @@ func (r workspaceLabelResource) Create(ctx context.Context, req resource.CreateR
 		data.Color = types.String{Value: *issueLabel.Color}
 	}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r workspaceLabelResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data workspaceLabelResourceData
+func (r *WorkspaceLabelResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *WorkspaceLabelResourceModel
 
-	diags := req.State.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	response, err := getLabel(context.Background(), r.provider.client, data.Id.Value)
+	response, err := getLabel(context.Background(), *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workspace label, got error: %s", err))
@@ -164,15 +177,13 @@ func (r workspaceLabelResource) Read(ctx context.Context, req resource.ReadReque
 		data.Color = types.String{Value: *issueLabel.Color}
 	}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r workspaceLabelResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data workspaceLabelResourceData
+func (r *WorkspaceLabelResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *WorkspaceLabelResourceModel
 
-	diags := req.Plan.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -190,7 +201,7 @@ func (r workspaceLabelResource) Update(ctx context.Context, req resource.UpdateR
 		input.Color = &data.Color.Value
 	}
 
-	response, err := updateLabel(context.Background(), r.provider.client, input, data.Id.Value)
+	response, err := updateLabel(context.Background(), *r.client, input, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workspace label, got error: %s", err))
@@ -212,21 +223,19 @@ func (r workspaceLabelResource) Update(ctx context.Context, req resource.UpdateR
 		data.Color = types.String{Value: *issueLabel.Color}
 	}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r workspaceLabelResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data workspaceLabelResourceData
+func (r *WorkspaceLabelResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *WorkspaceLabelResourceModel
 
-	diags := req.State.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	_, err := deleteLabel(context.Background(), r.provider.client, data.Id.Value)
+	_, err := deleteLabel(context.Background(), *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete workspace label, got error: %s", err))
@@ -236,8 +245,8 @@ func (r workspaceLabelResource) Delete(ctx context.Context, req resource.DeleteR
 	tflog.Trace(ctx, "deleted a workspace label")
 }
 
-func (r workspaceLabelResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	response, err := findWorkspaceLabel(context.Background(), r.provider.client, req.ID)
+func (r *WorkspaceLabelResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	response, err := findWorkspaceLabel(context.Background(), *r.client, req.ID)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import workspace label, got error: %s", err))

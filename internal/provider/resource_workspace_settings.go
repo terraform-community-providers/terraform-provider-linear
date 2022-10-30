@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -14,14 +14,29 @@ import (
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
 )
 
-// Ensure provider defined types fully satisfy framework interfaces
-var _ provider.ResourceType = workspaceSettingsResourceType{}
-var _ resource.Resource = workspaceSettingsResource{}
-var _ resource.ResourceWithImportState = workspaceSettingsResource{}
+var _ resource.Resource = &WorkspaceSettingsResource{}
+var _ resource.ResourceWithImportState = &WorkspaceSettingsResource{}
 
-type workspaceSettingsResourceType struct{}
+func NewWorkspaceSettingsResource() resource.Resource {
+	return &WorkspaceSettingsResource{}
+}
 
-func (t workspaceSettingsResourceType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+type WorkspaceSettingsResource struct {
+	client *graphql.Client
+}
+
+type WorkspaceSettingsResourceModel struct {
+	Id                              types.String `tfsdk:"id"`
+	EnableRoadmap                   types.Bool   `tfsdk:"enable_roadmap"`
+	EnableGitLinkbackMessages       types.Bool   `tfsdk:"enable_git_linkback_messages"`
+	EnableGitLinkbackMessagesPublic types.Bool   `tfsdk:"enable_git_linkback_messages_public"`
+}
+
+func (r *WorkspaceSettingsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_workspace_settings"
+}
+
+func (r *WorkspaceSettingsResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Linear workspace settings.",
 		Attributes: map[string]tfsdk.Attribute{
@@ -64,30 +79,30 @@ func (t workspaceSettingsResourceType) GetSchema(ctx context.Context) (tfsdk.Sch
 	}, nil
 }
 
-func (t workspaceSettingsResourceType) NewResource(ctx context.Context, in provider.Provider) (resource.Resource, diag.Diagnostics) {
-	provider, diags := convertProviderType(in)
+func (r *WorkspaceSettingsResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	// Prevent panic if the provider has not been configured.
+	if req.ProviderData == nil {
+		return
+	}
 
-	return workspaceSettingsResource{
-		provider: provider,
-	}, diags
+	client, ok := req.ProviderData.(*graphql.Client)
+
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *graphql.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+
+		return
+	}
+
+	r.client = client
 }
 
-type workspaceSettingsResourceData struct {
-	Id                              types.String `tfsdk:"id"`
-	EnableRoadmap                   types.Bool   `tfsdk:"enable_roadmap"`
-	EnableGitLinkbackMessages       types.Bool   `tfsdk:"enable_git_linkback_messages"`
-	EnableGitLinkbackMessagesPublic types.Bool   `tfsdk:"enable_git_linkback_messages_public"`
-}
+func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *WorkspaceSettingsResourceModel
 
-type workspaceSettingsResource struct {
-	provider linearProvider
-}
-
-func (r workspaceSettingsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data workspaceSettingsResourceData
-
-	diags := req.Plan.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -99,7 +114,7 @@ func (r workspaceSettingsResource) Create(ctx context.Context, req resource.Crea
 		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.Value,
 	}
 
-	response, err := updateWorkspaceSettings(context.Background(), r.provider.client, input)
+	response, err := updateWorkspaceSettings(context.Background(), *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create workspace settings, got error: %s", err))
@@ -113,21 +128,19 @@ func (r workspaceSettingsResource) Create(ctx context.Context, req resource.Crea
 	data.EnableGitLinkbackMessages = types.Bool{Value: organization.GitLinkbackMessagesEnabled}
 	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: organization.GitPublicLinkbackMessagesEnabled}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r workspaceSettingsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data workspaceSettingsResourceData
+func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *WorkspaceSettingsResourceModel
 
-	diags := req.State.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	response, err := getWorkspaceSettings(context.Background(), r.provider.client)
+	response, err := getWorkspaceSettings(context.Background(), *r.client)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workspace settings, got error: %s", err))
@@ -141,15 +154,13 @@ func (r workspaceSettingsResource) Read(ctx context.Context, req resource.ReadRe
 	data.EnableGitLinkbackMessages = types.Bool{Value: organization.GitLinkbackMessagesEnabled}
 	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: organization.GitPublicLinkbackMessagesEnabled}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r workspaceSettingsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data workspaceSettingsResourceData
+func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *WorkspaceSettingsResourceModel
 
-	diags := req.Plan.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -161,7 +172,7 @@ func (r workspaceSettingsResource) Update(ctx context.Context, req resource.Upda
 		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.Value,
 	}
 
-	response, err := updateWorkspaceSettings(context.Background(), r.provider.client, input)
+	response, err := updateWorkspaceSettings(context.Background(), *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workspace settings, got error: %s", err))
@@ -177,15 +188,13 @@ func (r workspaceSettingsResource) Update(ctx context.Context, req resource.Upda
 	data.EnableGitLinkbackMessages = types.Bool{Value: organization.GitLinkbackMessagesEnabled}
 	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: organization.GitPublicLinkbackMessagesEnabled}
 
-	diags = resp.State.Set(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r workspaceSettingsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data workspaceSettingsResourceData
+func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *WorkspaceSettingsResourceModel
 
-	diags := req.State.Get(ctx, &data)
-	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -197,7 +206,7 @@ func (r workspaceSettingsResource) Delete(ctx context.Context, req resource.Dele
 		GitPublicLinkbackMessagesEnabled: false,
 	}
 
-	_, err := updateWorkspaceSettings(context.Background(), r.provider.client, input)
+	_, err := updateWorkspaceSettings(context.Background(), *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete workspace settings, got error: %s", err))
@@ -207,8 +216,8 @@ func (r workspaceSettingsResource) Delete(ctx context.Context, req resource.Dele
 	tflog.Trace(ctx, "deleted workspace settings")
 }
 
-func (r workspaceSettingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	response, err := getWorkspaceSettings(context.Background(), r.provider.client)
+func (r *WorkspaceSettingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	response, err := getWorkspaceSettings(context.Background(), *r.client)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import workspace settings, got error: %s", err))
