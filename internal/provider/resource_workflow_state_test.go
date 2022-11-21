@@ -14,14 +14,14 @@ func TestAccWorkflowStateResourceDefault(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: testAccWorkflowStateResourceConfigDefault("Draft"),
+				Config: testAccWorkflowStateResourceConfigDefault("Draft", "started"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_workflow_state.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "name", "Draft"),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "type", "started"),
-					resource.TestCheckResourceAttr("linear_workflow_state.test", "description", ""),
+					resource.TestCheckNoResourceAttr("linear_workflow_state.test", "description"),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "color", "#ffff00"),
-					resource.TestCheckResourceAttrSet("linear_workflow_state.test", "position"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "position", "10"),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
@@ -34,14 +34,14 @@ func TestAccWorkflowStateResourceDefault(t *testing.T) {
 			},
 			// Update with null values
 			{
-				Config: testAccWorkflowStateResourceConfigDefault("Draft"),
+				Config: testAccWorkflowStateResourceConfigDefault("Draft", "started"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_workflow_state.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "name", "Draft"),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "type", "started"),
-					resource.TestCheckResourceAttr("linear_workflow_state.test", "description", ""),
+					resource.TestCheckNoResourceAttr("linear_workflow_state.test", "description"),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "color", "#ffff00"),
-					resource.TestCheckResourceAttrSet("linear_workflow_state.test", "position"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "position", "10"),
 					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
@@ -95,20 +95,47 @@ func TestAccWorkflowStateResourceNonDefault(t *testing.T) {
 				ImportStateId:     "Deployed:DEF",
 				ImportStateVerify: true,
 			},
+			// Update with same values
+			{
+				Config: testAccWorkflowStateResourceConfigNonDefault("Deployed", "completed", "Deployed to prod"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_workflow_state.test", "id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "name", "Deployed"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "type", "completed"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "description", "Deployed to prod"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "color", "#00ffff"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "position", "20"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
+				),
+			},
+			// Update with null values
+			{
+				Config: testAccWorkflowStateResourceConfigDefault("On staging", "completed"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_workflow_state.test", "id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "name", "On staging"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "type", "completed"),
+					resource.TestCheckNoResourceAttr("linear_workflow_state.test", "description"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "color", "#ffff00"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "position", "10"),
+					resource.TestCheckResourceAttr("linear_workflow_state.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
+				),
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})
 }
 
-func testAccWorkflowStateResourceConfigDefault(name string) string {
+func testAccWorkflowStateResourceConfigDefault(name string, ty string) string {
 	return fmt.Sprintf(`
 resource "linear_workflow_state" "test" {
   name = "%s"
-  type = "started"
+  type = "%s"
   color = "#ffff00"
+  position = 10
   team_id = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
 }
-`, name)
+`, name, ty)
 }
 
 func testAccWorkflowStateResourceConfigNonDefault(name string, ty string, description string) string {

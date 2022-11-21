@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
@@ -72,14 +73,10 @@ func (r *WorkflowStateResource) GetSchema(ctx context.Context) (tfsdk.Schema, di
 					resource.RequiresReplace(),
 				},
 			},
-			"description": {
-				MarkdownDescription: "Description of the workflow state.",
-				Type:                types.StringType,
-				Optional:            true,
-				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
-				},
+			"position": {
+				MarkdownDescription: "Position of the workflow state.",
+				Type:                types.NumberType,
+				Required:            true,
 			},
 			"color": {
 				MarkdownDescription: "Color of the workflow state.",
@@ -89,13 +86,13 @@ func (r *WorkflowStateResource) GetSchema(ctx context.Context) (tfsdk.Schema, di
 					validators.Match(colorRegex()),
 				},
 			},
-			"position": {
-				MarkdownDescription: "Position of the workflow state.",
-				Type:                types.NumberType,
+			"description": {
+				MarkdownDescription: "Description of the workflow state.",
+				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+					modifiers.NullableString(),
 				},
 			},
 			"team_id": {
@@ -142,16 +139,18 @@ func (r *WorkflowStateResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
+	position, _ := data.Position.Value.Float64()
+
 	input := WorkflowStateCreateInput{
-		Name:        data.Name.Value,
-		Type:        data.Type.Value,
-		Description: data.Description.Value,
-		Color:       data.Color.Value,
-		TeamId:      data.TeamId.Value,
+		Name:     data.Name.Value,
+		Type:     data.Type.Value,
+		Position: position,
+		Color:    data.Color.Value,
+		TeamId:   data.TeamId.Value,
 	}
 
-	if data.Position.Value != nil {
-		input.Position, _ = data.Position.Value.Float64()
+	if !data.Description.IsNull() {
+		input.Description = &data.Description.Value
 	}
 
 	response, err := createWorkflowState(context.Background(), *r.client, input)
@@ -163,9 +162,17 @@ func (r *WorkflowStateResource) Create(ctx context.Context, req resource.CreateR
 
 	tflog.Trace(ctx, "created a workflow state")
 
-	data.Id = types.String{Value: response.WorkflowStateCreate.WorkflowState.Id}
-	data.Description = types.String{Value: response.WorkflowStateCreate.WorkflowState.Description}
-	data.Position = types.Number{Value: big.NewFloat(response.WorkflowStateCreate.WorkflowState.Position)}
+	workflowState := response.WorkflowStateCreate.WorkflowState
+
+	data.Id = types.String{Value: workflowState.Id}
+	data.Name = types.String{Value: workflowState.Name}
+	data.Type = types.String{Value: workflowState.Type}
+	data.Position = types.Number{Value: big.NewFloat(workflowState.Position)}
+	data.Color = types.String{Value: workflowState.Color}
+
+	if workflowState.Description != nil {
+		data.Description = types.String{Value: *workflowState.Description}
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -186,12 +193,19 @@ func (r *WorkflowStateResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	data.Name = types.String{Value: response.WorkflowState.Name}
-	data.Type = types.String{Value: response.WorkflowState.Type}
-	data.Description = types.String{Value: response.WorkflowState.Description}
-	data.Color = types.String{Value: response.WorkflowState.Color}
-	data.Position = types.Number{Value: big.NewFloat(response.WorkflowState.Position)}
-	data.TeamId = types.String{Value: response.WorkflowState.Team.Id}
+	tflog.Trace(ctx, "read a workflow state")
+
+	workflowState := response.WorkflowState
+
+	data.Name = types.String{Value: workflowState.Name}
+	data.Type = types.String{Value: workflowState.Type}
+	data.Position = types.Number{Value: big.NewFloat(workflowState.Position)}
+	data.Color = types.String{Value: workflowState.Color}
+	data.TeamId = types.String{Value: workflowState.Team.Id}
+
+	if workflowState.Description != nil {
+		data.Description = types.String{Value: *workflowState.Description}
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -205,14 +219,16 @@ func (r *WorkflowStateResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
+	position, _ := data.Position.Value.Float64()
+
 	input := WorkflowStateUpdateInput{
-		Name:        data.Name.Value,
-		Description: data.Description.Value,
-		Color:       data.Color.Value,
+		Name:     data.Name.Value,
+		Color:    data.Color.Value,
+		Position: position,
 	}
 
-	if data.Position.Value != nil {
-		input.Position, _ = data.Position.Value.Float64()
+	if !data.Description.IsNull() {
+		input.Description = &data.Description.Value
 	}
 
 	response, err := updateWorkflowState(context.Background(), *r.client, input, data.Id.Value)
@@ -224,10 +240,15 @@ func (r *WorkflowStateResource) Update(ctx context.Context, req resource.UpdateR
 
 	tflog.Trace(ctx, "updated a workflow state")
 
-	data.Name = types.String{Value: response.WorkflowStateUpdate.WorkflowState.Name}
-	data.Description = types.String{Value: response.WorkflowStateUpdate.WorkflowState.Description}
-	data.Color = types.String{Value: response.WorkflowStateUpdate.WorkflowState.Color}
-	data.Position = types.Number{Value: big.NewFloat(response.WorkflowStateUpdate.WorkflowState.Position)}
+	workflowState := response.WorkflowStateUpdate.WorkflowState
+
+	data.Name = types.String{Value: workflowState.Name}
+	data.Position = types.Number{Value: big.NewFloat(workflowState.Position)}
+	data.Color = types.String{Value: workflowState.Color}
+
+	if workflowState.Description != nil {
+		data.Description = types.String{Value: *workflowState.Description}
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -241,9 +262,7 @@ func (r *WorkflowStateResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	// #7: Delete workflow state
-	// _, err := deleteWorkflowState(context.Background(), *r.client, data.Id.Value)
-	var err error
+	_, err := deleteWorkflowState(context.Background(), *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete workflow state, got error: %s", err))

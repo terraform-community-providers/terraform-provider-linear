@@ -50,6 +50,13 @@ type TeamResourceEstimationModel struct {
 	Default   types.Float64 `tfsdk:"default"`
 }
 
+type TeamResourceWorkflowStateModel struct {
+	Id          types.String `tfsdk:"id"`
+	Name        types.String `tfsdk:"name"`
+	Color       types.String `tfsdk:"color"`
+	Description types.String `tfsdk:"description"`
+}
+
 type TeamResourceModel struct {
 	Id                         types.String  `tfsdk:"id"`
 	Key                        types.String  `tfsdk:"key"`
@@ -67,6 +74,11 @@ type TeamResourceModel struct {
 	Triage                     types.Object  `tfsdk:"triage"`
 	Cycles                     types.Object  `tfsdk:"cycles"`
 	Estimation                 types.Object  `tfsdk:"estimation"`
+	BacklogWorkflowState       types.Object  `tfsdk:"backlog_workflow_state"`
+	UnstartedWorkflowState     types.Object  `tfsdk:"unstarted_workflow_state"`
+	StartedWorkflowState       types.Object  `tfsdk:"started_workflow_state"`
+	CompletedWorkflowState     types.Object  `tfsdk:"completed_workflow_state"`
+	CanceledWorkflowState      types.Object  `tfsdk:"canceled_workflow_state"`
 }
 
 func (r *TeamResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -372,6 +384,246 @@ func (r *TeamResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagno
 					},
 				}),
 			},
+			"backlog_workflow_state": {
+				MarkdownDescription: "Settings for the `backlog` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					modifiers.UnknownAttributesOnUnknown(),
+				},
+				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+					"id": {
+						MarkdownDescription: "Identifier of the workflow state.",
+						Type:                types.StringType,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							resource.UseStateForUnknown(),
+						},
+					},
+					"name": {
+						MarkdownDescription: "Name of the workflow state. **Default** `Backlog`.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultString("Backlog"),
+						},
+					},
+					"color": {
+						MarkdownDescription: "Color of the workflow state. **Default** `#bec2c8`.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultString("#bec2c8"),
+						},
+						Validators: []tfsdk.AttributeValidator{
+							validators.Match(colorRegex()),
+						},
+					},
+					"description": {
+						MarkdownDescription: "Description of the workflow state.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.NullableString(),
+						},
+					},
+				}),
+			},
+			"unstarted_workflow_state": {
+				MarkdownDescription: "Settings for the `unstarted` workflow state that is created by default for the team. *Position is always `1`. This can not be deleted.*",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					modifiers.UnknownAttributesOnUnknown(),
+				},
+				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+					"id": {
+						MarkdownDescription: "Identifier of the workflow state.",
+						Type:                types.StringType,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							resource.UseStateForUnknown(),
+						},
+					},
+					"name": {
+						MarkdownDescription: "Name of the workflow state. **Default** `Todo`.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultString("Todo"),
+						},
+					},
+					"color": {
+						MarkdownDescription: "Color of the workflow state. **Default** `#e2e2e2`.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultString("#e2e2e2"),
+						},
+						Validators: []tfsdk.AttributeValidator{
+							validators.Match(colorRegex()),
+						},
+					},
+					"description": {
+						MarkdownDescription: "Description of the workflow state.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.NullableString(),
+						},
+					},
+				}),
+			},
+			"started_workflow_state": {
+				MarkdownDescription: "Settings for the `started` workflow state that is created by default for the team. *Position is always `2`. This can not be deleted.*",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					modifiers.UnknownAttributesOnUnknown(),
+				},
+				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+					"id": {
+						MarkdownDescription: "Identifier of the workflow state.",
+						Type:                types.StringType,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							resource.UseStateForUnknown(),
+						},
+					},
+					"name": {
+						MarkdownDescription: "Name of the workflow state. **Default** `In Progress`.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultString("In Progress"),
+						},
+					},
+					"color": {
+						MarkdownDescription: "Color of the workflow state. **Default** `#f2c94c`.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultString("#f2c94c"),
+						},
+						Validators: []tfsdk.AttributeValidator{
+							validators.Match(colorRegex()),
+						},
+					},
+					"description": {
+						MarkdownDescription: "Description of the workflow state.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.NullableString(),
+						},
+					},
+				}),
+			},
+			"completed_workflow_state": {
+				MarkdownDescription: "Settings for the `completed` workflow state that is created by default for the team. *Position is always `3`. This can not be deleted.*",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					modifiers.UnknownAttributesOnUnknown(),
+				},
+				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+					"id": {
+						MarkdownDescription: "Identifier of the workflow state.",
+						Type:                types.StringType,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							resource.UseStateForUnknown(),
+						},
+					},
+					"name": {
+						MarkdownDescription: "Name of the workflow state. **Default** `Done`.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultString("Done"),
+						},
+					},
+					"color": {
+						MarkdownDescription: "Color of the workflow state. **Default** `#5e6ad2`.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultString("#5e6ad2"),
+						},
+						Validators: []tfsdk.AttributeValidator{
+							validators.Match(colorRegex()),
+						},
+					},
+					"description": {
+						MarkdownDescription: "Description of the workflow state.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.NullableString(),
+						},
+					},
+				}),
+			},
+			"canceled_workflow_state": {
+				MarkdownDescription: "Settings for the `canceled` workflow state that is created by default for the team. *Position is always `4`. This can not be deleted.*",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					modifiers.UnknownAttributesOnUnknown(),
+				},
+				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
+					"id": {
+						MarkdownDescription: "Identifier of the workflow state.",
+						Type:                types.StringType,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							resource.UseStateForUnknown(),
+						},
+					},
+					"name": {
+						MarkdownDescription: "Name of the workflow state. **Default** `Canceled`.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultString("Canceled"),
+						},
+					},
+					"color": {
+						MarkdownDescription: "Color of the workflow state. **Default** `#95a2b3`.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.DefaultString("#95a2b3"),
+						},
+						Validators: []tfsdk.AttributeValidator{
+							validators.Match(colorRegex()),
+						},
+					},
+					"description": {
+						MarkdownDescription: "Description of the workflow state.",
+						Type:                types.StringType,
+						Optional:            true,
+						Computed:            true,
+						PlanModifiers: tfsdk.AttributePlanModifiers{
+							modifiers.NullableString(),
+						},
+					},
+				}),
+			},
 		},
 	}, nil
 }
@@ -553,6 +805,46 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		},
 	}
 
+	// Read the workflow states so that we can update them
+
+	workflowStatesResponse, workflowStatesErr := getTeamWorkflowStates(context.Background(), *r.client, team.Key)
+
+	if workflowStatesErr != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to get team workflow states, got error: %s", workflowStatesErr))
+		return
+	}
+
+	tflog.Trace(ctx, "read team workflow states")
+
+	backlogWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "backlog", 0)
+	unstartedWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "unstarted", 1)
+	startedWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "started", 2)
+	completedWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "completed", 3)
+	canceledWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "canceled", 4)
+
+	if backlogWorkflowState == nil || unstartedWorkflowState == nil || startedWorkflowState == nil || completedWorkflowState == nil || canceledWorkflowState == nil {
+		resp.Diagnostics.AddError("Client Error", "Unable to find all workflow states in a new team")
+		return
+	}
+
+	// Update the workflow states
+
+	backlog := updateTeamWorkflowStateInCreate(ctx, r, data.BacklogWorkflowState, resp, backlogWorkflowState.Id)
+	unstarted := updateTeamWorkflowStateInCreate(ctx, r, data.UnstartedWorkflowState, resp, unstartedWorkflowState.Id)
+	started := updateTeamWorkflowStateInCreate(ctx, r, data.StartedWorkflowState, resp, startedWorkflowState.Id)
+	completed := updateTeamWorkflowStateInCreate(ctx, r, data.CompletedWorkflowState, resp, completedWorkflowState.Id)
+	canceled := updateTeamWorkflowStateInCreate(ctx, r, data.CanceledWorkflowState, resp, canceledWorkflowState.Id)
+
+	if backlog == nil || unstarted == nil || started == nil || completed == nil || canceled == nil {
+		return
+	}
+
+	data.BacklogWorkflowState = *backlog
+	data.UnstartedWorkflowState = *unstarted
+	data.StartedWorkflowState = *started
+	data.CompletedWorkflowState = *completed
+	data.CanceledWorkflowState = *canceled
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -648,6 +940,32 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		},
 	}
 
+	workflowStatesResponse, workflowStatesErr := getTeamWorkflowStates(context.Background(), *r.client, team.Key)
+
+	if workflowStatesErr != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to get team workflow states, got error: %s", workflowStatesErr))
+		return
+	}
+
+	tflog.Trace(ctx, "read team workflow states")
+
+	backlogWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "backlog", 0)
+	unstartedWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "unstarted", 1)
+	startedWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "started", 2)
+	completedWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "completed", 3)
+	canceledWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "canceled", 4)
+
+	if backlogWorkflowState == nil || unstartedWorkflowState == nil || startedWorkflowState == nil || completedWorkflowState == nil || canceledWorkflowState == nil {
+		resp.Diagnostics.AddError("Client Error", "Unable to find all workflow states in a new team")
+		return
+	}
+
+	data.BacklogWorkflowState = readWorkflowStateToObject(*backlogWorkflowState)
+	data.UnstartedWorkflowState = readWorkflowStateToObject(*unstartedWorkflowState)
+	data.StartedWorkflowState = readWorkflowStateToObject(*startedWorkflowState)
+	data.CompletedWorkflowState = readWorkflowStateToObject(*completedWorkflowState)
+	data.CanceledWorkflowState = readWorkflowStateToObject(*canceledWorkflowState)
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -678,6 +996,10 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		GroupIssueHistory:             data.EnableIssueHistoryGrouping.Value,
 		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.Value,
 		AutoArchivePeriod:             data.AutoArchivePeriod.Value,
+	}
+
+	if data.Key.Value != state.Key.Value {
+		input.Key = data.Key.Value
 	}
 
 	if data.Name.Value != state.Name.Value {
@@ -738,19 +1060,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		input.CycleEnabledStartWeek = "nextWeek"
 	}
 
-	var key string
-
-	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("key"), &key)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	if data.Key.Value != key {
-		input.Key = data.Key.Value
-	}
-
-	response, err := updateTeam(context.Background(), *r.client, input, key)
+	response, err := updateTeam(context.Background(), *r.client, input, state.Key.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team, got error: %s", err))
@@ -834,6 +1144,24 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		},
 	}
 
+	// Update the workflow states
+
+	backlog := updateTeamWorkflowStateInUpdate(ctx, r, data.BacklogWorkflowState, resp, state.BacklogWorkflowState.Attrs["id"].(types.String).Value)
+	unstarted := updateTeamWorkflowStateInUpdate(ctx, r, data.UnstartedWorkflowState, resp, state.UnstartedWorkflowState.Attrs["id"].(types.String).Value)
+	started := updateTeamWorkflowStateInUpdate(ctx, r, data.StartedWorkflowState, resp, state.StartedWorkflowState.Attrs["id"].(types.String).Value)
+	completed := updateTeamWorkflowStateInUpdate(ctx, r, data.CompletedWorkflowState, resp, state.CompletedWorkflowState.Attrs["id"].(types.String).Value)
+	canceled := updateTeamWorkflowStateInUpdate(ctx, r, data.CanceledWorkflowState, resp, state.CanceledWorkflowState.Attrs["id"].(types.String).Value)
+
+	if backlog == nil || unstarted == nil || started == nil || completed == nil || canceled == nil {
+		return
+	}
+
+	data.BacklogWorkflowState = *backlog
+	data.UnstartedWorkflowState = *unstarted
+	data.StartedWorkflowState = *started
+	data.CompletedWorkflowState = *completed
+	data.CanceledWorkflowState = *canceled
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -858,4 +1186,126 @@ func (r *TeamResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 
 func (r *TeamResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("key"), req, resp)
+}
+
+func findWorkflowStateType(workflowStates []getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState, ty string, position float64) *getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState {
+	for _, workflowState := range workflowStates {
+		if workflowState.Type == ty && workflowState.Position == position {
+			return &workflowState
+		}
+	}
+
+	return nil
+}
+
+func readWorkflowStateToObject(workflowState getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState) types.Object {
+	ret := types.Object{
+		AttrTypes: map[string]attr.Type{
+			"id":          types.StringType,
+			"name":        types.StringType,
+			"color":       types.StringType,
+			"description": types.StringType,
+		},
+		Attrs: map[string]attr.Value{
+			"id":          types.String{Value: workflowState.Id},
+			"name":        types.String{Value: workflowState.Name},
+			"color":       types.String{Value: workflowState.Color},
+			"description": types.String{Null: true},
+		},
+	}
+
+	if workflowState.Description != nil {
+		ret.Attrs["description"] = types.String{Value: *workflowState.Description}
+	}
+
+	return ret
+}
+
+func updateWorkflowStateToObject(workflowState updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState) types.Object {
+	ret := types.Object{
+		AttrTypes: map[string]attr.Type{
+			"id":          types.StringType,
+			"name":        types.StringType,
+			"color":       types.StringType,
+			"description": types.StringType,
+		},
+		Attrs: map[string]attr.Value{
+			"id":          types.String{Value: workflowState.Id},
+			"name":        types.String{Value: workflowState.Name},
+			"color":       types.String{Value: workflowState.Color},
+			"description": types.String{Null: true},
+		},
+	}
+
+	if workflowState.Description != nil {
+		ret.Attrs["description"] = types.String{Value: *workflowState.Description}
+	}
+
+	return ret
+}
+
+func updateTeamWorkflowStateInCreate(ctx context.Context, r *TeamResource, data types.Object, resp *resource.CreateResponse, id string) *types.Object {
+	var workflowStateData *TeamResourceWorkflowStateModel
+	var workflowStateInput WorkflowStateUpdateInput
+	var workflowStateResponse *updateWorkflowStateResponse
+	var workflowStateErr error
+
+	resp.Diagnostics.Append(data.As(ctx, &workflowStateData, types.ObjectAsOptions{})...)
+
+	if resp.Diagnostics.HasError() {
+		return nil
+	}
+
+	workflowStateInput = WorkflowStateUpdateInput{
+		Name:  workflowStateData.Name.Value,
+		Color: workflowStateData.Color.Value,
+	}
+
+	if !workflowStateData.Description.IsNull() {
+		workflowStateInput.Description = &workflowStateData.Description.Value
+	}
+
+	workflowStateResponse, workflowStateErr = updateWorkflowState(context.Background(), *r.client, workflowStateInput, id)
+
+	if workflowStateErr != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workflow state, got error: %s", workflowStateErr))
+		return nil
+	}
+
+	ret := updateWorkflowStateToObject(workflowStateResponse.WorkflowStateUpdate.WorkflowState)
+
+	return &ret
+}
+
+func updateTeamWorkflowStateInUpdate(ctx context.Context, r *TeamResource, data types.Object, resp *resource.UpdateResponse, id string) *types.Object {
+	var workflowStateData *TeamResourceWorkflowStateModel
+	var workflowStateInput WorkflowStateUpdateInput
+	var workflowStateResponse *updateWorkflowStateResponse
+	var workflowStateErr error
+
+	resp.Diagnostics.Append(data.As(ctx, &workflowStateData, types.ObjectAsOptions{})...)
+
+	if resp.Diagnostics.HasError() {
+		return nil
+	}
+
+	workflowStateInput = WorkflowStateUpdateInput{
+		Name:  workflowStateData.Name.Value,
+		Color: workflowStateData.Color.Value,
+	}
+
+	if !workflowStateData.Description.IsNull() {
+		workflowStateInput.Description = &workflowStateData.Description.Value
+	}
+
+	workflowStateResponse, workflowStateErr = updateWorkflowState(context.Background(), *r.client, workflowStateInput, id)
+
+	if workflowStateErr != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workflow state, got error: %s", workflowStateErr))
+		return nil
+	}
+
+	ret := updateWorkflowStateToObject(workflowStateResponse.WorkflowStateUpdate.WorkflowState)
+
+	return &ret
 }

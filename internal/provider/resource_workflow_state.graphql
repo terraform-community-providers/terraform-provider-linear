@@ -1,14 +1,33 @@
+# @genqlient(for: "WorkflowState.description", pointer: true)
+fragment WorkflowState on WorkflowState {
+  id
+  name
+  color
+  description
+  type
+  position
+  team {
+    id
+  }
+}
+
+query getTeamWorkflowStates($key: String!) {
+  workflowStates(filter: {
+    team: {
+      key: {
+        eq: $key
+      }
+    }
+  }) {
+    nodes {
+      ...WorkflowState
+    }
+  }
+}
+
 query getWorkflowState($id: String!) {
   workflowState(id: $id) {
-    id
-    name
-    description
-    color
-    type
-    position
-    team {
-      id
-    }
+    ...WorkflowState
   }
 }
 
@@ -30,28 +49,19 @@ query findWorkflowState($name: String!, $key: String!) {
 }
 
 # @genqlient(for: "WorkflowStateCreateInput.id", omitempty: true)
-# @genqlient(for: "WorkflowStateCreateInput.description", omitempty: true)
-# @genqlient(for: "WorkflowStateCreateInput.position", omitempty: true)
+# @genqlient(for: "WorkflowStateCreateInput.description", pointer: true)
 mutation createWorkflowState(
   $input: WorkflowStateCreateInput!
 ) {
   workflowStateCreate(input: $input) {
     workflowState {
-      id
-      name
-      description
-      color
-      type
-      position
-      team {
-        id
-      }
+      ...WorkflowState
     }
   }
 }
 
 # @genqlient(for: "WorkflowStateUpdateInput.name", omitempty: true)
-# @genqlient(for: "WorkflowStateUpdateInput.description", omitempty: true)
+# @genqlient(for: "WorkflowStateUpdateInput.description", pointer: true)
 # @genqlient(for: "WorkflowStateUpdateInput.color", omitempty: true)
 # @genqlient(for: "WorkflowStateUpdateInput.position", omitempty: true)
 mutation updateWorkflowState(
@@ -60,21 +70,13 @@ mutation updateWorkflowState(
 ) {
   workflowStateUpdate(input: $input, id: $id) {
     workflowState {
-      id
-      name
-      description
-      color
-      type
-      position
-      team {
-        id
-      }
+      ...WorkflowState
     }
   }
 }
 
-# mutation deleteWorkflowState($id: String!) {
-#   workflowStateDelete(id: $id) {
-#     success
-#   }
-# }
+mutation deleteWorkflowState($id: String!) {
+  workflowStateArchive(id: $id) {
+    success
+  }
+}

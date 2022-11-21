@@ -16,6 +16,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 			{
 				Config: testAccTeamResourceConfigDefault("ACC", "Acc Tests"),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team.test", "key", "ACC"),
 					resource.TestCheckResourceAttr("linear_team.test", "name", "Acc Tests"),
 					resource.TestCheckNoResourceAttr("linear_team.test", "description"),
@@ -41,6 +42,26 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.extended", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.allow_zero", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.default", "1"),
+					resource.TestMatchResourceAttr("linear_team.test", "backlog_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.name", "Backlog"),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.color", "#bec2c8"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "backlog_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "unstarted_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.name", "Todo"),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.color", "#e2e2e2"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "unstarted_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "started_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.name", "In Progress"),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.color", "#f2c94c"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "started_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "completed_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.name", "Done"),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.color", "#5e6ad2"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "completed_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "canceled_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.name", "Canceled"),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.color", "#95a2b3"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "canceled_workflow_state.description"),
 				),
 			},
 			// ImportState testing
@@ -54,6 +75,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 			{
 				Config: testAccTeamResourceConfigDefault("ACC", "Acc Tests"),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team.test", "key", "ACC"),
 					resource.TestCheckResourceAttr("linear_team.test", "name", "Acc Tests"),
 					resource.TestCheckNoResourceAttr("linear_team.test", "description"),
@@ -79,12 +101,33 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.extended", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.allow_zero", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.default", "1"),
+					resource.TestMatchResourceAttr("linear_team.test", "backlog_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.name", "Backlog"),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.color", "#bec2c8"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "backlog_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "unstarted_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.name", "Todo"),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.color", "#e2e2e2"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "unstarted_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "started_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.name", "In Progress"),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.color", "#f2c94c"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "started_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "completed_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.name", "Done"),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.color", "#5e6ad2"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "completed_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "canceled_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.name", "Canceled"),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.color", "#95a2b3"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "canceled_workflow_state.description"),
 				),
 			},
 			// Update and Read testing
 			{
 				Config: testAccTeamResourceConfigNonDefault("AC", "Acceptance"),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team.test", "key", "AC"),
 					resource.TestCheckResourceAttr("linear_team.test", "name", "Acceptance"),
 					resource.TestCheckResourceAttr("linear_team.test", "description", "nice team"),
@@ -110,6 +153,26 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.extended", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.allow_zero", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.default", "0"),
+					resource.TestMatchResourceAttr("linear_team.test", "backlog_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.name", "Icebox"),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.color", "#bbbbbb"),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.description", "Not planned"),
+					resource.TestMatchResourceAttr("linear_team.test", "unstarted_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.name", "Ready to start"),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.color", "#eeeeee"),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.description", "Planned"),
+					resource.TestMatchResourceAttr("linear_team.test", "started_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.name", "In flight"),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.color", "#ffcccc"),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.description", "Working on it"),
+					resource.TestMatchResourceAttr("linear_team.test", "completed_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.name", "Merged"),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.color", "#5566dd"),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.description", "Merged to main"),
+					resource.TestMatchResourceAttr("linear_team.test", "canceled_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.name", "Invalid"),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.color", "#99aabb"),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.description", "Not valid or not needed"),
 				),
 			},
 			// ImportState testing
@@ -133,6 +196,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 			{
 				Config: testAccTeamResourceConfigNonDefault("DEV", "DevOps"),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team.test", "key", "DEV"),
 					resource.TestCheckResourceAttr("linear_team.test", "name", "DevOps"),
 					resource.TestCheckResourceAttr("linear_team.test", "description", "nice team"),
@@ -158,6 +222,26 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.extended", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.allow_zero", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.default", "0"),
+					resource.TestMatchResourceAttr("linear_team.test", "backlog_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.name", "Icebox"),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.color", "#bbbbbb"),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.description", "Not planned"),
+					resource.TestMatchResourceAttr("linear_team.test", "unstarted_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.name", "Ready to start"),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.color", "#eeeeee"),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.description", "Planned"),
+					resource.TestMatchResourceAttr("linear_team.test", "started_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.name", "In flight"),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.color", "#ffcccc"),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.description", "Working on it"),
+					resource.TestMatchResourceAttr("linear_team.test", "completed_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.name", "Merged"),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.color", "#5566dd"),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.description", "Merged to main"),
+					resource.TestMatchResourceAttr("linear_team.test", "canceled_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.name", "Invalid"),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.color", "#99aabb"),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.description", "Not valid or not needed"),
 				),
 			},
 			// ImportState testing
@@ -171,6 +255,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 			{
 				Config: testAccTeamResourceConfigNonDefault("DEV", "DevOps"),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team.test", "key", "DEV"),
 					resource.TestCheckResourceAttr("linear_team.test", "name", "DevOps"),
 					resource.TestCheckResourceAttr("linear_team.test", "description", "nice team"),
@@ -196,12 +281,33 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.extended", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.allow_zero", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.default", "0"),
+					resource.TestMatchResourceAttr("linear_team.test", "backlog_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.name", "Icebox"),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.color", "#bbbbbb"),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.description", "Not planned"),
+					resource.TestMatchResourceAttr("linear_team.test", "unstarted_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.name", "Ready to start"),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.color", "#eeeeee"),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.description", "Planned"),
+					resource.TestMatchResourceAttr("linear_team.test", "started_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.name", "In flight"),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.color", "#ffcccc"),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.description", "Working on it"),
+					resource.TestMatchResourceAttr("linear_team.test", "completed_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.name", "Merged"),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.color", "#5566dd"),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.description", "Merged to main"),
+					resource.TestMatchResourceAttr("linear_team.test", "canceled_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.name", "Invalid"),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.color", "#99aabb"),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.description", "Not valid or not needed"),
 				),
 			},
 			// Update with null values
 			{
 				Config: testAccTeamResourceConfigDefault("DEV", "DevOps"),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team.test", "key", "DEV"),
 					resource.TestCheckResourceAttr("linear_team.test", "name", "DevOps"),
 					resource.TestCheckNoResourceAttr("linear_team.test", "description"),
@@ -227,6 +333,26 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.extended", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.allow_zero", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.default", "1"),
+					resource.TestMatchResourceAttr("linear_team.test", "backlog_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.name", "Backlog"),
+					resource.TestCheckResourceAttr("linear_team.test", "backlog_workflow_state.color", "#bec2c8"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "backlog_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "unstarted_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.name", "Todo"),
+					resource.TestCheckResourceAttr("linear_team.test", "unstarted_workflow_state.color", "#e2e2e2"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "unstarted_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "started_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.name", "In Progress"),
+					resource.TestCheckResourceAttr("linear_team.test", "started_workflow_state.color", "#f2c94c"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "started_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "completed_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.name", "Done"),
+					resource.TestCheckResourceAttr("linear_team.test", "completed_workflow_state.color", "#5e6ad2"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "completed_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "canceled_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.name", "Canceled"),
+					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.color", "#95a2b3"),
+					resource.TestCheckNoResourceAttr("linear_team.test", "canceled_workflow_state.description"),
 				),
 			},
 			// Delete testing automatically occurs in TestCase
@@ -279,6 +405,36 @@ resource "linear_team" "test" {
     extended = true
     allow_zero = true
     default = 0
+  }
+
+  backlog_workflow_state = {
+    name = "Icebox"
+    color = "#bbbbbb"
+    description = "Not planned"
+  }
+
+  unstarted_workflow_state = {
+    name = "Ready to start"
+    color = "#eeeeee"
+    description = "Planned"
+  }
+
+  started_workflow_state = {
+    name = "In flight"
+    color = "#ffcccc"
+    description = "Working on it"
+  }
+
+  completed_workflow_state = {
+    name = "Merged"
+    color = "#5566dd"
+    description = "Merged to main"
+  }
+
+  canceled_workflow_state = {
+    name = "Invalid"
+    color = "#99aabb"
+    description = "Not valid or not needed"
   }
 }
 `, key, name)

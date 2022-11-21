@@ -28,13 +28,13 @@ resource "linear_workflow_state" "example" {
 
 - `color` (String) Color of the workflow state.
 - `name` (String) Name of the workflow state.
+- `position` (Number) Position of the workflow state.
 - `team_id` (String) Identifier of the team.
 - `type` (String) Type of the workflow state.
 
 ### Optional
 
 - `description` (String) Description of the workflow state.
-- `position` (Number) Position of the workflow state.
 
 ### Read-Only
 
