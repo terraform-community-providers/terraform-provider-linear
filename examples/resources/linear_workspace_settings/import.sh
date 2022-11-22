@@ -1,1 +1,1 @@
-terraform import linear_workspace_settings.example
+terraform import linear_workspace_settings.example example
