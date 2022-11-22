@@ -956,7 +956,7 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	canceledWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "canceled", 4)
 
 	if backlogWorkflowState == nil || unstartedWorkflowState == nil || startedWorkflowState == nil || completedWorkflowState == nil || canceledWorkflowState == nil {
-		resp.Diagnostics.AddError("Client Error", "Unable to find all workflow states in a new team")
+		resp.Diagnostics.AddError("Client Error", "Unable to find all workflow states when reading team")
 		return
 	}
 
@@ -1191,6 +1191,13 @@ func (r *TeamResource) ImportState(ctx context.Context, req resource.ImportState
 func findWorkflowStateType(workflowStates []getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState, ty string, position float64) *getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState {
 	for _, workflowState := range workflowStates {
 		if workflowState.Type == ty && workflowState.Position == position {
+			return &workflowState
+		}
+	}
+
+	// If unable to find the exact workflow with the exact position, return the first one with the correct type
+	for _, workflowState := range workflowStates {
+		if workflowState.Type == ty {
 			return &workflowState
 		}
 	}

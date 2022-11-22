@@ -1,3 +1,6 @@
-## 0.1.0 (Unreleased)
+## 0.2.1
 
-FEATURES:
+### Enhancements
+* Improve recognition of existing workflows when importing a team
+
+## 0.2.0 (First release)
