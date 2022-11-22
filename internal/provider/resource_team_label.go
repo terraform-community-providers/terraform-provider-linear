@@ -32,6 +32,7 @@ type TeamLabelResourceModel struct {
 	Name        types.String `tfsdk:"name"`
 	Description types.String `tfsdk:"description"`
 	Color       types.String `tfsdk:"color"`
+	ParentId    types.String `tfsdk:"parent_id"`
 	TeamId      types.String `tfsdk:"team_id"`
 }
 
@@ -78,6 +79,18 @@ func (r *TeamLabelResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.D
 				},
 				Validators: []tfsdk.AttributeValidator{
 					validators.Match(colorRegex()),
+				},
+			},
+			"parent_id": {
+				MarkdownDescription: "Parent (label group) of the label.",
+				Type:                types.StringType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					modifiers.NullableString(),
+				},
+				Validators: []tfsdk.AttributeValidator{
+					validators.Match(uuidRegex()),
 				},
 			},
 			"team_id": {
@@ -137,6 +150,10 @@ func (r *TeamLabelResource) Create(ctx context.Context, req resource.CreateReque
 		input.Color = &data.Color.Value
 	}
 
+	if !data.ParentId.IsNull() {
+		input.ParentId = &data.ParentId.Value
+	}
+
 	response, err := createLabel(ctx, *r.client, input)
 
 	if err != nil {
@@ -157,6 +174,10 @@ func (r *TeamLabelResource) Create(ctx context.Context, req resource.CreateReque
 
 	if issueLabel.Color != nil {
 		data.Color = types.String{Value: *issueLabel.Color}
+	}
+
+	if issueLabel.Parent != nil {
+		data.ParentId = types.String{Value: issueLabel.Parent.Id}
 	}
 
 	if issueLabel.Team != nil {
@@ -195,6 +216,10 @@ func (r *TeamLabelResource) Read(ctx context.Context, req resource.ReadRequest, 
 		data.Color = types.String{Value: *issueLabel.Color}
 	}
 
+	if issueLabel.Parent != nil {
+		data.ParentId = types.String{Value: issueLabel.Parent.Id}
+	}
+
 	if issueLabel.Team != nil {
 		data.TeamId = types.String{Value: issueLabel.Team.Id}
 	}
@@ -223,6 +248,10 @@ func (r *TeamLabelResource) Update(ctx context.Context, req resource.UpdateReque
 		input.Color = &data.Color.Value
 	}
 
+	if !data.ParentId.IsNull() {
+		input.ParentId = &data.ParentId.Value
+	}
+
 	response, err := updateLabel(ctx, *r.client, input, data.Id.Value)
 
 	if err != nil {
@@ -243,6 +272,10 @@ func (r *TeamLabelResource) Update(ctx context.Context, req resource.UpdateReque
 
 	if issueLabel.Color != nil {
 		data.Color = types.String{Value: *issueLabel.Color}
+	}
+
+	if issueLabel.Parent != nil {
+		data.ParentId = types.String{Value: issueLabel.Parent.Id}
 	}
 
 	if issueLabel.Team != nil {

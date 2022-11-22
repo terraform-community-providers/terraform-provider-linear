@@ -20,6 +20,7 @@ func TestAccWorkspaceLabelResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "name", "UX"),
 					resource.TestCheckNoResourceAttr("linear_workspace_label.test", "description"),
 					resource.TestMatchResourceAttr("linear_workspace_label.test", "color", colorRegex()),
+					resource.TestCheckNoResourceAttr("linear_workspace_label.test", "parent_id"),
 				),
 			},
 			// ImportState testing
@@ -37,6 +38,7 @@ func TestAccWorkspaceLabelResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "name", "UX"),
 					resource.TestCheckNoResourceAttr("linear_workspace_label.test", "description"),
 					resource.TestMatchResourceAttr("linear_workspace_label.test", "color", colorRegex()),
+					resource.TestCheckNoResourceAttr("linear_workspace_label.test", "parent_id"),
 				),
 			},
 			// Update and Read testing
@@ -47,6 +49,7 @@ func TestAccWorkspaceLabelResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "name", "Easy UX"),
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "description", "lots of it"),
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "color", "#00ff00"),
+					resource.TestCheckResourceAttr("linear_workspace_label.test", "parent_id", "09b38784-8d8b-453a-83b6-84c08d094803"),
 				),
 			},
 			// ImportState testing
@@ -74,6 +77,7 @@ func TestAccWorkspaceLabelResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "name", "Needs product"),
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "description", "lots of it"),
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "color", "#00ff00"),
+					resource.TestCheckResourceAttr("linear_workspace_label.test", "parent_id", "09b38784-8d8b-453a-83b6-84c08d094803"),
 				),
 			},
 			// ImportState testing
@@ -91,6 +95,7 @@ func TestAccWorkspaceLabelResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "name", "Needs product"),
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "description", "lots of it"),
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "color", "#00ff00"),
+					resource.TestCheckResourceAttr("linear_workspace_label.test", "parent_id", "09b38784-8d8b-453a-83b6-84c08d094803"),
 				),
 			},
 			// Update with null values
@@ -101,6 +106,7 @@ func TestAccWorkspaceLabelResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_label.test", "name", "UX"),
 					resource.TestCheckNoResourceAttr("linear_workspace_label.test", "description"),
 					resource.TestMatchResourceAttr("linear_workspace_label.test", "color", colorRegex()),
+					resource.TestCheckNoResourceAttr("linear_workspace_label.test", "parent_id"),
 				),
 			},
 			// Delete testing automatically occurs in TestCase
@@ -122,6 +128,7 @@ resource "linear_workspace_label" "test" {
   name = "%s"
   description = "lots of it"
   color = "#00ff00"
+  parent_id = "09b38784-8d8b-453a-83b6-84c08d094803"
 }
 `, name)
 }

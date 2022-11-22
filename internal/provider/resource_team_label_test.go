@@ -20,6 +20,7 @@ func TestAccTeamLabelResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team_label.test", "name", "Tech Debt"),
 					resource.TestCheckNoResourceAttr("linear_team_label.test", "description"),
 					resource.TestMatchResourceAttr("linear_team_label.test", "color", colorRegex()),
+					resource.TestCheckNoResourceAttr("linear_team_label.test", "parent_id"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
@@ -38,6 +39,7 @@ func TestAccTeamLabelResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team_label.test", "name", "Tech Debt"),
 					resource.TestCheckNoResourceAttr("linear_team_label.test", "description"),
 					resource.TestMatchResourceAttr("linear_team_label.test", "color", colorRegex()),
+					resource.TestCheckNoResourceAttr("linear_team_label.test", "parent_id"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
@@ -49,6 +51,7 @@ func TestAccTeamLabelResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team_label.test", "name", "Easy Tech Debt"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "description", "lots of it"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "color", "#00ff00"),
+					resource.TestCheckResourceAttr("linear_team_label.test", "parent_id", "db165e46-2b39-4516-8605-e7b2cb749c1c"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
@@ -77,6 +80,7 @@ func TestAccTeamLabelResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team_label.test", "name", "Needs design"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "description", "lots of it"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "color", "#00ff00"),
+					resource.TestCheckResourceAttr("linear_team_label.test", "parent_id", "db165e46-2b39-4516-8605-e7b2cb749c1c"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
@@ -95,6 +99,7 @@ func TestAccTeamLabelResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team_label.test", "name", "Needs design"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "description", "lots of it"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "color", "#00ff00"),
+					resource.TestCheckResourceAttr("linear_team_label.test", "parent_id", "db165e46-2b39-4516-8605-e7b2cb749c1c"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
@@ -106,6 +111,7 @@ func TestAccTeamLabelResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team_label.test", "name", "Tech Debt"),
 					resource.TestCheckNoResourceAttr("linear_team_label.test", "description"),
 					resource.TestMatchResourceAttr("linear_team_label.test", "color", colorRegex()),
+					resource.TestCheckNoResourceAttr("linear_team_label.test", "parent_id"),
 					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
@@ -129,6 +135,7 @@ resource "linear_team_label" "test" {
   name = "%s"
   description = "lots of it"
   color = "#00ff00"
+  parent_id = "db165e46-2b39-4516-8605-e7b2cb749c1c"
   team_id = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
 }
 `, name)

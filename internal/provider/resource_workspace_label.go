@@ -31,6 +31,7 @@ type WorkspaceLabelResourceModel struct {
 	Name        types.String `tfsdk:"name"`
 	Description types.String `tfsdk:"description"`
 	Color       types.String `tfsdk:"color"`
+	ParentId    types.String `tfsdk:"parent_id"`
 }
 
 func (r *WorkspaceLabelResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -78,6 +79,18 @@ func (r *WorkspaceLabelResource) GetSchema(ctx context.Context) (tfsdk.Schema, d
 					validators.Match(colorRegex()),
 				},
 			},
+			"parent_id": {
+				MarkdownDescription: "Parent (label group) of the label.",
+				Type:                types.StringType,
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					modifiers.NullableString(),
+				},
+				Validators: []tfsdk.AttributeValidator{
+					validators.Match(uuidRegex()),
+				},
+			},
 		},
 	}, nil
 }
@@ -123,6 +136,10 @@ func (r *WorkspaceLabelResource) Create(ctx context.Context, req resource.Create
 		input.Color = &data.Color.Value
 	}
 
+	if !data.ParentId.IsNull() {
+		input.ParentId = &data.ParentId.Value
+	}
+
 	response, err := createLabel(ctx, *r.client, input)
 
 	if err != nil {
@@ -143,6 +160,10 @@ func (r *WorkspaceLabelResource) Create(ctx context.Context, req resource.Create
 
 	if issueLabel.Color != nil {
 		data.Color = types.String{Value: *issueLabel.Color}
+	}
+
+	if issueLabel.Parent != nil {
+		data.ParentId = types.String{Value: issueLabel.Parent.Id}
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -177,6 +198,10 @@ func (r *WorkspaceLabelResource) Read(ctx context.Context, req resource.ReadRequ
 		data.Color = types.String{Value: *issueLabel.Color}
 	}
 
+	if issueLabel.Parent != nil {
+		data.ParentId = types.String{Value: issueLabel.Parent.Id}
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -201,6 +226,10 @@ func (r *WorkspaceLabelResource) Update(ctx context.Context, req resource.Update
 		input.Color = &data.Color.Value
 	}
 
+	if !data.ParentId.IsNull() {
+		input.ParentId = &data.ParentId.Value
+	}
+
 	response, err := updateLabel(ctx, *r.client, input, data.Id.Value)
 
 	if err != nil {
@@ -221,6 +250,10 @@ func (r *WorkspaceLabelResource) Update(ctx context.Context, req resource.Update
 
 	if issueLabel.Color != nil {
 		data.Color = types.String{Value: *issueLabel.Color}
+	}
+
+	if issueLabel.Parent != nil {
+		data.ParentId = types.String{Value: issueLabel.Parent.Id}
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -254,12 +287,12 @@ func (r *WorkspaceLabelResource) ImportState(ctx context.Context, req resource.I
 	}
 
 	if len(response.IssueLabels.Nodes) != 1 {
-		resp.Diagnostics.AddError("Client Error", "Unable to import team label, got error: label not found")
+		resp.Diagnostics.AddError("Client Error", "Unable to import workspace label, got error: label not found")
 		return
 	}
 
 	if response.IssueLabels.Nodes[0].Team.Id != "" {
-		resp.Diagnostics.AddError("Client Error", "Unable to import team label, got error: label is a team label")
+		resp.Diagnostics.AddError("Client Error", "Unable to import workspace label, got error: label is a team label")
 		return
 	}
 

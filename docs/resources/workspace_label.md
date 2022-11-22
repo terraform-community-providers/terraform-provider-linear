@@ -29,6 +29,7 @@ resource "linear_workspace_label" "example" {
 
 - `color` (String) Color of the label.
 - `description` (String) Description of the label.
+- `parent_id` (String) Parent (label group) of the label.
 
 ### Read-Only
 

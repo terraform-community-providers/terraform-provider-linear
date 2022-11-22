@@ -9,6 +9,19 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+// The day of the week.
+type Day string
+
+const (
+	DaySunday    Day = "Sunday"
+	DayMonday    Day = "Monday"
+	DayTuesday   Day = "Tuesday"
+	DayWednesday Day = "Wednesday"
+	DayThursday  Day = "Thursday"
+	DayFriday    Day = "Friday"
+	DaySaturday  Day = "Saturday"
+)
+
 // IssueLabel includes the GraphQL fields of IssueLabel requested by the fragment IssueLabel.
 // The GraphQL type's documentation follows.
 //
@@ -22,6 +35,8 @@ type IssueLabel struct {
 	Description *string `json:"description"`
 	// The label's color as a HEX string.
 	Color *string `json:"color"`
+	// The parent label.
+	Parent *IssueLabelParentIssueLabel `json:"parent"`
 	// The team that the label is associated with. If null, the label is associated with the global workspace..
 	Team *IssueLabelTeam `json:"team"`
 }
@@ -38,11 +53,14 @@ func (v *IssueLabel) GetDescription() *string { return v.Description }
 // GetColor returns IssueLabel.Color, and is useful for accessing the field via an interface.
 func (v *IssueLabel) GetColor() *string { return v.Color }
 
+// GetParent returns IssueLabel.Parent, and is useful for accessing the field via an interface.
+func (v *IssueLabel) GetParent() *IssueLabelParentIssueLabel { return v.Parent }
+
 // GetTeam returns IssueLabel.Team, and is useful for accessing the field via an interface.
 func (v *IssueLabel) GetTeam() *IssueLabelTeam { return v.Team }
 
 type IssueLabelCreateInput struct {
-	// The identifier. If none is provided, the backend will generate one.
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
 	Id string `json:"id,omitempty"`
 	// The name of the label.
 	Name string `json:"name"`
@@ -50,6 +68,8 @@ type IssueLabelCreateInput struct {
 	Description *string `json:"description"`
 	// The color of the label.
 	Color *string `json:"color,omitempty"`
+	// The identifier of the parent label.
+	ParentId *string `json:"parentId"`
 	// The team associated with the label. If not given, the label will be associated with the entire workspace.
 	TeamId *string `json:"teamId"`
 }
@@ -66,8 +86,23 @@ func (v *IssueLabelCreateInput) GetDescription() *string { return v.Description 
 // GetColor returns IssueLabelCreateInput.Color, and is useful for accessing the field via an interface.
 func (v *IssueLabelCreateInput) GetColor() *string { return v.Color }
 
+// GetParentId returns IssueLabelCreateInput.ParentId, and is useful for accessing the field via an interface.
+func (v *IssueLabelCreateInput) GetParentId() *string { return v.ParentId }
+
 // GetTeamId returns IssueLabelCreateInput.TeamId, and is useful for accessing the field via an interface.
 func (v *IssueLabelCreateInput) GetTeamId() *string { return v.TeamId }
+
+// IssueLabelParentIssueLabel includes the requested fields of the GraphQL type IssueLabel.
+// The GraphQL type's documentation follows.
+//
+// Labels that can be associated with issues.
+type IssueLabelParentIssueLabel struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns IssueLabelParentIssueLabel.Id, and is useful for accessing the field via an interface.
+func (v *IssueLabelParentIssueLabel) GetId() string { return v.Id }
 
 // IssueLabelTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
@@ -86,6 +121,8 @@ type IssueLabelUpdateInput struct {
 	Name string `json:"name,omitempty"`
 	// The description of the label.
 	Description *string `json:"description"`
+	// The identifier of the parent label.
+	ParentId *string `json:"parentId"`
 	// The color of the label.
 	Color *string `json:"color,omitempty"`
 }
@@ -95,6 +132,9 @@ func (v *IssueLabelUpdateInput) GetName() string { return v.Name }
 
 // GetDescription returns IssueLabelUpdateInput.Description, and is useful for accessing the field via an interface.
 func (v *IssueLabelUpdateInput) GetDescription() *string { return v.Description }
+
+// GetParentId returns IssueLabelUpdateInput.ParentId, and is useful for accessing the field via an interface.
+func (v *IssueLabelUpdateInput) GetParentId() *string { return v.ParentId }
 
 // GetColor returns IssueLabelUpdateInput.Color, and is useful for accessing the field via an interface.
 func (v *IssueLabelUpdateInput) GetColor() *string { return v.Color }
@@ -275,7 +315,7 @@ func (v *Team) GetIssueEstimationExtended() bool { return v.IssueEstimationExten
 func (v *Team) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
 
 type TeamCreateInput struct {
-	// The identifier. If none is provided, the backend will generate one.
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
 	Id string `json:"id,omitempty"`
 	// The name of the team.
 	Name string `json:"name"`
@@ -755,14 +795,18 @@ type UpdateOrganizationInput struct {
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 	// Whether the Git integration linkback messages should be sent for public repositories.
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
-	// Whether the organization is using project milestones.
+	// Whether the organization is using roadmap.
 	RoadmapEnabled bool `json:"roadmapEnabled"`
-	// Whether the organization is using project updates.
-	ProjectUpdatesEnabled bool `json:"projectUpdatesEnabled,omitempty"`
 	// The frequency at which project updates are sent.
 	ProjectUpdatesReminderFrequency ProjectUpdateReminderFrequency `json:"projectUpdatesReminderFrequency,omitempty"`
+	// The day at which project updates are sent.
+	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay,omitempty"`
+	// The hour at which project updates are sent.
+	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour,omitempty"`
 	// Whether the organization has opted for reduced customer support attachment information.
 	ReducedPersonalInformation bool `json:"reducedPersonalInformation,omitempty"`
+	// Whether the organization has opted for having to approve all OAuth applications for install.
+	OauthAppReview bool `json:"oauthAppReview,omitempty"`
 	// Linear Preview feature flags
 	LinearPreviewFlags map[string]interface{} `json:"linearPreviewFlags,omitempty"`
 	// List of services that are allowed to be used for login.
@@ -794,18 +838,28 @@ func (v *UpdateOrganizationInput) GetGitPublicLinkbackMessagesEnabled() bool {
 // GetRoadmapEnabled returns UpdateOrganizationInput.RoadmapEnabled, and is useful for accessing the field via an interface.
 func (v *UpdateOrganizationInput) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
 
-// GetProjectUpdatesEnabled returns UpdateOrganizationInput.ProjectUpdatesEnabled, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetProjectUpdatesEnabled() bool { return v.ProjectUpdatesEnabled }
-
 // GetProjectUpdatesReminderFrequency returns UpdateOrganizationInput.ProjectUpdatesReminderFrequency, and is useful for accessing the field via an interface.
 func (v *UpdateOrganizationInput) GetProjectUpdatesReminderFrequency() ProjectUpdateReminderFrequency {
 	return v.ProjectUpdatesReminderFrequency
+}
+
+// GetProjectUpdateRemindersDay returns UpdateOrganizationInput.ProjectUpdateRemindersDay, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetProjectUpdateRemindersDay() Day {
+	return v.ProjectUpdateRemindersDay
+}
+
+// GetProjectUpdateRemindersHour returns UpdateOrganizationInput.ProjectUpdateRemindersHour, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetProjectUpdateRemindersHour() float64 {
+	return v.ProjectUpdateRemindersHour
 }
 
 // GetReducedPersonalInformation returns UpdateOrganizationInput.ReducedPersonalInformation, and is useful for accessing the field via an interface.
 func (v *UpdateOrganizationInput) GetReducedPersonalInformation() bool {
 	return v.ReducedPersonalInformation
 }
+
+// GetOauthAppReview returns UpdateOrganizationInput.OauthAppReview, and is useful for accessing the field via an interface.
+func (v *UpdateOrganizationInput) GetOauthAppReview() bool { return v.OauthAppReview }
 
 // GetLinearPreviewFlags returns UpdateOrganizationInput.LinearPreviewFlags, and is useful for accessing the field via an interface.
 func (v *UpdateOrganizationInput) GetLinearPreviewFlags() map[string]interface{} {
@@ -858,7 +912,7 @@ func (v *WorkflowState) GetPosition() float64 { return v.Position }
 func (v *WorkflowState) GetTeam() WorkflowStateTeam { return v.Team }
 
 type WorkflowStateCreateInput struct {
-	// The identifier. If none is provided, the backend will generate one.
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
 	Id string `json:"id,omitempty"`
 	// The workflow type.
 	Type string `json:"type"`
@@ -1157,6 +1211,11 @@ func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetColor() *str
 	return v.IssueLabel.Color
 }
 
+// GetParent returns createLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Parent, and is useful for accessing the field via an interface.
+func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetParent() *IssueLabelParentIssueLabel {
+	return v.IssueLabel.Parent
+}
+
 // GetTeam returns createLabelIssueLabelCreateIssueLabelPayloadIssueLabel.Team, and is useful for accessing the field via an interface.
 func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) GetTeam() *IssueLabelTeam {
 	return v.IssueLabel.Team
@@ -1196,6 +1255,8 @@ type __premarshalcreateLabelIssueLabelCreateIssueLabelPayloadIssueLabel struct {
 
 	Color *string `json:"color"`
 
+	Parent *IssueLabelParentIssueLabel `json:"parent"`
+
 	Team *IssueLabelTeam `json:"team"`
 }
 
@@ -1214,6 +1275,7 @@ func (v *createLabelIssueLabelCreateIssueLabelPayloadIssueLabel) __premarshalJSO
 	retval.Name = v.IssueLabel.Name
 	retval.Description = v.IssueLabel.Description
 	retval.Color = v.IssueLabel.Color
+	retval.Parent = v.IssueLabel.Parent
 	retval.Team = v.IssueLabel.Team
 	return &retval, nil
 }
@@ -1811,6 +1873,9 @@ func (v *getLabelIssueLabel) GetDescription() *string { return v.IssueLabel.Desc
 // GetColor returns getLabelIssueLabel.Color, and is useful for accessing the field via an interface.
 func (v *getLabelIssueLabel) GetColor() *string { return v.IssueLabel.Color }
 
+// GetParent returns getLabelIssueLabel.Parent, and is useful for accessing the field via an interface.
+func (v *getLabelIssueLabel) GetParent() *IssueLabelParentIssueLabel { return v.IssueLabel.Parent }
+
 // GetTeam returns getLabelIssueLabel.Team, and is useful for accessing the field via an interface.
 func (v *getLabelIssueLabel) GetTeam() *IssueLabelTeam { return v.IssueLabel.Team }
 
@@ -1848,6 +1913,8 @@ type __premarshalgetLabelIssueLabel struct {
 
 	Color *string `json:"color"`
 
+	Parent *IssueLabelParentIssueLabel `json:"parent"`
+
 	Team *IssueLabelTeam `json:"team"`
 }
 
@@ -1866,6 +1933,7 @@ func (v *getLabelIssueLabel) __premarshalJSON() (*__premarshalgetLabelIssueLabel
 	retval.Name = v.IssueLabel.Name
 	retval.Description = v.IssueLabel.Description
 	retval.Color = v.IssueLabel.Color
+	retval.Parent = v.IssueLabel.Parent
 	retval.Team = v.IssueLabel.Team
 	return &retval, nil
 }
@@ -2591,6 +2659,11 @@ func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetColor() *str
 	return v.IssueLabel.Color
 }
 
+// GetParent returns updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Parent, and is useful for accessing the field via an interface.
+func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetParent() *IssueLabelParentIssueLabel {
+	return v.IssueLabel.Parent
+}
+
 // GetTeam returns updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel.Team, and is useful for accessing the field via an interface.
 func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) GetTeam() *IssueLabelTeam {
 	return v.IssueLabel.Team
@@ -2630,6 +2703,8 @@ type __premarshalupdateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel struct {
 
 	Color *string `json:"color"`
 
+	Parent *IssueLabelParentIssueLabel `json:"parent"`
+
 	Team *IssueLabelTeam `json:"team"`
 }
 
@@ -2648,6 +2723,7 @@ func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) __premarshalJSO
 	retval.Name = v.IssueLabel.Name
 	retval.Description = v.IssueLabel.Description
 	retval.Color = v.IssueLabel.Color
+	retval.Parent = v.IssueLabel.Parent
 	retval.Team = v.IssueLabel.Team
 	return &retval, nil
 }
@@ -3281,6 +3357,9 @@ fragment IssueLabel on IssueLabel {
 	name
 	description
 	color
+	parent {
+		id
+	}
 	team {
 		id
 	}
@@ -3634,6 +3713,9 @@ fragment IssueLabel on IssueLabel {
 	name
 	description
 	color
+	parent {
+		id
+	}
 	team {
 		id
 	}
@@ -3938,6 +4020,9 @@ fragment IssueLabel on IssueLabel {
 	name
 	description
 	color
+	parent {
+		id
+	}
 	team {
 		id
 	}

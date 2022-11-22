@@ -1,11 +1,15 @@
 # @genqlient(for: "IssueLabel.description", pointer: true)
 # @genqlient(for: "IssueLabel.color", pointer: true)
 # @genqlient(for: "IssueLabel.team", pointer: true)
+# @genqlient(for: "IssueLabel.parent", pointer: true)
 fragment IssueLabel on IssueLabel {
   id
   name
   description
   color
+  parent {
+    id
+  }
   team {
     id
   }
@@ -35,6 +39,7 @@ query findWorkspaceLabel($name: String!) {
 # @genqlient(for: "IssueLabelCreateInput.id", omitempty: true)
 # @genqlient(for: "IssueLabelCreateInput.description", pointer: true)
 # @genqlient(for: "IssueLabelCreateInput.color", omitempty: true, pointer: true)
+# @genqlient(for: "IssueLabelCreateInput.parentId", pointer: true)
 # @genqlient(for: "IssueLabelCreateInput.teamId", pointer: true)
 mutation createLabel(
   $input: IssueLabelCreateInput!
@@ -49,6 +54,7 @@ mutation createLabel(
 # @genqlient(for: "IssueLabelUpdateInput.name", omitempty: true)
 # @genqlient(for: "IssueLabelUpdateInput.description", pointer: true)
 # @genqlient(for: "IssueLabelUpdateInput.color", omitempty: true, pointer: true)
+# @genqlient(for: "IssueLabelUpdateInput.parentId", pointer: true)
 mutation updateLabel(
   $input: IssueLabelUpdateInput!,
   $id: String!

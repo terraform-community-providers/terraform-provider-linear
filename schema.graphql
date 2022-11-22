@@ -53,376 +53,6 @@ type ApiKeyConnection {
   pageInfo: PageInfo!
 }
 
-"""A template object used for creating entities faster."""
-type Template implements Node {
-  """The unique identifier of the entity."""
-  id: ID!
-
-  """The time at which the entity was created."""
-  createdAt: DateTime!
-
-  """
-  The last time at which the entity was updated. This is the same as the creation time if the
-      entity hasn't been updated after creation.
-  """
-  updatedAt: DateTime!
-
-  """
-  The time at which the entity was archived. Null if the entity has not been archived.
-  """
-  archivedAt: DateTime
-
-  """The entity type this template is for."""
-  type: String!
-
-  """The name of the template."""
-  name: String!
-
-  """Template description."""
-  description: String
-
-  """Template data."""
-  templateData: JSON!
-
-  """
-  The organization that the template is associated with. If null, the template is associated with a particular team.
-  """
-  organization: Organization
-
-  """
-  The team that the template is associated with. If null, the template is global to the workspace.
-  """
-  team: Team
-
-  """The user who created the template."""
-  creator: User
-}
-
-"""The `JSON` scalar type represents JSON values"""
-scalar JSON
-
-type TemplateEdge {
-  node: Template!
-
-  """Used in `before` and `after` args"""
-  cursor: String!
-}
-
-type TemplateConnection {
-  edges: [TemplateEdge!]!
-  nodes: [Template!]!
-  pageInfo: PageInfo!
-}
-
-"""The organization's SAML configuration"""
-type SamlConfigurationPayload {
-  """Sign in endpoint URL for the identity provider."""
-  ssoEndpoint: String
-
-  """
-  Binding method for authentication call. Can be either `post` (default) or `redirect`.
-  """
-  ssoBinding: String
-
-  """
-  The algorithm of the Signing Certificate. Can be one of `sha1`, `sha256` (default), or `sha512`.
-  """
-  ssoSignAlgo: String
-
-  """List of allowed email domains for SAML authentication."""
-  allowedDomains: [String!]
-
-  """The issuer's custom entity ID."""
-  issuerEntityId: String
-}
-
-type SamlConfiguration {
-  """Sign in endpoint URL for the identity provider."""
-  ssoEndpoint: String
-
-  """
-  Binding method for authentication call. Can be either `post` (default) or `redirect`.
-  """
-  ssoBinding: String
-
-  """
-  The algorithm of the Signing Certificate. Can be one of `sha1`, `sha256` (default), or `sha512`.
-  """
-  ssoSignAlgo: String
-
-  """List of allowed email domains for SAML authentication."""
-  allowedDomains: [String!]
-
-  """The issuer's custom entity ID."""
-  issuerEntityId: String
-
-  """X.509 Signing Certificate in string form."""
-  ssoSigningCert: String
-}
-
-"""
-An organization. Organizations are root-level objects that contain user accounts and teams.
-"""
-type Organization implements Node {
-  """The unique identifier of the entity."""
-  id: ID!
-
-  """The time at which the entity was created."""
-  createdAt: DateTime!
-
-  """
-  The last time at which the entity was updated. This is the same as the creation time if the
-      entity hasn't been updated after creation.
-  """
-  updatedAt: DateTime!
-
-  """
-  The time at which the entity was archived. Null if the entity has not been archived.
-  """
-  archivedAt: DateTime
-
-  """The organization's name."""
-  name: String!
-
-  """The organization's unique URL key."""
-  urlKey: String!
-
-  """The organization's logo URL."""
-  logoUrl: String
-
-  """Rolling 30-day total upload volume for the organization, in megabytes."""
-  periodUploadVolume: Float!
-
-  """
-  How git branches are formatted. If null, default formatting will be used.
-  """
-  gitBranchFormat: String
-
-  """
-  Whether the Git integration linkback messages should be sent to private repositories.
-  """
-  gitLinkbackMessagesEnabled: Boolean!
-
-  """
-  Whether the Git integration linkback messages should be sent to public repositories.
-  """
-  gitPublicLinkbackMessagesEnabled: Boolean!
-
-  """Whether the organization is using a roadmap."""
-  roadmapEnabled: Boolean!
-
-  """Whether the organization is using project updates."""
-  projectUpdatesEnabled: Boolean!
-
-  """The frequency at which to prompt for project updates."""
-  projectUpdatesReminderFrequency: ProjectUpdateReminderFrequency!
-
-  """Whether SAML authentication is enabled for organization."""
-  samlEnabled: Boolean!
-
-  """Allowed authentication providers, empty array means all are allowed"""
-  allowedAuthServices: [String!]!
-
-  """The time at which deletion of the organization was requested."""
-  deletionRequestedAt: DateTime
-
-  """Users associated with the organization."""
-  users(
-    """Should query return disabled/suspended users (default: false)."""
-    includeDisabled: Boolean
-
-    """A cursor to be used with last for backward pagination."""
-    before: String
-
-    """A cursor to be used with first for forward pagination"""
-    after: String
-
-    """
-    The number of items to forward paginate (used with after). Defaults to 50.
-    """
-    first: Int
-
-    """
-    The number of items to backward paginate (used with before). Defaults to 50.
-    """
-    last: Int
-
-    """Should archived resources be included (default: false)"""
-    includeArchived: Boolean
-
-    """
-    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
-    """
-    orderBy: PaginationOrderBy
-  ): UserConnection!
-
-  """Teams associated with the organization."""
-  teams(
-    """Filter returned teams."""
-    filter: TeamFilter
-
-    """A cursor to be used with last for backward pagination."""
-    before: String
-
-    """A cursor to be used with first for forward pagination"""
-    after: String
-
-    """
-    The number of items to forward paginate (used with after). Defaults to 50.
-    """
-    first: Int
-
-    """
-    The number of items to backward paginate (used with before). Defaults to 50.
-    """
-    last: Int
-
-    """Should archived resources be included (default: false)"""
-    includeArchived: Boolean
-
-    """
-    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
-    """
-    orderBy: PaginationOrderBy
-  ): TeamConnection!
-
-  """Milestones associated with the organization."""
-  milestones(
-    """Filter returned projects."""
-    filter: MilestoneFilter
-
-    """A cursor to be used with last for backward pagination."""
-    before: String
-
-    """A cursor to be used with first for forward pagination"""
-    after: String
-
-    """
-    The number of items to forward paginate (used with after). Defaults to 50.
-    """
-    first: Int
-
-    """
-    The number of items to backward paginate (used with before). Defaults to 50.
-    """
-    last: Int
-
-    """Should archived resources be included (default: false)"""
-    includeArchived: Boolean
-
-    """
-    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
-    """
-    orderBy: PaginationOrderBy
-  ): MilestoneConnection!
-
-  """Integrations associated with the organization."""
-  integrations(
-    """A cursor to be used with last for backward pagination."""
-    before: String
-
-    """A cursor to be used with first for forward pagination"""
-    after: String
-
-    """
-    The number of items to forward paginate (used with after). Defaults to 50.
-    """
-    first: Int
-
-    """
-    The number of items to backward paginate (used with before). Defaults to 50.
-    """
-    last: Int
-
-    """Should archived resources be included (default: false)"""
-    includeArchived: Boolean
-
-    """
-    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
-    """
-    orderBy: PaginationOrderBy
-  ): IntegrationConnection!
-
-  """The organization's subscription to a paid plan."""
-  subscription: Subscription
-
-  """Number of active users in the organization."""
-  userCount: Int!
-
-  """Number of issues in the organization."""
-  createdIssueCount: Int!
-
-  """Templates associated with the organization."""
-  templates(
-    """A cursor to be used with last for backward pagination."""
-    before: String
-
-    """A cursor to be used with first for forward pagination"""
-    after: String
-
-    """
-    The number of items to forward paginate (used with after). Defaults to 50.
-    """
-    first: Int
-
-    """
-    The number of items to backward paginate (used with before). Defaults to 50.
-    """
-    last: Int
-
-    """Should archived resources be included (default: false)"""
-    includeArchived: Boolean
-
-    """
-    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
-    """
-    orderBy: PaginationOrderBy
-  ): TemplateConnection!
-
-  """Labels associated with the organization."""
-  labels(
-    """Filter returned issue labels."""
-    filter: IssueLabelFilter
-
-    """A cursor to be used with last for backward pagination."""
-    before: String
-
-    """A cursor to be used with first for forward pagination"""
-    after: String
-
-    """
-    The number of items to forward paginate (used with after). Defaults to 50.
-    """
-    first: Int
-
-    """
-    The number of items to backward paginate (used with before). Defaults to 50.
-    """
-    last: Int
-
-    """Should archived resources be included (default: false)"""
-    includeArchived: Boolean
-
-    """
-    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
-    """
-    orderBy: PaginationOrderBy
-  ): IssueLabelConnection!
-}
-
-"""The frequency at which to send project update reminders."""
-enum ProjectUpdateReminderFrequency {
-  week
-  twoWeeks
-  never
-}
-
-"""By which field should the pagination order by"""
-enum PaginationOrderBy {
-  createdAt
-  updatedAt
-}
-
 type AuthResolverResponse {
   """User account ID."""
   id: String!
@@ -514,6 +144,12 @@ type WorkflowState implements Node {
   ): IssueConnection!
 }
 
+"""By which field should the pagination order by"""
+enum PaginationOrderBy {
+  createdAt
+  updatedAt
+}
+
 type WorkflowStateEdge {
   node: WorkflowState!
 
@@ -568,7 +204,9 @@ type IssueImport implements Node {
   progress: Float
 }
 
-"""The `JSONObject` scalar type represents JSON values as a string"""
+"""
+The `JSONObject` scalar type represents arbitrary values as *embedded* JSON
+"""
 scalar JSONObject
 
 """An organizational unit that contains issues."""
@@ -1017,6 +655,9 @@ type Team implements Node {
     """
     orderBy: PaginationOrderBy
   ): WebhookConnection!
+
+  """Settings for all integrations associated with that team."""
+  integrationsSettings: IntegrationsSettings
 }
 
 type TeamEdge {
@@ -1095,6 +736,9 @@ type User implements Node {
 
   """Unique hash for the user to be used in invite URLs."""
   inviteHash: String!
+
+  """Hash for the user to be used in calendar URLs."""
+  calendarHash: String
 
   """A short description of the user, either its title or bio."""
   description: String
@@ -1270,6 +914,436 @@ type UserConnection {
   edges: [UserEdge!]!
   nodes: [User!]!
   pageInfo: PageInfo!
+}
+
+"""Join table between templates and integrations"""
+type IntegrationTemplate implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was updated. This is the same as the creation time if the
+      entity hasn't been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The template that the integration is associated with."""
+  template: Template!
+
+  """The integration that the template is associated with."""
+  integration: Integration!
+}
+
+type IntegrationTemplateEdge {
+  node: IntegrationTemplate!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+type IntegrationTemplateConnection {
+  edges: [IntegrationTemplateEdge!]!
+  nodes: [IntegrationTemplate!]!
+  pageInfo: PageInfo!
+}
+
+"""A template object used for creating entities faster."""
+type Template implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was updated. This is the same as the creation time if the
+      entity hasn't been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The entity type this template is for."""
+  type: String!
+
+  """The name of the template."""
+  name: String!
+
+  """Template description."""
+  description: String
+
+  """Template data."""
+  templateData: JSON!
+
+  """
+  The organization that the template is associated with. If null, the template is associated with a particular team.
+  """
+  organization: Organization
+
+  """
+  The team that the template is associated with. If null, the template is global to the workspace.
+  """
+  team: Team
+
+  """The user who created the template."""
+  creator: User
+
+  """The user who last updated the template."""
+  lastUpdatedBy: User
+}
+
+"""
+The `JSON` scalar type represents arbitrary values as *stringified* JSON
+"""
+scalar JSON
+
+type TemplateEdge {
+  node: Template!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+type TemplateConnection {
+  edges: [TemplateEdge!]!
+  nodes: [Template!]!
+  pageInfo: PageInfo!
+}
+
+"""The organization's SAML configuration"""
+type SamlConfigurationPayload {
+  """Sign in endpoint URL for the identity provider."""
+  ssoEndpoint: String
+
+  """
+  Binding method for authentication call. Can be either `post` (default) or `redirect`.
+  """
+  ssoBinding: String
+
+  """
+  The algorithm of the Signing Certificate. Can be one of `sha1`, `sha256` (default), or `sha512`.
+  """
+  ssoSignAlgo: String
+
+  """List of allowed email domains for SAML authentication."""
+  allowedDomains: [String!]
+
+  """The issuer's custom entity ID."""
+  issuerEntityId: String
+}
+
+type SamlConfiguration {
+  """Sign in endpoint URL for the identity provider."""
+  ssoEndpoint: String
+
+  """
+  Binding method for authentication call. Can be either `post` (default) or `redirect`.
+  """
+  ssoBinding: String
+
+  """
+  The algorithm of the Signing Certificate. Can be one of `sha1`, `sha256` (default), or `sha512`.
+  """
+  ssoSignAlgo: String
+
+  """List of allowed email domains for SAML authentication."""
+  allowedDomains: [String!]
+
+  """The issuer's custom entity ID."""
+  issuerEntityId: String
+
+  """X.509 Signing Certificate in string form."""
+  ssoSigningCert: String
+}
+
+"""
+An organization. Organizations are root-level objects that contain user accounts and teams.
+"""
+type Organization implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was updated. This is the same as the creation time if the
+      entity hasn't been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The organization's name."""
+  name: String!
+
+  """The organization's unique URL key."""
+  urlKey: String!
+
+  """The organization's logo URL."""
+  logoUrl: String
+
+  """Rolling 30-day total upload volume for the organization, in megabytes."""
+  periodUploadVolume: Float!
+
+  """
+  How git branches are formatted. If null, default formatting will be used.
+  """
+  gitBranchFormat: String
+
+  """
+  Whether the Git integration linkback messages should be sent to private repositories.
+  """
+  gitLinkbackMessagesEnabled: Boolean!
+
+  """
+  Whether the Git integration linkback messages should be sent to public repositories.
+  """
+  gitPublicLinkbackMessagesEnabled: Boolean!
+
+  """Whether the organization is using a roadmap."""
+  roadmapEnabled: Boolean!
+
+  """The frequency at which to prompt for project updates."""
+  projectUpdatesReminderFrequency: ProjectUpdateReminderFrequency!
+
+  """The day at which to prompt for project updates."""
+  projectUpdateRemindersDay: Day!
+
+  """The hour at which to prompt for project updates."""
+  projectUpdateRemindersHour: Float!
+
+  """Whether SAML authentication is enabled for organization."""
+  samlEnabled: Boolean!
+
+  """Whether SCIM provisioning is enabled for organization."""
+  scimEnabled: Boolean!
+
+  """Allowed authentication providers, empty array means all are allowed"""
+  allowedAuthServices: [String!]!
+
+  """The time at which deletion of the organization was requested."""
+  deletionRequestedAt: DateTime
+
+  """
+  Previously used URL keys for the organization (last 3 are kept and redirected).
+  """
+  previousUrlKeys: [String!]!
+
+  """Users associated with the organization."""
+  users(
+    """Should query return disabled/suspended users (default: false)."""
+    includeDisabled: Boolean
+
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): UserConnection!
+
+  """Teams associated with the organization."""
+  teams(
+    """Filter returned teams."""
+    filter: TeamFilter
+
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): TeamConnection!
+
+  """Milestones associated with the organization."""
+  milestones(
+    """Filter returned projects."""
+    filter: MilestoneFilter
+
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): MilestoneConnection! @deprecated(reason: "Milestones will be removed. Use roadmaps instead.")
+
+  """Integrations associated with the organization."""
+  integrations(
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): IntegrationConnection!
+
+  """The organization's subscription to a paid plan."""
+  subscription: Subscription
+
+  """Number of active users in the organization."""
+  userCount: Int!
+
+  """Number of issues in the organization."""
+  createdIssueCount: Int!
+
+  """Templates associated with the organization."""
+  templates(
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): TemplateConnection!
+
+  """Labels associated with the organization."""
+  labels(
+    """Filter returned issue labels."""
+    filter: IssueLabelFilter
+
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): IssueLabelConnection!
+}
+
+"""The frequency at which to send project update reminders."""
+enum ProjectUpdateReminderFrequency {
+  week
+  twoWeeks
+  never
+}
+
+"""The day of the week."""
+enum Day {
+  Sunday
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
 }
 
 """
@@ -1496,6 +1570,50 @@ enum ProjectNotificationSubscriptionType {
   all
 }
 
+"""
+Holds information about when a user has interacted with a project update.
+"""
+type ProjectUpdateInteraction implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was updated. This is the same as the creation time if the
+      entity hasn't been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The user that has interacted with the project update."""
+  user: User!
+
+  """The project update that has been interacted with."""
+  projectUpdate: ProjectUpdate!
+
+  """The time at which the user read the project update."""
+  readAt: DateTime!
+}
+
+type ProjectUpdateInteractionEdge {
+  node: ProjectUpdateInteraction!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+type ProjectUpdateInteractionConnection {
+  edges: [ProjectUpdateInteractionEdge!]!
+  nodes: [ProjectUpdateInteraction!]!
+  pageInfo: PageInfo!
+}
+
 """A update associated with an project."""
 type ProjectUpdate implements Node {
   """The unique identifier of the entity."""
@@ -1529,6 +1647,9 @@ type ProjectUpdate implements Node {
 
   """The time the project update was edited."""
   editedAt: DateTime
+
+  """The URL to the project update."""
+  url: String!
 }
 
 """The health type of a project when the update is created."""
@@ -1576,6 +1697,9 @@ type Cycle implements Node {
   """The custom name of the cycle."""
   name: String
 
+  """The cycle's description."""
+  description: String
+
   """The start time of the cycle."""
   startsAt: DateTime!
 
@@ -1603,6 +1727,9 @@ type Cycle implements Node {
 
   """The number of completed estimation points after each day."""
   completedScopeHistory: [Float!]!
+
+  """The number of in progress estimation points after each day."""
+  inProgressScopeHistory: [Float!]!
 
   """The team that the cycle is associated with."""
   team: Team!
@@ -1732,6 +1859,9 @@ type Issue implements Node {
   """The time at which the issue was moved into completed state."""
   completedAt: DateTime
 
+  """The time at which the issue left triage."""
+  triagedAt: DateTime
+
   """The time at which the issue was moved into canceled state."""
   canceledAt: DateTime
 
@@ -1788,6 +1918,9 @@ type Issue implements Node {
 
   """Label for the priority."""
   priorityLabel: String!
+
+  """[Internal] The issue's description as a Prosemirror document."""
+  descriptionData: JSON
 
   """Issue's human readable identifier (e.g. ENG-123)."""
   identifier: String!
@@ -1953,7 +2086,7 @@ type Issue implements Node {
     orderBy: PaginationOrderBy
   ): IssueLabelConnection!
 
-  """Integration resources for this issue."""
+  """[DEPRECATED] Integration resources for this issue."""
   integrationResources(
     """A cursor to be used with last for backward pagination."""
     before: String
@@ -1978,7 +2111,7 @@ type Issue implements Node {
     By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
     """
     orderBy: PaginationOrderBy
-  ): IntegrationResourceConnection!
+  ): IntegrationResourceConnection! @deprecated(reason: "This field will soon be deprecated, please use `attachments` instead")
 
   """Relations associated with this issue."""
   relations(
@@ -2128,6 +2261,48 @@ type ProjectLinkConnection {
   pageInfo: PageInfo!
 }
 
+"""Join table between projects and roadmaps"""
+type RoadmapToProject implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was updated. This is the same as the creation time if the
+      entity hasn't been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The project that the roadmap is associated with."""
+  project: Project!
+
+  """The roadmap that the project is associated with."""
+  roadmap: Roadmap!
+
+  """The sort order of the project within the roadmap."""
+  sortOrder: String!
+}
+
+type RoadmapToProjectEdge {
+  node: RoadmapToProject!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+type RoadmapToProjectConnection {
+  edges: [RoadmapToProjectEdge!]!
+  nodes: [RoadmapToProject!]!
+  pageInfo: PageInfo!
+}
+
 """A project."""
 type Project implements Node {
   """The unique identifier of the entity."""
@@ -2172,7 +2347,13 @@ type Project implements Node {
   lead: User
 
   """The milestone that this project is associated with."""
-  milestone: Milestone
+  milestone: Milestone @deprecated(reason: "Milestones will be removed. Use roadmaps instead.")
+
+  """The initiative that this project is associated with."""
+  initiative: Initiative
+
+  """The time until which project update reminders are paused."""
+  projectUpdateRemindersPausedUntilAt: DateTime
 
   """[Internal] The estimated start date of the project."""
   startDate: TimelessDate
@@ -2194,7 +2375,7 @@ type Project implements Node {
   """
   autoArchivedAt: DateTime
 
-  """The sort order for the project within its milestone."""
+  """The sort order for the project within its milestone/initiative."""
   sortOrder: Float!
 
   """The total number of issues in the project after each week."""
@@ -2208,6 +2389,9 @@ type Project implements Node {
 
   """The number of completed estimation points after each week."""
   completedScopeHistory: [Float!]!
+
+  """The number of in progress estimation points after each week."""
+  inProgressScopeHistory: [Float!]!
 
   """Whether to send new issue notifications to Slack."""
   slackNewIssue: Boolean!
@@ -2399,6 +2583,9 @@ type Project implements Node {
   The overall progress of the project. This is the (completed estimate points + 0.25 * in progress estimate points) / total estimate points.
   """
   progress: Float!
+
+  """Settings for all integrations associated with that project."""
+  integrationsSettings: IntegrationsSettings
 }
 
 type ProjectEdge {
@@ -2473,6 +2660,12 @@ type Comment implements Node {
 
   """The time user edited the comment."""
   editedAt: DateTime
+
+  """The comment content as a Prosemirror document."""
+  bodyData: String!
+
+  """Emoji reaction summary, grouped by emoji type"""
+  reactionData: JSONObject!
 
   """Comment's URL."""
   url: String!
@@ -2644,54 +2837,6 @@ type DocumentConnection {
   pageInfo: PageInfo!
 }
 
-"""A version of a document."""
-type DocumentVersion implements Node {
-  """The unique identifier of the entity."""
-  id: ID!
-
-  """The time at which the entity was created."""
-  createdAt: DateTime!
-
-  """
-  The last time at which the entity was updated. This is the same as the creation time if the
-      entity hasn't been updated after creation.
-  """
-  updatedAt: DateTime!
-
-  """
-  The time at which the entity was archived. Null if the entity has not been archived.
-  """
-  archivedAt: DateTime
-
-  """The document's title."""
-  title: String!
-
-  """The version revision number."""
-  revision: Float!
-
-  """The document's content in markdown format."""
-  content: String
-
-  """The user who created the version."""
-  creator: User!
-
-  """The project that the document is associated with."""
-  project: Project!
-}
-
-type DocumentVersionEdge {
-  node: DocumentVersion!
-
-  """Used in `before` and `after` args"""
-  cursor: String!
-}
-
-type DocumentVersionConnection {
-  edges: [DocumentVersionEdge!]!
-  nodes: [DocumentVersion!]!
-  pageInfo: PageInfo!
-}
-
 """A custom emoji."""
 type Emoji implements Node {
   """The unique identifier of the entity."""
@@ -2792,6 +2937,9 @@ type Favorite implements Node {
   """The favorited document."""
   document: Document
 
+  """The favorited roadmap."""
+  roadmap: Roadmap
+
   """The favorited label."""
   label: IssueLabel
 
@@ -2842,6 +2990,165 @@ type FavoriteConnection {
   pageInfo: PageInfo!
 }
 
+"""A initiative that contains projects."""
+type Initiative implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was updated. This is the same as the creation time if the
+      entity hasn't been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The name of the initiative."""
+  name: String!
+
+  """The organization that the initiative belongs to."""
+  organization: Organization!
+
+  """The sort order for the initiative."""
+  sortOrder: Float!
+
+  """The initiative's description."""
+  description: String
+
+  """The estimated completion date of the initiative."""
+  targetDate: TimelessDate
+
+  """Projects associated with the initiative."""
+  projects(
+    """Filter returned projects."""
+    filter: ProjectFilter
+
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): ProjectConnection!
+}
+
+type InitiativeEdge {
+  node: Initiative!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+type InitiativeConnection {
+  edges: [InitiativeEdge!]!
+  nodes: [Initiative!]!
+  pageInfo: PageInfo!
+}
+
+"""A roadmap for projects."""
+type Roadmap implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was updated. This is the same as the creation time if the
+      entity hasn't been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The name of the roadmap."""
+  name: String!
+
+  """The description of the roadmap."""
+  description: String
+
+  """The organization of the roadmap."""
+  organization: Organization!
+
+  """The user who created the roadmap."""
+  creator: User!
+
+  """The user who owns the roadmap."""
+  owner: User!
+
+  """The roadmap's unique URL slug."""
+  slugId: String!
+
+  """Projects associated with the roadmap."""
+  projects(
+    """Filter returned projects."""
+    filter: ProjectFilter
+
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): ProjectConnection!
+}
+
+type RoadmapEdge {
+  node: Roadmap!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+type RoadmapConnection {
+  edges: [RoadmapEdge!]!
+  nodes: [Roadmap!]!
+  pageInfo: PageInfo!
+}
+
 """Intercom specific settings."""
 type IntercomSettings {
   """
@@ -2853,6 +3160,49 @@ type IntercomSettings {
   Whether an internal message should be added when someone comments on an issue.
   """
   sendNoteOnComment: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is completed.
+  """
+  automateTicketReopeningOnCompletion: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is cancelled.
+  """
+  automateTicketReopeningOnCancellation: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when a comment is posted on its linked Linear issue
+  """
+  automateTicketReopeningOnComment: Boolean
+}
+
+"""Front specific settings."""
+type FrontSettings {
+  """
+  Whether an internal message should be added when a Linear issue changes status (for status types except completed or canceled).
+  """
+  sendNoteOnStatusChange: Boolean
+
+  """
+  Whether an internal message should be added when someone comments on an issue.
+  """
+  sendNoteOnComment: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is completed.
+  """
+  automateTicketReopeningOnCompletion: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is cancelled.
+  """
+  automateTicketReopeningOnCancellation: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when a comment is posted on its linked Linear issue
+  """
+  automateTicketReopeningOnComment: Boolean
 }
 
 """Slack notification specific settings."""
@@ -2860,6 +3210,15 @@ type SlackPostSettings {
   channel: String!
   channelId: String!
   configurationUrl: String!
+}
+
+"""Metadata and settings for a GitHub integration."""
+type GitHubSettings {
+  """The avatar URL for the GitHub organization"""
+  orgAvatarUrl: String!
+
+  """The GitHub organization's name"""
+  orgLogin: String!
 }
 
 """Google Sheets specific settings."""
@@ -2908,6 +3267,31 @@ type SentrySettings {
 
 """Zendesk specific settings."""
 type ZendeskSettings {
+  """
+  Whether an internal message should be added when a Linear issue changes status (for status types except completed or canceled).
+  """
+  sendNoteOnStatusChange: Boolean
+
+  """
+  Whether an internal message should be added when someone comments on an issue.
+  """
+  sendNoteOnComment: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is completed.
+  """
+  automateTicketReopeningOnCompletion: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is cancelled.
+  """
+  automateTicketReopeningOnCancellation: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when a comment is posted on its linked Linear issue
+  """
+  automateTicketReopeningOnComment: Boolean
+
   """The subdomain of the Zendesk organization being connected."""
   subdomain: String!
 
@@ -2915,7 +3299,7 @@ type ZendeskSettings {
   url: String!
 
   """The ID of the Linear bot user."""
-  botUserId: String!
+  botUserId: String
 }
 
 """The integration resource's settings"""
@@ -2924,9 +3308,11 @@ type IntegrationSettings {
   slackProjectPost: SlackPostSettings
   slackOrgProjectUpdatesPost: SlackPostSettings
   googleSheets: GoogleSheetsSettings
+  gitHub: GitHubSettings
   sentry: SentrySettings
   zendesk: ZendeskSettings
   intercom: IntercomSettings
+  front: FrontSettings
   jira: JiraSettings
 }
 
@@ -2975,6 +3361,27 @@ type IntegrationConnection {
   pageInfo: PageInfo!
 }
 
+"""Pull request review data"""
+type PullRequestReview {
+  """The ID of the review."""
+  id: Float!
+
+  """The state of the review."""
+  state: String!
+
+  """The login of the reviewer."""
+  reviewerLogin: String!
+
+  """The user ID of the reviewer."""
+  reviewerId: Float!
+
+  """The timestamp of review submission."""
+  submittedAt: String!
+
+  """[Internal] The reviewer's avatar URL."""
+  reviewerAvatarUrl: String
+}
+
 """Pull request data"""
 type PullRequestPayload {
   status: String!
@@ -2993,6 +3400,7 @@ type PullRequestPayload {
   closedAt: String!
   mergedAt: String!
   reviewers: [String!]
+  reviews: [PullRequestReview!]
 }
 
 """GitHub's commit data"""
@@ -3088,7 +3496,7 @@ type IntegrationResource implements Node {
   data: IntegrationResourceData!
 
   """The integration that the resource is associated with."""
-  integration: Integration!
+  integration: Integration
 
   """The issue that the resource is associated with."""
   issue: Issue!
@@ -3113,7 +3521,7 @@ type IntegrationResourceConnection {
 }
 
 """The configuration of all integrations for a project or a team."""
-type IntegrationsSettings {
+type IntegrationsSettings implements Node {
   """The unique identifier of the entity."""
   id: ID!
 
@@ -3154,19 +3562,33 @@ type IntegrationsSettings {
   """Whether to send a Slack message when a project update is created."""
   slackProjectUpdateCreated: Boolean
 
-  """
-  Whether a new project update should also be send to the workspace Slack channel.
-  """
-  slackSendProjectUpdateToWorkspace: SendProjectUpdateToWorkspace
+  """Whether to send a new project update to team Slack channels."""
+  slackProjectUpdateCreatedToTeam: Boolean
+
+  """Whether to send a new project update to milestone Slack channels."""
+  slackProjectUpdateCreatedToMilestone: Boolean
+
+  """Whether to send a new project update to workspace Slack channel."""
+  slackProjectUpdateCreatedToWorkspace: Boolean
+
+  """Team which those settings apply to."""
+  team: Team
+
+  """Project which those settings apply to."""
+  project: Project
 }
 
-"""
-Defines when a project should send a Slack message to both its own channel and the workspace channel when a new project update is created.
-"""
-enum SendProjectUpdateToWorkspace {
-  always
-  onlyPublic
-  never
+type IntegrationsSettingsEdge {
+  node: IntegrationsSettings!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+type IntegrationsSettingsConnection {
+  edges: [IntegrationsSettingsEdge!]!
+  nodes: [IntegrationsSettings!]!
+  pageInfo: PageInfo!
 }
 
 """Issue relation history's payload"""
@@ -3206,9 +3628,9 @@ type IssueHistory implements Node {
   actor: User
 
   """
-  Information about the integration or application which created this history entry.
+  The id of user who made these changes. If null, possibly means that the change made by an integration.
   """
-  source: JSONObject
+  actorId: String
 
   """Whether the issue's description was updated."""
   updatedDescription: Boolean
@@ -3222,8 +3644,14 @@ type IssueHistory implements Node {
   """The user from whom the issue was re-assigned from."""
   fromAssignee: User
 
+  """The id of user from whom the issue was re-assigned from."""
+  fromAssigneeId: String
+
   """The user to whom the issue was assigned to."""
   toAssignee: User
+
+  """The id of user to whom the issue was assigned to."""
+  toAssigneeId: String
 
   """What the priority was changed from."""
   fromPriority: Float
@@ -3234,32 +3662,62 @@ type IssueHistory implements Node {
   """The team from which the issue was moved from."""
   fromTeam: Team
 
+  """The id of team from which the issue was moved from."""
+  fromTeamId: String
+
   """The team to which the issue was moved to."""
   toTeam: Team
+
+  """The id of team to which the issue was moved to."""
+  toTeamId: String
 
   """The previous parent of the issue."""
   fromParent: Issue
 
+  """The id of previous parent of the issue."""
+  fromParentId: String
+
   """The new parent of the issue."""
   toParent: Issue
+
+  """The id of new parent of the issue."""
+  toParentId: String
 
   """The previous workflow state of the issue."""
   fromState: WorkflowState
 
+  """The id of previous workflow state of the issue."""
+  fromStateId: String
+
   """The new workflow state of the issue."""
   toState: WorkflowState
+
+  """The id of new workflow state of the issue."""
+  toStateId: String
 
   """The previous cycle of the issue."""
   fromCycle: Cycle
 
+  """The id of previous cycle of the issue."""
+  fromCycleId: String
+
   """The new cycle of the issue."""
   toCycle: Cycle
+
+  """The id of new cycle of the issue."""
+  toCycleId: String
 
   """The previous project of the issue."""
   fromProject: Project
 
+  """The id of previous project of the issue."""
+  fromProjectId: String
+
   """The new project of the issue."""
   toProject: Project
+
+  """The id of new project of the issue."""
+  toProjectId: String
 
   """What the estimate was changed from."""
   fromEstimate: Float
@@ -3279,6 +3737,9 @@ type IssueHistory implements Node {
   """The linked attachment."""
   attachment: Attachment
 
+  """The id of linked attachment."""
+  attachmentId: String
+
   """ID's of labels that were added."""
   addedLabelIds: [String!]
 
@@ -3287,7 +3748,11 @@ type IssueHistory implements Node {
 
   """Changed issue relationships."""
   relationChanges: [IssueRelationHistoryPayload!]
+
+  """Whether the issue was auto-closed."""
   autoClosed: Boolean
+
+  """Whether the issue was auto-archived."""
   autoArchived: Boolean
 
   """What the due date was changed from"""
@@ -3347,6 +3812,9 @@ type IssueLabel implements Node {
   """The user who created the label."""
   creator: User
 
+  """The parent label."""
+  parent: IssueLabel
+
   """Issues associated with the label."""
   issues(
     """Filter returned issues."""
@@ -3376,6 +3844,36 @@ type IssueLabel implements Node {
     """
     orderBy: PaginationOrderBy
   ): IssueConnection!
+
+  """Children of the label."""
+  children(
+    """Filter returned issue labels."""
+    filter: IssueLabelFilter
+
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): IssueLabelConnection!
 }
 
 type IssueLabelEdge {
@@ -3461,6 +3959,12 @@ type Milestone implements Node {
   """The sort order for the milestone."""
   sortOrder: Float!
 
+  """[ALPHA] The milestone's description."""
+  description: String
+
+  """[ALPHA] The estimated completion date of the initiative."""
+  targetDate: TimelessDate
+
   """Projects associated with the milestone."""
   projects(
     """Filter returned projects."""
@@ -3489,7 +3993,7 @@ type Milestone implements Node {
     By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
     """
     orderBy: PaginationOrderBy
-  ): ProjectConnection!
+  ): ProjectConnection! @deprecated(reason: "Milestones will be removed. Use roadmaps instead.")
 }
 
 type MilestoneEdge {
@@ -3503,6 +4007,58 @@ type MilestoneConnection {
   edges: [MilestoneEdge!]!
   nodes: [Milestone!]!
   pageInfo: PageInfo!
+}
+
+"""
+Request to install OAuth clients on organizations and the response to the request.
+"""
+type OauthClientApproval implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was updated. This is the same as the creation time if the
+      entity hasn't been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The uuid of the OAuth client being requested for installation."""
+  oauthClientId: String!
+
+  """The person who requested installing the OAuth client."""
+  requesterId: String!
+
+  """The person who responded to the request to install the OAuth client."""
+  responderId: String
+
+  """The status for the OAuth client approval request."""
+  status: OAuthClientApprovalStatus!
+
+  """The scopes the app has requested."""
+  scopes: [String!]!
+
+  """The reason the person wants to install this OAuth client."""
+  requestReason: String
+
+  """The reason the request for the OAuth client approval was denied."""
+  denyReason: String
+}
+
+"""
+The different requests statuses possible for an OAuth client approval request
+"""
+enum OAuthClientApprovalStatus {
+  requested
+  approved
+  denied
 }
 
 """Defines the use of a domain by an organization."""
@@ -3530,11 +4086,25 @@ type OrganizationDomain implements Node {
   """Is this domain verified"""
   verified: Boolean!
 
+  """E-mail used to verify this domain"""
+  verificationEmail: String
+
   """The user who added the domain."""
   creator: User
 
-  """E-mail used to verify this domain"""
-  verificationEmail: String
+  """What type of auth is the domain used for"""
+  authType: OrganizationDomainAuthType!
+
+  """
+  Whether the domains was claimed by the organization through DNS verification.
+  """
+  claimed: Boolean
+}
+
+"""What type of auth is the domain used for."""
+enum OrganizationDomainAuthType {
+  saml
+  general
 }
 
 """An invitation to the organization that has been sent via email."""
@@ -3561,11 +4131,6 @@ type OrganizationInvite implements Node {
 
   """The user role that the invitee will receive upon accepting the invite."""
   role: UserRoleType!
-
-  """
-  [DEPRECATED] The permission that the invitee will receive upon accepting invite.
-  """
-  permission: String @deprecated(reason: "This field is deprecated and will be removed soon, please use `role` instead")
 
   """The invite was sent to external address."""
   external: Boolean!
@@ -3669,6 +4234,12 @@ type Subscription implements Node {
 
   """The number of seats in the subscription."""
   seats: Float!
+
+  """The minimum number of seats that will be billed in the subscription."""
+  seatsMinimum: Float
+
+  """The maximum number of seats that can be added to the subscription."""
+  seatsMaximum: Float
 
   """The creator of the subscription."""
   creator: User
@@ -3914,6 +4485,20 @@ type EntityCountResponse {
   counts: JSON!
 }
 
+type AdminJobConfigurationPayload {
+  enabled: Boolean!
+  delay: Float!
+  currentJob: String
+  param: String
+}
+
+type AdminJobStatusPayload {
+  configuration: AdminJobConfigurationPayload!
+  cursor: String
+  startedAt: DateTime
+  availableJobs: [String!]!
+}
+
 type EventPayload {
   """Whether the operation was successful."""
   success: Boolean!
@@ -3932,6 +4517,9 @@ type ApiKeyPayload {
 
 """Public information of the OAuth application."""
 type Application {
+  """OAuth application's ID."""
+  id: String!
+
   """OAuth application's client ID."""
   clientId: String!
 
@@ -3955,6 +4543,9 @@ type Application {
 Public information of the OAuth application, plus whether the application has been authorized for the given scopes.
 """
 type UserAuthorizedApplication {
+  """OAuth application's ID."""
+  id: String!
+
   """OAuth application's client ID."""
   clientId: String!
 
@@ -3981,6 +4572,11 @@ type UserAuthorizedApplication {
 
   """Whether or not webhooks are enabled for the application."""
   webhooksEnabled: Boolean!
+
+  """
+  Error associated with the application needing to be requested for approval in the workspace
+  """
+  approvalErrorCode: String
 }
 
 """
@@ -3998,6 +4594,9 @@ type AuthorizedApplication {
 
   """OAuth application's ID."""
   appId: String!
+
+  """OAuth application's client ID."""
+  clientId: String!
 
   """Whether or not webhooks are enabled for the application."""
   webhooksEnabled: Boolean!
@@ -4028,8 +4627,14 @@ type WorkspaceAuthorizedApplication {
   """OAuth application's ID."""
   appId: String!
 
+  """OAuth application's client ID."""
+  clientId: String!
+
   """Whether or not webhooks are enabled for the application."""
   webhooksEnabled: Boolean!
+
+  """Total number of members that authorized the application"""
+  totalMembers: Float!
 
   """
   UserIds and membership dates of everyone who has authorized the application with the set of scopes
@@ -4264,6 +4869,17 @@ type ImageUploadFromUrlPayload {
   success: Boolean!
 }
 
+type InitiativePayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The milesteone that was created or updated."""
+  initiative: Initiative
+
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
 type IntegrationRequestPayload {
   """Whether the operation was successful."""
   success: Boolean!
@@ -4292,6 +4908,28 @@ type GitHubCommitIntegrationPayload {
 
   """The webhook secret to provide to GitHub."""
   webhookSecret: String!
+}
+
+type IntegrationsSettingsPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The settings that were created or updated."""
+  integrationsSettings: IntegrationsSettings!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
+type IntegrationTemplatePayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The IntegrationTemplate that was created or updated."""
+  integrationTemplate: IntegrationTemplate!
+
+  """Whether the operation was successful."""
+  success: Boolean!
 }
 
 type IssueImportPayload {
@@ -4338,6 +4976,9 @@ type GithubOrg {
 
   """Repositories that the organization owns."""
   repositories: [GithubRepo!]!
+
+  """Whether or not this org is the user's personal repositories."""
+  isPersonal: Boolean
 }
 
 """
@@ -4416,6 +5057,14 @@ type MilestonePayload {
   success: Boolean!
 }
 
+type MilestoneMigrationPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
 type NotificationPayload {
   """The identifier of the last sync operation."""
   lastSyncId: Float!
@@ -4472,6 +5121,17 @@ type OauthAuthStringCheckPayload {
   token: String
 }
 
+type OauthClientApprovalPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The OAuth client approval request that was created or updated."""
+  oauthClientApproval: OauthClientApproval!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
 type OauthClientPayload {
   """The identifier of the last sync operation."""
   lastSyncId: Float!
@@ -4496,6 +5156,12 @@ type OauthTokenRevokePayload {
   success: Boolean!
 }
 
+type OauthTokensRevokePayload {
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
+"""[INTERNAL] Organization domain operation response."""
 type OrganizationDomainPayload {
   """The identifier of the last sync operation."""
   lastSyncId: Float!
@@ -4507,9 +5173,16 @@ type OrganizationDomainPayload {
   success: Boolean!
 }
 
+"""[INTERNAL] Organization domain operation response."""
 type OrganizationDomainSimplePayload {
   """Whether the operation was successful."""
   success: Boolean!
+}
+
+"""[INTERNAL] Domain claim request response."""
+type OrganizationDomainClaimPayload {
+  """String to put into DNS for verification."""
+  verificationString: String!
 }
 
 type OrganizationInvitePayload {
@@ -4529,9 +5202,6 @@ type OrganizationInviteDetailsPayload {
 
   """The email of the invitee"""
   email: String!
-
-  """[DEPRECATED] Whether the invite should grant admin permissions"""
-  permission: String @deprecated(reason: "This field is deprecated and will be removed soon, please use `role` instead")
 
   """What user role the invite should grant."""
   role: UserRoleType!
@@ -4606,6 +5276,42 @@ type ProjectPayload {
   success: Boolean!
 }
 
+type ProjectUpdateInteractionPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The project update interaction that was created or updated."""
+  projectUpdateInteraction: ProjectUpdateInteraction!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
+type ProjectUpdatePayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The project update that was created or updated."""
+  projectUpdate: ProjectUpdate!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
+type ProjectUpdateWithInteractionPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The project update that was created or updated."""
+  projectUpdate: ProjectUpdate!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+
+  """The project update that was created or updated."""
+  interaction: ProjectUpdateInteraction!
+}
+
 type PushSubscriptionPayload {
   """The identifier of the last sync operation."""
   lastSyncId: Float!
@@ -4673,6 +5379,28 @@ type ReactionConnection {
 }
 
 type CreateCsvExportReportPayload {
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
+type RoadmapPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The roadmap that was created or updated."""
+  roadmap: Roadmap!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
+type RoadmapToProjectPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The roadmapToProject that was created or updated."""
+  roadmapToProject: RoadmapToProject!
+
   """Whether the operation was successful."""
   success: Boolean!
 }
@@ -4856,6 +5584,9 @@ interface Notification implements Entity & Node {
   """Notification type"""
   type: String!
 
+  """The user that caused the notification. If empty it's Linear itself."""
+  actor: User
+
   """The user that received the notification."""
   user: User!
 
@@ -4874,6 +5605,21 @@ interface Notification implements Entity & Node {
   The time until a notification will be snoozed. After that it will appear in the inbox again.
   """
   snoozedUntilAt: DateTime
+
+  """The time at which a notification was unsnoozed.."""
+  unsnoozedAt: DateTime
+}
+
+"""Issue import mapping input"""
+input IssueImportMappingInput {
+  """The mapping configuration for users"""
+  users: JSONObject
+
+  """The mapping configuration for workflow states"""
+  workflowStates: JSONObject
+
+  """The mapping configuration for epics"""
+  epics: JSONObject
 }
 
 input SamlConfigurationInput {
@@ -4900,18 +5646,6 @@ input SamlConfigurationInput {
   issuerEntityId: String
 }
 
-"""Issue import mapping input"""
-input IssueImportMappingInput {
-  """The mapping configuration for users"""
-  users: JSONObject
-
-  """The mapping configuration for workflow states"""
-  workflowStates: JSONObject
-
-  """The mapping configuration for epics"""
-  epics: JSONObject
-}
-
 input IntercomSettingsInput {
   """
   Whether an internal message should be added when a Linear issue changes status (for status types except completed or canceled).
@@ -4922,12 +5656,62 @@ input IntercomSettingsInput {
   Whether an internal message should be added when someone comments on an issue.
   """
   sendNoteOnComment: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is completed.
+  """
+  automateTicketReopeningOnCompletion: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is cancelled.
+  """
+  automateTicketReopeningOnCancellation: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when a comment is posted on its linked Linear issue
+  """
+  automateTicketReopeningOnComment: Boolean
+}
+
+input FrontSettingsInput {
+  """
+  Whether an internal message should be added when a Linear issue changes status (for status types except completed or canceled).
+  """
+  sendNoteOnStatusChange: Boolean
+
+  """
+  Whether an internal message should be added when someone comments on an issue.
+  """
+  sendNoteOnComment: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is completed.
+  """
+  automateTicketReopeningOnCompletion: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is cancelled.
+  """
+  automateTicketReopeningOnCancellation: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when a comment is posted on its linked Linear issue
+  """
+  automateTicketReopeningOnComment: Boolean
 }
 
 input SlackPostSettingsInput {
   channel: String!
   channelId: String!
   configurationUrl: String!
+}
+
+input GitHubSettingsInput {
+  """The avatar URL for the GitHub organization"""
+  orgAvatarUrl: String!
+
+  """The GitHub organization's name"""
+  orgLogin: String!
 }
 
 input GoogleSheetsSettingsInput {
@@ -4970,6 +5754,31 @@ input SentrySettingsInput {
 }
 
 input ZendeskSettingsInput {
+  """
+  Whether an internal message should be added when a Linear issue changes status (for status types except completed or canceled).
+  """
+  sendNoteOnStatusChange: Boolean
+
+  """
+  Whether an internal message should be added when someone comments on an issue.
+  """
+  sendNoteOnComment: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is completed.
+  """
+  automateTicketReopeningOnCompletion: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when its linked Linear issue is cancelled.
+  """
+  automateTicketReopeningOnCancellation: Boolean
+
+  """
+  Whether a ticket should be automatically reopened when a comment is posted on its linked Linear issue
+  """
+  automateTicketReopeningOnComment: Boolean
+
   """The subdomain of the Zendesk organization being connected."""
   subdomain: String!
 
@@ -4977,7 +5786,7 @@ input ZendeskSettingsInput {
   url: String!
 
   """The ID of the Linear bot user."""
-  botUserId: String!
+  botUserId: String
 }
 
 input IntegrationSettingsInput {
@@ -4985,9 +5794,11 @@ input IntegrationSettingsInput {
   slackProjectPost: SlackPostSettingsInput
   slackOrgProjectUpdatesPost: SlackPostSettingsInput
   googleSheets: GoogleSheetsSettingsInput
+  gitHub: GitHubSettingsInput
   sentry: SentrySettingsInput
   zendesk: ZendeskSettingsInput
   intercom: IntercomSettingsInput
+  front: FrontSettingsInput
   jira: JiraSettingsInput
 }
 
@@ -5003,32 +5814,11 @@ input BatchRequest {
   keyValue: String!
 }
 
-input EventCreateInput {
-  """The category of the event to create."""
-  category: String!
-
-  """The subject of the event."""
-  subject: String!
-
-  """The target identifier of the event."""
-  targetId: String
-
-  """The value of the event."""
-  value: Float
-
-  """Additional data of the event, encoded as JSON."""
-  data: JSON
-}
-
-input ApiKeyCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
-  id: String
-
-  """The label for the API key."""
-  label: String!
-
-  """The API key value."""
-  key: String!
+input AdminJobConfiguration {
+  enabled: Boolean!
+  delay: Float
+  currentJob: String
+  param: String
 }
 
 """Comparator for booleans."""
@@ -5261,69 +6051,6 @@ input NullableStringComparator {
   notContainsIgnoreCase: String
 }
 
-"""Comparator for strings."""
-input NestedStringComparator {
-  """Equals constraint."""
-  eq: String
-
-  """Not-equals constraint."""
-  neq: String
-
-  """In-array constraint."""
-  in: [String!]
-
-  """Not-in-array constraint."""
-  nin: [String!]
-
-  """
-  Equals case insensitive. Matches any values that matches the given string case insensitive.
-  """
-  eqIgnoreCase: String
-
-  """
-  Not-equals case insensitive. Matches any values that don't match the given string case insensitive.
-  """
-  neqIgnoreCase: String
-
-  """
-  Starts with constraint. Matches any values that start with the given string.
-  """
-  startsWith: String
-
-  """
-  Doesn't start with constraint. Matches any values that don't start with the given string.
-  """
-  notStartsWith: String
-
-  """
-  Ends with constraint. Matches any values that end with the given string.
-  """
-  endsWith: String
-
-  """
-  Doesn't end with constraint. Matches any values that don't end with the given string.
-  """
-  notEndsWith: String
-
-  """Contains constraint. Matches any values that contain the given string."""
-  contains: String
-
-  """
-  Contains case insensitive constraint. Matches any values that contain the given string case insensitive.
-  """
-  containsIgnoreCase: String
-
-  """
-  Doesn't contain constraint. Matches any values that don't contain the given string.
-  """
-  notContains: String
-
-  """
-  Doesn't contain case insensitive constraint. Matches any values that don't contain the given string case insensitive.
-  """
-  notContainsIgnoreCase: String
-}
-
 """Team filtering options."""
 input TeamFilter {
   """Comparator for the identifier."""
@@ -5352,66 +6079,6 @@ input TeamFilter {
 
   """Compound filters, one of which need to be matched by the team."""
   or: [TeamFilter!]
-}
-
-"""Issue label filtering options."""
-input IssueLabelFilter {
-  """Comparator for the identifier."""
-  id: IDComparator
-
-  """Comparator for the created at date."""
-  createdAt: DateComparator
-
-  """Comparator for the updated at date."""
-  updatedAt: DateComparator
-
-  """Comparator for the name."""
-  name: StringComparator
-
-  """Filters that the issue labels creator must satisfy."""
-  creator: NullableUserFilter
-
-  """Filters that the issue labels team must satisfy."""
-  team: TeamFilter
-
-  """Compound filters, all of which need to be matched by the label."""
-  and: [IssueLabelFilter!]
-
-  """Compound filters, one of which need to be matched by the label."""
-  or: [IssueLabelFilter!]
-}
-
-"""Issue label filtering options."""
-input IssueLabelCollectionFilter {
-  """Comparator for the identifier."""
-  id: IDComparator
-
-  """Comparator for the created at date."""
-  createdAt: DateComparator
-
-  """Comparator for the updated at date."""
-  updatedAt: DateComparator
-
-  """Comparator for the name."""
-  name: StringComparator
-
-  """Filters that the issue labels creator must satisfy."""
-  creator: NullableUserFilter
-
-  """Filters that the issue labels team must satisfy."""
-  team: TeamFilter
-
-  """Compound filters, all of which need to be matched by the label."""
-  and: [IssueLabelFilter!]
-
-  """Compound filters, one of which need to be matched by the label."""
-  or: [IssueLabelFilter!]
-
-  """Filters that needs to be matched by some issue labels."""
-  some: IssueLabelFilter
-
-  """Filters that needs to be matched by all issue labels."""
-  every: IssueLabelFilter
 }
 
 """Comparator for numbers."""
@@ -5487,6 +6154,210 @@ input NullableNumberComparator {
   Greater-than-or-equal constraint. Matches any values that are greater than or equal to the given value.
   """
   gte: Float
+}
+
+"""User filtering options."""
+input UserFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the user's name."""
+  name: StringComparator
+
+  """Comparator for the user's display name."""
+  displayName: StringComparator
+
+  """Comparator for the user's email."""
+  email: StringComparator
+
+  """Comparator for the user's activity status."""
+  active: BooleanComparator
+
+  """Filters that the users assigned issues must satisfy."""
+  assignedIssues: IssueCollectionFilter
+
+  """Comparator for the user's admin status."""
+  admin: BooleanComparator
+
+  """
+  Filter based on the currently authenticated user. Set to true to filter for the authenticated user, false for any other user.
+  """
+  isMe: BooleanComparator
+
+  """Compound filters, all of which need to be matched by the user."""
+  and: [UserFilter!]
+
+  """Compound filters, one of which need to be matched by the user."""
+  or: [UserFilter!]
+}
+
+"""User filtering options."""
+input NullableUserFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the user's name."""
+  name: StringComparator
+
+  """Comparator for the user's display name."""
+  displayName: StringComparator
+
+  """Comparator for the user's email."""
+  email: StringComparator
+
+  """Comparator for the user's activity status."""
+  active: BooleanComparator
+
+  """Filters that the users assigned issues must satisfy."""
+  assignedIssues: IssueCollectionFilter
+
+  """Comparator for the user's admin status."""
+  admin: BooleanComparator
+
+  """
+  Filter based on the currently authenticated user. Set to true to filter for the authenticated user, false for any other user.
+  """
+  isMe: BooleanComparator
+
+  """Filter based on the existence of the relation."""
+  null: Boolean
+
+  """Compound filters, all of which need to be matched by the user."""
+  and: [NullableUserFilter!]
+
+  """Compound filters, one of which need to be matched by the user."""
+  or: [NullableUserFilter!]
+}
+
+"""User filtering options."""
+input UserCollectionFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the user's name."""
+  name: StringComparator
+
+  """Comparator for the user's display name."""
+  displayName: StringComparator
+
+  """Comparator for the user's email."""
+  email: StringComparator
+
+  """Comparator for the user's activity status."""
+  active: BooleanComparator
+
+  """Filters that the users assigned issues must satisfy."""
+  assignedIssues: IssueCollectionFilter
+
+  """Comparator for the user's admin status."""
+  admin: BooleanComparator
+
+  """
+  Filter based on the currently authenticated user. Set to true to filter for the authenticated user, false for any other user.
+  """
+  isMe: BooleanComparator
+
+  """Compound filters, all of which need to be matched by the user."""
+  and: [UserCollectionFilter!]
+
+  """Compound filters, one of which need to be matched by the user."""
+  or: [UserCollectionFilter!]
+
+  """Filters that needs to be matched by some users."""
+  some: UserFilter
+
+  """Filters that needs to be matched by all users."""
+  every: UserFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
+}
+
+"""Issue label filtering options."""
+input IssueLabelFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the name."""
+  name: StringComparator
+
+  """Filters that the issue labels creator must satisfy."""
+  creator: NullableUserFilter
+
+  """Filters that the issue labels team must satisfy."""
+  team: TeamFilter
+
+  """Filters that the issue label's parent label must satisfy."""
+  parent: IssueLabelFilter
+
+  """Compound filters, all of which need to be matched by the label."""
+  and: [IssueLabelFilter!]
+
+  """Compound filters, one of which need to be matched by the label."""
+  or: [IssueLabelFilter!]
+}
+
+"""Issue label filtering options."""
+input IssueLabelCollectionFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the name."""
+  name: StringComparator
+
+  """Filters that the issue labels creator must satisfy."""
+  creator: NullableUserFilter
+
+  """Filters that the issue labels team must satisfy."""
+  team: TeamFilter
+
+  """Filters that the issue label's parent label must satisfy."""
+  parent: IssueLabelFilter
+
+  """Compound filters, all of which need to be matched by the label."""
+  and: [IssueLabelCollectionFilter!]
+
+  """Compound filters, one of which need to be matched by the label."""
+  or: [IssueLabelCollectionFilter!]
+
+  """Filters that needs to be matched by some issue labels."""
+  some: IssueLabelFilter
+
+  """Filters that needs to be matched by all issue labels."""
+  every: IssueLabelFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
 }
 
 """Comparator for timeless dates."""
@@ -5589,6 +6460,15 @@ input CycleFilter {
   """Comparator for the cycle completed at date."""
   completedAt: DateComparator
 
+  """Comparator for the filtering active cycle."""
+  isActive: BooleanComparator
+
+  """Comparator for the filtering next cycle."""
+  isNext: BooleanComparator
+
+  """Comparator for the filtering previous cycle."""
+  isPrevious: BooleanComparator
+
   """Filters that the cycles team must satisfy."""
   team: TeamFilter
 
@@ -5628,20 +6508,29 @@ input NullableCycleFilter {
   """Comparator for the cycle completed at date."""
   completedAt: DateComparator
 
+  """Comparator for the filtering active cycle."""
+  isActive: BooleanComparator
+
+  """Comparator for the filtering next cycle."""
+  isNext: BooleanComparator
+
+  """Comparator for the filtering previous cycle."""
+  isPrevious: BooleanComparator
+
   """Filters that the cycles team must satisfy."""
   team: TeamFilter
 
   """Filters that the cycles issues must satisfy."""
   issues: IssueCollectionFilter
 
-  """Compound filters, all of which need to be matched by the cycle."""
-  and: [CycleFilter!]
-
-  """Compound filters, one of which need to be matched by the cycle."""
-  or: [CycleFilter!]
-
   """Filter based on the existence of the relation."""
   null: Boolean
+
+  """Compound filters, one of which need to be matched by the cycle."""
+  and: [NullableCycleFilter!]
+
+  """Compound filters, one of which need to be matched by the cycle."""
+  or: [NullableCycleFilter!]
 }
 
 """Milestone filtering options."""
@@ -5691,14 +6580,77 @@ input NullableMilestoneFilter {
   """Filters that the milestones projects must satisfy."""
   projects: ProjectCollectionFilter
 
-  """Compound filters, all of which need to be matched by the milestone."""
-  and: [MilestoneFilter!]
-
-  """Compound filters, one of which need to be matched by the milestone."""
-  or: [MilestoneFilter!]
-
   """Filter based on the existence of the relation."""
   null: Boolean
+
+  """Compound filters, all of which need to be matched by the milestone."""
+  and: [NullableMilestoneFilter!]
+
+  """Compound filters, one of which need to be matched by the milestone."""
+  or: [NullableMilestoneFilter!]
+}
+
+"""Roadmap filtering options."""
+input RoadmapFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the roadmap name."""
+  name: StringComparator
+
+  """Comparator for the roadmap slug ID."""
+  slugId: StringComparator
+
+  """Filters that the roadmap creator must satisfy."""
+  creator: UserFilter
+
+  """Compound filters, all of which need to be matched by the roadmap."""
+  and: [RoadmapFilter!]
+
+  """Compound filters, one of which need to be matched by the roadmap."""
+  or: [RoadmapFilter!]
+}
+
+"""Roadmap collection filtering options."""
+input RoadmapCollectionFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the roadmap name."""
+  name: StringComparator
+
+  """Comparator for the roadmap slug ID."""
+  slugId: StringComparator
+
+  """Filters that the roadmap creator must satisfy."""
+  creator: UserFilter
+
+  """Compound filters, all of which need to be matched by the roadmap."""
+  and: [RoadmapCollectionFilter!]
+
+  """Compound filters, one of which need to be matched by the roadmap."""
+  or: [RoadmapCollectionFilter!]
+
+  """Filters that needs to be matched by some roadmaps."""
+  some: RoadmapFilter
+
+  """Filters that needs to be matched by all roadmaps."""
+  every: RoadmapFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
 }
 
 """Project filtering options."""
@@ -5714,6 +6666,9 @@ input ProjectFilter {
 
   """Comparator for the project name."""
   name: StringComparator
+
+  """Comparator for the project slug ID."""
+  slugId: StringComparator
 
   """Comparator for the project state."""
   state: StringComparator
@@ -5738,6 +6693,9 @@ input ProjectFilter {
 
   """Filters that the projects issues must satisfy."""
   issues: IssueCollectionFilter
+
+  """Filters that the projects roadmaps must satisfy."""
+  roadmaps: RoadmapCollectionFilter
 
   """Compound filters, all of which need to be matched by the project."""
   and: [ProjectFilter!]
@@ -5760,6 +6718,9 @@ input NullableProjectFilter {
   """Comparator for the project name."""
   name: StringComparator
 
+  """Comparator for the project slug ID."""
+  slugId: StringComparator
+
   """Comparator for the project state."""
   state: StringComparator
 
@@ -5784,14 +6745,17 @@ input NullableProjectFilter {
   """Filters that the projects issues must satisfy."""
   issues: IssueCollectionFilter
 
-  """Compound filters, all of which need to be matched by the project."""
-  and: [ProjectFilter!]
-
-  """Compound filters, one of which need to be matched by the project."""
-  or: [ProjectFilter!]
+  """Filters that the projects roadmaps must satisfy."""
+  roadmaps: RoadmapCollectionFilter
 
   """Filter based on the existence of the relation."""
   null: Boolean
+
+  """Compound filters, all of which need to be matched by the project."""
+  and: [NullableProjectFilter!]
+
+  """Compound filters, one of which need to be matched by the project."""
+  or: [NullableProjectFilter!]
 }
 
 """Project filtering options."""
@@ -5808,6 +6772,9 @@ input ProjectCollectionFilter {
   """Comparator for the project name."""
   name: StringComparator
 
+  """Comparator for the project slug ID."""
+  slugId: StringComparator
+
   """Comparator for the project state."""
   state: StringComparator
 
@@ -5832,17 +6799,23 @@ input ProjectCollectionFilter {
   """Filters that the projects issues must satisfy."""
   issues: IssueCollectionFilter
 
+  """Filters that the projects roadmaps must satisfy."""
+  roadmaps: RoadmapCollectionFilter
+
   """Compound filters, all of which need to be matched by the project."""
-  and: [ProjectFilter!]
+  and: [ProjectCollectionFilter!]
 
   """Compound filters, one of which need to be matched by the project."""
-  or: [ProjectFilter!]
+  or: [ProjectCollectionFilter!]
 
   """Filters that needs to be matched by some projects."""
   some: ProjectFilter
 
   """Filters that needs to be matched by all projects."""
   every: ProjectFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
 }
 
 """Workflow state filtering options."""
@@ -5883,6 +6856,144 @@ input WorkflowStateFilter {
   Compound filters, one of which need to be matched by the workflow state.
   """
   or: [WorkflowStateFilter!]
+}
+
+"""Comparator for strings."""
+input NestedStringComparator {
+  """Equals constraint."""
+  eq: String
+
+  """Not-equals constraint."""
+  neq: String
+
+  """In-array constraint."""
+  in: [String!]
+
+  """Not-in-array constraint."""
+  nin: [String!]
+
+  """
+  Equals case insensitive. Matches any values that matches the given string case insensitive.
+  """
+  eqIgnoreCase: String
+
+  """
+  Not-equals case insensitive. Matches any values that don't match the given string case insensitive.
+  """
+  neqIgnoreCase: String
+
+  """
+  Starts with constraint. Matches any values that start with the given string.
+  """
+  startsWith: String
+
+  """
+  Doesn't start with constraint. Matches any values that don't start with the given string.
+  """
+  notStartsWith: String
+
+  """
+  Ends with constraint. Matches any values that end with the given string.
+  """
+  endsWith: String
+
+  """
+  Doesn't end with constraint. Matches any values that don't end with the given string.
+  """
+  notEndsWith: String
+
+  """Contains constraint. Matches any values that contain the given string."""
+  contains: String
+
+  """
+  Contains case insensitive constraint. Matches any values that contain the given string case insensitive.
+  """
+  containsIgnoreCase: String
+
+  """
+  Doesn't contain constraint. Matches any values that don't contain the given string.
+  """
+  notContains: String
+
+  """
+  Doesn't contain case insensitive constraint. Matches any values that don't contain the given string case insensitive.
+  """
+  notContainsIgnoreCase: String
+}
+
+"""Attachment filtering options."""
+input AttachmentFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the title."""
+  title: StringComparator
+
+  """Comparator for the subtitle."""
+  subtitle: NullableStringComparator
+
+  """Comparator for the url."""
+  url: StringComparator
+
+  """Filters that the attachments creator must satisfy."""
+  creator: NullableUserFilter
+
+  """Comparator for the source type."""
+  sourceType: NestedStringComparator
+
+  """Compound filters, all of which need to be matched by the attachment."""
+  and: [AttachmentFilter!]
+
+  """Compound filters, one of which need to be matched by the attachment."""
+  or: [AttachmentFilter!]
+}
+
+"""Attachment collection filtering options."""
+input AttachmentCollectionFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the title."""
+  title: StringComparator
+
+  """Comparator for the subtitle."""
+  subtitle: NullableStringComparator
+
+  """Comparator for the url."""
+  url: StringComparator
+
+  """Filters that the attachments creator must satisfy."""
+  creator: NullableUserFilter
+
+  """Comparator for the source type."""
+  sourceType: NestedStringComparator
+
+  """Compound filters, all of which need to be matched by the attachment."""
+  and: [AttachmentCollectionFilter!]
+
+  """Compound filters, one of which need to be matched by the attachment."""
+  or: [AttachmentCollectionFilter!]
+
+  """Filters that needs to be matched by some attachments."""
+  some: AttachmentFilter
+
+  """Filters that needs to be matched by all attachments."""
+  every: AttachmentFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
 }
 
 """Comment filtering options."""
@@ -5933,20 +7044,87 @@ input CommentCollectionFilter {
   issue: IssueFilter
 
   """Compound filters, all of which need to be matched by the comment."""
-  and: [CommentFilter!]
+  and: [CommentCollectionFilter!]
 
   """Compound filters, one of which need to be matched by the comment."""
-  or: [CommentFilter!]
+  or: [CommentCollectionFilter!]
 
   """Filters that needs to be matched by some comments."""
   some: CommentFilter
 
   """Filters that needs to be matched by all comments."""
   every: CommentFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
+}
+
+"""[Internal] Comparator for content."""
+input ContentComparator {
+  """[Internal] Contains constraint."""
+  contains: String
+
+  """[Internal] Not-contains constraint."""
+  notContains: String
+}
+
+"""Comparator for estimates."""
+input EstimateComparator {
+  """Equals constraint."""
+  eq: Float
+
+  """Not-equals constraint."""
+  neq: Float
+
+  """In-array constraint."""
+  in: [Float!]
+
+  """Not-in-array constraint."""
+  nin: [Float!]
+
+  """
+  Null constraint. Matches any non-null values if the given value is false, otherwise it matches null values.
+  """
+  null: Boolean
+
+  """
+  Less-than constraint. Matches any values that are less than the given value.
+  """
+  lt: Float
+
+  """
+  Less-than-or-equal constraint. Matches any values that are less than or equal to the given value.
+  """
+  lte: Float
+
+  """
+  Greater-than constraint. Matches any values that are greater than the given value.
+  """
+  gt: Float
+
+  """
+  Greater-than-or-equal constraint. Matches any values that are greater than or equal to the given value.
+  """
+  gte: Float
+
+  """Compound filters, all of which need to be matched by the estimate."""
+  or: [NullableNumberComparator!]
+
+  """Compound filters, one of which need to be matched by the estimate."""
+  and: [NullableNumberComparator!]
+}
+
+"""Comparator for relation existence."""
+input RelationExistsComparator {
+  """Equals constraint."""
+  eq: Boolean
+
+  """Not equals constraint."""
+  neq: Boolean
 }
 
 """Issue filtering options."""
-input IssueFilter {
+input NullableIssueFilter {
   """Comparator for the identifier."""
   id: IDComparator
 
@@ -5969,7 +7147,7 @@ input IssueFilter {
   priority: NullableNumberComparator
 
   """Comparator for the issues estimate."""
-  estimate: NumberComparator
+  estimate: EstimateComparator
 
   """Comparator for the issues started at date."""
   startedAt: NullableDateComparator
@@ -5998,11 +7176,17 @@ input IssueFilter {
   """Filters that the issues creator must satisfy."""
   creator: NullableUserFilter
 
+  """Filters that the issue parent must satisfy."""
+  parent: NullableIssueFilter
+
   """Filters that the issues snoozer must satisfy."""
   snoozedBy: NullableUserFilter
 
   """Filters that issue labels must satisfy."""
   labels: IssueLabelCollectionFilter
+
+  """Filters that issue subscribers must satisfy."""
+  subscribers: UserCollectionFilter
 
   """Filters that the issues team must satisfy."""
   team: TeamFilter
@@ -6023,7 +7207,133 @@ input IssueFilter {
   children: IssueCollectionFilter
 
   """Filters that the issues attachments must satisfy."""
-  attachments: AttachmentFilter
+  attachments: AttachmentCollectionFilter
+
+  """[Internal] Comparator for the issues content."""
+  searchableContent: ContentComparator
+
+  """Comparator for filtering issues with relations."""
+  hasRelatedRelations: RelationExistsComparator
+
+  """Comparator for filtering issues which are duplicates."""
+  hasDuplicateRelations: RelationExistsComparator
+
+  """Comparator for filtering issues which are blocked."""
+  hasBlockedByRelations: RelationExistsComparator
+
+  """Comparator for filtering issues which are blocking."""
+  hasBlockingRelations: RelationExistsComparator
+
+  """Filter based on the existence of the relation."""
+  null: Boolean
+
+  """Compound filters, all of which need to be matched by the issue."""
+  and: [NullableIssueFilter!]
+
+  """Compound filters, one of which need to be matched by the issue."""
+  or: [NullableIssueFilter!]
+}
+
+"""Issue filtering options."""
+input IssueFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the issues number."""
+  number: NumberComparator
+
+  """Comparator for the issues title."""
+  title: StringComparator
+
+  """Comparator for the issues description."""
+  description: NullableStringComparator
+
+  """Comparator for the issues priority."""
+  priority: NullableNumberComparator
+
+  """Comparator for the issues estimate."""
+  estimate: EstimateComparator
+
+  """Comparator for the issues started at date."""
+  startedAt: NullableDateComparator
+
+  """Comparator for the issues completed at date."""
+  completedAt: NullableDateComparator
+
+  """Comparator for the issues canceled at date."""
+  canceledAt: NullableDateComparator
+
+  """Comparator for the issues auto closed at date."""
+  autoClosedAt: NullableDateComparator
+
+  """Comparator for the issues auto archived at date."""
+  autoArchivedAt: NullableDateComparator
+
+  """Comparator for the issues due date."""
+  dueDate: NullableTimelessDateComparator
+
+  """Comparator for the issues snoozed until date."""
+  snoozedUntilAt: NullableDateComparator
+
+  """Filters that the issues assignee must satisfy."""
+  assignee: NullableUserFilter
+
+  """Filters that the issues creator must satisfy."""
+  creator: NullableUserFilter
+
+  """Filters that the issue parent must satisfy."""
+  parent: NullableIssueFilter
+
+  """Filters that the issues snoozer must satisfy."""
+  snoozedBy: NullableUserFilter
+
+  """Filters that issue labels must satisfy."""
+  labels: IssueLabelCollectionFilter
+
+  """Filters that issue subscribers must satisfy."""
+  subscribers: UserCollectionFilter
+
+  """Filters that the issues team must satisfy."""
+  team: TeamFilter
+
+  """Filters that the issues comments must satisfy."""
+  comments: CommentCollectionFilter
+
+  """Filters that the issues cycle must satisfy."""
+  cycle: NullableCycleFilter
+
+  """Filters that the issues project must satisfy."""
+  project: NullableProjectFilter
+
+  """Filters that the issues state must satisfy."""
+  state: WorkflowStateFilter
+
+  """Filters that the child issues must satisfy."""
+  children: IssueCollectionFilter
+
+  """Filters that the issues attachments must satisfy."""
+  attachments: AttachmentCollectionFilter
+
+  """[Internal] Comparator for the issues content."""
+  searchableContent: ContentComparator
+
+  """Comparator for filtering issues with relations."""
+  hasRelatedRelations: RelationExistsComparator
+
+  """Comparator for filtering issues which are duplicates."""
+  hasDuplicateRelations: RelationExistsComparator
+
+  """Comparator for filtering issues which are blocked."""
+  hasBlockedByRelations: RelationExistsComparator
+
+  """Comparator for filtering issues which are blocking."""
+  hasBlockingRelations: RelationExistsComparator
 
   """Compound filters, all of which need to be matched by the issue."""
   and: [IssueFilter!]
@@ -6056,7 +7366,7 @@ input IssueCollectionFilter {
   priority: NullableNumberComparator
 
   """Comparator for the issues estimate."""
-  estimate: NumberComparator
+  estimate: EstimateComparator
 
   """Comparator for the issues started at date."""
   startedAt: NullableDateComparator
@@ -6085,11 +7395,17 @@ input IssueCollectionFilter {
   """Filters that the issues creator must satisfy."""
   creator: NullableUserFilter
 
+  """Filters that the issue parent must satisfy."""
+  parent: NullableIssueFilter
+
   """Filters that the issues snoozer must satisfy."""
   snoozedBy: NullableUserFilter
 
   """Filters that issue labels must satisfy."""
   labels: IssueLabelCollectionFilter
+
+  """Filters that issue subscribers must satisfy."""
+  subscribers: UserCollectionFilter
 
   """Filters that the issues team must satisfy."""
   team: TeamFilter
@@ -6110,135 +7426,170 @@ input IssueCollectionFilter {
   children: IssueCollectionFilter
 
   """Filters that the issues attachments must satisfy."""
-  attachments: AttachmentFilter
+  attachments: AttachmentCollectionFilter
+
+  """[Internal] Comparator for the issues content."""
+  searchableContent: ContentComparator
+
+  """Comparator for filtering issues with relations."""
+  hasRelatedRelations: RelationExistsComparator
+
+  """Comparator for filtering issues which are duplicates."""
+  hasDuplicateRelations: RelationExistsComparator
+
+  """Comparator for filtering issues which are blocked."""
+  hasBlockedByRelations: RelationExistsComparator
+
+  """Comparator for filtering issues which are blocking."""
+  hasBlockingRelations: RelationExistsComparator
 
   """Compound filters, all of which need to be matched by the issue."""
-  and: [IssueFilter!]
+  and: [IssueCollectionFilter!]
 
   """Compound filters, one of which need to be matched by the issue."""
-  or: [IssueFilter!]
+  or: [IssueCollectionFilter!]
 
   """Filters that needs to be matched by some issues."""
   some: IssueFilter
 
   """Filters that needs to be matched by all issues."""
   every: IssueFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
 }
 
-"""User filtering options."""
-input UserFilter {
-  """Comparator for the identifier."""
-  id: IDComparator
+input InsightPayload {
+  """Insight id where to send data to."""
+  insightId: String!
 
-  """Comparator for the created at date."""
-  createdAt: DateComparator
+  """Table to run analytical query against."""
+  table: FactsTable!
 
-  """Comparator for the updated at date."""
-  updatedAt: DateComparator
+  """Chart type of the visualization."""
+  chartType: ChartType!
 
-  """Comparator for the user's name."""
-  name: StringComparator
+  """Filters that needs to be matched by some issues."""
+  issueFilter: IssueFilter!
+  measures: [Measure!]!
+  dimensions: [Dimension!]!
 
-  """Comparator for the user's display name."""
-  displayName: StringComparator
-
-  """Comparator for the user's email."""
-  email: StringComparator
-
-  """Comparator for the user's activity status."""
-  active: BooleanComparator
-
-  """Filters that the users assigned issues must satisfy."""
-  assignedIssues: IssueCollectionFilter
-
-  """Compound filters, all of which need to be matched by the user."""
-  and: [UserFilter!]
-
-  """Compound filters, one of which need to be matched by the user."""
-  or: [UserFilter!]
-
-  """Comparator for the user's admin status."""
-  admin: BooleanComparator
-
-  """
-  Filter based on the currently authenticated user. Set to true to filter for the authenticated user, false for any other user.
-  """
-  isMe: BooleanComparator
+  """If set to true, analytics data will include archived data"""
+  includeArchived: Boolean
 }
 
-"""User filtering options."""
-input NullableUserFilter {
-  """Comparator for the identifier."""
-  id: IDComparator
-
-  """Comparator for the created at date."""
-  createdAt: DateComparator
-
-  """Comparator for the updated at date."""
-  updatedAt: DateComparator
-
-  """Comparator for the user's name."""
-  name: StringComparator
-
-  """Comparator for the user's display name."""
-  displayName: StringComparator
-
-  """Comparator for the user's email."""
-  email: StringComparator
-
-  """Comparator for the user's activity status."""
-  active: BooleanComparator
-
-  """Filters that the users assigned issues must satisfy."""
-  assignedIssues: IssueCollectionFilter
-
-  """Compound filters, all of which need to be matched by the user."""
-  and: [UserFilter!]
-
-  """Compound filters, one of which need to be matched by the user."""
-  or: [UserFilter!]
-
-  """Comparator for the user's admin status."""
-  admin: BooleanComparator
-
-  """
-  Filter based on the currently authenticated user. Set to true to filter for the authenticated user, false for any other user.
-  """
-  isMe: BooleanComparator
-
-  """Filter based on the existence of the relation."""
-  null: Boolean
+"""Different facts tables to run analytical queries against."""
+enum FactsTable {
+  issueSnapshot
+  issue
 }
 
-"""Attachment filtering options."""
-input AttachmentFilter {
-  """Comparator for the identifier."""
-  id: IDComparator
+"""All possible chart types."""
+enum ChartType {
+  nivoBar
+  nivoScatterPlot
+}
 
-  """Comparator for the created at date."""
-  createdAt: DateComparator
+"""Object describing a measure in analytical query."""
+input Measure {
+  """name of the measure"""
+  name: MeasureName!
 
-  """Comparator for the updated at date."""
-  updatedAt: DateComparator
+  """aggregation function to be applied on the measure column"""
+  aggregation: Aggregation!
+}
 
-  """Comparator for the title."""
-  title: StringComparator
+"""All possible measures that can be applied to analytical queries."""
+enum MeasureName {
+  id
+  effort
+  cycleTime
+  timeToTriage
+}
 
-  """Comparator for the subtitle."""
-  subtitle: NullableStringComparator
+"""Different aggregation functions for analytical queries."""
+enum Aggregation {
+  count
+  avg
+  max
+  min
+  sum
+  median
+  p90
+  p95
+  p99
+}
 
-  """Comparator for the url."""
-  url: StringComparator
+"""Object describing a dimension in analytical query, value to group by."""
+input Dimension {
+  """name of the dimension column"""
+  name: DimensionName!
 
-  """Filters that the attachments creator must satisfy."""
-  creator: NullableUserFilter
+  """aggregation function to be applied on date dimensions"""
+  dateAggregation: DateAggregation
+}
 
-  """Comparator for the source type."""
-  sourceType: NestedStringComparator
+"""All possible dimensions that can be applied to analytical queries."""
+enum DimensionName {
+  stateName
+  priority
+  estimate
+  cycle
+  label
+  stateType
+  creator
+  assignee
+  snapshotAt
+  completedAt
+  dueDate
+  createdAt
+  project
+  team
+}
+
+"""Different date aggregation functions for date dimension."""
+enum DateAggregation {
+  day
+  week
+  month
+  year
+  thirtyMinutes
+}
+
+input EventCreateInput {
+  """The category of the event to create."""
+  category: String!
+
+  """The subject of the event."""
+  subject: String!
+
+  """The target identifier of the event."""
+  targetId: String
+
+  """The value of the event."""
+  value: Float
+
+  """Additional data of the event, encoded as JSON."""
+  data: JSON
+}
+
+input ApiKeyCreateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The label for the API key."""
+  label: String!
+
+  """The API key value."""
+  key: String!
 }
 
 input AttachmentCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The attachment title."""
@@ -6397,7 +7748,9 @@ input GoogleUserAccountAuthInput {
 }
 
 input CommentCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The comment content in markdown format."""
@@ -6416,6 +7769,16 @@ input CommentCreateInput {
   Create comment as a user with the provided name. This option is only available to OAuth applications creating comments in `actor=application` mode.
   """
   createAsUser: String
+
+  """
+  Provide an external user avatar URL. Can only be used in conjunction with the `createAsUser` options. This option is only available to OAuth applications creating comments in `actor=application` mode.
+  """
+  displayIconUrl: String
+
+  """
+  The date when the comment was created (e.g. if importing from another system). Must be a date in the past. If none is provided, the backend will generate the time as now.
+  """
+  createdAt: DateTime
 }
 
 input CommentUpdateInput {
@@ -6449,8 +7812,22 @@ input ContactCreateInput {
   disappointmentRating: Int
 }
 
+"""[INTERNAL] Input for sending a message to the Linear Sales team"""
+input ContactSalesCreateInput {
+  """Name of the person requesting information."""
+  name: String!
+
+  """Work email of the person requesting information."""
+  email: String!
+
+  """The message the user sent."""
+  message: String
+}
+
 input CustomViewCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The name of the custom view."""
@@ -6505,11 +7882,16 @@ input CustomViewUpdateInput {
 }
 
 input CycleCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The custom name of the cycle."""
   name: String
+
+  """The description of the cycle."""
+  description: String
 
   """The team to associate the cycle with."""
   teamId: String!
@@ -6530,6 +7912,9 @@ input CycleUpdateInput {
   """The custom name of the cycle."""
   name: String
 
+  """The description of the cycle."""
+  description: String
+
   """The start date of the cycle."""
   startsAt: DateTime
 
@@ -6541,7 +7926,9 @@ input CycleUpdateInput {
 }
 
 input DocumentCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The title of the document."""
@@ -6600,7 +7987,9 @@ input EmailUnsubscribeInput {
 }
 
 input EmojiCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The name of the custom emoji."""
@@ -6644,6 +8033,9 @@ input FavoriteCreateInput {
   """The identifier of the document to favorite."""
   documentId: String
 
+  """The identifier of the roadmap to favorite."""
+  roadmapId: String
+
   """The identifier of the label to favorite."""
   labelId: String
 
@@ -6655,7 +8047,9 @@ input FavoriteUpdateInput {
   """The position of the item in the favorites list."""
   sortOrder: Float
 
-  """The id of the folder to move the favorite under."""
+  """
+  The identifier (in UUID v4 format) of the folder to move the favorite under.
+  """
   parentId: String
 
   """The name of the favorite folder."""
@@ -6670,6 +8064,84 @@ input FeedbackCreateInput {
   How disappointed the user would be if he/she could no longer use Linear.
   """
   disappointmentRating: Float!
+}
+
+"""Initiative filtering options."""
+input InitiativeFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the initiative name."""
+  name: StringComparator
+
+  """Comparator for the initiative sort order."""
+  sortOrder: NumberComparator
+
+  """Filters that the initiatives projects must satisfy."""
+  projects: ProjectCollectionFilter
+
+  """Compound filters, all of which need to be matched by the initiative."""
+  and: [InitiativeFilter!]
+
+  """Compound filters, one of which need to be matched by the initiative."""
+  or: [InitiativeFilter!]
+}
+
+"""User filtering options."""
+input NullableInitiativeFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the initiative name."""
+  name: StringComparator
+
+  """Comparator for the initiative sort order."""
+  sortOrder: NumberComparator
+
+  """Filters that the initiatives projects must satisfy."""
+  projects: ProjectCollectionFilter
+
+  """Filter based on the existence of the relation."""
+  null: Boolean
+
+  """Compound filters, all of which need to be matched by the initiative."""
+  and: [NullableInitiativeFilter!]
+
+  """Compound filters, one of which need to be matched by the initiative."""
+  or: [NullableInitiativeFilter!]
+}
+
+input InitiativeCreateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The name of the initiative."""
+  name: String!
+
+  """The sort order of the initiative."""
+  sortOrder: Float
+}
+
+input InitiativeUpdateInput {
+  """The name of the initiative."""
+  name: String
+
+  """The sort order of the initiative."""
+  sortOrder: Float
 }
 
 input IntegrationRequestInput {
@@ -6699,13 +8171,119 @@ input AirbyteConfigurationInput {
   apiKey: String!
 }
 
+input IntegrationsSettingsCreateInput {
+  """
+  Whether to send a Slack message when a new issue is created for the project or the team.
+  """
+  slackIssueCreated: Boolean
+
+  """
+  Whether to send a Slack message when a comment is created on any of the project or team's issues.
+  """
+  slackIssueNewComment: Boolean
+
+  """
+  Whether to send a Slack message when any of the project or team's issues change to completed or cancelled.
+  """
+  slackIssueStatusChangedDone: Boolean
+
+  """
+  Whether to send a Slack message when any of the project or team's issues has a change in status.
+  """
+  slackIssueStatusChangedAll: Boolean
+
+  """Whether to send a Slack message when a project update is created."""
+  slackProjectUpdateCreated: Boolean
+
+  """
+  Whether to send a Slack message when a project update is created to team channels.
+  """
+  slackProjectUpdateCreatedToTeam: Boolean
+
+  """
+  Whether to send a Slack message when a project update is created to milestone channels.
+  """
+  slackProjectUpdateCreatedToMilestone: Boolean
+
+  """
+  Whether to send a Slack message when a project update is created to workspace channel.
+  """
+  slackProjectUpdateCreatedToWorkspace: Boolean
+
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The identifier of the team to create settings for."""
+  teamId: String
+
+  """The identifier of the project to create settings for."""
+  projectId: String
+}
+
+input IntegrationsSettingsUpdateInput {
+  """
+  Whether to send a Slack message when a new issue is created for the project or the team.
+  """
+  slackIssueCreated: Boolean
+
+  """
+  Whether to send a Slack message when a comment is created on any of the project or team's issues.
+  """
+  slackIssueNewComment: Boolean
+
+  """
+  Whether to send a Slack message when any of the project or team's issues change to completed or cancelled.
+  """
+  slackIssueStatusChangedDone: Boolean
+
+  """
+  Whether to send a Slack message when any of the project or team's issues has a change in status.
+  """
+  slackIssueStatusChangedAll: Boolean
+
+  """Whether to send a Slack message when a project update is created."""
+  slackProjectUpdateCreated: Boolean
+
+  """
+  Whether to send a Slack message when a project update is created to team channels.
+  """
+  slackProjectUpdateCreatedToTeam: Boolean
+
+  """
+  Whether to send a Slack message when a project update is created to milestone channels.
+  """
+  slackProjectUpdateCreatedToMilestone: Boolean
+
+  """
+  Whether to send a Slack message when a project update is created to workspace channel.
+  """
+  slackProjectUpdateCreatedToWorkspace: Boolean
+}
+
+input IntegrationTemplateCreateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The identifier of the integration."""
+  integrationId: String!
+
+  """The identifier of the template."""
+  templateId: String!
+}
+
 input IssueImportUpdateInput {
   """The mapping configuration for the import."""
   mapping: JSONObject!
 }
 
 input IssueLabelCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The name of the label."""
@@ -6716,6 +8294,9 @@ input IssueLabelCreateInput {
 
   """The color of the label."""
   color: String
+
+  """The identifier of the parent label."""
+  parentId: String
 
   """
   The team associated with the label. If not given, the label will be associated with the entire workspace.
@@ -6730,12 +8311,17 @@ input IssueLabelUpdateInput {
   """The description of the label."""
   description: String
 
+  """The identifier of the parent label."""
+  parentId: String
+
   """The color of the label."""
   color: String
 }
 
 input IssueRelationCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The type of relation of the issue to the related issue."""
@@ -6767,7 +8353,9 @@ input IssueRelationUpdateInput {
 }
 
 input IssueCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The title of the issue."""
@@ -6828,6 +8416,16 @@ input IssueCreateInput {
   Create issue as a user with the provided name. This option is only available to OAuth applications creating issues in `actor=application` mode.
   """
   createAsUser: String
+
+  """
+  Provide an external user avatar URL. Can only be used in conjunction with the `createAsUser` options. This option is only available to OAuth applications creating comments in `actor=application` mode.
+  """
+  displayIconUrl: String
+
+  """
+  The date when the issue was created (e.g. if importing from another system). Must be a date in the past. If none is provided, the backend will generate the time as now.
+  """
+  createdAt: DateTime
 }
 
 input IssueUpdateInput {
@@ -6879,9 +8477,6 @@ input IssueUpdateInput {
   """The position of the issue in parent's sub-issue list."""
   subIssueSortOrder: Float
 
-  """[DEPRECATED] Document version for backwards compatibility."""
-  documentVersion: Int
-
   """The date at which the issue is due."""
   dueDate: TimelessDate
 
@@ -6896,7 +8491,9 @@ input IssueUpdateInput {
 }
 
 input MilestoneCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The name of the milestone."""
@@ -6904,6 +8501,17 @@ input MilestoneCreateInput {
 
   """The sort order of the milestone."""
   sortOrder: Float
+
+  """[ALPHA] The description for the milestone."""
+  description: String
+
+  """[ALPHA] The planned target date of the milestone."""
+  targetDate: TimelessDate
+
+  """
+  [ALPHA] The identifiers of the teams this milestone is associated with.
+  """
+  teamIds: [String!]
 }
 
 input MilestoneUpdateInput {
@@ -6912,6 +8520,25 @@ input MilestoneUpdateInput {
 
   """The sort order of the milestone."""
   sortOrder: Float
+
+  """[ALPHA] The description for the milestone."""
+  description: String
+
+  """[ALPHA] The planned target date of the milestone."""
+  targetDate: TimelessDate
+
+  """
+  [ALPHA] The identifiers of the teams this milestone is associated with.
+  """
+  teamIds: [String!]
+}
+
+input MilestonesMigrateInput {
+  """IDs of the milestones to migrate."""
+  milestonesToMigrate: [String!]
+
+  """IDs of the milestones to delete."""
+  milestonesToDelete: [String!]
 }
 
 input NotificationUpdateInput {
@@ -6928,7 +8555,9 @@ input NotificationUpdateInput {
 }
 
 input NotificationSubscriptionCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The identifier of the team to subscribe to."""
@@ -6937,17 +8566,45 @@ input NotificationSubscriptionCreateInput {
   """The identifier of the project to subscribe to."""
   projectId: String
 
-  """[ALPHA] The type of the project subscription."""
+  """The type of the project subscription."""
   projectNotificationSubscriptionType: ProjectNotificationSubscriptionType
 }
 
 input NotificationSubscriptionUpdateInput {
-  """[ALPHA] The type of the project subscription."""
-  projectNotificationSubscriptionType: ProjectNotificationSubscriptionType
+  """The type of the project subscription."""
+  projectNotificationSubscriptionType: ProjectNotificationSubscriptionType!
+}
+
+input OauthClientApprovalCreateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The client id of OAuth client being requested for approval."""
+  clientId: String!
+
+  """The scopes being requested for approval."""
+  scopes: [String!]!
+
+  """The reason the person wants to install this OAuth client."""
+  requestReason: String
+}
+
+input OauthClientApprovalUpdateInput {
+  """
+  The status for the OAuth client approval request. Must be approved or denied.
+  """
+  status: OAuthClientApprovalStatus!
+
+  """The reason the request for the OAuth client approval was denied."""
+  denyReason: String
 }
 
 input OauthClientCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The application's name."""
@@ -7012,7 +8669,9 @@ input OauthClientUpdateInput {
 }
 
 input OrganizationDomainCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The domain name to add."""
@@ -7020,10 +8679,13 @@ input OrganizationDomainCreateInput {
 
   """The email address to which to send the verification code."""
   verificationEmail: String!
+
+  """The authentication type this domain is for."""
+  authType: String = "general"
 }
 
 input OrganizationDomainVerificationInput {
-  """The identifier of the domain being verified."""
+  """The identifier in UUID v4 format of the domain being verified."""
   organizationDomainId: String!
 
   """The verification code sent via email."""
@@ -7031,14 +8693,13 @@ input OrganizationDomainVerificationInput {
 }
 
 input OrganizationInviteCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The email of the invitee."""
   email: String!
-
-  """[DEPRECATED] Whether the invite should grant admin permissions."""
-  permission: String
 
   """What user role the invite should grant."""
   role: UserRoleType = user
@@ -7048,6 +8709,11 @@ input OrganizationInviteCreateInput {
 
   """The teams that the user has been invited to."""
   teamIds: [String!]
+}
+
+input OrganizationInviteUpdateInput {
+  """The teams that the user has been invited to."""
+  teamIds: [String!]!
 }
 
 input UpdateOrganizationInput {
@@ -7075,19 +8741,27 @@ input UpdateOrganizationInput {
   """
   gitPublicLinkbackMessagesEnabled: Boolean
 
-  """Whether the organization is using project milestones."""
+  """Whether the organization is using roadmap."""
   roadmapEnabled: Boolean
-
-  """Whether the organization is using project updates."""
-  projectUpdatesEnabled: Boolean
 
   """The frequency at which project updates are sent."""
   projectUpdatesReminderFrequency: ProjectUpdateReminderFrequency
+
+  """The day at which project updates are sent."""
+  projectUpdateRemindersDay: Day
+
+  """The hour at which project updates are sent."""
+  projectUpdateRemindersHour: Float
 
   """
   Whether the organization has opted for reduced customer support attachment information.
   """
   reducedPersonalInformation: Boolean
+
+  """
+  Whether the organization has opted for having to approve all OAuth applications for install.
+  """
+  oauthAppReview: Boolean
 
   """Linear Preview feature flags"""
   linearPreviewFlags: JSONObject
@@ -7102,7 +8776,9 @@ input DeleteOrganizationInput {
 }
 
 input ProjectLinkCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The URL of the link."""
@@ -7124,7 +8800,9 @@ input ProjectLinkUpdateInput {
 }
 
 input ProjectCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The name of the project."""
@@ -7160,7 +8838,7 @@ input ProjectCreateInput {
   """The planned target date of the project."""
   targetDate: TimelessDate
 
-  """The sort order for the project within its milestone."""
+  """The sort order for the project within shared views."""
   sortOrder: Float
 }
 
@@ -7185,6 +8863,9 @@ input ProjectUpdateInput {
 
   """The identifiers of the teams this project is associated with."""
   teamIds: [String!]
+
+  """The time until which project update reminders are paused."""
+  projectUpdateRemindersPausedUntilAt: DateTime
 
   """The identifier of the project lead."""
   leadId: String
@@ -7213,12 +8894,53 @@ input ProjectUpdateInput {
   """Whether to send issue status update notifications to Slack."""
   slackIssueStatuses: Boolean
 
-  """The sort order for the project within its milestone."""
+  """The sort order for the project in shared views."""
   sortOrder: Float
 }
 
-input PushSubscriptionCreateInput {
+input ProjectUpdateInteractionCreateInput {
   """The identifier. If none is provided, the backend will generate one."""
+  id: String
+
+  """The id of the project update that has been interacted with."""
+  projectUpdateId: String!
+
+  """The time at which the user read the project update."""
+  readAt: DateTime!
+}
+
+input ProjectUpdateCreateInput {
+  """The identifier. If none is provided, the backend will generate one."""
+  id: String
+
+  """The content of the project update in markdown format."""
+  body: String
+
+  """The content of the project update as a Prosemirror document."""
+  bodyData: JSON
+
+  """The project to associate the project update with."""
+  projectId: String!
+
+  """The health of the project at the time of the update."""
+  health: ProjectUpdateHealthType
+}
+
+input ProjectUpdateUpdateInput {
+  """The content of the project update in markdown format."""
+  body: String
+
+  """The content of the project update as a Prosemirror document."""
+  bodyData: JSON
+
+  """The health of the project at the time of the update."""
+  health: ProjectUpdateHealthType
+}
+
+input PushSubscriptionCreateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The user identifier of the subscription."""
@@ -7226,10 +8948,23 @@ input PushSubscriptionCreateInput {
 
   """The data of the subscription in stringified JSON format."""
   data: String!
+
+  """
+  Whether this is a subscription payload for Google Cloud Messaging or Apple Push Notification service
+  """
+  type: PushSubscriptionType = web
+}
+
+"""The different push subscription types"""
+enum PushSubscriptionType {
+  web
+  apple
 }
 
 input ReactionCreateInput {
-  """The identifier. If none is provided, the backend will generate one"""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one
+  """
   id: String
 
   """The emoji the user reacted with."""
@@ -7242,8 +8977,58 @@ input ReactionCreateInput {
   projectUpdateId: String
 }
 
+input RoadmapCreateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The name of the roadmap."""
+  name: String!
+
+  """The description of the roadmap."""
+  description: String
+
+  """The owner of the roadmap"""
+  ownerId: String
+}
+
+input RoadmapUpdateInput {
+  """The name of the roadmap."""
+  name: String
+
+  """The description of the roadmap."""
+  description: String
+
+  """The owner of the roadmap"""
+  ownerId: String
+}
+
+input RoadmapToProjectCreateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The identifier of the project."""
+  projectId: String!
+
+  """The identifier of the roadmap."""
+  roadmapId: String!
+
+  """The sort order for the project within its milestone."""
+  sortOrder: Float
+}
+
+input RoadmapToProjectUpdateInput {
+  """The sort order for the project within its milestone."""
+  sortOrder: Float
+}
+
 input TeamMembershipCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The identifier of the user associated with the membership."""
@@ -7268,7 +9053,9 @@ input TeamMembershipUpdateInput {
 }
 
 input TeamCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The name of the team."""
@@ -7497,7 +9284,9 @@ input TeamUpdateInput {
 }
 
 input TemplateCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The template type, e.g. 'issue'."""
@@ -7585,7 +9374,9 @@ input UserSettingsUpdateInput {
 }
 
 input ViewPreferencesCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """
@@ -7604,6 +9395,9 @@ input ViewPreferencesCreateInput {
 
   """The project these view preferences are associated with."""
   projectId: String
+
+  """The roadmap these view preferences are associated with."""
+  roadmapId: String
 
   """The label these view preferences are associated with."""
   labelId: String
@@ -7630,6 +9424,8 @@ enum ViewPreferencesType {
 enum ViewType {
   inbox
   myIssues
+  myIssuesCreatedByMe
+  myIssuesSubscribedTo
   userProfile
   userProfileCreatedByUser
   board
@@ -7642,6 +9438,7 @@ enum ViewType {
   backlog
   allIssues
   customView
+  customRoadmap
   roadmap
   roadmapAll
   roadmapClosed
@@ -7664,7 +9461,9 @@ input WebhookCreateInput {
   """Label for the webhook."""
   label: String
 
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """Whether this webhook is enabled."""
@@ -7704,7 +9503,9 @@ input WebhookUpdateInput {
 }
 
 input WorkflowStateCreateInput {
-  """The identifier. If none is provided, the backend will generate one."""
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
   id: String
 
   """The workflow type."""
@@ -7771,7 +9572,7 @@ type ProjectNotificationSubscription implements NotificationSubscription & Entit
   """The project subscribed to."""
   project: Project!
 
-  """[ALPHA] The type of the project subscription."""
+  """The type of the project subscription."""
   projectNotificationSubscriptionType: ProjectNotificationSubscriptionType!
 }
 
@@ -7829,6 +9630,9 @@ type IssueNotification implements Notification & Entity & Node {
   """Notification type"""
   type: String!
 
+  """The user that caused the notification. If empty it's Linear itself."""
+  actor: User
+
   """The user that received the notification."""
   user: User!
 
@@ -7847,6 +9651,9 @@ type IssueNotification implements Notification & Entity & Node {
   The time until a notification will be snoozed. After that it will appear in the inbox again.
   """
   snoozedUntilAt: DateTime
+
+  """The time at which a notification was unsnoozed.."""
+  unsnoozedAt: DateTime
 
   """The issue related to the notification."""
   issue: Issue!
@@ -7883,6 +9690,9 @@ type ProjectNotification implements Notification & Entity & Node {
   """Notification type"""
   type: String!
 
+  """The user that caused the notification. If empty it's Linear itself."""
+  actor: User
+
   """The user that received the notification."""
   user: User!
 
@@ -7902,11 +9712,65 @@ type ProjectNotification implements Notification & Entity & Node {
   """
   snoozedUntilAt: DateTime
 
+  """The time at which a notification was unsnoozed.."""
+  unsnoozedAt: DateTime
+
   """The project related to the notification."""
   project: Project!
 
   """The project update related to the notification."""
   projectUpdate: ProjectUpdate
+}
+
+"""An oauth client approval related notification"""
+type OauthClientApprovalNotification implements Notification & Entity & Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was updated. This is the same as the creation time if the
+      entity hasn't been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """Notification type"""
+  type: String!
+
+  """The user that caused the notification. If empty it's Linear itself."""
+  actor: User
+
+  """The user that received the notification."""
+  user: User!
+
+  """
+  The time at when the user marked the notification as read. Null, if the the user hasn't read the notification
+  """
+  readAt: DateTime
+
+  """
+  The time at when an email reminder for this notification was sent to the user. Null, if no email
+      reminder has been sent.
+  """
+  emailedAt: DateTime
+
+  """
+  The time until a notification will be snoozed. After that it will appear in the inbox again.
+  """
+  snoozedUntilAt: DateTime
+
+  """The time at which a notification was unsnoozed.."""
+  unsnoozedAt: DateTime
+
+  """The OAuth client approval request related to the notification."""
+  oauthClientApproval: OauthClientApproval!
 }
 
 type Query {
@@ -7921,18 +9785,6 @@ type Query {
 
   """Retrieves how many entities the user has access to."""
   syncEntityCount: EntityCountResponse!
-
-  """Fetches delta sync packets."""
-  syncDelta(
-    """After which update to start, used for pagination."""
-    offset: Int
-
-    """Up until which sync id to load data for."""
-    toSyncId: Int!
-
-    """The last sync id the client has seen."""
-    lastSyncId: Int!
-  ): SyncDeltaResponse!
 
   """Syncs a batch of models."""
   syncBatch(
@@ -7981,6 +9833,11 @@ type Query {
     """Retrieve issues that have been archived before this date."""
     before: DateTime
 
+    """
+    To proper page through entities with same "archivedAt" date we also need last id
+    """
+    beforeId: String
+
     """The number of issues to load."""
     last: Int
   ): ArchiveResponse!
@@ -8017,6 +9874,12 @@ type Query {
     """The client ID of the application."""
     clientId: String!
   ): Application!
+
+  """[INTERNAL] Get basic information for a list of applications"""
+  applicationInfoByIds(
+    """The IDs of the applications."""
+    ids: [String!]!
+  ): [Application!]!
 
   """
   Get information for an application and whether a user has approved it for the given scopes.
@@ -8374,6 +10237,39 @@ type Query {
     fileId: String!
   ): FigmaEmbedPayload!
 
+  """[ALPHA] All initiatives."""
+  initiatives(
+    """Filter returned projects."""
+    filter: InitiativeFilter
+
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): InitiativeConnection!
+
+  """[ALPHA] One specific initiative."""
+  initiative(id: String!): Initiative!
+
   """All integrations."""
   integrations(
     """A cursor to be used with last for backward pagination."""
@@ -8431,12 +10327,72 @@ type Query {
     By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
     """
     orderBy: PaginationOrderBy
-  ): IntegrationResourceConnection!
+  ): IntegrationResourceConnection! @deprecated(reason: "This query will soon be deprecated, please use `attachments` instead")
 
   """
   One specific integration resource. (e.g. linked GitHub pull requests for an issue)
   """
-  integrationResource(id: String!): IntegrationResource!
+  integrationResource(id: String!): IntegrationResource! @deprecated(reason: "This query will soon be deprecated, please use `attachment` instead")
+
+  """All project updates."""
+  projectUpdates(
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): ProjectUpdateConnection!
+
+  """One specific set of settings."""
+  integrationsSettings(id: String!): IntegrationsSettings!
+
+  """Template and integration connections."""
+  integrationTemplates(
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): IntegrationTemplateConnection!
+
+  """One specific integrationTemplate."""
+  integrationTemplate(id: String!): IntegrationTemplate!
 
   """Fetches the GitHub token, completing the OAuth flow."""
   issueImportFinishGithubOAuth(
@@ -8612,10 +10568,10 @@ type Query {
     By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
     """
     orderBy: PaginationOrderBy
-  ): MilestoneConnection!
+  ): MilestoneConnection! @deprecated(reason: "Milestones will be removed. Use roadmaps instead.")
 
   """One specific milestone."""
-  milestone(id: String!): Milestone!
+  milestone(id: String!): Milestone! @deprecated(reason: "Milestones will be removed. Use roadmaps instead.")
 
   """All notifications."""
   notifications(
@@ -8676,6 +10632,12 @@ type Query {
 
   """One specific notification subscription."""
   notificationSubscription(id: String!): NotificationSubscription!
+
+  """[INTERNAL] Checks whether the domain can be claimed."""
+  organizationDomainClaimRequest(
+    """The ID of the organization domain to claim."""
+    id: String!
+  ): OrganizationDomainClaimPayload!
 
   """All invites for the organization."""
   organizationInvites(
@@ -8779,11 +10741,110 @@ type Query {
   """One specific project."""
   project(id: String!): Project!
 
+  """All interactions on project updates."""
+  projectUpdateInteractions(
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): ProjectUpdateInteractionConnection!
+
+  """A specific interaction on a project update."""
+  projectUpdateInteraction(
+    """The identifier of the project update interaction to retrieve."""
+    id: String!
+  ): ProjectUpdateInteraction!
+
+  """A specific project update."""
+  projectUpdate(
+    """The identifier of the project update to retrieve."""
+    id: String!
+  ): ProjectUpdate!
+
   """Sends a test push message."""
   pushSubscriptionTest: PushSubscriptionTestPayload!
 
   """The status of the rate limiter."""
   rateLimitStatus: RateLimitPayload!
+
+  """All roadmaps in the workspace."""
+  roadmaps(
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): RoadmapConnection!
+
+  """One specific roadmap."""
+  roadmap(id: String!): Roadmap!
+
+  """Custom views for the user."""
+  roadmapToProjects(
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): RoadmapToProjectConnection!
+
+  """One specific roadmapToProject."""
+  roadmapToProject(id: String!): RoadmapToProject!
 
   """All team memberships."""
   teamMemberships(
@@ -9071,17 +11132,17 @@ type Mutation {
 
   """Link an existing Discord message to an issue."""
   attachmentLinkDiscord(
-    """The Discord message URL for the message to link."""
-    url: String!
-
-    """The Discord message ID for the message to link."""
-    messageId: String!
+    """The issue for which to link the Discord message."""
+    issueId: String!
 
     """The Discord channel ID for the message to link."""
     channelId: String!
 
-    """The issue for which to link the Discord message."""
-    issueId: String!
+    """The Discord message ID for the message to link."""
+    messageId: String!
+
+    """The Discord message URL for the message to link."""
+    url: String!
   ): AttachmentPayload!
 
   """Link an existing Front conversation to an issue."""
@@ -9202,6 +11263,12 @@ type Mutation {
   contactCreate(
     """The contact entry to create."""
     input: ContactCreateInput!
+  ): ContactPayload!
+
+  """[INTERNAL] Saves sales pricing inquiry to Front."""
+  contactSalesCreate(
+    """The contact entry to create."""
+    input: ContactSalesCreateInput!
   ): ContactPayload!
 
   """Creates a new custom view."""
@@ -9345,6 +11412,27 @@ type Mutation {
     """URL of the file to be uploaded to Linear."""
     url: String!
   ): ImageUploadFromUrlPayload!
+
+  """Creates a new initiative."""
+  initiativeCreate(
+    """The issue object to create."""
+    input: InitiativeCreateInput!
+  ): InitiativePayload!
+
+  """Updates a initiative."""
+  initiativeUpdate(
+    """A partial initiative object to update the initiative with."""
+    input: InitiativeUpdateInput!
+
+    """The identifier of the initiative to update."""
+    id: String!
+  ): InitiativePayload!
+
+  """Deletes a initiative."""
+  initiativeDelete(
+    """The identifier of the initiative to delete."""
+    id: String!
+  ): ArchivePayload!
 
   """Requests a currently unavailable integration."""
   integrationRequest(
@@ -9567,6 +11655,33 @@ type Mutation {
   integrationResourceArchive(
     """The identifier of the integration resource to archive."""
     id: String!
+  ): ArchivePayload! @deprecated(reason: "This query will soon be deprecated, please use `attachmentArchive` instead")
+
+  """Creates new settings for one or more integrations."""
+  integrationsSettingsCreate(
+    """The settings to create."""
+    input: IntegrationsSettingsCreateInput!
+  ): IntegrationsSettingsPayload!
+
+  """Updates settings related to integrations for a project or a team."""
+  integrationsSettingsUpdate(
+    """A settings object to update the settings with."""
+    input: IntegrationsSettingsUpdateInput!
+
+    """The identifier of the settings to update."""
+    id: String!
+  ): IntegrationsSettingsPayload!
+
+  """Creates a new integrationTemplate join."""
+  integrationTemplateCreate(
+    """The properties of the integrationTemplate to create."""
+    input: IntegrationTemplateCreateInput!
+  ): IntegrationTemplatePayload!
+
+  """Deletes a integrationTemplate."""
+  integrationTemplateDelete(
+    """The identifier of the integrationTemplate to delete."""
+    id: String!
   ): ArchivePayload!
 
   """Kicks off a GitHub import job."""
@@ -9641,7 +11756,7 @@ type Mutation {
     organizationId: String
   ): IssueImportPayload!
 
-  """Kicks off a Clubhouse import job."""
+  """Kicks off a Shortcut (formerly Clubhouse) import job."""
   issueImportCreateClubhouse(
     """ID of issue import. If not provided it will be generated."""
     id: String
@@ -9654,10 +11769,14 @@ type Mutation {
     """
     instantProcess: Boolean
 
-    """Clubhouse team name to choose which issues we should import."""
+    """
+    Shortcut (formerly Clubhouse) team name to choose which issues we should import.
+    """
     clubhouseTeamName: String!
 
-    """Clubhouse token to fetch information from the Clubhouse API."""
+    """
+    Shortcut (formerly Clubhouse) token to fetch information from the Clubhouse API.
+    """
     clubhouseToken: String!
 
     """Name of new team. When teamId is not set."""
@@ -9825,7 +11944,7 @@ type Mutation {
   milestoneCreate(
     """The issue object to create."""
     input: MilestoneCreateInput!
-  ): MilestonePayload!
+  ): MilestonePayload! @deprecated(reason: "Milestones will be removed. Use roadmaps instead.")
 
   """Updates a milestone."""
   milestoneUpdate(
@@ -9834,13 +11953,19 @@ type Mutation {
 
     """The identifier of the milestone to update."""
     id: String!
-  ): MilestonePayload!
+  ): MilestonePayload! @deprecated(reason: "Milestones will be removed. Use roadmaps instead.")
 
   """Deletes a milestone."""
   milestoneDelete(
     """The identifier of the milestone to delete."""
     id: String!
-  ): ArchivePayload!
+  ): ArchivePayload! @deprecated(reason: "Milestones will be removed. Use roadmaps instead.")
+
+  """Migrates milestones to roadmaps"""
+  migrateMilestonesToRoadmaps(
+    """Ids for milestones to migrate and milestones to delete"""
+    input: MilestonesMigrateInput!
+  ): MilestoneMigrationPayload!
 
   """Updates a notification."""
   notificationUpdate(
@@ -9917,6 +12042,21 @@ type Mutation {
     appId: String!
   ): OauthAuthStringCheckPayload!
 
+  """[Internal] Creates a new OAuth client approval request."""
+  oauthClientApprovalCreate(
+    """The OAuth client approval request object to create."""
+    input: OauthClientApprovalCreateInput!
+  ): OauthClientApprovalPayload!
+
+  """[Internal] Updates an OAuth client approval request."""
+  oauthClientApprovalUpdate(
+    """A partial client approval request object to update the request with."""
+    input: OauthClientApprovalUpdateInput!
+
+    """The identifier of the OAuth client approval request to update."""
+    id: String!
+  ): OauthClientApprovalPayload!
+
   """Creates a new OAuth client."""
   oauthClientCreate(
     """The OAuth client application object to create."""
@@ -9955,13 +12095,30 @@ type Mutation {
     appId: String!
   ): OauthTokenRevokePayload!
 
-  """Verifies a domain to be added to an organization."""
+  """
+  [INTERNAL] Revokes all OAuth tokens in a workspace for a given app and scope set.
+  """
+  oauthTokenWorkspaceRevoke(
+    """The group of scopes for the tokens to be revoked."""
+    scope: [String!]
+
+    """The identifier of the OAuth client for the tokens to be revoked."""
+    appId: String!
+  ): OauthTokensRevokePayload!
+
+  """[INTERNAL] Verifies a domain claim."""
+  organizationDomainClaim(
+    """The ID of the organization domain to claim."""
+    id: String!
+  ): OrganizationDomainSimplePayload!
+
+  """[INTERNAL] Verifies a domain to be added to an organization."""
   organizationDomainVerify(
     """The organization domain to verify."""
     input: OrganizationDomainVerificationInput!
   ): OrganizationDomainPayload!
 
-  """Adds a domain to be allowed for an organization."""
+  """[INTERNAL] Adds a domain to be allowed for an organization."""
   organizationDomainCreate(
     """The organization domain entry to create."""
     input: OrganizationDomainCreateInput!
@@ -9977,6 +12134,15 @@ type Mutation {
   organizationInviteCreate(
     """The organization invite object to create."""
     input: OrganizationInviteCreateInput!
+  ): OrganizationInvitePayload!
+
+  """Updates an organization invite."""
+  organizationInviteUpdate(
+    """The updates to make to the organization invite object."""
+    input: OrganizationInviteUpdateInput!
+
+    """The identifier of the organization invite to update."""
+    id: String!
   ): OrganizationInvitePayload!
 
   """Re-send an organization invite."""
@@ -10077,6 +12243,39 @@ type Mutation {
     id: String!
   ): ArchivePayload!
 
+  """Creates a new interaction on a project update."""
+  projectUpdateInteractionCreate(
+    """Data for the project update interaction to create."""
+    input: ProjectUpdateInteractionCreateInput!
+  ): ProjectUpdateInteractionPayload!
+
+  """Creates a new project update."""
+  projectUpdateCreate(
+    """Data for the project update to create."""
+    input: ProjectUpdateCreateInput!
+  ): ProjectUpdatePayload!
+
+  """Updates a project update."""
+  projectUpdateUpdate(
+    """A data to update the project update with."""
+    input: ProjectUpdateUpdateInput!
+
+    """The identifier of the project update to update."""
+    id: String!
+  ): ProjectUpdatePayload!
+
+  """Deletes a project update."""
+  projectUpdateDelete(
+    """The identifier of the project update to delete."""
+    id: String!
+  ): ArchivePayload!
+
+  """Mark a project update as read."""
+  projectUpdateMarkAsRead(
+    """The identifier of the project update."""
+    id: String!
+  ): ProjectUpdateWithInteractionPayload!
+
   """Creates a push subscription."""
   pushSubscriptionCreate(
     """The push subscription to create."""
@@ -10103,6 +12302,48 @@ type Mutation {
 
   """Create CSV export report for the organization."""
   createCsvExportReport(includePrivateTeamIds: [String!]): CreateCsvExportReportPayload!
+
+  """Creates a new roadmap."""
+  roadmapCreate(
+    """The properties of the roadmap to create."""
+    input: RoadmapCreateInput!
+  ): RoadmapPayload!
+
+  """Updates a roadmap."""
+  roadmapUpdate(
+    """The properties of the roadmap to update."""
+    input: RoadmapUpdateInput!
+
+    """The identifier of the roadmap to update."""
+    id: String!
+  ): RoadmapPayload!
+
+  """Deletes a roadmap."""
+  roadmapDelete(
+    """The identifier of the roadmap to delete."""
+    id: String!
+  ): ArchivePayload!
+
+  """Creates a new roadmapToProject join."""
+  roadmapToProjectCreate(
+    """The properties of the roadmapToProject to create."""
+    input: RoadmapToProjectCreateInput!
+  ): RoadmapToProjectPayload!
+
+  """Updates a roadmapToProject."""
+  roadmapToProjectUpdate(
+    """The properties of the roadmapToProject to update."""
+    input: RoadmapToProjectUpdateInput!
+
+    """The identifier of the roadmapToProject to update."""
+    id: String!
+  ): RoadmapToProjectPayload!
+
+  """Deletes a roadmapToProject."""
+  roadmapToProjectDelete(
+    """The identifier of the roadmapToProject to delete."""
+    id: String!
+  ): ArchivePayload!
 
   """Deletes a previously used team key."""
   teamKeyDelete(
@@ -10348,6 +12589,8 @@ scalar UUID
 enum UserFlagType {
   completedOnboarding
   desktopInstalled
+  teamsPageIntroductionDismissed
+  joinTeamIntroductionDismissed
   desktopDownloadToastDismissed
   emptyBacklogDismissed
   emptyCustomViewsDismissed
@@ -10357,7 +12600,9 @@ enum UserFlagType {
   cycleWelcomeDismissed
   projectWelcomeDismissed
   projectBacklogWelcomeDismissed
+  projectUpdatesWelcomeDismissed
   analyticsWelcomeDismissed
+  insightsWelcomeDismissed
   figmaPromptDismissed
   issueMovePromptCompleted
   migrateThemePreference
