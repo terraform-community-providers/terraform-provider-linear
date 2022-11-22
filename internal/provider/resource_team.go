@@ -721,7 +721,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	input.IssueEstimationAllowZero = estimationData.AllowZero.Value
 	input.DefaultIssueEstimate = estimationData.Default.Value
 
-	response, err := createTeam(context.Background(), *r.client, input)
+	response, err := createTeam(ctx, *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create team, got error: %s", err))
@@ -807,7 +807,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	// Read the workflow states so that we can update them
 
-	workflowStatesResponse, workflowStatesErr := getTeamWorkflowStates(context.Background(), *r.client, team.Key)
+	workflowStatesResponse, workflowStatesErr := getTeamWorkflowStates(ctx, *r.client, team.Key)
 
 	if workflowStatesErr != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to get team workflow states, got error: %s", workflowStatesErr))
@@ -857,7 +857,7 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	response, err := getTeam(context.Background(), *r.client, data.Key.Value)
+	response, err := getTeam(ctx, *r.client, data.Key.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read team, got error: %s", err))
@@ -940,7 +940,7 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		},
 	}
 
-	workflowStatesResponse, workflowStatesErr := getTeamWorkflowStates(context.Background(), *r.client, team.Key)
+	workflowStatesResponse, workflowStatesErr := getTeamWorkflowStates(ctx, *r.client, team.Key)
 
 	if workflowStatesErr != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to get team workflow states, got error: %s", workflowStatesErr))
@@ -1060,7 +1060,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		input.CycleEnabledStartWeek = "nextWeek"
 	}
 
-	response, err := updateTeam(context.Background(), *r.client, input, state.Key.Value)
+	response, err := updateTeam(ctx, *r.client, input, state.Key.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team, got error: %s", err))
@@ -1174,7 +1174,7 @@ func (r *TeamResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		return
 	}
 
-	_, err := deleteTeam(context.Background(), *r.client, data.Key.Value)
+	_, err := deleteTeam(ctx, *r.client, data.Key.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete team, got error: %s", err))
@@ -1265,7 +1265,7 @@ func updateTeamWorkflowStateInCreate(ctx context.Context, r *TeamResource, data 
 		workflowStateInput.Description = &workflowStateData.Description.Value
 	}
 
-	workflowStateResponse, workflowStateErr = updateWorkflowState(context.Background(), *r.client, workflowStateInput, id)
+	workflowStateResponse, workflowStateErr = updateWorkflowState(ctx, *r.client, workflowStateInput, id)
 
 	if workflowStateErr != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workflow state, got error: %s", workflowStateErr))
@@ -1298,7 +1298,7 @@ func updateTeamWorkflowStateInUpdate(ctx context.Context, r *TeamResource, data 
 		workflowStateInput.Description = &workflowStateData.Description.Value
 	}
 
-	workflowStateResponse, workflowStateErr = updateWorkflowState(context.Background(), *r.client, workflowStateInput, id)
+	workflowStateResponse, workflowStateErr = updateWorkflowState(ctx, *r.client, workflowStateInput, id)
 
 	if workflowStateErr != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workflow state, got error: %s", workflowStateErr))

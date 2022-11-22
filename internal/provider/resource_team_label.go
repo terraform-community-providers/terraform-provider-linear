@@ -137,7 +137,7 @@ func (r *TeamLabelResource) Create(ctx context.Context, req resource.CreateReque
 		input.Color = &data.Color.Value
 	}
 
-	response, err := createLabel(context.Background(), *r.client, input)
+	response, err := createLabel(ctx, *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create team label, got error: %s", err))
@@ -175,7 +175,7 @@ func (r *TeamLabelResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	response, err := getLabel(context.Background(), *r.client, data.Id.Value)
+	response, err := getLabel(ctx, *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read team label, got error: %s", err))
@@ -223,7 +223,7 @@ func (r *TeamLabelResource) Update(ctx context.Context, req resource.UpdateReque
 		input.Color = &data.Color.Value
 	}
 
-	response, err := updateLabel(context.Background(), *r.client, input, data.Id.Value)
+	response, err := updateLabel(ctx, *r.client, input, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team label, got error: %s", err))
@@ -261,7 +261,7 @@ func (r *TeamLabelResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	_, err := deleteLabel(context.Background(), *r.client, data.Id.Value)
+	_, err := deleteLabel(ctx, *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete team label, got error: %s", err))
@@ -283,7 +283,7 @@ func (r *TeamLabelResource) ImportState(ctx context.Context, req resource.Import
 		return
 	}
 
-	response, err := findTeamLabel(context.Background(), *r.client, parts[0], parts[1])
+	response, err := findTeamLabel(ctx, *r.client, parts[0], parts[1])
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import team label, got error: %s", err))

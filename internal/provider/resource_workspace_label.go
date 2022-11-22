@@ -123,7 +123,7 @@ func (r *WorkspaceLabelResource) Create(ctx context.Context, req resource.Create
 		input.Color = &data.Color.Value
 	}
 
-	response, err := createLabel(context.Background(), *r.client, input)
+	response, err := createLabel(ctx, *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create workspace label, got error: %s", err))
@@ -157,7 +157,7 @@ func (r *WorkspaceLabelResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	response, err := getLabel(context.Background(), *r.client, data.Id.Value)
+	response, err := getLabel(ctx, *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workspace label, got error: %s", err))
@@ -201,7 +201,7 @@ func (r *WorkspaceLabelResource) Update(ctx context.Context, req resource.Update
 		input.Color = &data.Color.Value
 	}
 
-	response, err := updateLabel(context.Background(), *r.client, input, data.Id.Value)
+	response, err := updateLabel(ctx, *r.client, input, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workspace label, got error: %s", err))
@@ -235,7 +235,7 @@ func (r *WorkspaceLabelResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	_, err := deleteLabel(context.Background(), *r.client, data.Id.Value)
+	_, err := deleteLabel(ctx, *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete workspace label, got error: %s", err))
@@ -246,7 +246,7 @@ func (r *WorkspaceLabelResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (r *WorkspaceLabelResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	response, err := findWorkspaceLabel(context.Background(), *r.client, req.ID)
+	response, err := findWorkspaceLabel(ctx, *r.client, req.ID)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import workspace label, got error: %s", err))

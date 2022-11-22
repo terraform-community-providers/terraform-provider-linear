@@ -114,7 +114,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.Value,
 	}
 
-	response, err := updateWorkspaceSettings(context.Background(), *r.client, input)
+	response, err := updateWorkspaceSettings(ctx, *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create workspace settings, got error: %s", err))
@@ -140,7 +140,7 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	response, err := getWorkspaceSettings(context.Background(), *r.client)
+	response, err := getWorkspaceSettings(ctx, *r.client)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workspace settings, got error: %s", err))
@@ -172,7 +172,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.Value,
 	}
 
-	response, err := updateWorkspaceSettings(context.Background(), *r.client, input)
+	response, err := updateWorkspaceSettings(ctx, *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workspace settings, got error: %s", err))
@@ -206,7 +206,7 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 		GitPublicLinkbackMessagesEnabled: false,
 	}
 
-	_, err := updateWorkspaceSettings(context.Background(), *r.client, input)
+	_, err := updateWorkspaceSettings(ctx, *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete workspace settings, got error: %s", err))
@@ -217,7 +217,7 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 }
 
 func (r *WorkspaceSettingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	response, err := getWorkspaceSettings(context.Background(), *r.client)
+	response, err := getWorkspaceSettings(ctx, *r.client)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import workspace settings, got error: %s", err))

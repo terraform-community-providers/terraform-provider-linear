@@ -1,0 +1,49 @@
+# @genqlient(for: "Team.draftWorkflowState", pointer: true)
+# @genqlient(for: "Team.startWorkflowState", pointer: true)
+# @genqlient(for: "Team.reviewWorkflowState", pointer: true)
+# @genqlient(for: "Team.mergeWorkflowState", pointer: true)
+fragment TeamWorkflow on Team {
+  id
+  key
+  draftWorkflowState {
+    id
+  }
+  startWorkflowState {
+    id
+  }
+  reviewWorkflowState {
+    id
+  }
+  mergeWorkflowState {
+    id
+  }
+}
+
+query getTeamWorkflow($key: String!) {
+  team(id: $key) {
+    ...TeamWorkflow
+  }
+}
+
+mutation updateTeamWorkflow(
+  $id: String!
+  # @genqlient(pointer: true)
+  $draft: String,
+  # @genqlient(pointer: true)
+  $start: String,
+  # @genqlient(pointer: true)
+  $review: String,
+  # @genqlient(pointer: true)
+  $merge: String,
+) {
+  teamUpdate(input: {
+    draftWorkflowStateId: $draft,
+    startWorkflowStateId: $start,
+    reviewWorkflowStateId: $review,
+    mergeWorkflowStateId: $merge,
+  }, id: $id) {
+    team {
+      ...TeamWorkflow
+    }
+  }
+}

@@ -83,7 +83,7 @@ func (d *WorkspaceDataSource) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
-	response, err := getWorkspace(context.Background(), *d.client)
+	response, err := getWorkspace(ctx, *d.client)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workspace, got error: %s", err))

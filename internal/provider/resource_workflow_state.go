@@ -153,7 +153,7 @@ func (r *WorkflowStateResource) Create(ctx context.Context, req resource.CreateR
 		input.Description = &data.Description.Value
 	}
 
-	response, err := createWorkflowState(context.Background(), *r.client, input)
+	response, err := createWorkflowState(ctx, *r.client, input)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create workflow state, got error: %s", err))
@@ -186,7 +186,7 @@ func (r *WorkflowStateResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	response, err := getWorkflowState(context.Background(), *r.client, data.Id.Value)
+	response, err := getWorkflowState(ctx, *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workflow state, got error: %s", err))
@@ -231,7 +231,7 @@ func (r *WorkflowStateResource) Update(ctx context.Context, req resource.UpdateR
 		input.Description = &data.Description.Value
 	}
 
-	response, err := updateWorkflowState(context.Background(), *r.client, input, data.Id.Value)
+	response, err := updateWorkflowState(ctx, *r.client, input, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workflow state, got error: %s", err))
@@ -262,7 +262,7 @@ func (r *WorkflowStateResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	_, err := deleteWorkflowState(context.Background(), *r.client, data.Id.Value)
+	_, err := deleteWorkflowState(ctx, *r.client, data.Id.Value)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete workflow state, got error: %s", err))
@@ -284,7 +284,7 @@ func (r *WorkflowStateResource) ImportState(ctx context.Context, req resource.Im
 		return
 	}
 
-	response, err := findWorkflowState(context.Background(), *r.client, parts[0], parts[1])
+	response, err := findWorkflowState(ctx, *r.client, parts[0], parts[1])
 
 	if err != nil || len(response.WorkflowStates.Nodes) != 1 {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import workflow state, got error: %s", err))

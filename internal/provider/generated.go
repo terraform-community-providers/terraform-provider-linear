@@ -649,6 +649,99 @@ func (v *TeamUpdateInput) GetMarkedAsDuplicateWorkflowStateId() string {
 	return v.MarkedAsDuplicateWorkflowStateId
 }
 
+// TeamWorkflow includes the GraphQL fields of Team requested by the fragment TeamWorkflow.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type TeamWorkflow struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The team's unique key. The key is used in URLs.
+	Key string `json:"key"`
+	// The workflow state into which issues are moved when a PR has been opened as draft.
+	DraftWorkflowState *TeamWorkflowDraftWorkflowState `json:"draftWorkflowState"`
+	// The workflow state into which issues are moved when a PR has been opened.
+	StartWorkflowState *TeamWorkflowStartWorkflowState `json:"startWorkflowState"`
+	// The workflow state into which issues are moved when a review has been requested for the PR.
+	ReviewWorkflowState *TeamWorkflowReviewWorkflowState `json:"reviewWorkflowState"`
+	// The workflow state into which issues are moved when a PR has been merged.
+	MergeWorkflowState *TeamWorkflowMergeWorkflowState `json:"mergeWorkflowState"`
+}
+
+// GetId returns TeamWorkflow.Id, and is useful for accessing the field via an interface.
+func (v *TeamWorkflow) GetId() string { return v.Id }
+
+// GetKey returns TeamWorkflow.Key, and is useful for accessing the field via an interface.
+func (v *TeamWorkflow) GetKey() string { return v.Key }
+
+// GetDraftWorkflowState returns TeamWorkflow.DraftWorkflowState, and is useful for accessing the field via an interface.
+func (v *TeamWorkflow) GetDraftWorkflowState() *TeamWorkflowDraftWorkflowState {
+	return v.DraftWorkflowState
+}
+
+// GetStartWorkflowState returns TeamWorkflow.StartWorkflowState, and is useful for accessing the field via an interface.
+func (v *TeamWorkflow) GetStartWorkflowState() *TeamWorkflowStartWorkflowState {
+	return v.StartWorkflowState
+}
+
+// GetReviewWorkflowState returns TeamWorkflow.ReviewWorkflowState, and is useful for accessing the field via an interface.
+func (v *TeamWorkflow) GetReviewWorkflowState() *TeamWorkflowReviewWorkflowState {
+	return v.ReviewWorkflowState
+}
+
+// GetMergeWorkflowState returns TeamWorkflow.MergeWorkflowState, and is useful for accessing the field via an interface.
+func (v *TeamWorkflow) GetMergeWorkflowState() *TeamWorkflowMergeWorkflowState {
+	return v.MergeWorkflowState
+}
+
+// TeamWorkflowDraftWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type TeamWorkflowDraftWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns TeamWorkflowDraftWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowDraftWorkflowState) GetId() string { return v.Id }
+
+// TeamWorkflowMergeWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type TeamWorkflowMergeWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns TeamWorkflowMergeWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowMergeWorkflowState) GetId() string { return v.Id }
+
+// TeamWorkflowReviewWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type TeamWorkflowReviewWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns TeamWorkflowReviewWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowReviewWorkflowState) GetId() string { return v.Id }
+
+// TeamWorkflowStartWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// The GraphQL type's documentation follows.
+//
+// A state in a team workflow.
+type TeamWorkflowStartWorkflowState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns TeamWorkflowStartWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowStartWorkflowState) GetId() string { return v.Id }
+
 type UpdateOrganizationInput struct {
 	// The name of the organization.
 	Name string `json:"name,omitempty"`
@@ -933,6 +1026,14 @@ type __getTeamInput struct {
 // GetKey returns __getTeamInput.Key, and is useful for accessing the field via an interface.
 func (v *__getTeamInput) GetKey() string { return v.Key }
 
+// __getTeamWorkflowInput is used internally by genqlient
+type __getTeamWorkflowInput struct {
+	Key string `json:"key"`
+}
+
+// GetKey returns __getTeamWorkflowInput.Key, and is useful for accessing the field via an interface.
+func (v *__getTeamWorkflowInput) GetKey() string { return v.Key }
+
 // __getTeamWorkflowStatesInput is used internally by genqlient
 type __getTeamWorkflowStatesInput struct {
 	Key string `json:"key"`
@@ -972,6 +1073,30 @@ func (v *__updateTeamInput) GetInput() TeamUpdateInput { return v.Input }
 
 // GetId returns __updateTeamInput.Id, and is useful for accessing the field via an interface.
 func (v *__updateTeamInput) GetId() string { return v.Id }
+
+// __updateTeamWorkflowInput is used internally by genqlient
+type __updateTeamWorkflowInput struct {
+	Id     string  `json:"id"`
+	Draft  *string `json:"draft"`
+	Start  *string `json:"start"`
+	Review *string `json:"review"`
+	Merge  *string `json:"merge"`
+}
+
+// GetId returns __updateTeamWorkflowInput.Id, and is useful for accessing the field via an interface.
+func (v *__updateTeamWorkflowInput) GetId() string { return v.Id }
+
+// GetDraft returns __updateTeamWorkflowInput.Draft, and is useful for accessing the field via an interface.
+func (v *__updateTeamWorkflowInput) GetDraft() *string { return v.Draft }
+
+// GetStart returns __updateTeamWorkflowInput.Start, and is useful for accessing the field via an interface.
+func (v *__updateTeamWorkflowInput) GetStart() *string { return v.Start }
+
+// GetReview returns __updateTeamWorkflowInput.Review, and is useful for accessing the field via an interface.
+func (v *__updateTeamWorkflowInput) GetReview() *string { return v.Review }
+
+// GetMerge returns __updateTeamWorkflowInput.Merge, and is useful for accessing the field via an interface.
+func (v *__updateTeamWorkflowInput) GetMerge() *string { return v.Merge }
 
 // __updateWorkflowStateInput is used internally by genqlient
 type __updateWorkflowStateInput struct {
@@ -1976,6 +2101,15 @@ func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
 	return &retval, nil
 }
 
+// getTeamWorkflowResponse is returned by getTeamWorkflow on success.
+type getTeamWorkflowResponse struct {
+	// One specific team.
+	Team getTeamWorkflowTeam `json:"team"`
+}
+
+// GetTeam returns getTeamWorkflowResponse.Team, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowResponse) GetTeam() getTeamWorkflowTeam { return v.Team }
+
 // getTeamWorkflowStatesResponse is returned by getTeamWorkflowStates on success.
 type getTeamWorkflowStatesResponse struct {
 	// All issue workflow states.
@@ -2099,6 +2233,99 @@ func (v *getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflow
 	retval.Type = v.WorkflowState.Type
 	retval.Position = v.WorkflowState.Position
 	retval.Team = v.WorkflowState.Team
+	return &retval, nil
+}
+
+// getTeamWorkflowTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type getTeamWorkflowTeam struct {
+	TeamWorkflow `json:"-"`
+}
+
+// GetId returns getTeamWorkflowTeam.Id, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowTeam) GetId() string { return v.TeamWorkflow.Id }
+
+// GetKey returns getTeamWorkflowTeam.Key, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowTeam) GetKey() string { return v.TeamWorkflow.Key }
+
+// GetDraftWorkflowState returns getTeamWorkflowTeam.DraftWorkflowState, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowTeam) GetDraftWorkflowState() *TeamWorkflowDraftWorkflowState {
+	return v.TeamWorkflow.DraftWorkflowState
+}
+
+// GetStartWorkflowState returns getTeamWorkflowTeam.StartWorkflowState, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowTeam) GetStartWorkflowState() *TeamWorkflowStartWorkflowState {
+	return v.TeamWorkflow.StartWorkflowState
+}
+
+// GetReviewWorkflowState returns getTeamWorkflowTeam.ReviewWorkflowState, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowTeam) GetReviewWorkflowState() *TeamWorkflowReviewWorkflowState {
+	return v.TeamWorkflow.ReviewWorkflowState
+}
+
+// GetMergeWorkflowState returns getTeamWorkflowTeam.MergeWorkflowState, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowTeam) GetMergeWorkflowState() *TeamWorkflowMergeWorkflowState {
+	return v.TeamWorkflow.MergeWorkflowState
+}
+
+func (v *getTeamWorkflowTeam) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*getTeamWorkflowTeam
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.getTeamWorkflowTeam = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.TeamWorkflow)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalgetTeamWorkflowTeam struct {
+	Id string `json:"id"`
+
+	Key string `json:"key"`
+
+	DraftWorkflowState *TeamWorkflowDraftWorkflowState `json:"draftWorkflowState"`
+
+	StartWorkflowState *TeamWorkflowStartWorkflowState `json:"startWorkflowState"`
+
+	ReviewWorkflowState *TeamWorkflowReviewWorkflowState `json:"reviewWorkflowState"`
+
+	MergeWorkflowState *TeamWorkflowMergeWorkflowState `json:"mergeWorkflowState"`
+}
+
+func (v *getTeamWorkflowTeam) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *getTeamWorkflowTeam) __premarshalJSON() (*__premarshalgetTeamWorkflowTeam, error) {
+	var retval __premarshalgetTeamWorkflowTeam
+
+	retval.Id = v.TeamWorkflow.Id
+	retval.Key = v.TeamWorkflow.Key
+	retval.DraftWorkflowState = v.TeamWorkflow.DraftWorkflowState
+	retval.StartWorkflowState = v.TeamWorkflow.StartWorkflowState
+	retval.ReviewWorkflowState = v.TeamWorkflow.ReviewWorkflowState
+	retval.MergeWorkflowState = v.TeamWorkflow.MergeWorkflowState
 	return &retval, nil
 }
 
@@ -2686,6 +2913,121 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalu
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	return &retval, nil
+}
+
+// updateTeamWorkflowResponse is returned by updateTeamWorkflow on success.
+type updateTeamWorkflowResponse struct {
+	// Updates a team.
+	TeamUpdate updateTeamWorkflowTeamUpdateTeamPayload `json:"teamUpdate"`
+}
+
+// GetTeamUpdate returns updateTeamWorkflowResponse.TeamUpdate, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowResponse) GetTeamUpdate() updateTeamWorkflowTeamUpdateTeamPayload {
+	return v.TeamUpdate
+}
+
+// updateTeamWorkflowTeamUpdateTeamPayload includes the requested fields of the GraphQL type TeamPayload.
+type updateTeamWorkflowTeamUpdateTeamPayload struct {
+	// The team that was created or updated.
+	Team updateTeamWorkflowTeamUpdateTeamPayloadTeam `json:"team"`
+}
+
+// GetTeam returns updateTeamWorkflowTeamUpdateTeamPayload.Team, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowTeamUpdateTeamPayload) GetTeam() updateTeamWorkflowTeamUpdateTeamPayloadTeam {
+	return v.Team
+}
+
+// updateTeamWorkflowTeamUpdateTeamPayloadTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type updateTeamWorkflowTeamUpdateTeamPayloadTeam struct {
+	TeamWorkflow `json:"-"`
+}
+
+// GetId returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.Id, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetId() string { return v.TeamWorkflow.Id }
+
+// GetKey returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.Key, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetKey() string { return v.TeamWorkflow.Key }
+
+// GetDraftWorkflowState returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.DraftWorkflowState, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetDraftWorkflowState() *TeamWorkflowDraftWorkflowState {
+	return v.TeamWorkflow.DraftWorkflowState
+}
+
+// GetStartWorkflowState returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.StartWorkflowState, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetStartWorkflowState() *TeamWorkflowStartWorkflowState {
+	return v.TeamWorkflow.StartWorkflowState
+}
+
+// GetReviewWorkflowState returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.ReviewWorkflowState, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetReviewWorkflowState() *TeamWorkflowReviewWorkflowState {
+	return v.TeamWorkflow.ReviewWorkflowState
+}
+
+// GetMergeWorkflowState returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.MergeWorkflowState, and is useful for accessing the field via an interface.
+func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetMergeWorkflowState() *TeamWorkflowMergeWorkflowState {
+	return v.TeamWorkflow.MergeWorkflowState
+}
+
+func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*updateTeamWorkflowTeamUpdateTeamPayloadTeam
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.updateTeamWorkflowTeamUpdateTeamPayloadTeam = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.TeamWorkflow)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalupdateTeamWorkflowTeamUpdateTeamPayloadTeam struct {
+	Id string `json:"id"`
+
+	Key string `json:"key"`
+
+	DraftWorkflowState *TeamWorkflowDraftWorkflowState `json:"draftWorkflowState"`
+
+	StartWorkflowState *TeamWorkflowStartWorkflowState `json:"startWorkflowState"`
+
+	ReviewWorkflowState *TeamWorkflowReviewWorkflowState `json:"reviewWorkflowState"`
+
+	MergeWorkflowState *TeamWorkflowMergeWorkflowState `json:"mergeWorkflowState"`
+}
+
+func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalupdateTeamWorkflowTeamUpdateTeamPayloadTeam, error) {
+	var retval __premarshalupdateTeamWorkflowTeamUpdateTeamPayloadTeam
+
+	retval.Id = v.TeamWorkflow.Id
+	retval.Key = v.TeamWorkflow.Key
+	retval.DraftWorkflowState = v.TeamWorkflow.DraftWorkflowState
+	retval.StartWorkflowState = v.TeamWorkflow.StartWorkflowState
+	retval.ReviewWorkflowState = v.TeamWorkflow.ReviewWorkflowState
+	retval.MergeWorkflowState = v.TeamWorkflow.MergeWorkflowState
 	return &retval, nil
 }
 
@@ -3375,6 +3717,54 @@ fragment Team on Team {
 	return &data, err
 }
 
+func getTeamWorkflow(
+	ctx context.Context,
+	client graphql.Client,
+	key string,
+) (*getTeamWorkflowResponse, error) {
+	req := &graphql.Request{
+		OpName: "getTeamWorkflow",
+		Query: `
+query getTeamWorkflow ($key: String!) {
+	team(id: $key) {
+		... TeamWorkflow
+	}
+}
+fragment TeamWorkflow on Team {
+	id
+	key
+	draftWorkflowState {
+		id
+	}
+	startWorkflowState {
+		id
+	}
+	reviewWorkflowState {
+		id
+	}
+	mergeWorkflowState {
+		id
+	}
+}
+`,
+		Variables: &__getTeamWorkflowInput{
+			Key: key,
+		},
+	}
+	var err error
+
+	var data getTeamWorkflowResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func getTeamWorkflowStates(
 	ctx context.Context,
 	client graphql.Client,
@@ -3625,6 +4015,64 @@ fragment Team on Team {
 	var err error
 
 	var data updateTeamResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func updateTeamWorkflow(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+	draft *string,
+	start *string,
+	review *string,
+	merge *string,
+) (*updateTeamWorkflowResponse, error) {
+	req := &graphql.Request{
+		OpName: "updateTeamWorkflow",
+		Query: `
+mutation updateTeamWorkflow ($id: String!, $draft: String, $start: String, $review: String, $merge: String) {
+	teamUpdate(input: {draftWorkflowStateId:$draft,startWorkflowStateId:$start,reviewWorkflowStateId:$review,mergeWorkflowStateId:$merge}, id: $id) {
+		team {
+			... TeamWorkflow
+		}
+	}
+}
+fragment TeamWorkflow on Team {
+	id
+	key
+	draftWorkflowState {
+		id
+	}
+	startWorkflowState {
+		id
+	}
+	reviewWorkflowState {
+		id
+	}
+	mergeWorkflowState {
+		id
+	}
+}
+`,
+		Variables: &__updateTeamWorkflowInput{
+			Id:     id,
+			Draft:  draft,
+			Start:  start,
+			Review: review,
+			Merge:  merge,
+		},
+	}
+	var err error
+
+	var data updateTeamWorkflowResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
