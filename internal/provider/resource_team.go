@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"sort"
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -1196,6 +1197,10 @@ func findWorkflowStateType(workflowStates []getTeamWorkflowStatesWorkflowStatesW
 	}
 
 	// If unable to find the exact workflow with the exact position, return the first one with the correct type
+	sort.Slice(workflowStates, func(i, j int) bool {
+		return workflowStates[i].Position < workflowStates[j].Position
+	})
+
 	for _, workflowState := range workflowStates {
 		if workflowState.Type == ty {
 			return &workflowState

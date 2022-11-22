@@ -1,4 +1,4 @@
-## 0.2.1
+## 0.2.2
 
 ### Enhancements
 * Improve recognition of existing workflows when importing a team
