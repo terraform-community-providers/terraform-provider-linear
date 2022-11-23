@@ -969,7 +969,7 @@ type WorkflowStateUpdateInput struct {
 	// The description of the state.
 	Description *string `json:"description"`
 	// The position of the state.
-	Position float64 `json:"position,omitempty"`
+	Position float64 `json:"position"`
 }
 
 // GetName returns WorkflowStateUpdateInput.Name, and is useful for accessing the field via an interface.

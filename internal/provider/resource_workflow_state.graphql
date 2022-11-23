@@ -63,7 +63,6 @@ mutation createWorkflowState(
 # @genqlient(for: "WorkflowStateUpdateInput.name", omitempty: true)
 # @genqlient(for: "WorkflowStateUpdateInput.description", pointer: true)
 # @genqlient(for: "WorkflowStateUpdateInput.color", omitempty: true)
-# @genqlient(for: "WorkflowStateUpdateInput.position", omitempty: true)
 mutation updateWorkflowState(
   $input: WorkflowStateUpdateInput!,
   $id: String!

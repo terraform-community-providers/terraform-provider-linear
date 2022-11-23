@@ -49,10 +49,10 @@ func TestAccTeamWorkflowResourceDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "key", "DEF"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "draft", "fbb47815-9f97-4f7b-885b-1417a83b57c0"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "start", "4e868c3b-30d2-4d9e-9f1d-a6ed42c7926a"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "review", "4e868c3b-30d2-4d9e-9f1d-a6ed42c7926a"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "merge", "b3a08038-c253-4c3b-8019-a985a0ddb6d0"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "draft", "5dbca6c1-9ee2-4bf7-a275-8b69ae27ad14"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "start", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "review", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "merge", "66df5c88-cae8-416b-b4e9-85a42b159e18"),
 				),
 			},
 			// ImportState testing
@@ -78,10 +78,10 @@ func TestAccTeamWorkflowResourceNonDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "key", "DEF"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "draft", "fbb47815-9f97-4f7b-885b-1417a83b57c0"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "start", "4e868c3b-30d2-4d9e-9f1d-a6ed42c7926a"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "review", "4e868c3b-30d2-4d9e-9f1d-a6ed42c7926a"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "merge", "b3a08038-c253-4c3b-8019-a985a0ddb6d0"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "draft", "5dbca6c1-9ee2-4bf7-a275-8b69ae27ad14"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "start", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "review", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "merge", "66df5c88-cae8-416b-b4e9-85a42b159e18"),
 				),
 			},
 			// ImportState testing
@@ -97,10 +97,10 @@ func TestAccTeamWorkflowResourceNonDefault(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "key", "DEF"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "draft", "fbb47815-9f97-4f7b-885b-1417a83b57c0"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "start", "4e868c3b-30d2-4d9e-9f1d-a6ed42c7926a"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "review", "4e868c3b-30d2-4d9e-9f1d-a6ed42c7926a"),
-					resource.TestCheckResourceAttr("linear_team_workflow.test", "merge", "b3a08038-c253-4c3b-8019-a985a0ddb6d0"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "draft", "5dbca6c1-9ee2-4bf7-a275-8b69ae27ad14"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "start", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "review", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "merge", "66df5c88-cae8-416b-b4e9-85a42b159e18"),
 				),
 			},
 			// Update with null values
@@ -132,10 +132,10 @@ func testAccTeamWorkflowResourceConfigNonDefault(key string) string {
 	return fmt.Sprintf(`
 resource "linear_team_workflow" "test" {
   key = "%s"
-  draft = "fbb47815-9f97-4f7b-885b-1417a83b57c0"
-  start = "4e868c3b-30d2-4d9e-9f1d-a6ed42c7926a"
-  review = "4e868c3b-30d2-4d9e-9f1d-a6ed42c7926a"
-  merge = "b3a08038-c253-4c3b-8019-a985a0ddb6d0"
+  draft = "5dbca6c1-9ee2-4bf7-a275-8b69ae27ad14"
+  start = "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"
+  review = "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"
+  merge = "66df5c88-cae8-416b-b4e9-85a42b159e18"
 }
 `, key)
 }

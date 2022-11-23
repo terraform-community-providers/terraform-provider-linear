@@ -36,5 +36,5 @@ resource "linear_workspace_settings" "example" {
 Import is supported using the following syntax:
 
 ```shell
-terraform import linear_workspace_settings.example
+terraform import linear_workspace_settings.example example
 ```

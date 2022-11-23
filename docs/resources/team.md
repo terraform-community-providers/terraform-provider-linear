@@ -32,9 +32,9 @@ resource "linear_team" "example" {
 - `auto_archive_period` (Number) Period after which closed and completed issues are automatically archived, in months. **Default** `6`.
 - `auto_close_period` (Number) Period after which non-completed or non-canceled issues are automatically closed, in months. **Default** `6`. *Use `0` for turning this off.*
 - `backlog_workflow_state` (Attributes) Settings for the `backlog` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--backlog_workflow_state))
-- `canceled_workflow_state` (Attributes) Settings for the `canceled` workflow state that is created by default for the team. *Position is always `4`. This can not be deleted.* (see [below for nested schema](#nestedatt--canceled_workflow_state))
+- `canceled_workflow_state` (Attributes) Settings for the `canceled` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--canceled_workflow_state))
 - `color` (String) Color of the team.
-- `completed_workflow_state` (Attributes) Settings for the `completed` workflow state that is created by default for the team. *Position is always `3`. This can not be deleted.* (see [below for nested schema](#nestedatt--completed_workflow_state))
+- `completed_workflow_state` (Attributes) Settings for the `completed` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--completed_workflow_state))
 - `cycles` (Attributes) Cycle settings of the team. (see [below for nested schema](#nestedatt--cycles))
 - `description` (String) Description of the team.
 - `enable_issue_default_to_bottom` (Boolean) Enable moving issues to bottom of the column when changing state. **Default** `false`.
@@ -43,10 +43,10 @@ resource "linear_team" "example" {
 - `icon` (String) Icon of the team.
 - `no_priority_issues_first` (Boolean) Prefer issues without priority at the top during issue prioritization order. **Default** `true`.
 - `private` (Boolean) Privacy of the team. **Default** `false`.
-- `started_workflow_state` (Attributes) Settings for the `started` workflow state that is created by default for the team. *Position is always `2`. This can not be deleted.* (see [below for nested schema](#nestedatt--started_workflow_state))
+- `started_workflow_state` (Attributes) Settings for the `started` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--started_workflow_state))
 - `timezone` (String) Timezone of the team. **Default** `Etc/GMT`.
 - `triage` (Attributes) Triage settings of the team. (see [below for nested schema](#nestedatt--triage))
-- `unstarted_workflow_state` (Attributes) Settings for the `unstarted` workflow state that is created by default for the team. *Position is always `1`. This can not be deleted.* (see [below for nested schema](#nestedatt--unstarted_workflow_state))
+- `unstarted_workflow_state` (Attributes) Settings for the `unstarted` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--unstarted_workflow_state))
 
 ### Read-Only
 
@@ -64,6 +64,7 @@ Optional:
 Read-Only:
 
 - `id` (String) Identifier of the workflow state.
+- `position` (Number) Position of the workflow state.
 
 
 <a id="nestedatt--canceled_workflow_state"></a>
@@ -78,6 +79,7 @@ Optional:
 Read-Only:
 
 - `id` (String) Identifier of the workflow state.
+- `position` (Number) Position of the workflow state.
 
 
 <a id="nestedatt--completed_workflow_state"></a>
@@ -92,6 +94,7 @@ Optional:
 Read-Only:
 
 - `id` (String) Identifier of the workflow state.
+- `position` (Number) Position of the workflow state.
 
 
 <a id="nestedatt--cycles"></a>
@@ -132,6 +135,7 @@ Optional:
 Read-Only:
 
 - `id` (String) Identifier of the workflow state.
+- `position` (Number) Position of the workflow state.
 
 
 <a id="nestedatt--triage"></a>
@@ -154,6 +158,7 @@ Optional:
 Read-Only:
 
 - `id` (String) Identifier of the workflow state.
+- `position` (Number) Position of the workflow state.
 
 ## Import
 
