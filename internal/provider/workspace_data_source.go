@@ -6,8 +6,7 @@ import (
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -31,27 +30,24 @@ func (d *WorkspaceDataSource) Metadata(ctx context.Context, req datasource.Metad
 	resp.TypeName = req.ProviderTypeName + "_workspace"
 }
 
-func (d *WorkspaceDataSource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (d *WorkspaceDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		MarkdownDescription: "Linear workspace.",
-		Attributes: map[string]tfsdk.Attribute{
-			"id": {
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the workspace.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"name": {
+			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the workspace.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
-			"url_key": {
+			"url_key": schema.StringAttribute{
 				MarkdownDescription: "URL key of the workspace.",
-				Type:                types.StringType,
 				Computed:            true,
 			},
 		},
-	}, nil
+	}
 }
 
 func (d *WorkspaceDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {

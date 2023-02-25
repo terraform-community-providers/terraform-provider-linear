@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/Khan/genqlient/graphql"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
@@ -36,47 +37,43 @@ func (r *WorkspaceSettingsResource) Metadata(ctx context.Context, req resource.M
 	resp.TypeName = req.ProviderTypeName + "_workspace_settings"
 }
 
-func (r *WorkspaceSettingsResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		MarkdownDescription: "Linear workspace settings.",
-		Attributes: map[string]tfsdk.Attribute{
-			"id": {
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the workspace.",
-				Type:                types.StringType,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"enable_roadmap": {
+			"enable_roadmap": schema.BoolAttribute{
 				MarkdownDescription: "Enable roadmap for the workspace. **Default** `false`.",
-				Type:                types.BoolType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Bool{
 					modifiers.DefaultBool(false),
 				},
 			},
-			"enable_git_linkback_messages": {
+			"enable_git_linkback_messages": schema.BoolAttribute{
 				MarkdownDescription: "Enable git linkbacks for private repositories. **Default** `true`.",
-				Type:                types.BoolType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Bool{
 					modifiers.DefaultBool(true),
 				},
 			},
-			"enable_git_linkback_messages_public": {
+			"enable_git_linkback_messages_public": schema.BoolAttribute{
 				MarkdownDescription: "Enable git linkbacks for public repositories. **Default** `false`.",
-				Type:                types.BoolType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Bool{
 					modifiers.DefaultBool(false),
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *WorkspaceSettingsResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

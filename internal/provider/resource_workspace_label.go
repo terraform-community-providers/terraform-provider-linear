@@ -5,14 +5,16 @@ import (
 	"fmt"
 
 	"github.com/Khan/genqlient/graphql"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
 var _ resource.Resource = &WorkspaceLabelResource{}
@@ -38,61 +40,56 @@ func (r *WorkspaceLabelResource) Metadata(ctx context.Context, req resource.Meta
 	resp.TypeName = req.ProviderTypeName + "_workspace_label"
 }
 
-func (r *WorkspaceLabelResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *WorkspaceLabelResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		MarkdownDescription: "Linear workspace label.",
-		Attributes: map[string]tfsdk.Attribute{
-			"id": {
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the label.",
-				Type:                types.StringType,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"name": {
+			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the label.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
-					validators.MinLength(1),
+				Validators: []validator.String{
+					stringvalidator.UTF8LengthAtLeast(1),
 				},
 			},
-			"description": {
+			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the label.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
 			},
-			"color": {
+			"color": schema.StringAttribute{
 				MarkdownDescription: "Color of the label.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(colorRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 				},
 			},
-			"parent_id": {
+			"parent_id": schema.StringAttribute{
 				MarkdownDescription: "Parent (label group) of the label.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *WorkspaceLabelResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

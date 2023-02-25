@@ -7,10 +7,9 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/Khan/genqlient/graphql"
@@ -30,7 +29,6 @@ func uuidRegex() *regexp.Regexp {
 }
 
 var _ provider.Provider = &LinearProvider{}
-var _ provider.ProviderWithMetadata = &LinearProvider{}
 
 type LinearProvider struct {
 	// version is set to the provider version on release, "dev" when the
@@ -48,16 +46,15 @@ func (p *LinearProvider) Metadata(ctx context.Context, req provider.MetadataRequ
 	resp.Version = p.version
 }
 
-func (p *LinearProvider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
-		Attributes: map[string]tfsdk.Attribute{
-			"token": {
+func (p *LinearProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		Attributes: map[string]schema.Attribute{
+			"token": schema.StringAttribute{
 				MarkdownDescription: "The token used to authenticate with Linear.",
 				Optional:            true,
-				Type:                types.StringType,
 			},
 		},
-	}, nil
+	}
 }
 
 func (p *LinearProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {

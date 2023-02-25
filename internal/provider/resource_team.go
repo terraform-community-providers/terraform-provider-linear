@@ -7,15 +7,20 @@ import (
 	"sort"
 
 	"github.com/Khan/genqlient/graphql"
+	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
 var _ resource.Resource = &TeamResource{}
@@ -87,587 +92,536 @@ func (r *TeamResource) Metadata(ctx context.Context, req resource.MetadataReques
 	resp.TypeName = req.ProviderTypeName + "_team"
 }
 
-func (r *TeamResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		MarkdownDescription: "Linear team.",
-		Attributes: map[string]tfsdk.Attribute{
-			"id": {
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the team.",
-				Type:                types.StringType,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"key": {
+			"key": schema.StringAttribute{
 				MarkdownDescription: "Key of the team.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
-					validators.MaxLength(5),
-					validators.Match(regexp.MustCompile("^[A-Z0-9]+$")),
+				Validators: []validator.String{
+					stringvalidator.UTF8LengthAtMost(5),
+					stringvalidator.RegexMatches(regexp.MustCompile("^[A-Z0-9]+$"), "must only contain uppercase letters and numbers"),
 				},
 			},
-			"name": {
+			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the team.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
-					validators.MinLength(2),
+				Validators: []validator.String{
+					stringvalidator.UTF8LengthAtLeast(2),
 				},
 			},
-			"private": {
+			"private": schema.BoolAttribute{
 				MarkdownDescription: "Privacy of the team. **Default** `false`.",
-				Type:                types.BoolType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Bool{
 					modifiers.DefaultBool(false),
 				},
 			},
-			"description": {
+			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the team.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
 			},
-			"icon": {
+			"icon": schema.StringAttribute{
 				MarkdownDescription: "Icon of the team.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(regexp.MustCompile("^[a-zA-Z]+$")),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(regexp.MustCompile("^[a-zA-Z]+$"), "must only contain letters"),
 				},
 			},
-			"color": {
+			"color": schema.StringAttribute{
 				MarkdownDescription: "Color of the team.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(colorRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 				},
 			},
-			"timezone": {
+			"timezone": schema.StringAttribute{
 				MarkdownDescription: "Timezone of the team. **Default** `Etc/GMT`.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.DefaultString("Etc/GMT"),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.MinLength(1),
+				Validators: []validator.String{
+					stringvalidator.UTF8LengthAtLeast(1),
 				},
 			},
-			"no_priority_issues_first": {
+			"no_priority_issues_first": schema.BoolAttribute{
 				MarkdownDescription: "Prefer issues without priority at the top during issue prioritization order. **Default** `true`.",
-				Type:                types.BoolType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Bool{
 					modifiers.DefaultBool(true),
 				},
 			},
-			"enable_issue_history_grouping": {
+			"enable_issue_history_grouping": schema.BoolAttribute{
 				MarkdownDescription: "Enable issue history grouping for the team. **Default** `true`.",
-				Type:                types.BoolType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Bool{
 					modifiers.DefaultBool(true),
 				},
 			},
-			"enable_issue_default_to_bottom": {
+			"enable_issue_default_to_bottom": schema.BoolAttribute{
 				MarkdownDescription: "Enable moving issues to bottom of the column when changing state. **Default** `false`.",
-				Type:                types.BoolType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Bool{
 					modifiers.DefaultBool(false),
 				},
 			},
-			"auto_archive_period": {
+			"auto_archive_period": schema.Float64Attribute{
 				MarkdownDescription: "Period after which closed and completed issues are automatically archived, in months. **Default** `6`.",
-				Type:                types.Float64Type,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Float64{
 					modifiers.DefaultFloat(6),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.FloatInSlice(1, 3, 6, 9, 12),
+				Validators: []validator.Float64{
+					float64validator.OneOf([]float64{1, 3, 6, 9, 12}...),
 				},
 			},
-			"auto_close_period": {
+			"auto_close_period": schema.Float64Attribute{
 				MarkdownDescription: "Period after which non-completed or non-canceled issues are automatically closed, in months. **Default** `6`. *Use `0` for turning this off.*",
-				Type:                types.Float64Type,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Float64{
 					modifiers.DefaultFloat(6),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.FloatInSlice(0, 1, 3, 6, 9, 12),
+				Validators: []validator.Float64{
+					float64validator.OneOf([]float64{0, 1, 3, 6, 9, 12}...),
 				},
 			},
-			"triage": {
+			"triage": schema.SingleNestedAttribute{
 				MarkdownDescription: "Triage settings of the team.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Object{
 					modifiers.UnknownAttributesOnUnknown(),
 				},
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"enabled": {
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
 						MarkdownDescription: "Enable triage mode for the team. **Default** `false`.",
-						Type:                types.BoolType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Bool{
 							modifiers.DefaultBool(false),
 						},
 					},
-				}),
+				},
 			},
-			"cycles": {
+			"cycles": schema.SingleNestedAttribute{
 				MarkdownDescription: "Cycle settings of the team.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Object{
 					modifiers.UnknownAttributesOnUnknown(),
 				},
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"enabled": {
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
 						MarkdownDescription: "Enable cycles for the team. **Default** `false`.",
-						Type:                types.BoolType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Bool{
 							modifiers.DefaultBool(false),
 						},
 					},
-					"start_day": {
+					"start_day": schema.Float64Attribute{
 						MarkdownDescription: "Start day of the cycle. Sunday is 0, Saturday is 6. **Default** `0`.",
-						Type:                types.Float64Type,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Float64{
 							modifiers.DefaultFloat(0),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.FloatInSlice(0, 1, 2, 3, 4, 5, 6),
+						Validators: []validator.Float64{
+							float64validator.OneOf([]float64{0, 1, 2, 3, 4, 5, 6}...),
 						},
 					},
-					"duration": {
+					"duration": schema.Float64Attribute{
 						MarkdownDescription: "Duration of the cycle in weeks. **Default** `1`.",
-						Type:                types.Float64Type,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Float64{
 							modifiers.DefaultFloat(1),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.FloatInSlice(1, 2, 3, 4, 5, 6, 7, 8),
+						Validators: []validator.Float64{
+							float64validator.OneOf([]float64{1, 2, 3, 4, 5, 6, 7, 8}...),
 						},
 					},
-					"cooldown": {
+					"cooldown": schema.Float64Attribute{
 						MarkdownDescription: "Cooldown time between cycles in weeks. **Default** `0`.",
-						Type:                types.Float64Type,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Float64{
 							modifiers.DefaultFloat(0),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.FloatInSlice(0, 1, 2, 3),
+						Validators: []validator.Float64{
+							float64validator.OneOf([]float64{0, 1, 2, 3}...),
 						},
 					},
-					"upcoming": {
+					"upcoming": schema.Float64Attribute{
 						MarkdownDescription: "Number of upcoming cycles to automatically create. **Default** `2`.",
-						Type:                types.Float64Type,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Float64{
 							modifiers.DefaultFloat(2),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.FloatInSlice(1, 2, 3, 4, 6, 8, 10),
+						Validators: []validator.Float64{
+							float64validator.OneOf([]float64{1, 2, 3, 4, 6, 8, 10}...),
 						},
 					},
-					"auto_add_started": {
+					"auto_add_started": schema.BoolAttribute{
 						MarkdownDescription: "Auto add started issues that don't belong to any cycle to the active cycle. **Default** `true`.",
-						Type:                types.BoolType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Bool{
 							modifiers.DefaultBool(true),
 						},
 					},
-					"auto_add_completed": {
+					"auto_add_completed": schema.BoolAttribute{
 						MarkdownDescription: "Auto add completed issues that don't belong to any cycle to the active cycle. **Default** `true`.",
-						Type:                types.BoolType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Bool{
 							modifiers.DefaultBool(true),
 						},
 					},
-					"need_for_active": {
+					"need_for_active": schema.BoolAttribute{
 						MarkdownDescription: "Whether all active issues need to have a cycle. **Default** `false`.",
-						Type:                types.BoolType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Bool{
 							modifiers.DefaultBool(false),
 						},
 					},
-				}),
+				},
 			},
-			"estimation": {
+			"estimation": schema.SingleNestedAttribute{
 				MarkdownDescription: "Issue estimation settings of the team.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Object{
 					modifiers.UnknownAttributesOnUnknown(),
 				},
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"type": {
+				Attributes: map[string]schema.Attribute{
+					"type": schema.StringAttribute{
 						MarkdownDescription: "Issue estimation type for the team. **Default** `notUsed`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("notUsed"),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.StringInSlice(true, "notUsed", "exponential", "fibonacci", "linear", "tShirt"),
+						Validators: []validator.String{
+							stringvalidator.OneOf([]string{"notUsed", "exponential", "fibonacci", "linear", "tShirt"}...),
 						},
 					},
-					"extended": {
+					"extended": schema.BoolAttribute{
 						MarkdownDescription: "Whether the team uses extended estimation. **Default** `false`.",
-						Type:                types.BoolType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Bool{
 							modifiers.DefaultBool(false),
 						},
 					},
-					"allow_zero": {
+					"allow_zero": schema.BoolAttribute{
 						MarkdownDescription: "Whether zero is allowed as an estimation. **Default** `false`.",
-						Type:                types.BoolType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Bool{
 							modifiers.DefaultBool(false),
 						},
 					},
-					"default": {
+					"default": schema.Float64Attribute{
 						MarkdownDescription: "Default estimation for issues that are unestimated. **Default** `1`.",
-						Type:                types.Float64Type,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.Float64{
 							modifiers.DefaultFloat(1),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.FloatInSlice(0, 1),
+						Validators: []validator.Float64{
+							float64validator.OneOf([]float64{0, 1}...),
 						},
 					},
-				}),
+				},
 			},
-			"backlog_workflow_state": {
+			"backlog_workflow_state": schema.SingleNestedAttribute{
 				MarkdownDescription: "Settings for the `backlog` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Object{
 					modifiers.UnknownAttributesOnUnknown(),
 				},
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"id": {
+				Attributes: map[string]schema.Attribute{
+					"id": schema.StringAttribute{
 						MarkdownDescription: "Identifier of the workflow state.",
-						Type:                types.StringType,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
-							resource.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
-					"position": {
+					"position": schema.Float64Attribute{
 						MarkdownDescription: "Position of the workflow state.",
-						Type:                types.Float64Type,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
-							resource.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.Float64{
+							float64planmodifier.UseStateForUnknown(),
 						},
 					},
-					"name": {
+					"name": schema.StringAttribute{
 						MarkdownDescription: "Name of the workflow state. **Default** `Backlog`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("Backlog"),
 						},
 					},
-					"color": {
+					"color": schema.StringAttribute{
 						MarkdownDescription: "Color of the workflow state. **Default** `#bec2c8`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("#bec2c8"),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.Match(colorRegex()),
+						Validators: []validator.String{
+							stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 						},
 					},
-					"description": {
+					"description": schema.StringAttribute{
 						MarkdownDescription: "Description of the workflow state.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.NullableString(),
 						},
 					},
-				}),
+				},
 			},
-			"unstarted_workflow_state": {
+			"unstarted_workflow_state": schema.SingleNestedAttribute{
 				MarkdownDescription: "Settings for the `unstarted` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Object{
 					modifiers.UnknownAttributesOnUnknown(),
 				},
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"id": {
+				Attributes: map[string]schema.Attribute{
+					"id": schema.StringAttribute{
 						MarkdownDescription: "Identifier of the workflow state.",
-						Type:                types.StringType,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
-							resource.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
-					"position": {
+					"position": schema.Float64Attribute{
 						MarkdownDescription: "Position of the workflow state.",
-						Type:                types.Float64Type,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
-							resource.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.Float64{
+							float64planmodifier.UseStateForUnknown(),
 						},
 					},
-					"name": {
+					"name": schema.StringAttribute{
 						MarkdownDescription: "Name of the workflow state. **Default** `Todo`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("Todo"),
 						},
 					},
-					"color": {
+					"color": schema.StringAttribute{
 						MarkdownDescription: "Color of the workflow state. **Default** `#e2e2e2`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("#e2e2e2"),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.Match(colorRegex()),
+						Validators: []validator.String{
+							stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 						},
 					},
-					"description": {
+					"description": schema.StringAttribute{
 						MarkdownDescription: "Description of the workflow state.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.NullableString(),
 						},
 					},
-				}),
+				},
 			},
-			"started_workflow_state": {
+			"started_workflow_state": schema.SingleNestedAttribute{
 				MarkdownDescription: "Settings for the `started` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Object{
 					modifiers.UnknownAttributesOnUnknown(),
 				},
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"id": {
+				Attributes: map[string]schema.Attribute{
+					"id": schema.StringAttribute{
 						MarkdownDescription: "Identifier of the workflow state.",
-						Type:                types.StringType,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
-							resource.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
-					"position": {
+					"position": schema.Float64Attribute{
 						MarkdownDescription: "Position of the workflow state.",
-						Type:                types.Float64Type,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
-							resource.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.Float64{
+							float64planmodifier.UseStateForUnknown(),
 						},
 					},
-					"name": {
+					"name": schema.StringAttribute{
 						MarkdownDescription: "Name of the workflow state. **Default** `In Progress`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("In Progress"),
 						},
 					},
-					"color": {
+					"color": schema.StringAttribute{
 						MarkdownDescription: "Color of the workflow state. **Default** `#f2c94c`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("#f2c94c"),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.Match(colorRegex()),
+						Validators: []validator.String{
+							stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 						},
 					},
-					"description": {
+					"description": schema.StringAttribute{
 						MarkdownDescription: "Description of the workflow state.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.NullableString(),
 						},
 					},
-				}),
+				},
 			},
-			"completed_workflow_state": {
+			"completed_workflow_state": schema.SingleNestedAttribute{
 				MarkdownDescription: "Settings for the `completed` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Object{
 					modifiers.UnknownAttributesOnUnknown(),
 				},
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"id": {
+				Attributes: map[string]schema.Attribute{
+					"id": schema.StringAttribute{
 						MarkdownDescription: "Identifier of the workflow state.",
-						Type:                types.StringType,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
-							resource.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
-					"position": {
+					"position": schema.Float64Attribute{
 						MarkdownDescription: "Position of the workflow state.",
-						Type:                types.Float64Type,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
-							resource.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.Float64{
+							float64planmodifier.UseStateForUnknown(),
 						},
 					},
-					"name": {
+					"name": schema.StringAttribute{
 						MarkdownDescription: "Name of the workflow state. **Default** `Done`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("Done"),
 						},
 					},
-					"color": {
+					"color": schema.StringAttribute{
 						MarkdownDescription: "Color of the workflow state. **Default** `#5e6ad2`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("#5e6ad2"),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.Match(colorRegex()),
+						Validators: []validator.String{
+							stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 						},
 					},
-					"description": {
+					"description": schema.StringAttribute{
 						MarkdownDescription: "Description of the workflow state.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.NullableString(),
 						},
 					},
-				}),
+				},
 			},
-			"canceled_workflow_state": {
+			"canceled_workflow_state": schema.SingleNestedAttribute{
 				MarkdownDescription: "Settings for the `canceled` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.Object{
 					modifiers.UnknownAttributesOnUnknown(),
 				},
-				Attributes: tfsdk.SingleNestedAttributes(map[string]tfsdk.Attribute{
-					"id": {
+				Attributes: map[string]schema.Attribute{
+					"id": schema.StringAttribute{
 						MarkdownDescription: "Identifier of the workflow state.",
-						Type:                types.StringType,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
-							resource.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
-					"position": {
+					"position": schema.Float64Attribute{
 						MarkdownDescription: "Position of the workflow state.",
-						Type:                types.Float64Type,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
-							resource.UseStateForUnknown(),
+						PlanModifiers: []planmodifier.Float64{
+							float64planmodifier.UseStateForUnknown(),
 						},
 					},
-					"name": {
+					"name": schema.StringAttribute{
 						MarkdownDescription: "Name of the workflow state. **Default** `Canceled`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("Canceled"),
 						},
 					},
-					"color": {
+					"color": schema.StringAttribute{
 						MarkdownDescription: "Color of the workflow state. **Default** `#95a2b3`.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.DefaultString("#95a2b3"),
 						},
-						Validators: []tfsdk.AttributeValidator{
-							validators.Match(colorRegex()),
+						Validators: []validator.String{
+							stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 						},
 					},
-					"description": {
+					"description": schema.StringAttribute{
 						MarkdownDescription: "Description of the workflow state.",
-						Type:                types.StringType,
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: tfsdk.AttributePlanModifiers{
+						PlanModifiers: []planmodifier.String{
 							modifiers.NullableString(),
 						},
 					},
-				}),
+				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *TeamResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -733,7 +687,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		input.AutoClosePeriod = &value
 	}
 
-	resp.Diagnostics.Append(data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Triage.As(ctx, &triageData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -741,7 +695,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	input.TriageEnabled = triageData.Enabled.ValueBool()
 
-	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, types.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -756,7 +710,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.ValueBool()
 	input.CycleLockToActive = cyclesData.NeedForActive.ValueBool()
 
-	resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, types.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -1072,7 +1026,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		input.AutoClosePeriod = &value
 	}
 
-	resp.Diagnostics.Append(data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Triage.As(ctx, &triageData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -1080,7 +1034,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	input.TriageEnabled = triageData.Enabled.ValueBool()
 
-	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, types.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -1095,7 +1049,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.ValueBool()
 	input.CycleLockToActive = cyclesData.NeedForActive.ValueBool()
 
-	resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, types.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -1316,7 +1270,7 @@ func updateWorkflowStateToObject(workflowState updateWorkflowStateWorkflowStateU
 func updateTeamWorkflowStateInCreate(ctx context.Context, r *TeamResource, data types.Object, resp *resource.CreateResponse, id string) *types.Object {
 	var workflowStateData *TeamResourceWorkflowStateModel
 
-	resp.Diagnostics.Append(data.As(ctx, &workflowStateData, types.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.As(ctx, &workflowStateData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return nil
@@ -1347,7 +1301,7 @@ func updateTeamWorkflowStateInCreate(ctx context.Context, r *TeamResource, data 
 func updateTeamWorkflowStateInUpdate(ctx context.Context, r *TeamResource, data types.Object, resp *resource.UpdateResponse, id string) *types.Object {
 	var workflowStateData *TeamResourceWorkflowStateModel
 
-	resp.Diagnostics.Append(data.As(ctx, &workflowStateData, types.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.As(ctx, &workflowStateData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return nil

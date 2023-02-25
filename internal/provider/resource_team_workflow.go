@@ -6,14 +6,16 @@ import (
 	"regexp"
 
 	"github.com/Khan/genqlient/graphql"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
 var _ resource.Resource = &TeamWorkflowResource{}
@@ -40,77 +42,71 @@ func (r *TeamWorkflowResource) Metadata(ctx context.Context, req resource.Metada
 	resp.TypeName = req.ProviderTypeName + "_team_workflow"
 }
 
-func (r *TeamWorkflowResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *TeamWorkflowResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		MarkdownDescription: "Linear team workflow.",
-		Attributes: map[string]tfsdk.Attribute{
-			"id": {
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the team.",
-				Type:                types.StringType,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"key": {
+			"key": schema.StringAttribute{
 				MarkdownDescription: "Key of the team.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
-					validators.MaxLength(5),
-					validators.Match(regexp.MustCompile("^[A-Z0-9]+$")),
+				Validators: []validator.String{
+					stringvalidator.UTF8LengthAtMost(5),
+					stringvalidator.RegexMatches(regexp.MustCompile("^[A-Z0-9]+$"), "must only contain uppercase letters and numbers"),
 				},
 			},
-			"draft": {
+			"draft": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when draft PRs are opened.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
-			"start": {
+			"start": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when PRs are opened.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
-			"review": {
+			"review": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when reviews are requested on PRs.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
-			"merge": {
+			"merge": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when PRs are merged.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *TeamWorkflowResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {

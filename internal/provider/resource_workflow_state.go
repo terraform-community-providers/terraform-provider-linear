@@ -7,14 +7,16 @@ import (
 	"strings"
 
 	"github.com/Khan/genqlient/graphql"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
 var _ resource.Resource = &WorkflowStateResource{}
@@ -42,72 +44,65 @@ func (r *WorkflowStateResource) Metadata(ctx context.Context, req resource.Metad
 	resp.TypeName = req.ProviderTypeName + "_workflow_state"
 }
 
-func (r *WorkflowStateResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *WorkflowStateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		MarkdownDescription: "Linear team workflow state.",
-		Attributes: map[string]tfsdk.Attribute{
-			"id": {
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the workflow state.",
-				Type:                types.StringType,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"name": {
+			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the workflow state.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
-					validators.MinLength(1),
+				Validators: []validator.String{
+					stringvalidator.UTF8LengthAtLeast(1),
 				},
 			},
-			"type": {
+			"type": schema.StringAttribute{
 				MarkdownDescription: "Type of the workflow state.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
-					validators.StringInSlice(true, "backlog", "unstarted", "started", "completed", "canceled"),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.RequiresReplace(),
+				Validators: []validator.String{
+					stringvalidator.OneOf([]string{"backlog", "unstarted", "started", "completed", "canceled"}...),
 				},
 			},
-			"position": {
+			"position": schema.NumberAttribute{
 				MarkdownDescription: "Position of the workflow state.",
-				Type:                types.NumberType,
 				Required:            true,
 			},
-			"color": {
+			"color": schema.StringAttribute{
 				MarkdownDescription: "Color of the workflow state.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(colorRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 				},
 			},
-			"description": {
+			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the workflow state.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
 			},
-			"team_id": {
+			"team_id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the team.",
-				Type:                types.StringType,
 				Required:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.RequiresReplace(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *WorkflowStateResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
