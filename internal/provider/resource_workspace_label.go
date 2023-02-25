@@ -5,14 +5,16 @@ import (
 	"fmt"
 
 	"github.com/Khan/genqlient/graphql"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
 var _ resource.Resource = &WorkspaceLabelResource{}
@@ -38,61 +40,56 @@ func (r *WorkspaceLabelResource) Metadata(ctx context.Context, req resource.Meta
 	resp.TypeName = req.ProviderTypeName + "_workspace_label"
 }
 
-func (r *WorkspaceLabelResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *WorkspaceLabelResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		MarkdownDescription: "Linear workspace label.",
-		Attributes: map[string]tfsdk.Attribute{
-			"id": {
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the label.",
-				Type:                types.StringType,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"name": {
+			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the label.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
-					validators.MinLength(1),
+				Validators: []validator.String{
+					stringvalidator.UTF8LengthAtLeast(1),
 				},
 			},
-			"description": {
+			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the label.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
 			},
-			"color": {
+			"color": schema.StringAttribute{
 				MarkdownDescription: "Color of the label.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(colorRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 				},
 			},
-			"parent_id": {
+			"parent_id": schema.StringAttribute{
 				MarkdownDescription: "Parent (label group) of the label.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *WorkspaceLabelResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -125,19 +122,22 @@ func (r *WorkspaceLabelResource) Create(ctx context.Context, req resource.Create
 	}
 
 	input := IssueLabelCreateInput{
-		Name: data.Name.Value,
+		Name: data.Name.ValueString(),
 	}
 
 	if !data.Description.IsNull() {
-		input.Description = &data.Description.Value
+		value := data.Description.ValueString()
+		input.Description = &value
 	}
 
 	if !data.Color.IsUnknown() {
-		input.Color = &data.Color.Value
+		value := data.Color.ValueString()
+		input.Color = &value
 	}
 
 	if !data.ParentId.IsNull() {
-		input.ParentId = &data.ParentId.Value
+		value := data.ParentId.ValueString()
+		input.ParentId = &value
 	}
 
 	response, err := createLabel(ctx, *r.client, input)
@@ -151,19 +151,19 @@ func (r *WorkspaceLabelResource) Create(ctx context.Context, req resource.Create
 
 	issueLabel := response.IssueLabelCreate.IssueLabel
 
-	data.Id = types.String{Value: issueLabel.Id}
-	data.Name = types.String{Value: issueLabel.Name}
+	data.Id = types.StringValue(issueLabel.Id)
+	data.Name = types.StringValue(issueLabel.Name)
 
 	if issueLabel.Description != nil {
-		data.Description = types.String{Value: *issueLabel.Description}
+		data.Description = types.StringValue(*issueLabel.Description)
 	}
 
 	if issueLabel.Color != nil {
-		data.Color = types.String{Value: *issueLabel.Color}
+		data.Color = types.StringValue(*issueLabel.Color)
 	}
 
 	if issueLabel.Parent != nil {
-		data.ParentId = types.String{Value: issueLabel.Parent.Id}
+		data.ParentId = types.StringValue(issueLabel.Parent.Id)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -178,7 +178,7 @@ func (r *WorkspaceLabelResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	response, err := getLabel(ctx, *r.client, data.Id.Value)
+	response, err := getLabel(ctx, *r.client, data.Id.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workspace label, got error: %s", err))
@@ -187,19 +187,19 @@ func (r *WorkspaceLabelResource) Read(ctx context.Context, req resource.ReadRequ
 
 	issueLabel := response.IssueLabel
 
-	data.Id = types.String{Value: issueLabel.Id}
-	data.Name = types.String{Value: issueLabel.Name}
+	data.Id = types.StringValue(issueLabel.Id)
+	data.Name = types.StringValue(issueLabel.Name)
 
 	if issueLabel.Description != nil {
-		data.Description = types.String{Value: *issueLabel.Description}
+		data.Description = types.StringValue(*issueLabel.Description)
 	}
 
 	if issueLabel.Color != nil {
-		data.Color = types.String{Value: *issueLabel.Color}
+		data.Color = types.StringValue(*issueLabel.Color)
 	}
 
 	if issueLabel.Parent != nil {
-		data.ParentId = types.String{Value: issueLabel.Parent.Id}
+		data.ParentId = types.StringValue(issueLabel.Parent.Id)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -215,22 +215,25 @@ func (r *WorkspaceLabelResource) Update(ctx context.Context, req resource.Update
 	}
 
 	input := IssueLabelUpdateInput{
-		Name: data.Name.Value,
+		Name: data.Name.ValueString(),
 	}
 
 	if !data.Description.IsNull() {
-		input.Description = &data.Description.Value
+		value := data.Description.ValueString()
+		input.Description = &value
 	}
 
 	if !data.Color.IsUnknown() {
-		input.Color = &data.Color.Value
+		value := data.Color.ValueString()
+		input.Color = &value
 	}
 
 	if !data.ParentId.IsNull() {
-		input.ParentId = &data.ParentId.Value
+		value := data.ParentId.ValueString()
+		input.ParentId = &value
 	}
 
-	response, err := updateLabel(ctx, *r.client, input, data.Id.Value)
+	response, err := updateLabel(ctx, *r.client, input, data.Id.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workspace label, got error: %s", err))
@@ -241,19 +244,19 @@ func (r *WorkspaceLabelResource) Update(ctx context.Context, req resource.Update
 
 	issueLabel := response.IssueLabelUpdate.IssueLabel
 
-	data.Id = types.String{Value: issueLabel.Id}
-	data.Name = types.String{Value: issueLabel.Name}
+	data.Id = types.StringValue(issueLabel.Id)
+	data.Name = types.StringValue(issueLabel.Name)
 
 	if issueLabel.Description != nil {
-		data.Description = types.String{Value: *issueLabel.Description}
+		data.Description = types.StringValue(*issueLabel.Description)
 	}
 
 	if issueLabel.Color != nil {
-		data.Color = types.String{Value: *issueLabel.Color}
+		data.Color = types.StringValue(*issueLabel.Color)
 	}
 
 	if issueLabel.Parent != nil {
-		data.ParentId = types.String{Value: issueLabel.Parent.Id}
+		data.ParentId = types.StringValue(issueLabel.Parent.Id)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -268,7 +271,7 @@ func (r *WorkspaceLabelResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	_, err := deleteLabel(ctx, *r.client, data.Id.Value)
+	_, err := deleteLabel(ctx, *r.client, data.Id.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete workspace label, got error: %s", err))

@@ -6,14 +6,16 @@ import (
 	"regexp"
 
 	"github.com/Khan/genqlient/graphql"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/validators"
 )
 
 var _ resource.Resource = &TeamWorkflowResource{}
@@ -40,77 +42,71 @@ func (r *TeamWorkflowResource) Metadata(ctx context.Context, req resource.Metada
 	resp.TypeName = req.ProviderTypeName + "_team_workflow"
 }
 
-func (r *TeamWorkflowResource) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
-	return tfsdk.Schema{
+func (r *TeamWorkflowResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
 		MarkdownDescription: "Linear team workflow.",
-		Attributes: map[string]tfsdk.Attribute{
-			"id": {
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the team.",
-				Type:                types.StringType,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					resource.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"key": {
+			"key": schema.StringAttribute{
 				MarkdownDescription: "Key of the team.",
-				Type:                types.StringType,
 				Required:            true,
-				Validators: []tfsdk.AttributeValidator{
-					validators.MaxLength(5),
-					validators.Match(regexp.MustCompile("^[A-Z0-9]+$")),
+				Validators: []validator.String{
+					stringvalidator.UTF8LengthAtMost(5),
+					stringvalidator.RegexMatches(regexp.MustCompile("^[A-Z0-9]+$"), "must only contain uppercase letters and numbers"),
 				},
 			},
-			"draft": {
+			"draft": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when draft PRs are opened.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
-			"start": {
+			"start": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when PRs are opened.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
-			"review": {
+			"review": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when reviews are requested on PRs.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
-			"merge": {
+			"merge": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when PRs are merged.",
-				Type:                types.StringType,
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
+				PlanModifiers: []planmodifier.String{
 					modifiers.NullableString(),
 				},
-				Validators: []tfsdk.AttributeValidator{
-					validators.Match(uuidRegex()),
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
 			},
 		},
-	}, nil
+	}
 }
 
 func (r *TeamWorkflowResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -165,7 +161,7 @@ func (r *TeamWorkflowResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	response, err := getTeamWorkflow(ctx, *r.client, data.Key.Value)
+	response, err := getTeamWorkflow(ctx, *r.client, data.Key.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read team workflow, got error: %s", err))
@@ -174,23 +170,23 @@ func (r *TeamWorkflowResource) Read(ctx context.Context, req resource.ReadReques
 
 	team := response.Team
 
-	data.Id = types.String{Value: team.Id}
-	data.Key = types.String{Value: team.Key}
+	data.Id = types.StringValue(team.Id)
+	data.Key = types.StringValue(team.Key)
 
 	if team.DraftWorkflowState != nil {
-		data.Draft = types.String{Value: team.DraftWorkflowState.Id}
+		data.Draft = types.StringValue(team.DraftWorkflowState.Id)
 	}
 
 	if team.StartWorkflowState != nil {
-		data.Start = types.String{Value: team.StartWorkflowState.Id}
+		data.Start = types.StringValue(team.StartWorkflowState.Id)
 	}
 
 	if team.ReviewWorkflowState != nil {
-		data.Review = types.String{Value: team.ReviewWorkflowState.Id}
+		data.Review = types.StringValue(team.ReviewWorkflowState.Id)
 	}
 
 	if team.MergeWorkflowState != nil {
-		data.Merge = types.String{Value: team.MergeWorkflowState.Id}
+		data.Merge = types.StringValue(team.MergeWorkflowState.Id)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -228,7 +224,7 @@ func (r *TeamWorkflowResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	_, err := updateTeamWorkflow(ctx, *r.client, data.Key.Value, nil, nil, nil, nil)
+	_, err := updateTeamWorkflow(ctx, *r.client, data.Key.ValueString(), nil, nil, nil, nil)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete team workflow, got error: %s", err))
@@ -249,43 +245,47 @@ func update(ctx context.Context, data *TeamWorkflowResourceModel, client *graphq
 	var merge *string
 
 	if !data.Draft.IsNull() {
-		draft = &data.Draft.Value
+		value := data.Draft.ValueString()
+		draft = &value
 	}
 
 	if !data.Start.IsNull() {
-		start = &data.Start.Value
+		value := data.Start.ValueString()
+		start = &value
 	}
 
 	if !data.Review.IsNull() {
-		review = &data.Review.Value
+		value := data.Review.ValueString()
+		review = &value
 	}
 
 	if !data.Merge.IsNull() {
-		merge = &data.Merge.Value
+		value := data.Merge.ValueString()
+		merge = &value
 	}
 
-	return updateTeamWorkflow(ctx, *client, data.Key.Value, draft, start, review, merge)
+	return updateTeamWorkflow(ctx, *client, data.Key.ValueString(), draft, start, review, merge)
 }
 
 func read(data *TeamWorkflowResourceModel, response *updateTeamWorkflowResponse) {
 	team := response.TeamUpdate.Team
 
-	data.Id = types.String{Value: team.Id}
-	data.Key = types.String{Value: team.Key}
+	data.Id = types.StringValue(team.Id)
+	data.Key = types.StringValue(team.Key)
 
 	if team.DraftWorkflowState != nil {
-		data.Draft = types.String{Value: team.DraftWorkflowState.Id}
+		data.Draft = types.StringValue(team.DraftWorkflowState.Id)
 	}
 
 	if team.StartWorkflowState != nil {
-		data.Start = types.String{Value: team.StartWorkflowState.Id}
+		data.Start = types.StringValue(team.StartWorkflowState.Id)
 	}
 
 	if team.ReviewWorkflowState != nil {
-		data.Review = types.String{Value: team.ReviewWorkflowState.Id}
+		data.Review = types.StringValue(team.ReviewWorkflowState.Id)
 	}
 
 	if team.MergeWorkflowState != nil {
-		data.Merge = types.String{Value: team.MergeWorkflowState.Id}
+		data.Merge = types.StringValue(team.MergeWorkflowState.Id)
 	}
 }
