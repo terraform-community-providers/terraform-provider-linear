@@ -90,9 +90,9 @@ func (d *WorkspaceDataSource) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
-	data.Id = types.String{Value: response.Organization.Id}
-	data.Name = types.String{Value: response.Organization.Name}
-	data.UrlKey = types.String{Value: response.Organization.UrlKey}
+	data.Id = types.StringValue(response.Organization.Id)
+	data.Name = types.StringValue(response.Organization.Name)
+	data.UrlKey = types.StringValue(response.Organization.UrlKey)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

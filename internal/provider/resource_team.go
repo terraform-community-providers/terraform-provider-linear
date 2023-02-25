@@ -703,30 +703,34 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	input := TeamCreateInput{
-		Key:                           data.Key.Value,
-		Name:                          data.Name.Value,
-		Private:                       data.Private.Value,
-		Timezone:                      data.Timezone.Value,
-		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.Value,
-		GroupIssueHistory:             data.EnableIssueHistoryGrouping.Value,
-		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.Value,
-		AutoArchivePeriod:             data.AutoArchivePeriod.Value,
+		Key:                           data.Key.ValueString(),
+		Name:                          data.Name.ValueString(),
+		Private:                       data.Private.ValueBool(),
+		Timezone:                      data.Timezone.ValueString(),
+		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.ValueBool(),
+		GroupIssueHistory:             data.EnableIssueHistoryGrouping.ValueBool(),
+		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.ValueBool(),
+		AutoArchivePeriod:             data.AutoArchivePeriod.ValueFloat64(),
 	}
 
 	if !data.Description.IsNull() {
-		input.Description = &data.Description.Value
+		value := data.Description.ValueString()
+		input.Description = &value
 	}
 
 	if !data.Icon.IsUnknown() {
-		input.Icon = &data.Icon.Value
+		value := data.Icon.ValueString()
+		input.Icon = &value
 	}
 
 	if !data.Color.IsUnknown() {
-		input.Color = &data.Color.Value
+		value := data.Color.ValueString()
+		input.Color = &value
 	}
 
-	if data.AutoClosePeriod.Value != 0 {
-		input.AutoClosePeriod = &data.AutoClosePeriod.Value
+	if data.AutoClosePeriod.ValueFloat64() != 0 {
+		value := data.AutoClosePeriod.ValueFloat64()
+		input.AutoClosePeriod = &value
 	}
 
 	resp.Diagnostics.Append(data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})...)
@@ -735,7 +739,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	input.TriageEnabled = triageData.Enabled.Value
+	input.TriageEnabled = triageData.Enabled.ValueBool()
 
 	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, types.ObjectAsOptions{})...)
 
@@ -743,14 +747,14 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	input.CyclesEnabled = cyclesData.Enabled.Value
-	input.CycleStartDay = cyclesData.StartDay.Value
-	input.CycleDuration = int(cyclesData.Duration.Value)
-	input.CycleCooldownTime = int(cyclesData.Cooldown.Value)
-	input.UpcomingCycleCount = cyclesData.Upcoming.Value
-	input.CycleIssueAutoAssignStarted = cyclesData.AutoAddStarted.Value
-	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.Value
-	input.CycleLockToActive = cyclesData.NeedForActive.Value
+	input.CyclesEnabled = cyclesData.Enabled.ValueBool()
+	input.CycleStartDay = cyclesData.StartDay.ValueFloat64()
+	input.CycleDuration = int(cyclesData.Duration.ValueFloat64())
+	input.CycleCooldownTime = int(cyclesData.Cooldown.ValueFloat64())
+	input.UpcomingCycleCount = cyclesData.Upcoming.ValueFloat64()
+	input.CycleIssueAutoAssignStarted = cyclesData.AutoAddStarted.ValueBool()
+	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.ValueBool()
+	input.CycleLockToActive = cyclesData.NeedForActive.ValueBool()
 
 	resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, types.ObjectAsOptions{})...)
 
@@ -758,10 +762,10 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	input.IssueEstimationType = estimationData.Type.Value
-	input.IssueEstimationExtended = estimationData.Extended.Value
-	input.IssueEstimationAllowZero = estimationData.AllowZero.Value
-	input.DefaultIssueEstimate = estimationData.Default.Value
+	input.IssueEstimationType = estimationData.Type.ValueString()
+	input.IssueEstimationExtended = estimationData.Extended.ValueBool()
+	input.IssueEstimationAllowZero = estimationData.AllowZero.ValueBool()
+	input.DefaultIssueEstimate = estimationData.Default.ValueFloat64()
 
 	response, err := createTeam(ctx, *r.client, input)
 
@@ -774,43 +778,43 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	team := response.TeamCreate.Team
 
-	data.Id = types.String{Value: team.Id}
-	data.Private = types.Bool{Value: team.Private}
-	data.Timezone = types.String{Value: team.Timezone}
-	data.NoPriorityIssuesFirst = types.Bool{Value: team.IssueOrderingNoPriorityFirst}
-	data.EnableIssueHistoryGrouping = types.Bool{Value: team.GroupIssueHistory}
-	data.EnableIssueDefaultToBottom = types.Bool{Value: team.IssueSortOrderDefaultToBottom}
-	data.AutoArchivePeriod = types.Float64{Value: team.AutoArchivePeriod}
+	data.Id = types.StringValue(team.Id)
+	data.Private = types.BoolValue(team.Private)
+	data.Timezone = types.StringValue(team.Timezone)
+	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
+	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
+	data.EnableIssueDefaultToBottom = types.BoolValue(team.IssueSortOrderDefaultToBottom)
+	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
 
 	if team.Description != nil {
-		data.Description = types.String{Value: *team.Description}
+		data.Description = types.StringValue(*team.Description)
 	}
 
 	if team.Icon != nil {
-		data.Icon = types.String{Value: *team.Icon}
+		data.Icon = types.StringValue(*team.Icon)
 	}
 
 	if team.Color != nil {
-		data.Color = types.String{Value: *team.Color}
+		data.Color = types.StringValue(*team.Color)
 	}
 
 	if team.AutoClosePeriod != nil {
-		data.AutoClosePeriod = types.Float64{Value: *team.AutoClosePeriod}
+		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
 	} else {
-		data.AutoClosePeriod = types.Float64{Value: 0}
+		data.AutoClosePeriod = types.Float64Value(0)
 	}
 
-	data.Triage = types.Object{
-		AttrTypes: map[string]attr.Type{
+	data.Triage = types.ObjectValueMust(
+		map[string]attr.Type{
 			"enabled": types.BoolType,
 		},
-		Attrs: map[string]attr.Value{
-			"enabled": types.Bool{Value: team.TriageEnabled},
+		map[string]attr.Value{
+			"enabled": types.BoolValue(team.TriageEnabled),
 		},
-	}
+	)
 
-	data.Cycles = types.Object{
-		AttrTypes: map[string]attr.Type{
+	data.Cycles = types.ObjectValueMust(
+		map[string]attr.Type{
 			"enabled":            types.BoolType,
 			"start_day":          types.Float64Type,
 			"duration":           types.Float64Type,
@@ -820,32 +824,32 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 			"auto_add_completed": types.BoolType,
 			"need_for_active":    types.BoolType,
 		},
-		Attrs: map[string]attr.Value{
-			"enabled":            types.Bool{Value: team.CyclesEnabled},
-			"start_day":          types.Float64{Value: team.CycleStartDay},
-			"duration":           types.Float64{Value: team.CycleDuration},
-			"cooldown":           types.Float64{Value: team.CycleCooldownTime},
-			"upcoming":           types.Float64{Value: team.UpcomingCycleCount},
-			"auto_add_started":   types.Bool{Value: team.CycleIssueAutoAssignStarted},
-			"auto_add_completed": types.Bool{Value: team.CycleIssueAutoAssignCompleted},
-			"need_for_active":    types.Bool{Value: team.CycleLockToActive},
+		map[string]attr.Value{
+			"enabled":            types.BoolValue(team.CyclesEnabled),
+			"start_day":          types.Float64Value(team.CycleStartDay),
+			"duration":           types.Float64Value(team.CycleDuration),
+			"cooldown":           types.Float64Value(team.CycleCooldownTime),
+			"upcoming":           types.Float64Value(team.UpcomingCycleCount),
+			"auto_add_started":   types.BoolValue(team.CycleIssueAutoAssignStarted),
+			"auto_add_completed": types.BoolValue(team.CycleIssueAutoAssignCompleted),
+			"need_for_active":    types.BoolValue(team.CycleLockToActive),
 		},
-	}
+	)
 
-	data.Estimation = types.Object{
-		AttrTypes: map[string]attr.Type{
+	data.Estimation = types.ObjectValueMust(
+		map[string]attr.Type{
 			"type":       types.StringType,
 			"extended":   types.BoolType,
 			"allow_zero": types.BoolType,
 			"default":    types.Float64Type,
 		},
-		Attrs: map[string]attr.Value{
-			"type":       types.String{Value: team.IssueEstimationType},
-			"extended":   types.Bool{Value: team.IssueEstimationExtended},
-			"allow_zero": types.Bool{Value: team.IssueEstimationAllowZero},
-			"default":    types.Float64{Value: team.DefaultIssueEstimate},
+		map[string]attr.Value{
+			"type":       types.StringValue(team.IssueEstimationType),
+			"extended":   types.BoolValue(team.IssueEstimationExtended),
+			"allow_zero": types.BoolValue(team.IssueEstimationAllowZero),
+			"default":    types.Float64Value(team.DefaultIssueEstimate),
 		},
-	}
+	)
 
 	// Read the workflow states so that we can update them
 
@@ -899,7 +903,7 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	response, err := getTeam(ctx, *r.client, data.Key.Value)
+	response, err := getTeam(ctx, *r.client, data.Key.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read team, got error: %s", err))
@@ -908,44 +912,44 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 	team := response.Team
 
-	data.Id = types.String{Value: team.Id}
-	data.Name = types.String{Value: team.Name}
-	data.Private = types.Bool{Value: team.Private}
-	data.Timezone = types.String{Value: team.Timezone}
-	data.NoPriorityIssuesFirst = types.Bool{Value: team.IssueOrderingNoPriorityFirst}
-	data.EnableIssueHistoryGrouping = types.Bool{Value: team.GroupIssueHistory}
-	data.EnableIssueDefaultToBottom = types.Bool{Value: team.IssueSortOrderDefaultToBottom}
-	data.AutoArchivePeriod = types.Float64{Value: team.AutoArchivePeriod}
+	data.Id = types.StringValue(team.Id)
+	data.Name = types.StringValue(team.Name)
+	data.Private = types.BoolValue(team.Private)
+	data.Timezone = types.StringValue(team.Timezone)
+	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
+	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
+	data.EnableIssueDefaultToBottom = types.BoolValue(team.IssueSortOrderDefaultToBottom)
+	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
 
 	if team.Description != nil {
-		data.Description = types.String{Value: *team.Description}
+		data.Description = types.StringValue(*team.Description)
 	}
 
 	if team.Icon != nil {
-		data.Icon = types.String{Value: *team.Icon}
+		data.Icon = types.StringValue(*team.Icon)
 	}
 
 	if team.Color != nil {
-		data.Color = types.String{Value: *team.Color}
+		data.Color = types.StringValue(*team.Color)
 	}
 
 	if team.AutoClosePeriod != nil {
-		data.AutoClosePeriod = types.Float64{Value: *team.AutoClosePeriod}
+		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
 	} else {
-		data.AutoClosePeriod = types.Float64{Value: 0}
+		data.AutoClosePeriod = types.Float64Value(0)
 	}
 
-	data.Triage = types.Object{
-		AttrTypes: map[string]attr.Type{
+	data.Triage = types.ObjectValueMust(
+		map[string]attr.Type{
 			"enabled": types.BoolType,
 		},
-		Attrs: map[string]attr.Value{
-			"enabled": types.Bool{Value: team.TriageEnabled},
+		map[string]attr.Value{
+			"enabled": types.BoolValue(team.TriageEnabled),
 		},
-	}
+	)
 
-	data.Cycles = types.Object{
-		AttrTypes: map[string]attr.Type{
+	data.Cycles = types.ObjectValueMust(
+		map[string]attr.Type{
 			"enabled":            types.BoolType,
 			"start_day":          types.Float64Type,
 			"duration":           types.Float64Type,
@@ -955,32 +959,32 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 			"auto_add_completed": types.BoolType,
 			"need_for_active":    types.BoolType,
 		},
-		Attrs: map[string]attr.Value{
-			"enabled":            types.Bool{Value: team.CyclesEnabled},
-			"start_day":          types.Float64{Value: team.CycleStartDay},
-			"duration":           types.Float64{Value: team.CycleDuration},
-			"cooldown":           types.Float64{Value: team.CycleCooldownTime},
-			"upcoming":           types.Float64{Value: team.UpcomingCycleCount},
-			"auto_add_started":   types.Bool{Value: team.CycleIssueAutoAssignStarted},
-			"auto_add_completed": types.Bool{Value: team.CycleIssueAutoAssignCompleted},
-			"need_for_active":    types.Bool{Value: team.CycleLockToActive},
+		map[string]attr.Value{
+			"enabled":            types.BoolValue(team.CyclesEnabled),
+			"start_day":          types.Float64Value(team.CycleStartDay),
+			"duration":           types.Float64Value(team.CycleDuration),
+			"cooldown":           types.Float64Value(team.CycleCooldownTime),
+			"upcoming":           types.Float64Value(team.UpcomingCycleCount),
+			"auto_add_started":   types.BoolValue(team.CycleIssueAutoAssignStarted),
+			"auto_add_completed": types.BoolValue(team.CycleIssueAutoAssignCompleted),
+			"need_for_active":    types.BoolValue(team.CycleLockToActive),
 		},
-	}
+	)
 
-	data.Estimation = types.Object{
-		AttrTypes: map[string]attr.Type{
+	data.Estimation = types.ObjectValueMust(
+		map[string]attr.Type{
 			"type":       types.StringType,
 			"extended":   types.BoolType,
 			"allow_zero": types.BoolType,
 			"default":    types.Float64Type,
 		},
-		Attrs: map[string]attr.Value{
-			"type":       types.String{Value: team.IssueEstimationType},
-			"extended":   types.Bool{Value: team.IssueEstimationExtended},
-			"allow_zero": types.Bool{Value: team.IssueEstimationAllowZero},
-			"default":    types.Float64{Value: team.DefaultIssueEstimate},
+		map[string]attr.Value{
+			"type":       types.StringValue(team.IssueEstimationType),
+			"extended":   types.BoolValue(team.IssueEstimationExtended),
+			"allow_zero": types.BoolValue(team.IssueEstimationAllowZero),
+			"default":    types.Float64Value(team.DefaultIssueEstimate),
 		},
-	}
+	)
 
 	workflowStatesResponse, workflowStatesErr := getTeamWorkflowStates(ctx, *r.client, team.Key)
 
@@ -1032,36 +1036,40 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	input := TeamUpdateInput{
-		Private:                       data.Private.Value,
-		Timezone:                      data.Timezone.Value,
-		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.Value,
-		GroupIssueHistory:             data.EnableIssueHistoryGrouping.Value,
-		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.Value,
-		AutoArchivePeriod:             data.AutoArchivePeriod.Value,
+		Private:                       data.Private.ValueBool(),
+		Timezone:                      data.Timezone.ValueString(),
+		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.ValueBool(),
+		GroupIssueHistory:             data.EnableIssueHistoryGrouping.ValueBool(),
+		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.ValueBool(),
+		AutoArchivePeriod:             data.AutoArchivePeriod.ValueFloat64(),
 	}
 
-	if data.Key.Value != state.Key.Value {
-		input.Key = data.Key.Value
+	if data.Key.ValueString() != state.Key.ValueString() {
+		input.Key = data.Key.ValueString()
 	}
 
-	if data.Name.Value != state.Name.Value {
-		input.Name = data.Name.Value
+	if data.Name.ValueString() != state.Name.ValueString() {
+		input.Name = data.Name.ValueString()
 	}
 
 	if !data.Description.IsNull() {
-		input.Description = &data.Description.Value
+		value := data.Description.ValueString()
+		input.Description = &value
 	}
 
 	if !data.Icon.IsUnknown() {
-		input.Icon = &data.Icon.Value
+		value := data.Icon.ValueString()
+		input.Icon = &value
 	}
 
 	if !data.Color.IsUnknown() {
-		input.Color = &data.Color.Value
+		value := data.Color.ValueString()
+		input.Color = &value
 	}
 
-	if data.AutoClosePeriod.Value != 0 {
-		input.AutoClosePeriod = &data.AutoClosePeriod.Value
+	if data.AutoClosePeriod.ValueFloat64() != 0 {
+		value := data.AutoClosePeriod.ValueFloat64()
+		input.AutoClosePeriod = &value
 	}
 
 	resp.Diagnostics.Append(data.Triage.As(ctx, &triageData, types.ObjectAsOptions{})...)
@@ -1070,7 +1078,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	input.TriageEnabled = triageData.Enabled.Value
+	input.TriageEnabled = triageData.Enabled.ValueBool()
 
 	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, types.ObjectAsOptions{})...)
 
@@ -1078,14 +1086,14 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	input.CyclesEnabled = cyclesData.Enabled.Value
-	input.CycleStartDay = cyclesData.StartDay.Value
-	input.CycleDuration = int(cyclesData.Duration.Value)
-	input.CycleCooldownTime = int(cyclesData.Cooldown.Value)
-	input.UpcomingCycleCount = cyclesData.Upcoming.Value
-	input.CycleIssueAutoAssignStarted = cyclesData.AutoAddStarted.Value
-	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.Value
-	input.CycleLockToActive = cyclesData.NeedForActive.Value
+	input.CyclesEnabled = cyclesData.Enabled.ValueBool()
+	input.CycleStartDay = cyclesData.StartDay.ValueFloat64()
+	input.CycleDuration = int(cyclesData.Duration.ValueFloat64())
+	input.CycleCooldownTime = int(cyclesData.Cooldown.ValueFloat64())
+	input.UpcomingCycleCount = cyclesData.Upcoming.ValueFloat64()
+	input.CycleIssueAutoAssignStarted = cyclesData.AutoAddStarted.ValueBool()
+	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.ValueBool()
+	input.CycleLockToActive = cyclesData.NeedForActive.ValueBool()
 
 	resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, types.ObjectAsOptions{})...)
 
@@ -1093,16 +1101,16 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	input.IssueEstimationType = estimationData.Type.Value
-	input.IssueEstimationExtended = estimationData.Extended.Value
-	input.IssueEstimationAllowZero = estimationData.AllowZero.Value
-	input.DefaultIssueEstimate = estimationData.Default.Value
+	input.IssueEstimationType = estimationData.Type.ValueString()
+	input.IssueEstimationExtended = estimationData.Extended.ValueBool()
+	input.IssueEstimationAllowZero = estimationData.AllowZero.ValueBool()
+	input.DefaultIssueEstimate = estimationData.Default.ValueFloat64()
 
 	if input.CyclesEnabled {
 		input.CycleEnabledStartWeek = "nextWeek"
 	}
 
-	response, err := updateTeam(ctx, *r.client, input, state.Key.Value)
+	response, err := updateTeam(ctx, *r.client, input, state.Key.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team, got error: %s", err))
@@ -1113,43 +1121,43 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	team := response.TeamUpdate.Team
 
-	data.Id = types.String{Value: team.Id}
-	data.Private = types.Bool{Value: team.Private}
-	data.Timezone = types.String{Value: team.Timezone}
-	data.NoPriorityIssuesFirst = types.Bool{Value: team.IssueOrderingNoPriorityFirst}
-	data.EnableIssueHistoryGrouping = types.Bool{Value: team.GroupIssueHistory}
-	data.EnableIssueDefaultToBottom = types.Bool{Value: team.IssueSortOrderDefaultToBottom}
-	data.AutoArchivePeriod = types.Float64{Value: team.AutoArchivePeriod}
+	data.Id = types.StringValue(team.Id)
+	data.Private = types.BoolValue(team.Private)
+	data.Timezone = types.StringValue(team.Timezone)
+	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
+	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
+	data.EnableIssueDefaultToBottom = types.BoolValue(team.IssueSortOrderDefaultToBottom)
+	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
 
 	if team.Description != nil {
-		data.Description = types.String{Value: *team.Description}
+		data.Description = types.StringValue(*team.Description)
 	}
 
 	if team.Icon != nil {
-		data.Icon = types.String{Value: *team.Icon}
+		data.Icon = types.StringValue(*team.Icon)
 	}
 
 	if team.Color != nil {
-		data.Color = types.String{Value: *team.Color}
+		data.Color = types.StringValue(*team.Color)
 	}
 
 	if team.AutoClosePeriod != nil {
-		data.AutoClosePeriod = types.Float64{Value: *team.AutoClosePeriod}
+		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
 	} else {
-		data.AutoClosePeriod = types.Float64{Value: 0}
+		data.AutoClosePeriod = types.Float64Value(0)
 	}
 
-	data.Triage = types.Object{
-		AttrTypes: map[string]attr.Type{
+	data.Triage = types.ObjectValueMust(
+		map[string]attr.Type{
 			"enabled": types.BoolType,
 		},
-		Attrs: map[string]attr.Value{
-			"enabled": types.Bool{Value: team.TriageEnabled},
+		map[string]attr.Value{
+			"enabled": types.BoolValue(team.TriageEnabled),
 		},
-	}
+	)
 
-	data.Cycles = types.Object{
-		AttrTypes: map[string]attr.Type{
+	data.Cycles = types.ObjectValueMust(
+		map[string]attr.Type{
 			"enabled":            types.BoolType,
 			"start_day":          types.Float64Type,
 			"duration":           types.Float64Type,
@@ -1159,40 +1167,40 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 			"auto_add_completed": types.BoolType,
 			"need_for_active":    types.BoolType,
 		},
-		Attrs: map[string]attr.Value{
-			"enabled":            types.Bool{Value: team.CyclesEnabled},
-			"start_day":          types.Float64{Value: team.CycleStartDay},
-			"duration":           types.Float64{Value: team.CycleDuration},
-			"cooldown":           types.Float64{Value: team.CycleCooldownTime},
-			"upcoming":           types.Float64{Value: team.UpcomingCycleCount},
-			"auto_add_started":   types.Bool{Value: team.CycleIssueAutoAssignStarted},
-			"auto_add_completed": types.Bool{Value: team.CycleIssueAutoAssignCompleted},
-			"need_for_active":    types.Bool{Value: team.CycleLockToActive},
+		map[string]attr.Value{
+			"enabled":            types.BoolValue(team.CyclesEnabled),
+			"start_day":          types.Float64Value(team.CycleStartDay),
+			"duration":           types.Float64Value(team.CycleDuration),
+			"cooldown":           types.Float64Value(team.CycleCooldownTime),
+			"upcoming":           types.Float64Value(team.UpcomingCycleCount),
+			"auto_add_started":   types.BoolValue(team.CycleIssueAutoAssignStarted),
+			"auto_add_completed": types.BoolValue(team.CycleIssueAutoAssignCompleted),
+			"need_for_active":    types.BoolValue(team.CycleLockToActive),
 		},
-	}
+	)
 
-	data.Estimation = types.Object{
-		AttrTypes: map[string]attr.Type{
+	data.Estimation = types.ObjectValueMust(
+		map[string]attr.Type{
 			"type":       types.StringType,
 			"extended":   types.BoolType,
 			"allow_zero": types.BoolType,
 			"default":    types.Float64Type,
 		},
-		Attrs: map[string]attr.Value{
-			"type":       types.String{Value: team.IssueEstimationType},
-			"extended":   types.Bool{Value: team.IssueEstimationExtended},
-			"allow_zero": types.Bool{Value: team.IssueEstimationAllowZero},
-			"default":    types.Float64{Value: team.DefaultIssueEstimate},
+		map[string]attr.Value{
+			"type":       types.StringValue(team.IssueEstimationType),
+			"extended":   types.BoolValue(team.IssueEstimationExtended),
+			"allow_zero": types.BoolValue(team.IssueEstimationAllowZero),
+			"default":    types.Float64Value(team.DefaultIssueEstimate),
 		},
-	}
+	)
 
 	// Update the workflow states
 
-	backlog := updateTeamWorkflowStateInUpdate(ctx, r, data.BacklogWorkflowState, resp, state.BacklogWorkflowState.Attrs["id"].(types.String).Value)
-	unstarted := updateTeamWorkflowStateInUpdate(ctx, r, data.UnstartedWorkflowState, resp, state.UnstartedWorkflowState.Attrs["id"].(types.String).Value)
-	started := updateTeamWorkflowStateInUpdate(ctx, r, data.StartedWorkflowState, resp, state.StartedWorkflowState.Attrs["id"].(types.String).Value)
-	completed := updateTeamWorkflowStateInUpdate(ctx, r, data.CompletedWorkflowState, resp, state.CompletedWorkflowState.Attrs["id"].(types.String).Value)
-	canceled := updateTeamWorkflowStateInUpdate(ctx, r, data.CanceledWorkflowState, resp, state.CanceledWorkflowState.Attrs["id"].(types.String).Value)
+	backlog := updateTeamWorkflowStateInUpdate(ctx, r, data.BacklogWorkflowState, resp, state.BacklogWorkflowState.Attributes()["id"].(types.String).ValueString())
+	unstarted := updateTeamWorkflowStateInUpdate(ctx, r, data.UnstartedWorkflowState, resp, state.UnstartedWorkflowState.Attributes()["id"].(types.String).ValueString())
+	started := updateTeamWorkflowStateInUpdate(ctx, r, data.StartedWorkflowState, resp, state.StartedWorkflowState.Attributes()["id"].(types.String).ValueString())
+	completed := updateTeamWorkflowStateInUpdate(ctx, r, data.CompletedWorkflowState, resp, state.CompletedWorkflowState.Attributes()["id"].(types.String).ValueString())
+	canceled := updateTeamWorkflowStateInUpdate(ctx, r, data.CanceledWorkflowState, resp, state.CanceledWorkflowState.Attributes()["id"].(types.String).ValueString())
 
 	if backlog == nil || unstarted == nil || started == nil || completed == nil || canceled == nil {
 		return
@@ -1216,7 +1224,7 @@ func (r *TeamResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		return
 	}
 
-	_, err := deleteTeam(ctx, *r.client, data.Key.Value)
+	_, err := deleteTeam(ctx, *r.client, data.Key.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete team, got error: %s", err))
@@ -1252,51 +1260,55 @@ func findWorkflowStateType(workflowStates []getTeamWorkflowStatesWorkflowStatesW
 }
 
 func readWorkflowStateToObject(workflowState getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState) types.Object {
-	ret := types.Object{
-		AttrTypes: map[string]attr.Type{
+	attrs := map[string]attr.Value{
+		"id":          types.StringValue(workflowState.Id),
+		"position":    types.Float64Value(workflowState.Position),
+		"name":        types.StringValue(workflowState.Name),
+		"color":       types.StringValue(workflowState.Color),
+		"description": types.StringNull(),
+	}
+
+	if workflowState.Description != nil {
+		attrs["description"] = types.StringValue(*workflowState.Description)
+	}
+
+	ret := types.ObjectValueMust(
+		map[string]attr.Type{
 			"id":          types.StringType,
 			"position":    types.Float64Type,
 			"name":        types.StringType,
 			"color":       types.StringType,
 			"description": types.StringType,
 		},
-		Attrs: map[string]attr.Value{
-			"id":          types.String{Value: workflowState.Id},
-			"position":    types.Float64{Value: workflowState.Position},
-			"name":        types.String{Value: workflowState.Name},
-			"color":       types.String{Value: workflowState.Color},
-			"description": types.String{Null: true},
-		},
-	}
-
-	if workflowState.Description != nil {
-		ret.Attrs["description"] = types.String{Value: *workflowState.Description}
-	}
+		attrs,
+	)
 
 	return ret
 }
 
 func updateWorkflowStateToObject(workflowState updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState) types.Object {
-	ret := types.Object{
-		AttrTypes: map[string]attr.Type{
+	attrs := map[string]attr.Value{
+		"id":          types.StringValue(workflowState.Id),
+		"position":    types.Float64Value(workflowState.Position),
+		"name":        types.StringValue(workflowState.Name),
+		"color":       types.StringValue(workflowState.Color),
+		"description": types.StringNull(),
+	}
+
+	if workflowState.Description != nil {
+		attrs["description"] = types.StringValue(*workflowState.Description)
+	}
+
+	ret := types.ObjectValueMust(
+		map[string]attr.Type{
 			"id":          types.StringType,
 			"position":    types.Float64Type,
 			"name":        types.StringType,
 			"color":       types.StringType,
 			"description": types.StringType,
 		},
-		Attrs: map[string]attr.Value{
-			"id":          types.String{Value: workflowState.Id},
-			"position":    types.Float64{Value: workflowState.Position},
-			"name":        types.String{Value: workflowState.Name},
-			"color":       types.String{Value: workflowState.Color},
-			"description": types.String{Null: true},
-		},
-	}
-
-	if workflowState.Description != nil {
-		ret.Attrs["description"] = types.String{Value: *workflowState.Description}
-	}
+		attrs,
+	)
 
 	return ret
 }
@@ -1311,12 +1323,13 @@ func updateTeamWorkflowStateInCreate(ctx context.Context, r *TeamResource, data 
 	}
 
 	workflowStateInput := WorkflowStateUpdateInput{
-		Name:  workflowStateData.Name.Value,
-		Color: workflowStateData.Color.Value,
+		Name:  workflowStateData.Name.ValueString(),
+		Color: workflowStateData.Color.ValueString(),
 	}
 
 	if !workflowStateData.Description.IsNull() {
-		workflowStateInput.Description = &workflowStateData.Description.Value
+		value := workflowStateData.Description.ValueString()
+		workflowStateInput.Description = &value
 	}
 
 	workflowStateResponse, workflowStateErr := updateWorkflowState(ctx, *r.client, workflowStateInput, id)
@@ -1341,12 +1354,13 @@ func updateTeamWorkflowStateInUpdate(ctx context.Context, r *TeamResource, data 
 	}
 
 	workflowStateInput := WorkflowStateUpdateInput{
-		Name:  workflowStateData.Name.Value,
-		Color: workflowStateData.Color.Value,
+		Name:  workflowStateData.Name.ValueString(),
+		Color: workflowStateData.Color.ValueString(),
 	}
 
 	if !workflowStateData.Description.IsNull() {
-		workflowStateInput.Description = &workflowStateData.Description.Value
+		value := workflowStateData.Description.ValueString()
+		workflowStateInput.Description = &value
 	}
 
 	workflowStateResponse, workflowStateErr := updateWorkflowState(ctx, *r.client, workflowStateInput, id)

@@ -72,7 +72,7 @@ func (p *LinearProvider) Configure(ctx context.Context, req provider.ConfigureRe
 	token := ""
 
 	if !data.Token.IsNull() {
-		token = data.Token.Value
+		token = data.Token.ValueString()
 	}
 
 	// If a token wasn't set in the provider configuration block, try and fetch it

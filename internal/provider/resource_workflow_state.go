@@ -139,18 +139,19 @@ func (r *WorkflowStateResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	position, _ := data.Position.Value.Float64()
+	position, _ := data.Position.ValueBigFloat().Float64()
 
 	input := WorkflowStateCreateInput{
-		Name:     data.Name.Value,
-		Type:     data.Type.Value,
+		Name:     data.Name.ValueString(),
+		Type:     data.Type.ValueString(),
 		Position: position,
-		Color:    data.Color.Value,
-		TeamId:   data.TeamId.Value,
+		Color:    data.Color.ValueString(),
+		TeamId:   data.TeamId.ValueString(),
 	}
 
 	if !data.Description.IsNull() {
-		input.Description = &data.Description.Value
+		value := data.Description.ValueString()
+		input.Description = &value
 	}
 
 	response, err := createWorkflowState(ctx, *r.client, input)
@@ -164,14 +165,14 @@ func (r *WorkflowStateResource) Create(ctx context.Context, req resource.CreateR
 
 	workflowState := response.WorkflowStateCreate.WorkflowState
 
-	data.Id = types.String{Value: workflowState.Id}
-	data.Name = types.String{Value: workflowState.Name}
-	data.Type = types.String{Value: workflowState.Type}
-	data.Position = types.Number{Value: big.NewFloat(workflowState.Position)}
-	data.Color = types.String{Value: workflowState.Color}
+	data.Id = types.StringValue(workflowState.Id)
+	data.Name = types.StringValue(workflowState.Name)
+	data.Type = types.StringValue(workflowState.Type)
+	data.Position = types.NumberValue(big.NewFloat(workflowState.Position))
+	data.Color = types.StringValue(workflowState.Color)
 
 	if workflowState.Description != nil {
-		data.Description = types.String{Value: *workflowState.Description}
+		data.Description = types.StringValue(*workflowState.Description)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -186,7 +187,7 @@ func (r *WorkflowStateResource) Read(ctx context.Context, req resource.ReadReque
 		return
 	}
 
-	response, err := getWorkflowState(ctx, *r.client, data.Id.Value)
+	response, err := getWorkflowState(ctx, *r.client, data.Id.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read workflow state, got error: %s", err))
@@ -197,14 +198,14 @@ func (r *WorkflowStateResource) Read(ctx context.Context, req resource.ReadReque
 
 	workflowState := response.WorkflowState
 
-	data.Name = types.String{Value: workflowState.Name}
-	data.Type = types.String{Value: workflowState.Type}
-	data.Position = types.Number{Value: big.NewFloat(workflowState.Position)}
-	data.Color = types.String{Value: workflowState.Color}
-	data.TeamId = types.String{Value: workflowState.Team.Id}
+	data.Name = types.StringValue(workflowState.Name)
+	data.Type = types.StringValue(workflowState.Type)
+	data.Position = types.NumberValue(big.NewFloat(workflowState.Position))
+	data.Color = types.StringValue(workflowState.Color)
+	data.TeamId = types.StringValue(workflowState.Team.Id)
 
 	if workflowState.Description != nil {
-		data.Description = types.String{Value: *workflowState.Description}
+		data.Description = types.StringValue(*workflowState.Description)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -219,19 +220,20 @@ func (r *WorkflowStateResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	position, _ := data.Position.Value.Float64()
+	position, _ := data.Position.ValueBigFloat().Float64()
 
 	input := WorkflowStateUpdateInput{
-		Name:     data.Name.Value,
-		Color:    data.Color.Value,
+		Name:     data.Name.ValueString(),
+		Color:    data.Color.ValueString(),
 		Position: position,
 	}
 
 	if !data.Description.IsNull() {
-		input.Description = &data.Description.Value
+		value := data.Description.ValueString()
+		input.Description = &value
 	}
 
-	response, err := updateWorkflowState(ctx, *r.client, input, data.Id.Value)
+	response, err := updateWorkflowState(ctx, *r.client, input, data.Id.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update workflow state, got error: %s", err))
@@ -242,12 +244,12 @@ func (r *WorkflowStateResource) Update(ctx context.Context, req resource.UpdateR
 
 	workflowState := response.WorkflowStateUpdate.WorkflowState
 
-	data.Name = types.String{Value: workflowState.Name}
-	data.Position = types.Number{Value: big.NewFloat(workflowState.Position)}
-	data.Color = types.String{Value: workflowState.Color}
+	data.Name = types.StringValue(workflowState.Name)
+	data.Position = types.NumberValue(big.NewFloat(workflowState.Position))
+	data.Color = types.StringValue(workflowState.Color)
 
 	if workflowState.Description != nil {
-		data.Description = types.String{Value: *workflowState.Description}
+		data.Description = types.StringValue(*workflowState.Description)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -262,7 +264,7 @@ func (r *WorkflowStateResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	_, err := deleteWorkflowState(ctx, *r.client, data.Id.Value)
+	_, err := deleteWorkflowState(ctx, *r.client, data.Id.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete workflow state, got error: %s", err))

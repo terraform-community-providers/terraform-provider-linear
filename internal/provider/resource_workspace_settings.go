@@ -109,9 +109,9 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	input := UpdateOrganizationInput{
-		RoadmapEnabled:                   data.EnableRoadmap.Value,
-		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.Value,
-		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.Value,
+		RoadmapEnabled:                   data.EnableRoadmap.ValueBool(),
+		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.ValueBool(),
+		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.ValueBool(),
 	}
 
 	response, err := updateWorkspaceSettings(ctx, *r.client, input)
@@ -123,10 +123,10 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 
 	organization := response.OrganizationUpdate.Organization
 
-	data.Id = types.String{Value: organization.Id}
-	data.EnableRoadmap = types.Bool{Value: organization.RoadmapEnabled}
-	data.EnableGitLinkbackMessages = types.Bool{Value: organization.GitLinkbackMessagesEnabled}
-	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: organization.GitPublicLinkbackMessagesEnabled}
+	data.Id = types.StringValue(organization.Id)
+	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
+	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
+	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -149,10 +149,10 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 
 	organization := response.Organization
 
-	data.Id = types.String{Value: organization.Id}
-	data.EnableRoadmap = types.Bool{Value: organization.RoadmapEnabled}
-	data.EnableGitLinkbackMessages = types.Bool{Value: organization.GitLinkbackMessagesEnabled}
-	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: organization.GitPublicLinkbackMessagesEnabled}
+	data.Id = types.StringValue(organization.Id)
+	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
+	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
+	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -167,9 +167,9 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	input := UpdateOrganizationInput{
-		RoadmapEnabled:                   data.EnableRoadmap.Value,
-		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.Value,
-		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.Value,
+		RoadmapEnabled:                   data.EnableRoadmap.ValueBool(),
+		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.ValueBool(),
+		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.ValueBool(),
 	}
 
 	response, err := updateWorkspaceSettings(ctx, *r.client, input)
@@ -183,10 +183,10 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 
 	organization := response.OrganizationUpdate.Organization
 
-	data.Id = types.String{Value: organization.Id}
-	data.EnableRoadmap = types.Bool{Value: organization.RoadmapEnabled}
-	data.EnableGitLinkbackMessages = types.Bool{Value: organization.GitLinkbackMessagesEnabled}
-	data.EnableGitLinkbackMessagesPublic = types.Bool{Value: organization.GitPublicLinkbackMessagesEnabled}
+	data.Id = types.StringValue(organization.Id)
+	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
+	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
+	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

@@ -165,7 +165,7 @@ func (r *TeamWorkflowResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	response, err := getTeamWorkflow(ctx, *r.client, data.Key.Value)
+	response, err := getTeamWorkflow(ctx, *r.client, data.Key.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read team workflow, got error: %s", err))
@@ -174,23 +174,23 @@ func (r *TeamWorkflowResource) Read(ctx context.Context, req resource.ReadReques
 
 	team := response.Team
 
-	data.Id = types.String{Value: team.Id}
-	data.Key = types.String{Value: team.Key}
+	data.Id = types.StringValue(team.Id)
+	data.Key = types.StringValue(team.Key)
 
 	if team.DraftWorkflowState != nil {
-		data.Draft = types.String{Value: team.DraftWorkflowState.Id}
+		data.Draft = types.StringValue(team.DraftWorkflowState.Id)
 	}
 
 	if team.StartWorkflowState != nil {
-		data.Start = types.String{Value: team.StartWorkflowState.Id}
+		data.Start = types.StringValue(team.StartWorkflowState.Id)
 	}
 
 	if team.ReviewWorkflowState != nil {
-		data.Review = types.String{Value: team.ReviewWorkflowState.Id}
+		data.Review = types.StringValue(team.ReviewWorkflowState.Id)
 	}
 
 	if team.MergeWorkflowState != nil {
-		data.Merge = types.String{Value: team.MergeWorkflowState.Id}
+		data.Merge = types.StringValue(team.MergeWorkflowState.Id)
 	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -228,7 +228,7 @@ func (r *TeamWorkflowResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	_, err := updateTeamWorkflow(ctx, *r.client, data.Key.Value, nil, nil, nil, nil)
+	_, err := updateTeamWorkflow(ctx, *r.client, data.Key.ValueString(), nil, nil, nil, nil)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete team workflow, got error: %s", err))
@@ -249,43 +249,47 @@ func update(ctx context.Context, data *TeamWorkflowResourceModel, client *graphq
 	var merge *string
 
 	if !data.Draft.IsNull() {
-		draft = &data.Draft.Value
+		value := data.Draft.ValueString()
+		draft = &value
 	}
 
 	if !data.Start.IsNull() {
-		start = &data.Start.Value
+		value := data.Start.ValueString()
+		start = &value
 	}
 
 	if !data.Review.IsNull() {
-		review = &data.Review.Value
+		value := data.Review.ValueString()
+		review = &value
 	}
 
 	if !data.Merge.IsNull() {
-		merge = &data.Merge.Value
+		value := data.Merge.ValueString()
+		merge = &value
 	}
 
-	return updateTeamWorkflow(ctx, *client, data.Key.Value, draft, start, review, merge)
+	return updateTeamWorkflow(ctx, *client, data.Key.ValueString(), draft, start, review, merge)
 }
 
 func read(data *TeamWorkflowResourceModel, response *updateTeamWorkflowResponse) {
 	team := response.TeamUpdate.Team
 
-	data.Id = types.String{Value: team.Id}
-	data.Key = types.String{Value: team.Key}
+	data.Id = types.StringValue(team.Id)
+	data.Key = types.StringValue(team.Key)
 
 	if team.DraftWorkflowState != nil {
-		data.Draft = types.String{Value: team.DraftWorkflowState.Id}
+		data.Draft = types.StringValue(team.DraftWorkflowState.Id)
 	}
 
 	if team.StartWorkflowState != nil {
-		data.Start = types.String{Value: team.StartWorkflowState.Id}
+		data.Start = types.StringValue(team.StartWorkflowState.Id)
 	}
 
 	if team.ReviewWorkflowState != nil {
-		data.Review = types.String{Value: team.ReviewWorkflowState.Id}
+		data.Review = types.StringValue(team.ReviewWorkflowState.Id)
 	}
 
 	if team.MergeWorkflowState != nil {
-		data.Merge = types.String{Value: team.MergeWorkflowState.Id}
+		data.Merge = types.StringValue(team.MergeWorkflowState.Id)
 	}
 }
