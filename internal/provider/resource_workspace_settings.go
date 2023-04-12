@@ -8,11 +8,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
 )
 
 var _ resource.Resource = &WorkspaceSettingsResource{}
@@ -52,25 +52,19 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 				MarkdownDescription: "Enable roadmap for the workspace. **Default** `false`.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					modifiers.DefaultBool(false),
-				},
+				Default:             booldefault.StaticBool(false),
 			},
 			"enable_git_linkback_messages": schema.BoolAttribute{
 				MarkdownDescription: "Enable git linkbacks for private repositories. **Default** `true`.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					modifiers.DefaultBool(true),
-				},
+				Default:             booldefault.StaticBool(true),
 			},
 			"enable_git_linkback_messages_public": schema.BoolAttribute{
 				MarkdownDescription: "Enable git linkbacks for public repositories. **Default** `false`.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					modifiers.DefaultBool(false),
-				},
+				Default:             booldefault.StaticBool(false),
 			},
 		},
 	}

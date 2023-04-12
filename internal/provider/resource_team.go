@@ -13,8 +13,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -122,9 +125,7 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Privacy of the team. **Default** `false`.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					modifiers.DefaultBool(false),
-				},
+				Default:             booldefault.StaticBool(false),
 			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the team.",
@@ -160,9 +161,7 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Timezone of the team. **Default** `Etc/GMT`.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					modifiers.DefaultString("Etc/GMT"),
-				},
+				Default:             stringdefault.StaticString("Etc/GMT"),
 				Validators: []validator.String{
 					stringvalidator.UTF8LengthAtLeast(1),
 				},
@@ -171,33 +170,25 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Prefer issues without priority at the top during issue prioritization order. **Default** `true`.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					modifiers.DefaultBool(true),
-				},
+				Default:             booldefault.StaticBool(true),
 			},
 			"enable_issue_history_grouping": schema.BoolAttribute{
 				MarkdownDescription: "Enable issue history grouping for the team. **Default** `true`.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					modifiers.DefaultBool(true),
-				},
+				Default:             booldefault.StaticBool(true),
 			},
 			"enable_issue_default_to_bottom": schema.BoolAttribute{
 				MarkdownDescription: "Enable moving issues to bottom of the column when changing state. **Default** `false`.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Bool{
-					modifiers.DefaultBool(false),
-				},
+				Default:             booldefault.StaticBool(false),
 			},
 			"auto_archive_period": schema.Float64Attribute{
 				MarkdownDescription: "Period after which closed and completed issues are automatically archived, in months. **Default** `6`.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Float64{
-					modifiers.DefaultFloat(6),
-				},
+				Default:             float64default.StaticFloat64(6),
 				Validators: []validator.Float64{
 					float64validator.OneOf([]float64{1, 3, 6, 9, 12}...),
 				},
@@ -206,9 +197,7 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Period after which non-completed or non-canceled issues are automatically closed, in months. **Default** `6`. *Use `0` for turning this off.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Float64{
-					modifiers.DefaultFloat(6),
-				},
+				Default:             float64default.StaticFloat64(6),
 				Validators: []validator.Float64{
 					float64validator.OneOf([]float64{0, 1, 3, 6, 9, 12}...),
 				},
