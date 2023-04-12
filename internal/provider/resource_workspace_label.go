@@ -122,22 +122,14 @@ func (r *WorkspaceLabelResource) Create(ctx context.Context, req resource.Create
 	}
 
 	input := IssueLabelCreateInput{
-		Name: data.Name.ValueString(),
-	}
-
-	if !data.Description.IsNull() {
-		value := data.Description.ValueString()
-		input.Description = &value
+		Name:        data.Name.ValueString(),
+		Description: data.Description.ValueStringPointer(),
+		ParentId:    data.ParentId.ValueStringPointer(),
 	}
 
 	if !data.Color.IsUnknown() {
 		value := data.Color.ValueString()
 		input.Color = &value
-	}
-
-	if !data.ParentId.IsNull() {
-		value := data.ParentId.ValueString()
-		input.ParentId = &value
 	}
 
 	response, err := createLabel(ctx, *r.client, input)
@@ -153,14 +145,8 @@ func (r *WorkspaceLabelResource) Create(ctx context.Context, req resource.Create
 
 	data.Id = types.StringValue(issueLabel.Id)
 	data.Name = types.StringValue(issueLabel.Name)
-
-	if issueLabel.Description != nil {
-		data.Description = types.StringValue(*issueLabel.Description)
-	}
-
-	if issueLabel.Color != nil {
-		data.Color = types.StringValue(*issueLabel.Color)
-	}
+	data.Description = types.StringPointerValue(issueLabel.Description)
+	data.Color = types.StringPointerValue(issueLabel.Color)
 
 	if issueLabel.Parent != nil {
 		data.ParentId = types.StringValue(issueLabel.Parent.Id)
@@ -189,14 +175,8 @@ func (r *WorkspaceLabelResource) Read(ctx context.Context, req resource.ReadRequ
 
 	data.Id = types.StringValue(issueLabel.Id)
 	data.Name = types.StringValue(issueLabel.Name)
-
-	if issueLabel.Description != nil {
-		data.Description = types.StringValue(*issueLabel.Description)
-	}
-
-	if issueLabel.Color != nil {
-		data.Color = types.StringValue(*issueLabel.Color)
-	}
+	data.Description = types.StringPointerValue(issueLabel.Description)
+	data.Color = types.StringPointerValue(issueLabel.Color)
 
 	if issueLabel.Parent != nil {
 		data.ParentId = types.StringValue(issueLabel.Parent.Id)
@@ -215,22 +195,14 @@ func (r *WorkspaceLabelResource) Update(ctx context.Context, req resource.Update
 	}
 
 	input := IssueLabelUpdateInput{
-		Name: data.Name.ValueString(),
-	}
-
-	if !data.Description.IsNull() {
-		value := data.Description.ValueString()
-		input.Description = &value
+		Name:        data.Name.ValueString(),
+		Description: data.Description.ValueStringPointer(),
+		ParentId:    data.ParentId.ValueStringPointer(),
 	}
 
 	if !data.Color.IsUnknown() {
 		value := data.Color.ValueString()
 		input.Color = &value
-	}
-
-	if !data.ParentId.IsNull() {
-		value := data.ParentId.ValueString()
-		input.ParentId = &value
 	}
 
 	response, err := updateLabel(ctx, *r.client, input, data.Id.ValueString())
@@ -246,14 +218,8 @@ func (r *WorkspaceLabelResource) Update(ctx context.Context, req resource.Update
 
 	data.Id = types.StringValue(issueLabel.Id)
 	data.Name = types.StringValue(issueLabel.Name)
-
-	if issueLabel.Description != nil {
-		data.Description = types.StringValue(*issueLabel.Description)
-	}
-
-	if issueLabel.Color != nil {
-		data.Color = types.StringValue(*issueLabel.Color)
-	}
+	data.Description = types.StringPointerValue(issueLabel.Description)
+	data.Color = types.StringPointerValue(issueLabel.Color)
 
 	if issueLabel.Parent != nil {
 		data.ParentId = types.StringValue(issueLabel.Parent.Id)

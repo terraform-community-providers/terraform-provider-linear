@@ -649,16 +649,12 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		Key:                           data.Key.ValueString(),
 		Name:                          data.Name.ValueString(),
 		Private:                       data.Private.ValueBool(),
+		Description:                   data.Description.ValueStringPointer(),
 		Timezone:                      data.Timezone.ValueString(),
 		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.ValueBool(),
 		GroupIssueHistory:             data.EnableIssueHistoryGrouping.ValueBool(),
 		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.ValueBool(),
 		AutoArchivePeriod:             data.AutoArchivePeriod.ValueFloat64(),
-	}
-
-	if !data.Description.IsNull() {
-		value := data.Description.ValueString()
-		input.Description = &value
 	}
 
 	if !data.Icon.IsUnknown() {
@@ -723,23 +719,14 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	data.Id = types.StringValue(team.Id)
 	data.Private = types.BoolValue(team.Private)
+	data.Description = types.StringPointerValue(team.Description)
+	data.Icon = types.StringPointerValue(team.Icon)
+	data.Color = types.StringPointerValue(team.Color)
 	data.Timezone = types.StringValue(team.Timezone)
 	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
 	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
 	data.EnableIssueDefaultToBottom = types.BoolValue(team.IssueSortOrderDefaultToBottom)
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
-
-	if team.Description != nil {
-		data.Description = types.StringValue(*team.Description)
-	}
-
-	if team.Icon != nil {
-		data.Icon = types.StringValue(*team.Icon)
-	}
-
-	if team.Color != nil {
-		data.Color = types.StringValue(*team.Color)
-	}
 
 	if team.AutoClosePeriod != nil {
 		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
@@ -858,23 +845,14 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	data.Id = types.StringValue(team.Id)
 	data.Name = types.StringValue(team.Name)
 	data.Private = types.BoolValue(team.Private)
+	data.Description = types.StringPointerValue(team.Description)
+	data.Icon = types.StringPointerValue(team.Icon)
+	data.Color = types.StringPointerValue(team.Color)
 	data.Timezone = types.StringValue(team.Timezone)
 	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
 	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
 	data.EnableIssueDefaultToBottom = types.BoolValue(team.IssueSortOrderDefaultToBottom)
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
-
-	if team.Description != nil {
-		data.Description = types.StringValue(*team.Description)
-	}
-
-	if team.Icon != nil {
-		data.Icon = types.StringValue(*team.Icon)
-	}
-
-	if team.Color != nil {
-		data.Color = types.StringValue(*team.Color)
-	}
 
 	if team.AutoClosePeriod != nil {
 		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
@@ -980,6 +958,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	input := TeamUpdateInput{
 		Private:                       data.Private.ValueBool(),
+		Description:                   data.Description.ValueStringPointer(),
 		Timezone:                      data.Timezone.ValueString(),
 		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.ValueBool(),
 		GroupIssueHistory:             data.EnableIssueHistoryGrouping.ValueBool(),
@@ -993,11 +972,6 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	if data.Name.ValueString() != state.Name.ValueString() {
 		input.Name = data.Name.ValueString()
-	}
-
-	if !data.Description.IsNull() {
-		value := data.Description.ValueString()
-		input.Description = &value
 	}
 
 	if !data.Icon.IsUnknown() {
@@ -1066,23 +1040,14 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	data.Id = types.StringValue(team.Id)
 	data.Private = types.BoolValue(team.Private)
+	data.Description = types.StringPointerValue(team.Description)
+	data.Icon = types.StringPointerValue(team.Icon)
+	data.Color = types.StringPointerValue(team.Color)
 	data.Timezone = types.StringValue(team.Timezone)
 	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
 	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
 	data.EnableIssueDefaultToBottom = types.BoolValue(team.IssueSortOrderDefaultToBottom)
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
-
-	if team.Description != nil {
-		data.Description = types.StringValue(*team.Description)
-	}
-
-	if team.Icon != nil {
-		data.Icon = types.StringValue(*team.Icon)
-	}
-
-	if team.Color != nil {
-		data.Color = types.StringValue(*team.Color)
-	}
 
 	if team.AutoClosePeriod != nil {
 		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
@@ -1208,11 +1173,7 @@ func readWorkflowStateToObject(workflowState getTeamWorkflowStatesWorkflowStates
 		"position":    types.Float64Value(workflowState.Position),
 		"name":        types.StringValue(workflowState.Name),
 		"color":       types.StringValue(workflowState.Color),
-		"description": types.StringNull(),
-	}
-
-	if workflowState.Description != nil {
-		attrs["description"] = types.StringValue(*workflowState.Description)
+		"description": types.StringPointerValue(workflowState.Description),
 	}
 
 	ret := types.ObjectValueMust(
@@ -1235,11 +1196,7 @@ func updateWorkflowStateToObject(workflowState updateWorkflowStateWorkflowStateU
 		"position":    types.Float64Value(workflowState.Position),
 		"name":        types.StringValue(workflowState.Name),
 		"color":       types.StringValue(workflowState.Color),
-		"description": types.StringNull(),
-	}
-
-	if workflowState.Description != nil {
-		attrs["description"] = types.StringValue(*workflowState.Description)
+		"description": types.StringPointerValue(workflowState.Description),
 	}
 
 	ret := types.ObjectValueMust(
@@ -1266,13 +1223,9 @@ func updateTeamWorkflowStateInCreate(ctx context.Context, r *TeamResource, data 
 	}
 
 	workflowStateInput := WorkflowStateUpdateInput{
-		Name:  workflowStateData.Name.ValueString(),
-		Color: workflowStateData.Color.ValueString(),
-	}
-
-	if !workflowStateData.Description.IsNull() {
-		value := workflowStateData.Description.ValueString()
-		workflowStateInput.Description = &value
+		Name:        workflowStateData.Name.ValueString(),
+		Description: workflowStateData.Description.ValueStringPointer(),
+		Color:       workflowStateData.Color.ValueString(),
 	}
 
 	workflowStateResponse, workflowStateErr := updateWorkflowState(ctx, *r.client, workflowStateInput, id)
@@ -1297,13 +1250,9 @@ func updateTeamWorkflowStateInUpdate(ctx context.Context, r *TeamResource, data 
 	}
 
 	workflowStateInput := WorkflowStateUpdateInput{
-		Name:  workflowStateData.Name.ValueString(),
-		Color: workflowStateData.Color.ValueString(),
-	}
-
-	if !workflowStateData.Description.IsNull() {
-		value := workflowStateData.Description.ValueString()
-		workflowStateInput.Description = &value
+		Name:        workflowStateData.Name.ValueString(),
+		Description: workflowStateData.Description.ValueStringPointer(),
+		Color:       workflowStateData.Color.ValueString(),
 	}
 
 	workflowStateResponse, workflowStateErr := updateWorkflowState(ctx, *r.client, workflowStateInput, id)

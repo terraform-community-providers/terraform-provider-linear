@@ -239,30 +239,10 @@ func (r *TeamWorkflowResource) ImportState(ctx context.Context, req resource.Imp
 }
 
 func update(ctx context.Context, data *TeamWorkflowResourceModel, client *graphql.Client) (*updateTeamWorkflowResponse, error) {
-	var draft *string
-	var start *string
-	var review *string
-	var merge *string
-
-	if !data.Draft.IsNull() {
-		value := data.Draft.ValueString()
-		draft = &value
-	}
-
-	if !data.Start.IsNull() {
-		value := data.Start.ValueString()
-		start = &value
-	}
-
-	if !data.Review.IsNull() {
-		value := data.Review.ValueString()
-		review = &value
-	}
-
-	if !data.Merge.IsNull() {
-		value := data.Merge.ValueString()
-		merge = &value
-	}
+	draft := data.Draft.ValueStringPointer()
+	start := data.Start.ValueStringPointer()
+	review := data.Review.ValueStringPointer()
+	merge := data.Merge.ValueStringPointer()
 
 	return updateTeamWorkflow(ctx, *client, data.Key.ValueString(), draft, start, review, merge)
 }

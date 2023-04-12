@@ -137,16 +137,12 @@ func (r *WorkflowStateResource) Create(ctx context.Context, req resource.CreateR
 	position, _ := data.Position.ValueBigFloat().Float64()
 
 	input := WorkflowStateCreateInput{
-		Name:     data.Name.ValueString(),
-		Type:     data.Type.ValueString(),
-		Position: position,
-		Color:    data.Color.ValueString(),
-		TeamId:   data.TeamId.ValueString(),
-	}
-
-	if !data.Description.IsNull() {
-		value := data.Description.ValueString()
-		input.Description = &value
+		Name:        data.Name.ValueString(),
+		Type:        data.Type.ValueString(),
+		Position:    position,
+		Color:       data.Color.ValueString(),
+		Description: data.Description.ValueStringPointer(),
+		TeamId:      data.TeamId.ValueString(),
 	}
 
 	response, err := createWorkflowState(ctx, *r.client, input)
@@ -165,10 +161,7 @@ func (r *WorkflowStateResource) Create(ctx context.Context, req resource.CreateR
 	data.Type = types.StringValue(workflowState.Type)
 	data.Position = types.NumberValue(big.NewFloat(workflowState.Position))
 	data.Color = types.StringValue(workflowState.Color)
-
-	if workflowState.Description != nil {
-		data.Description = types.StringValue(*workflowState.Description)
-	}
+	data.Description = types.StringPointerValue(workflowState.Description)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -198,10 +191,7 @@ func (r *WorkflowStateResource) Read(ctx context.Context, req resource.ReadReque
 	data.Position = types.NumberValue(big.NewFloat(workflowState.Position))
 	data.Color = types.StringValue(workflowState.Color)
 	data.TeamId = types.StringValue(workflowState.Team.Id)
-
-	if workflowState.Description != nil {
-		data.Description = types.StringValue(*workflowState.Description)
-	}
+	data.Description = types.StringPointerValue(workflowState.Description)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -218,14 +208,10 @@ func (r *WorkflowStateResource) Update(ctx context.Context, req resource.UpdateR
 	position, _ := data.Position.ValueBigFloat().Float64()
 
 	input := WorkflowStateUpdateInput{
-		Name:     data.Name.ValueString(),
-		Color:    data.Color.ValueString(),
-		Position: position,
-	}
-
-	if !data.Description.IsNull() {
-		value := data.Description.ValueString()
-		input.Description = &value
+		Name:        data.Name.ValueString(),
+		Color:       data.Color.ValueString(),
+		Description: data.Description.ValueStringPointer(),
+		Position:    position,
 	}
 
 	response, err := updateWorkflowState(ctx, *r.client, input, data.Id.ValueString())
@@ -242,10 +228,7 @@ func (r *WorkflowStateResource) Update(ctx context.Context, req resource.UpdateR
 	data.Name = types.StringValue(workflowState.Name)
 	data.Position = types.NumberValue(big.NewFloat(workflowState.Position))
 	data.Color = types.StringValue(workflowState.Color)
-
-	if workflowState.Description != nil {
-		data.Description = types.StringValue(*workflowState.Description)
-	}
+	data.Description = types.StringPointerValue(workflowState.Description)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
