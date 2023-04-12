@@ -130,10 +130,6 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the team.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					modifiers.NullableString(),
-				},
 			},
 			"icon": schema.StringAttribute{
 				MarkdownDescription: "Icon of the team.",

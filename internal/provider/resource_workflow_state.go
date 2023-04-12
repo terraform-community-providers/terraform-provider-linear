@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
 )
 
 var _ resource.Resource = &WorkflowStateResource{}
@@ -86,10 +85,6 @@ func (r *WorkflowStateResource) Schema(ctx context.Context, req resource.SchemaR
 			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the workflow state.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					modifiers.NullableString(),
-				},
 			},
 			"team_id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the team.",

@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
 )
 
 var _ resource.Resource = &WorkspaceLabelResource{}
@@ -61,10 +60,6 @@ func (r *WorkspaceLabelResource) Schema(ctx context.Context, req resource.Schema
 			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the label.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					modifiers.NullableString(),
-				},
 			},
 			"color": schema.StringAttribute{
 				MarkdownDescription: "Color of the label.",
@@ -80,10 +75,6 @@ func (r *WorkspaceLabelResource) Schema(ctx context.Context, req resource.Schema
 			"parent_id": schema.StringAttribute{
 				MarkdownDescription: "Parent (label group) of the label.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					modifiers.NullableString(),
-				},
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},

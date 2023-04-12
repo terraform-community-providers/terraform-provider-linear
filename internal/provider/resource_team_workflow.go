@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
 )
 
 var _ resource.Resource = &TeamWorkflowResource{}
@@ -64,10 +63,6 @@ func (r *TeamWorkflowResource) Schema(ctx context.Context, req resource.SchemaRe
 			"draft": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when draft PRs are opened.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					modifiers.NullableString(),
-				},
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
@@ -75,10 +70,6 @@ func (r *TeamWorkflowResource) Schema(ctx context.Context, req resource.SchemaRe
 			"start": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when PRs are opened.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					modifiers.NullableString(),
-				},
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
@@ -86,10 +77,6 @@ func (r *TeamWorkflowResource) Schema(ctx context.Context, req resource.SchemaRe
 			"review": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when reviews are requested on PRs.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					modifiers.NullableString(),
-				},
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
@@ -97,10 +84,6 @@ func (r *TeamWorkflowResource) Schema(ctx context.Context, req resource.SchemaRe
 			"merge": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when PRs are merged.",
 				Optional:            true,
-				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					modifiers.NullableString(),
-				},
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
 				},
