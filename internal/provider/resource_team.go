@@ -41,6 +41,10 @@ type TeamResourceTriageModel struct {
 	Enabled types.Bool `tfsdk:"enabled"`
 }
 
+var triageAttrTypes = map[string]attr.Type{
+	"enabled": types.BoolType,
+}
+
 type TeamResourceCyclesModel struct {
 	Enabled          types.Bool    `tfsdk:"enabled"`
 	StartDay         types.Float64 `tfsdk:"start_day"`
@@ -52,11 +56,29 @@ type TeamResourceCyclesModel struct {
 	NeedForActive    types.Bool    `tfsdk:"need_for_active"`
 }
 
+var cyclesAttrTypes = map[string]attr.Type{
+	"enabled":            types.BoolType,
+	"start_day":          types.Float64Type,
+	"duration":           types.Float64Type,
+	"cooldown":           types.Float64Type,
+	"upcoming":           types.Float64Type,
+	"auto_add_started":   types.BoolType,
+	"auto_add_completed": types.BoolType,
+	"need_for_active":    types.BoolType,
+}
+
 type TeamResourceEstimationModel struct {
 	Type      types.String  `tfsdk:"type"`
 	Extended  types.Bool    `tfsdk:"extended"`
 	AllowZero types.Bool    `tfsdk:"allow_zero"`
 	Default   types.Float64 `tfsdk:"default"`
+}
+
+var estimationAttrTypes = map[string]attr.Type{
+	"type":       types.StringType,
+	"extended":   types.BoolType,
+	"allow_zero": types.BoolType,
+	"default":    types.Float64Type,
 }
 
 type TeamResourceWorkflowStateModel struct {
@@ -65,6 +87,14 @@ type TeamResourceWorkflowStateModel struct {
 	Name        types.String  `tfsdk:"name"`
 	Color       types.String  `tfsdk:"color"`
 	Description types.String  `tfsdk:"description"`
+}
+
+var workflowStateAttrTypes = map[string]attr.Type{
+	"id":          types.StringType,
+	"position":    types.Float64Type,
+	"name":        types.StringType,
+	"color":       types.StringType,
+	"description": types.StringType,
 }
 
 type TeamResourceModel struct {
@@ -731,25 +761,14 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	data.Triage = types.ObjectValueMust(
-		map[string]attr.Type{
-			"enabled": types.BoolType,
-		},
+		triageAttrTypes,
 		map[string]attr.Value{
 			"enabled": types.BoolValue(team.TriageEnabled),
 		},
 	)
 
 	data.Cycles = types.ObjectValueMust(
-		map[string]attr.Type{
-			"enabled":            types.BoolType,
-			"start_day":          types.Float64Type,
-			"duration":           types.Float64Type,
-			"cooldown":           types.Float64Type,
-			"upcoming":           types.Float64Type,
-			"auto_add_started":   types.BoolType,
-			"auto_add_completed": types.BoolType,
-			"need_for_active":    types.BoolType,
-		},
+		cyclesAttrTypes,
 		map[string]attr.Value{
 			"enabled":            types.BoolValue(team.CyclesEnabled),
 			"start_day":          types.Float64Value(team.CycleStartDay),
@@ -763,12 +782,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	)
 
 	data.Estimation = types.ObjectValueMust(
-		map[string]attr.Type{
-			"type":       types.StringType,
-			"extended":   types.BoolType,
-			"allow_zero": types.BoolType,
-			"default":    types.Float64Type,
-		},
+		estimationAttrTypes,
 		map[string]attr.Value{
 			"type":       types.StringValue(team.IssueEstimationType),
 			"extended":   types.BoolValue(team.IssueEstimationExtended),
@@ -857,25 +871,14 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	data.Triage = types.ObjectValueMust(
-		map[string]attr.Type{
-			"enabled": types.BoolType,
-		},
+		triageAttrTypes,
 		map[string]attr.Value{
 			"enabled": types.BoolValue(team.TriageEnabled),
 		},
 	)
 
 	data.Cycles = types.ObjectValueMust(
-		map[string]attr.Type{
-			"enabled":            types.BoolType,
-			"start_day":          types.Float64Type,
-			"duration":           types.Float64Type,
-			"cooldown":           types.Float64Type,
-			"upcoming":           types.Float64Type,
-			"auto_add_started":   types.BoolType,
-			"auto_add_completed": types.BoolType,
-			"need_for_active":    types.BoolType,
-		},
+		cyclesAttrTypes,
 		map[string]attr.Value{
 			"enabled":            types.BoolValue(team.CyclesEnabled),
 			"start_day":          types.Float64Value(team.CycleStartDay),
@@ -889,12 +892,7 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	)
 
 	data.Estimation = types.ObjectValueMust(
-		map[string]attr.Type{
-			"type":       types.StringType,
-			"extended":   types.BoolType,
-			"allow_zero": types.BoolType,
-			"default":    types.Float64Type,
-		},
+		estimationAttrTypes,
 		map[string]attr.Value{
 			"type":       types.StringValue(team.IssueEstimationType),
 			"extended":   types.BoolValue(team.IssueEstimationExtended),
@@ -1052,25 +1050,14 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	data.Triage = types.ObjectValueMust(
-		map[string]attr.Type{
-			"enabled": types.BoolType,
-		},
+		triageAttrTypes,
 		map[string]attr.Value{
 			"enabled": types.BoolValue(team.TriageEnabled),
 		},
 	)
 
 	data.Cycles = types.ObjectValueMust(
-		map[string]attr.Type{
-			"enabled":            types.BoolType,
-			"start_day":          types.Float64Type,
-			"duration":           types.Float64Type,
-			"cooldown":           types.Float64Type,
-			"upcoming":           types.Float64Type,
-			"auto_add_started":   types.BoolType,
-			"auto_add_completed": types.BoolType,
-			"need_for_active":    types.BoolType,
-		},
+		cyclesAttrTypes,
 		map[string]attr.Value{
 			"enabled":            types.BoolValue(team.CyclesEnabled),
 			"start_day":          types.Float64Value(team.CycleStartDay),
@@ -1084,12 +1071,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	)
 
 	data.Estimation = types.ObjectValueMust(
-		map[string]attr.Type{
-			"type":       types.StringType,
-			"extended":   types.BoolType,
-			"allow_zero": types.BoolType,
-			"default":    types.Float64Type,
-		},
+		estimationAttrTypes,
 		map[string]attr.Value{
 			"type":       types.StringValue(team.IssueEstimationType),
 			"extended":   types.BoolValue(team.IssueEstimationExtended),
@@ -1164,49 +1146,29 @@ func findWorkflowStateType(workflowStates []getTeamWorkflowStatesWorkflowStatesW
 }
 
 func readWorkflowStateToObject(workflowState getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState) types.Object {
-	attrs := map[string]attr.Value{
-		"id":          types.StringValue(workflowState.Id),
-		"position":    types.Float64Value(workflowState.Position),
-		"name":        types.StringValue(workflowState.Name),
-		"color":       types.StringValue(workflowState.Color),
-		"description": types.StringPointerValue(workflowState.Description),
-	}
-
-	ret := types.ObjectValueMust(
-		map[string]attr.Type{
-			"id":          types.StringType,
-			"position":    types.Float64Type,
-			"name":        types.StringType,
-			"color":       types.StringType,
-			"description": types.StringType,
+	return types.ObjectValueMust(
+		workflowStateAttrTypes,
+		map[string]attr.Value{
+			"id":          types.StringValue(workflowState.Id),
+			"position":    types.Float64Value(workflowState.Position),
+			"name":        types.StringValue(workflowState.Name),
+			"color":       types.StringValue(workflowState.Color),
+			"description": types.StringPointerValue(workflowState.Description),
 		},
-		attrs,
 	)
-
-	return ret
 }
 
 func updateWorkflowStateToObject(workflowState updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState) types.Object {
-	attrs := map[string]attr.Value{
-		"id":          types.StringValue(workflowState.Id),
-		"position":    types.Float64Value(workflowState.Position),
-		"name":        types.StringValue(workflowState.Name),
-		"color":       types.StringValue(workflowState.Color),
-		"description": types.StringPointerValue(workflowState.Description),
-	}
-
-	ret := types.ObjectValueMust(
-		map[string]attr.Type{
-			"id":          types.StringType,
-			"position":    types.Float64Type,
-			"name":        types.StringType,
-			"color":       types.StringType,
-			"description": types.StringType,
+	return types.ObjectValueMust(
+		workflowStateAttrTypes,
+		map[string]attr.Value{
+			"id":          types.StringValue(workflowState.Id),
+			"position":    types.Float64Value(workflowState.Position),
+			"name":        types.StringValue(workflowState.Name),
+			"color":       types.StringValue(workflowState.Color),
+			"description": types.StringPointerValue(workflowState.Description),
 		},
-		attrs,
 	)
-
-	return ret
 }
 
 func updateTeamWorkflowStateInCreate(ctx context.Context, r *TeamResource, data types.Object, resp *resource.CreateResponse, id string) *types.Object {
