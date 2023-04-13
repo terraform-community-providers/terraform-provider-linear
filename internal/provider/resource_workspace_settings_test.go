@@ -25,7 +25,6 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 			{
 				ResourceName:      "linear_workspace_settings.test",
 				ImportState:       true,
-				ImportStateId:     "UX",
 				ImportStateVerify: true,
 			},
 			// Update with null values
@@ -52,7 +51,6 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 			{
 				ResourceName:      "linear_workspace_settings.test",
 				ImportState:       true,
-				ImportStateId:     "Easy UX",
 				ImportStateVerify: true,
 			},
 			// Delete testing automatically occurs in TestCase
@@ -79,7 +77,6 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 			{
 				ResourceName:      "linear_workspace_settings.test",
 				ImportState:       true,
-				ImportStateId:     "Needs product",
 				ImportStateVerify: true,
 			},
 			// Update with same values
@@ -101,6 +98,12 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
 				),
+			},
+			// ImportState testing
+			{
+				ResourceName:      "linear_workspace_settings.test",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// Delete testing automatically occurs in TestCase
 		},

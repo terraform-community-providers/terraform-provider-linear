@@ -115,6 +115,13 @@ func TestAccTeamWorkflowResourceNonDefault(t *testing.T) {
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "merge"),
 				),
 			},
+			// ImportState testing
+			{
+				ResourceName:      "linear_team_workflow.test",
+				ImportState:       true,
+				ImportStateId:     "DEF",
+				ImportStateVerify: true,
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})

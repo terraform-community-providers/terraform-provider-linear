@@ -109,6 +109,13 @@ func TestAccWorkspaceLabelResourceNonDefault(t *testing.T) {
 					resource.TestCheckNoResourceAttr("linear_workspace_label.test", "parent_id"),
 				),
 			},
+			// ImportState testing
+			{
+				ResourceName:      "linear_workspace_label.test",
+				ImportState:       true,
+				ImportStateId:     "UX",
+				ImportStateVerify: true,
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})

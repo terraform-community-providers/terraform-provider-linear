@@ -385,6 +385,13 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckNoResourceAttr("linear_team.test", "canceled_workflow_state.description"),
 				),
 			},
+			// ImportState testing
+			{
+				ResourceName:      "linear_team.test",
+				ImportState:       true,
+				ImportStateId:     "DEV",
+				ImportStateVerify: true,
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})

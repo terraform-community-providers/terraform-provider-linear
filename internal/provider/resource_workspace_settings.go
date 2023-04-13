@@ -208,12 +208,5 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 }
 
 func (r *WorkspaceSettingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	response, err := getWorkspaceSettings(ctx, *r.client)
-
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import workspace settings, got error: %s", err))
-		return
-	}
-
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.Organization.Id)...)
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

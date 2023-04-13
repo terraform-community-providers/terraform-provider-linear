@@ -115,6 +115,13 @@ func TestAccTeamLabelResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team_label.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 				),
 			},
+			// ImportState testing
+			{
+				ResourceName:      "linear_team_label.test",
+				ImportState:       true,
+				ImportStateId:     "Tech Debt:DEF",
+				ImportStateVerify: true,
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})
