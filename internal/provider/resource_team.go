@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -23,7 +24,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-community-providers/terraform-plugin-framework-utils/modifiers"
 )
 
 var _ resource.Resource = &TeamResource{}
@@ -232,17 +232,20 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Triage settings of the team.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Object{
-					modifiers.UnknownAttributesOnUnknown(),
-				},
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						triageAttrTypes,
+						map[string]attr.Value{
+							"enabled": types.BoolValue(false),
+						},
+					),
+				),
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
 						MarkdownDescription: "Enable triage mode for the team. **Default** `false`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Bool{
-							modifiers.DefaultBool(false),
-						},
+						Default:             booldefault.StaticBool(false),
 					},
 				},
 			},
@@ -250,25 +253,33 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Cycle settings of the team.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Object{
-					modifiers.UnknownAttributesOnUnknown(),
-				},
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						cyclesAttrTypes,
+						map[string]attr.Value{
+							"enabled":            types.BoolValue(false),
+							"start_day":          types.Float64Value(0),
+							"duration":           types.Float64Value(1),
+							"cooldown":           types.Float64Value(0),
+							"upcoming":           types.Float64Value(2),
+							"auto_add_started":   types.BoolValue(true),
+							"auto_add_completed": types.BoolValue(true),
+							"need_for_active":    types.BoolValue(false),
+						},
+					),
+				),
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
 						MarkdownDescription: "Enable cycles for the team. **Default** `false`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Bool{
-							modifiers.DefaultBool(false),
-						},
+						Default:             booldefault.StaticBool(false),
 					},
 					"start_day": schema.Float64Attribute{
 						MarkdownDescription: "Start day of the cycle. Sunday is 0, Saturday is 6. **Default** `0`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Float64{
-							modifiers.DefaultFloat(0),
-						},
+						Default:             float64default.StaticFloat64(0),
 						Validators: []validator.Float64{
 							float64validator.OneOf([]float64{0, 1, 2, 3, 4, 5, 6}...),
 						},
@@ -277,9 +288,7 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						MarkdownDescription: "Duration of the cycle in weeks. **Default** `1`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Float64{
-							modifiers.DefaultFloat(1),
-						},
+						Default:             float64default.StaticFloat64(1),
 						Validators: []validator.Float64{
 							float64validator.OneOf([]float64{1, 2, 3, 4, 5, 6, 7, 8}...),
 						},
@@ -288,9 +297,7 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						MarkdownDescription: "Cooldown time between cycles in weeks. **Default** `0`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Float64{
-							modifiers.DefaultFloat(0),
-						},
+						Default:             float64default.StaticFloat64(0),
 						Validators: []validator.Float64{
 							float64validator.OneOf([]float64{0, 1, 2, 3}...),
 						},
@@ -299,9 +306,7 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						MarkdownDescription: "Number of upcoming cycles to automatically create. **Default** `2`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Float64{
-							modifiers.DefaultFloat(2),
-						},
+						Default:             float64default.StaticFloat64(2),
 						Validators: []validator.Float64{
 							float64validator.OneOf([]float64{1, 2, 3, 4, 6, 8, 10}...),
 						},
@@ -310,25 +315,19 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						MarkdownDescription: "Auto add started issues that don't belong to any cycle to the active cycle. **Default** `true`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Bool{
-							modifiers.DefaultBool(true),
-						},
+						Default:             booldefault.StaticBool(true),
 					},
 					"auto_add_completed": schema.BoolAttribute{
 						MarkdownDescription: "Auto add completed issues that don't belong to any cycle to the active cycle. **Default** `true`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Bool{
-							modifiers.DefaultBool(true),
-						},
+						Default:             booldefault.StaticBool(true),
 					},
 					"need_for_active": schema.BoolAttribute{
 						MarkdownDescription: "Whether all active issues need to have a cycle. **Default** `false`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Bool{
-							modifiers.DefaultBool(false),
-						},
+						Default:             booldefault.StaticBool(false),
 					},
 				},
 			},
@@ -336,17 +335,23 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Issue estimation settings of the team.",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Object{
-					modifiers.UnknownAttributesOnUnknown(),
-				},
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						estimationAttrTypes,
+						map[string]attr.Value{
+							"type":       types.StringValue("notUsed"),
+							"extended":   types.BoolValue(false),
+							"allow_zero": types.BoolValue(false),
+							"default":    types.Float64Value(1),
+						},
+					),
+				),
 				Attributes: map[string]schema.Attribute{
 					"type": schema.StringAttribute{
 						MarkdownDescription: "Issue estimation type for the team. **Default** `notUsed`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("notUsed"),
-						},
+						Default:             stringdefault.StaticString("notUsed"),
 						Validators: []validator.String{
 							stringvalidator.OneOf([]string{"notUsed", "exponential", "fibonacci", "linear", "tShirt"}...),
 						},
@@ -355,25 +360,19 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						MarkdownDescription: "Whether the team uses extended estimation. **Default** `false`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Bool{
-							modifiers.DefaultBool(false),
-						},
+						Default:             booldefault.StaticBool(false),
 					},
 					"allow_zero": schema.BoolAttribute{
 						MarkdownDescription: "Whether zero is allowed as an estimation. **Default** `false`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Bool{
-							modifiers.DefaultBool(false),
-						},
+						Default:             booldefault.StaticBool(false),
 					},
 					"default": schema.Float64Attribute{
 						MarkdownDescription: "Default estimation for issues that are unestimated. **Default** `1`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Float64{
-							modifiers.DefaultFloat(1),
-						},
+						Default:             float64default.StaticFloat64(1),
 						Validators: []validator.Float64{
 							float64validator.OneOf([]float64{0, 1}...),
 						},
@@ -384,9 +383,18 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Settings for the `backlog` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Object{
-					modifiers.UnknownAttributesOnUnknown(),
-				},
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						workflowStateAttrTypes,
+						map[string]attr.Value{
+							"id":          types.StringUnknown(),
+							"position":    types.Float64Unknown(),
+							"name":        types.StringValue("Backlog"),
+							"color":       types.StringValue("#bec2c8"),
+							"description": types.StringNull(),
+						},
+					),
+				),
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
 						MarkdownDescription: "Identifier of the workflow state.",
@@ -406,17 +414,13 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						MarkdownDescription: "Name of the workflow state. **Default** `Backlog`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("Backlog"),
-						},
+						Default:             stringdefault.StaticString("Backlog"),
 					},
 					"color": schema.StringAttribute{
 						MarkdownDescription: "Color of the workflow state. **Default** `#bec2c8`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("#bec2c8"),
-						},
+						Default:             stringdefault.StaticString("#bec2c8"),
 						Validators: []validator.String{
 							stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 						},
@@ -424,10 +428,6 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 					"description": schema.StringAttribute{
 						MarkdownDescription: "Description of the workflow state.",
 						Optional:            true,
-						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.NullableString(),
-						},
 					},
 				},
 			},
@@ -435,9 +435,18 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Settings for the `unstarted` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Object{
-					modifiers.UnknownAttributesOnUnknown(),
-				},
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						workflowStateAttrTypes,
+						map[string]attr.Value{
+							"id":          types.StringUnknown(),
+							"position":    types.Float64Unknown(),
+							"name":        types.StringValue("Todo"),
+							"color":       types.StringValue("#e2e2e2"),
+							"description": types.StringNull(),
+						},
+					),
+				),
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
 						MarkdownDescription: "Identifier of the workflow state.",
@@ -457,17 +466,13 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						MarkdownDescription: "Name of the workflow state. **Default** `Todo`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("Todo"),
-						},
+						Default:             stringdefault.StaticString("Todo"),
 					},
 					"color": schema.StringAttribute{
 						MarkdownDescription: "Color of the workflow state. **Default** `#e2e2e2`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("#e2e2e2"),
-						},
+						Default:             stringdefault.StaticString("#e2e2e2"),
 						Validators: []validator.String{
 							stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 						},
@@ -475,10 +480,6 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 					"description": schema.StringAttribute{
 						MarkdownDescription: "Description of the workflow state.",
 						Optional:            true,
-						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.NullableString(),
-						},
 					},
 				},
 			},
@@ -486,9 +487,18 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Settings for the `started` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Object{
-					modifiers.UnknownAttributesOnUnknown(),
-				},
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						workflowStateAttrTypes,
+						map[string]attr.Value{
+							"id":          types.StringUnknown(),
+							"position":    types.Float64Unknown(),
+							"name":        types.StringValue("In Progress"),
+							"color":       types.StringValue("#f2c94c"),
+							"description": types.StringNull(),
+						},
+					),
+				),
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
 						MarkdownDescription: "Identifier of the workflow state.",
@@ -508,17 +518,13 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						MarkdownDescription: "Name of the workflow state. **Default** `In Progress`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("In Progress"),
-						},
+						Default:             stringdefault.StaticString("In Progress"),
 					},
 					"color": schema.StringAttribute{
 						MarkdownDescription: "Color of the workflow state. **Default** `#f2c94c`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("#f2c94c"),
-						},
+						Default:             stringdefault.StaticString("#f2c94c"),
 						Validators: []validator.String{
 							stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 						},
@@ -526,10 +532,6 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 					"description": schema.StringAttribute{
 						MarkdownDescription: "Description of the workflow state.",
 						Optional:            true,
-						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.NullableString(),
-						},
 					},
 				},
 			},
@@ -537,9 +539,18 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Settings for the `completed` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Object{
-					modifiers.UnknownAttributesOnUnknown(),
-				},
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						workflowStateAttrTypes,
+						map[string]attr.Value{
+							"id":          types.StringUnknown(),
+							"position":    types.Float64Unknown(),
+							"name":        types.StringValue("Done"),
+							"color":       types.StringValue("#5e6ad2"),
+							"description": types.StringNull(),
+						},
+					),
+				),
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
 						MarkdownDescription: "Identifier of the workflow state.",
@@ -559,17 +570,13 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						MarkdownDescription: "Name of the workflow state. **Default** `Done`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("Done"),
-						},
+						Default:             stringdefault.StaticString("Done"),
 					},
 					"color": schema.StringAttribute{
 						MarkdownDescription: "Color of the workflow state. **Default** `#5e6ad2`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("#5e6ad2"),
-						},
+						Default:             stringdefault.StaticString("#5e6ad2"),
 						Validators: []validator.String{
 							stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 						},
@@ -577,10 +584,6 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 					"description": schema.StringAttribute{
 						MarkdownDescription: "Description of the workflow state.",
 						Optional:            true,
-						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.NullableString(),
-						},
 					},
 				},
 			},
@@ -588,9 +591,18 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Settings for the `canceled` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.*",
 				Optional:            true,
 				Computed:            true,
-				PlanModifiers: []planmodifier.Object{
-					modifiers.UnknownAttributesOnUnknown(),
-				},
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						workflowStateAttrTypes,
+						map[string]attr.Value{
+							"id":          types.StringUnknown(),
+							"position":    types.Float64Unknown(),
+							"name":        types.StringValue("Canceled"),
+							"color":       types.StringValue("#95a2b3"),
+							"description": types.StringNull(),
+						},
+					),
+				),
 				Attributes: map[string]schema.Attribute{
 					"id": schema.StringAttribute{
 						MarkdownDescription: "Identifier of the workflow state.",
@@ -610,17 +622,13 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						MarkdownDescription: "Name of the workflow state. **Default** `Canceled`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("Canceled"),
-						},
+						Default:             stringdefault.StaticString("Canceled"),
 					},
 					"color": schema.StringAttribute{
 						MarkdownDescription: "Color of the workflow state. **Default** `#95a2b3`.",
 						Optional:            true,
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.DefaultString("#95a2b3"),
-						},
+						Default:             stringdefault.StaticString("#95a2b3"),
 						Validators: []validator.String{
 							stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
 						},
@@ -628,10 +636,6 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 					"description": schema.StringAttribute{
 						MarkdownDescription: "Description of the workflow state.",
 						Optional:            true,
-						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							modifiers.NullableString(),
-						},
 					},
 				},
 			},
