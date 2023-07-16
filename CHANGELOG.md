@@ -1,4 +1,9 @@
-## 0.2.2
+## 0.2.3
+
+### Enhancements
+* Position of default workflow states is always `0`.
+
+## 0.2.1
 
 ### Enhancements
 * Improve recognition of existing workflows when importing a team
