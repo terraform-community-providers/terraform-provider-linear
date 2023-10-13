@@ -99,7 +99,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	input := UpdateOrganizationInput{
+	input := OrganizationUpdateInput{
 		RoadmapEnabled:                   data.EnableRoadmap.ValueBool(),
 		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.ValueBool(),
 		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.ValueBool(),
@@ -157,7 +157,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 		return
 	}
 
-	input := UpdateOrganizationInput{
+	input := OrganizationUpdateInput{
 		RoadmapEnabled:                   data.EnableRoadmap.ValueBool(),
 		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.ValueBool(),
 		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.ValueBool(),
@@ -191,7 +191,7 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	input := UpdateOrganizationInput{
+	input := OrganizationUpdateInput{
 		RoadmapEnabled:                   false,
 		GitLinkbackMessagesEnabled:       false,
 		GitPublicLinkbackMessagesEnabled: false,

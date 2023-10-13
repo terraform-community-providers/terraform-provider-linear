@@ -37,7 +37,7 @@ type IssueLabel struct {
 	Color *string `json:"color"`
 	// The parent label.
 	Parent *IssueLabelParentIssueLabel `json:"parent"`
-	// The team that the label is associated with. If null, the label is associated with the global workspace..
+	// The team that the label is associated with. If null, the label is associated with the global workspace.
 	Team *IssueLabelTeam `json:"team"`
 }
 
@@ -168,13 +168,124 @@ func (v *Organization) GetGitPublicLinkbackMessagesEnabled() bool {
 	return v.GitPublicLinkbackMessagesEnabled
 }
 
+type OrganizationUpdateInput struct {
+	// The name of the organization.
+	Name string `json:"name,omitempty"`
+	// The logo of the organization.
+	LogoUrl string `json:"logoUrl,omitempty"`
+	// The URL key of the organization.
+	UrlKey string `json:"urlKey,omitempty"`
+	// How git branches are formatted. If null, default formatting will be used.
+	GitBranchFormat string `json:"gitBranchFormat,omitempty"`
+	// Whether the Git integration linkback messages should be sent for private repositories.
+	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
+	// Whether the Git integration linkback messages should be sent for public repositories.
+	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+	// Whether the organization is using roadmap.
+	RoadmapEnabled bool `json:"roadmapEnabled"`
+	// The frequency at which project updates are sent.
+	ProjectUpdatesReminderFrequency ProjectUpdateReminderFrequency `json:"projectUpdatesReminderFrequency,omitempty"`
+	// The day at which project updates are sent.
+	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay,omitempty"`
+	// The hour at which project updates are sent.
+	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour,omitempty"`
+	// Whether the organization has opted for reduced customer support attachment information.
+	ReducedPersonalInformation bool `json:"reducedPersonalInformation,omitempty"`
+	// Whether the organization has opted for having to approve all OAuth applications for install.
+	OauthAppReview bool `json:"oauthAppReview,omitempty"`
+	// Linear Preview feature flags
+	LinearPreviewFlags map[string]interface{} `json:"linearPreviewFlags,omitempty"`
+	// List of services that are allowed to be used for login.
+	AllowedAuthServices []string `json:"allowedAuthServices,omitempty"`
+	// Internal. Whether SLAs have been enabled for the organization.
+	SlaEnabled bool `json:"slaEnabled"`
+	// Which day count to use for SLA calculation.
+	SlaDayCount SLADayCountType `json:"slaDayCount"`
+	// Whether member users are allowed to send invites.
+	AllowMembersToInvite bool `json:"allowMembersToInvite"`
+}
+
+// GetName returns OrganizationUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetName() string { return v.Name }
+
+// GetLogoUrl returns OrganizationUpdateInput.LogoUrl, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetLogoUrl() string { return v.LogoUrl }
+
+// GetUrlKey returns OrganizationUpdateInput.UrlKey, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetUrlKey() string { return v.UrlKey }
+
+// GetGitBranchFormat returns OrganizationUpdateInput.GitBranchFormat, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetGitBranchFormat() string { return v.GitBranchFormat }
+
+// GetGitLinkbackMessagesEnabled returns OrganizationUpdateInput.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetGitLinkbackMessagesEnabled() bool {
+	return v.GitLinkbackMessagesEnabled
+}
+
+// GetGitPublicLinkbackMessagesEnabled returns OrganizationUpdateInput.GitPublicLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetGitPublicLinkbackMessagesEnabled() bool {
+	return v.GitPublicLinkbackMessagesEnabled
+}
+
+// GetRoadmapEnabled returns OrganizationUpdateInput.RoadmapEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
+
+// GetProjectUpdatesReminderFrequency returns OrganizationUpdateInput.ProjectUpdatesReminderFrequency, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetProjectUpdatesReminderFrequency() ProjectUpdateReminderFrequency {
+	return v.ProjectUpdatesReminderFrequency
+}
+
+// GetProjectUpdateRemindersDay returns OrganizationUpdateInput.ProjectUpdateRemindersDay, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetProjectUpdateRemindersDay() Day {
+	return v.ProjectUpdateRemindersDay
+}
+
+// GetProjectUpdateRemindersHour returns OrganizationUpdateInput.ProjectUpdateRemindersHour, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetProjectUpdateRemindersHour() float64 {
+	return v.ProjectUpdateRemindersHour
+}
+
+// GetReducedPersonalInformation returns OrganizationUpdateInput.ReducedPersonalInformation, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetReducedPersonalInformation() bool {
+	return v.ReducedPersonalInformation
+}
+
+// GetOauthAppReview returns OrganizationUpdateInput.OauthAppReview, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetOauthAppReview() bool { return v.OauthAppReview }
+
+// GetLinearPreviewFlags returns OrganizationUpdateInput.LinearPreviewFlags, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetLinearPreviewFlags() map[string]interface{} {
+	return v.LinearPreviewFlags
+}
+
+// GetAllowedAuthServices returns OrganizationUpdateInput.AllowedAuthServices, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAllowedAuthServices() []string { return v.AllowedAuthServices }
+
+// GetSlaEnabled returns OrganizationUpdateInput.SlaEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetSlaEnabled() bool { return v.SlaEnabled }
+
+// GetSlaDayCount returns OrganizationUpdateInput.SlaDayCount, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetSlaDayCount() SLADayCountType { return v.SlaDayCount }
+
+// GetAllowMembersToInvite returns OrganizationUpdateInput.AllowMembersToInvite, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAllowMembersToInvite() bool { return v.AllowMembersToInvite }
+
 // The frequency at which to send project update reminders.
 type ProjectUpdateReminderFrequency string
 
 const (
 	ProjectUpdateReminderFrequencyWeek     ProjectUpdateReminderFrequency = "week"
 	ProjectUpdateReminderFrequencyTwoweeks ProjectUpdateReminderFrequency = "twoWeeks"
+	ProjectUpdateReminderFrequencyMonth    ProjectUpdateReminderFrequency = "month"
 	ProjectUpdateReminderFrequencyNever    ProjectUpdateReminderFrequency = "never"
+)
+
+// Which day count to use for SLA calculations
+type SLADayCountType string
+
+const (
+	SLADayCountTypeAll              SLADayCountType = "all"
+	SLADayCountTypeOnlybusinessdays SLADayCountType = "onlyBusinessDays"
 )
 
 // Team includes the GraphQL fields of Team requested by the fragment Team.
@@ -224,9 +335,9 @@ type Team struct {
 	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
 	// Auto assign completed issues to current cycle.
 	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
-	// Only allow issues issues with cycles in Active Issues.
+	// Auto assign issues to current cycle if in active status.
 	CycleLockToActive bool `json:"cycleLockToActive"`
-	// The issue estimation type to use.
+	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
 	IssueEstimationType string `json:"issueEstimationType"`
 	// Whether to allow zeros in issues estimates.
 	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
@@ -347,11 +458,13 @@ type TeamCreateInput struct {
 	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
 	// Whether triage mode is enabled for the team.
 	TriageEnabled bool `json:"triageEnabled"`
+	// Whether an issue needs to have a priority set before leaving triage.
+	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
 	// The timezone of the team.
 	Timezone string `json:"timezone"`
 	// Whether issues without priority should be sorted first.
 	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
-	// The issue estimation type to use.
+	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
 	IssueEstimationType string `json:"issueEstimationType"`
 	// Whether to allow zeros in issues estimates.
 	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
@@ -367,6 +480,8 @@ type TeamCreateInput struct {
 	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId,omitempty"`
 	// The identifier of the default template for non-members of this team.
 	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId,omitempty"`
+	// The identifier of the default project template of this team.
+	DefaultProjectTemplateId string `json:"defaultProjectTemplateId"`
 	// Internal. Whether the team is private or not.
 	Private bool `json:"private"`
 	// Period after which issues are automatically closed, in months.
@@ -429,6 +544,11 @@ func (v *TeamCreateInput) GetUpcomingCycleCount() float64 { return v.UpcomingCyc
 // GetTriageEnabled returns TeamCreateInput.TriageEnabled, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetTriageEnabled() bool { return v.TriageEnabled }
 
+// GetRequirePriorityToLeaveTriage returns TeamCreateInput.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetRequirePriorityToLeaveTriage() bool {
+	return v.RequirePriorityToLeaveTriage
+}
+
 // GetTimezone returns TeamCreateInput.Timezone, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetTimezone() string { return v.Timezone }
 
@@ -466,6 +586,9 @@ func (v *TeamCreateInput) GetDefaultTemplateForMembersId() string {
 func (v *TeamCreateInput) GetDefaultTemplateForNonMembersId() string {
 	return v.DefaultTemplateForNonMembersId
 }
+
+// GetDefaultProjectTemplateId returns TeamCreateInput.DefaultProjectTemplateId, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetDefaultProjectTemplateId() string { return v.DefaultProjectTemplateId }
 
 // GetPrivate returns TeamCreateInput.Private, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetPrivate() bool { return v.Private }
@@ -517,7 +640,7 @@ type TeamUpdateInput struct {
 	Timezone string `json:"timezone"`
 	// Whether issues without priority should be sorted first.
 	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
-	// The issue estimation type to use.
+	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
 	IssueEstimationType string `json:"issueEstimationType"`
 	// Whether to allow zeros in issues estimates.
 	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
@@ -533,6 +656,8 @@ type TeamUpdateInput struct {
 	StartWorkflowStateId string `json:"startWorkflowStateId,omitempty"`
 	// The workflow state into which issues are moved when a review has been requested for the PR.
 	ReviewWorkflowStateId string `json:"reviewWorkflowStateId,omitempty"`
+	// The workflow state into which issues are moved when a PR is ready to be merged.
+	MergeableWorkflowStateId string `json:"mergeableWorkflowStateId"`
 	// The workflow state into which issues are moved when a PR has been merged.
 	MergeWorkflowStateId string `json:"mergeWorkflowStateId,omitempty"`
 	// Whether to send new issue notifications to Slack.
@@ -547,10 +672,14 @@ type TeamUpdateInput struct {
 	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId,omitempty"`
 	// The identifier of the default template for non-members of this team.
 	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId,omitempty"`
+	// The identifier of the default project template of this team.
+	DefaultProjectTemplateId string `json:"defaultProjectTemplateId"`
 	// Whether the team is private or not.
 	Private bool `json:"private"`
 	// Whether triage mode is enabled for the team.
 	TriageEnabled bool `json:"triageEnabled"`
+	// Whether an issue needs to have a priority set before leaving triage.
+	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
 	// Default status for newly created issues.
 	DefaultIssueStateId string `json:"defaultIssueStateId,omitempty"`
 	// Period after which issues are automatically closed, in months.
@@ -641,6 +770,9 @@ func (v *TeamUpdateInput) GetStartWorkflowStateId() string { return v.StartWorkf
 // GetReviewWorkflowStateId returns TeamUpdateInput.ReviewWorkflowStateId, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetReviewWorkflowStateId() string { return v.ReviewWorkflowStateId }
 
+// GetMergeableWorkflowStateId returns TeamUpdateInput.MergeableWorkflowStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetMergeableWorkflowStateId() string { return v.MergeableWorkflowStateId }
+
 // GetMergeWorkflowStateId returns TeamUpdateInput.MergeWorkflowStateId, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetMergeWorkflowStateId() string { return v.MergeWorkflowStateId }
 
@@ -666,11 +798,19 @@ func (v *TeamUpdateInput) GetDefaultTemplateForNonMembersId() string {
 	return v.DefaultTemplateForNonMembersId
 }
 
+// GetDefaultProjectTemplateId returns TeamUpdateInput.DefaultProjectTemplateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetDefaultProjectTemplateId() string { return v.DefaultProjectTemplateId }
+
 // GetPrivate returns TeamUpdateInput.Private, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetPrivate() bool { return v.Private }
 
 // GetTriageEnabled returns TeamUpdateInput.TriageEnabled, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetTriageEnabled() bool { return v.TriageEnabled }
+
+// GetRequirePriorityToLeaveTriage returns TeamUpdateInput.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetRequirePriorityToLeaveTriage() bool {
+	return v.RequirePriorityToLeaveTriage
+}
 
 // GetDefaultIssueStateId returns TeamUpdateInput.DefaultIssueStateId, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetDefaultIssueStateId() string { return v.DefaultIssueStateId }
@@ -782,93 +922,6 @@ type TeamWorkflowStartWorkflowState struct {
 // GetId returns TeamWorkflowStartWorkflowState.Id, and is useful for accessing the field via an interface.
 func (v *TeamWorkflowStartWorkflowState) GetId() string { return v.Id }
 
-type UpdateOrganizationInput struct {
-	// The name of the organization.
-	Name string `json:"name,omitempty"`
-	// The logo of the organization.
-	LogoUrl string `json:"logoUrl,omitempty"`
-	// The URL key of the organization.
-	UrlKey string `json:"urlKey,omitempty"`
-	// How git branches are formatted. If null, default formatting will be used.
-	GitBranchFormat string `json:"gitBranchFormat,omitempty"`
-	// Whether the Git integration linkback messages should be sent for private repositories.
-	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
-	// Whether the Git integration linkback messages should be sent for public repositories.
-	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
-	// Whether the organization is using roadmap.
-	RoadmapEnabled bool `json:"roadmapEnabled"`
-	// The frequency at which project updates are sent.
-	ProjectUpdatesReminderFrequency ProjectUpdateReminderFrequency `json:"projectUpdatesReminderFrequency,omitempty"`
-	// The day at which project updates are sent.
-	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay,omitempty"`
-	// The hour at which project updates are sent.
-	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour,omitempty"`
-	// Whether the organization has opted for reduced customer support attachment information.
-	ReducedPersonalInformation bool `json:"reducedPersonalInformation,omitempty"`
-	// Whether the organization has opted for having to approve all OAuth applications for install.
-	OauthAppReview bool `json:"oauthAppReview,omitempty"`
-	// Linear Preview feature flags
-	LinearPreviewFlags map[string]interface{} `json:"linearPreviewFlags,omitempty"`
-	// List of services that are allowed to be used for login.
-	AllowedAuthServices []string `json:"allowedAuthServices,omitempty"`
-}
-
-// GetName returns UpdateOrganizationInput.Name, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetName() string { return v.Name }
-
-// GetLogoUrl returns UpdateOrganizationInput.LogoUrl, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetLogoUrl() string { return v.LogoUrl }
-
-// GetUrlKey returns UpdateOrganizationInput.UrlKey, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetUrlKey() string { return v.UrlKey }
-
-// GetGitBranchFormat returns UpdateOrganizationInput.GitBranchFormat, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetGitBranchFormat() string { return v.GitBranchFormat }
-
-// GetGitLinkbackMessagesEnabled returns UpdateOrganizationInput.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetGitLinkbackMessagesEnabled() bool {
-	return v.GitLinkbackMessagesEnabled
-}
-
-// GetGitPublicLinkbackMessagesEnabled returns UpdateOrganizationInput.GitPublicLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetGitPublicLinkbackMessagesEnabled() bool {
-	return v.GitPublicLinkbackMessagesEnabled
-}
-
-// GetRoadmapEnabled returns UpdateOrganizationInput.RoadmapEnabled, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
-
-// GetProjectUpdatesReminderFrequency returns UpdateOrganizationInput.ProjectUpdatesReminderFrequency, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetProjectUpdatesReminderFrequency() ProjectUpdateReminderFrequency {
-	return v.ProjectUpdatesReminderFrequency
-}
-
-// GetProjectUpdateRemindersDay returns UpdateOrganizationInput.ProjectUpdateRemindersDay, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetProjectUpdateRemindersDay() Day {
-	return v.ProjectUpdateRemindersDay
-}
-
-// GetProjectUpdateRemindersHour returns UpdateOrganizationInput.ProjectUpdateRemindersHour, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetProjectUpdateRemindersHour() float64 {
-	return v.ProjectUpdateRemindersHour
-}
-
-// GetReducedPersonalInformation returns UpdateOrganizationInput.ReducedPersonalInformation, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetReducedPersonalInformation() bool {
-	return v.ReducedPersonalInformation
-}
-
-// GetOauthAppReview returns UpdateOrganizationInput.OauthAppReview, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetOauthAppReview() bool { return v.OauthAppReview }
-
-// GetLinearPreviewFlags returns UpdateOrganizationInput.LinearPreviewFlags, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetLinearPreviewFlags() map[string]interface{} {
-	return v.LinearPreviewFlags
-}
-
-// GetAllowedAuthServices returns UpdateOrganizationInput.AllowedAuthServices, and is useful for accessing the field via an interface.
-func (v *UpdateOrganizationInput) GetAllowedAuthServices() []string { return v.AllowedAuthServices }
-
 // WorkflowState includes the GraphQL fields of WorkflowState requested by the fragment WorkflowState.
 // The GraphQL type's documentation follows.
 //
@@ -882,7 +935,7 @@ type WorkflowState struct {
 	Color string `json:"color"`
 	// Description of the state.
 	Description *string `json:"description"`
-	// The type of the state.
+	// The type of the state. One of "triage", "backlog", "unstarted", "started", "completed", "canceled".
 	Type string `json:"type"`
 	// The position of the state in the team flow.
 	Position float64 `json:"position"`
@@ -1166,11 +1219,11 @@ func (v *__updateWorkflowStateInput) GetId() string { return v.Id }
 
 // __updateWorkspaceSettingsInput is used internally by genqlient
 type __updateWorkspaceSettingsInput struct {
-	Input UpdateOrganizationInput `json:"input"`
+	Input OrganizationUpdateInput `json:"input"`
 }
 
 // GetInput returns __updateWorkspaceSettingsInput.Input, and is useful for accessing the field via an interface.
-func (v *__updateWorkspaceSettingsInput) GetInput() UpdateOrganizationInput { return v.Input }
+func (v *__updateWorkspaceSettingsInput) GetInput() OrganizationUpdateInput { return v.Input }
 
 // createLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
 type createLabelIssueLabelCreateIssueLabelPayload struct {
@@ -1671,63 +1724,74 @@ func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState
 	return &retval, nil
 }
 
-// deleteLabelIssueLabelDeleteArchivePayload includes the requested fields of the GraphQL type ArchivePayload.
-type deleteLabelIssueLabelDeleteArchivePayload struct {
+// deleteLabelIssueLabelDeleteDeletePayload includes the requested fields of the GraphQL type DeletePayload.
+// The GraphQL type's documentation follows.
+//
+// A generic payload return from entity deletion mutations.
+type deleteLabelIssueLabelDeleteDeletePayload struct {
 	// Whether the operation was successful.
 	Success bool `json:"success"`
 }
 
-// GetSuccess returns deleteLabelIssueLabelDeleteArchivePayload.Success, and is useful for accessing the field via an interface.
-func (v *deleteLabelIssueLabelDeleteArchivePayload) GetSuccess() bool { return v.Success }
+// GetSuccess returns deleteLabelIssueLabelDeleteDeletePayload.Success, and is useful for accessing the field via an interface.
+func (v *deleteLabelIssueLabelDeleteDeletePayload) GetSuccess() bool { return v.Success }
 
 // deleteLabelResponse is returned by deleteLabel on success.
 type deleteLabelResponse struct {
 	// Deletes an issue label.
-	IssueLabelDelete deleteLabelIssueLabelDeleteArchivePayload `json:"issueLabelDelete"`
+	IssueLabelDelete deleteLabelIssueLabelDeleteDeletePayload `json:"issueLabelDelete"`
 }
 
 // GetIssueLabelDelete returns deleteLabelResponse.IssueLabelDelete, and is useful for accessing the field via an interface.
-func (v *deleteLabelResponse) GetIssueLabelDelete() deleteLabelIssueLabelDeleteArchivePayload {
+func (v *deleteLabelResponse) GetIssueLabelDelete() deleteLabelIssueLabelDeleteDeletePayload {
 	return v.IssueLabelDelete
 }
 
 // deleteTeamResponse is returned by deleteTeam on success.
 type deleteTeamResponse struct {
 	// Deletes a team.
-	TeamDelete deleteTeamTeamDeleteArchivePayload `json:"teamDelete"`
+	TeamDelete deleteTeamTeamDeleteDeletePayload `json:"teamDelete"`
 }
 
 // GetTeamDelete returns deleteTeamResponse.TeamDelete, and is useful for accessing the field via an interface.
-func (v *deleteTeamResponse) GetTeamDelete() deleteTeamTeamDeleteArchivePayload { return v.TeamDelete }
+func (v *deleteTeamResponse) GetTeamDelete() deleteTeamTeamDeleteDeletePayload { return v.TeamDelete }
 
-// deleteTeamTeamDeleteArchivePayload includes the requested fields of the GraphQL type ArchivePayload.
-type deleteTeamTeamDeleteArchivePayload struct {
+// deleteTeamTeamDeleteDeletePayload includes the requested fields of the GraphQL type DeletePayload.
+// The GraphQL type's documentation follows.
+//
+// A generic payload return from entity deletion mutations.
+type deleteTeamTeamDeleteDeletePayload struct {
 	// Whether the operation was successful.
 	Success bool `json:"success"`
 }
 
-// GetSuccess returns deleteTeamTeamDeleteArchivePayload.Success, and is useful for accessing the field via an interface.
-func (v *deleteTeamTeamDeleteArchivePayload) GetSuccess() bool { return v.Success }
+// GetSuccess returns deleteTeamTeamDeleteDeletePayload.Success, and is useful for accessing the field via an interface.
+func (v *deleteTeamTeamDeleteDeletePayload) GetSuccess() bool { return v.Success }
 
 // deleteWorkflowStateResponse is returned by deleteWorkflowState on success.
 type deleteWorkflowStateResponse struct {
 	// Archives a state. Only states with issues that have all been archived can be archived.
-	WorkflowStateArchive deleteWorkflowStateWorkflowStateArchiveArchivePayload `json:"workflowStateArchive"`
+	WorkflowStateArchive deleteWorkflowStateWorkflowStateArchiveWorkflowStateArchivePayload `json:"workflowStateArchive"`
 }
 
 // GetWorkflowStateArchive returns deleteWorkflowStateResponse.WorkflowStateArchive, and is useful for accessing the field via an interface.
-func (v *deleteWorkflowStateResponse) GetWorkflowStateArchive() deleteWorkflowStateWorkflowStateArchiveArchivePayload {
+func (v *deleteWorkflowStateResponse) GetWorkflowStateArchive() deleteWorkflowStateWorkflowStateArchiveWorkflowStateArchivePayload {
 	return v.WorkflowStateArchive
 }
 
-// deleteWorkflowStateWorkflowStateArchiveArchivePayload includes the requested fields of the GraphQL type ArchivePayload.
-type deleteWorkflowStateWorkflowStateArchiveArchivePayload struct {
+// deleteWorkflowStateWorkflowStateArchiveWorkflowStateArchivePayload includes the requested fields of the GraphQL type WorkflowStateArchivePayload.
+// The GraphQL type's documentation follows.
+//
+// A generic payload return from entity archive mutations.
+type deleteWorkflowStateWorkflowStateArchiveWorkflowStateArchivePayload struct {
 	// Whether the operation was successful.
 	Success bool `json:"success"`
 }
 
-// GetSuccess returns deleteWorkflowStateWorkflowStateArchiveArchivePayload.Success, and is useful for accessing the field via an interface.
-func (v *deleteWorkflowStateWorkflowStateArchiveArchivePayload) GetSuccess() bool { return v.Success }
+// GetSuccess returns deleteWorkflowStateWorkflowStateArchiveWorkflowStateArchivePayload.Success, and is useful for accessing the field via an interface.
+func (v *deleteWorkflowStateWorkflowStateArchiveWorkflowStateArchivePayload) GetSuccess() bool {
+	return v.Success
+}
 
 // findTeamLabelIssueLabelsIssueLabelConnection includes the requested fields of the GraphQL type IssueLabelConnection.
 type findTeamLabelIssueLabelsIssueLabelConnection struct {
@@ -1814,7 +1878,7 @@ func (v *findWorkspaceLabelIssueLabelsIssueLabelConnection) GetNodes() []findWor
 type findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The team that the label is associated with. If null, the label is associated with the global workspace..
+	// The team that the label is associated with. If null, the label is associated with the global workspace.
 	Team findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam `json:"team"`
 }
 
@@ -4219,12 +4283,12 @@ fragment WorkflowState on WorkflowState {
 func updateWorkspaceSettings(
 	ctx context.Context,
 	client graphql.Client,
-	input UpdateOrganizationInput,
+	input OrganizationUpdateInput,
 ) (*updateWorkspaceSettingsResponse, error) {
 	req := &graphql.Request{
 		OpName: "updateWorkspaceSettings",
 		Query: `
-mutation updateWorkspaceSettings ($input: UpdateOrganizationInput!) {
+mutation updateWorkspaceSettings ($input: OrganizationUpdateInput!) {
 	organizationUpdate(input: $input) {
 		organization {
 			... Organization

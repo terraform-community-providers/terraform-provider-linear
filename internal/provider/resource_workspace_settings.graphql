@@ -11,19 +11,19 @@ query getWorkspaceSettings {
   }
 }
 
-# @genqlient(for: "UpdateOrganizationInput.name", omitempty: true)
-# @genqlient(for: "UpdateOrganizationInput.urlKey", omitempty: true)
-# @genqlient(for: "UpdateOrganizationInput.logoUrl", omitempty: true)
-# @genqlient(for: "UpdateOrganizationInput.gitBranchFormat", omitempty: true)
-# @genqlient(for: "UpdateOrganizationInput.projectUpdatesReminderFrequency", omitempty: true)
-# @genqlient(for: "UpdateOrganizationInput.projectUpdateRemindersDay", omitempty: true)
-# @genqlient(for: "UpdateOrganizationInput.projectUpdateRemindersHour", omitempty: true)
-# @genqlient(for: "UpdateOrganizationInput.reducedPersonalInformation", omitempty: true)
-# @genqlient(for: "UpdateOrganizationInput.linearPreviewFlags", omitempty: true)
-# @genqlient(for: "UpdateOrganizationInput.allowedAuthServices", omitempty: true)
-# @genqlient(for: "UpdateOrganizationInput.oauthAppReview", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.name", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.urlKey", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.logoUrl", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.gitBranchFormat", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.projectUpdatesReminderFrequency", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.projectUpdateRemindersDay", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.projectUpdateRemindersHour", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.reducedPersonalInformation", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.linearPreviewFlags", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.allowedAuthServices", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.oauthAppReview", omitempty: true)
 mutation updateWorkspaceSettings(
-  $input: UpdateOrganizationInput!,
+  $input: OrganizationUpdateInput!,
 ) {
   organizationUpdate(input: $input) {
     organization {

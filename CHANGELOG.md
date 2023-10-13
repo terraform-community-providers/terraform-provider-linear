@@ -1,3 +1,9 @@
+## 0.2.5
+
+### Bug Fixes
+* Fix issues with API token
+* Fix issues with updating workspace settings
+
 ## 0.2.3
 
 ### Enhancements
