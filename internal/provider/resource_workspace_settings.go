@@ -28,6 +28,7 @@ type WorkspaceSettingsResource struct {
 
 type WorkspaceSettingsResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
+	AllowMembersToInvite            types.Bool   `tfsdk:"allow_members_to_invite"`
 	EnableRoadmap                   types.Bool   `tfsdk:"enable_roadmap"`
 	EnableGitLinkbackMessages       types.Bool   `tfsdk:"enable_git_linkback_messages"`
 	EnableGitLinkbackMessagesPublic types.Bool   `tfsdk:"enable_git_linkback_messages_public"`
@@ -47,6 +48,12 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"allow_members_to_invite": schema.BoolAttribute{
+				MarkdownDescription: "Allow members to invite new members to the workspace. **Default** `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
 			},
 			"enable_roadmap": schema.BoolAttribute{
 				MarkdownDescription: "Enable roadmap for the workspace. **Default** `false`.",
@@ -100,6 +107,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	input := OrganizationUpdateInput{
+		AllowMembersToInvite:             data.AllowMembersToInvite.ValueBool(),
 		RoadmapEnabled:                   data.EnableRoadmap.ValueBool(),
 		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.ValueBool(),
 		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.ValueBool(),
@@ -115,6 +123,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 	organization := response.OrganizationUpdate.Organization
 
 	data.Id = types.StringValue(organization.Id)
+	data.AllowMembersToInvite = types.BoolValue(organization.AllowMembersToInvite)
 	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
@@ -141,6 +150,7 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 	organization := response.Organization
 
 	data.Id = types.StringValue(organization.Id)
+	data.AllowMembersToInvite = types.BoolValue(organization.AllowMembersToInvite)
 	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
@@ -158,6 +168,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 	}
 
 	input := OrganizationUpdateInput{
+		AllowMembersToInvite:             data.AllowMembersToInvite.ValueBool(),
 		RoadmapEnabled:                   data.EnableRoadmap.ValueBool(),
 		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.ValueBool(),
 		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.ValueBool(),
@@ -175,6 +186,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 	organization := response.OrganizationUpdate.Organization
 
 	data.Id = types.StringValue(organization.Id)
+	data.AllowMembersToInvite = types.BoolValue(organization.AllowMembersToInvite)
 	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
@@ -192,8 +204,9 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	input := OrganizationUpdateInput{
+		AllowMembersToInvite:             true,
 		RoadmapEnabled:                   false,
-		GitLinkbackMessagesEnabled:       false,
+		GitLinkbackMessagesEnabled:       true,
 		GitPublicLinkbackMessagesEnabled: false,
 	}
 

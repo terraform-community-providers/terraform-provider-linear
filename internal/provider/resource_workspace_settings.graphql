@@ -1,5 +1,6 @@
 fragment Organization on Organization {
   id
+  allowMembersToInvite
   roadmapEnabled
   gitLinkbackMessagesEnabled
   gitPublicLinkbackMessagesEnabled
@@ -22,6 +23,8 @@ query getWorkspaceSettings {
 # @genqlient(for: "OrganizationUpdateInput.linearPreviewFlags", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.allowedAuthServices", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.oauthAppReview", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.slaDayCount", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.slaEnabled", omitempty: true)
 mutation updateWorkspaceSettings(
   $input: OrganizationUpdateInput!,
 ) {

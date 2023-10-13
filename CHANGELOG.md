@@ -1,5 +1,8 @@
 ## 0.2.5
 
+### Enhancements
+* Add `allow_members_to_invite` to workspace settings
+
 ### Bug Fixes
 * Fix issues with API token
 * Fix issues with updating workspace settings

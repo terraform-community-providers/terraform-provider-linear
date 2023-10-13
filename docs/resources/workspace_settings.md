@@ -23,6 +23,7 @@ resource "linear_workspace_settings" "example" {
 
 ### Optional
 
+- `allow_members_to_invite` (Boolean) Allow members to invite new members to the workspace. **Default** `true`.
 - `enable_git_linkback_messages` (Boolean) Enable git linkbacks for private repositories. **Default** `true`.
 - `enable_git_linkback_messages_public` (Boolean) Enable git linkbacks for public repositories. **Default** `false`.
 - `enable_roadmap` (Boolean) Enable roadmap for the workspace. **Default** `false`.

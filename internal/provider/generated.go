@@ -146,6 +146,8 @@ func (v *IssueLabelUpdateInput) GetColor() *string { return v.Color }
 type Organization struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
+	// Whether member users are allowed to send invites
+	AllowMembersToInvite bool `json:"allowMembersToInvite"`
 	// Whether the organization is using a roadmap.
 	RoadmapEnabled bool `json:"roadmapEnabled"`
 	// Whether the Git integration linkback messages should be sent to private repositories.
@@ -156,6 +158,9 @@ type Organization struct {
 
 // GetId returns Organization.Id, and is useful for accessing the field via an interface.
 func (v *Organization) GetId() string { return v.Id }
+
+// GetAllowMembersToInvite returns Organization.AllowMembersToInvite, and is useful for accessing the field via an interface.
+func (v *Organization) GetAllowMembersToInvite() bool { return v.AllowMembersToInvite }
 
 // GetRoadmapEnabled returns Organization.RoadmapEnabled, and is useful for accessing the field via an interface.
 func (v *Organization) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
@@ -198,9 +203,9 @@ type OrganizationUpdateInput struct {
 	// List of services that are allowed to be used for login.
 	AllowedAuthServices []string `json:"allowedAuthServices,omitempty"`
 	// Internal. Whether SLAs have been enabled for the organization.
-	SlaEnabled bool `json:"slaEnabled"`
+	SlaEnabled bool `json:"slaEnabled,omitempty"`
 	// Which day count to use for SLA calculation.
-	SlaDayCount SLADayCountType `json:"slaDayCount"`
+	SlaDayCount SLADayCountType `json:"slaDayCount,omitempty"`
 	// Whether member users are allowed to send invites.
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
 }
@@ -2605,6 +2610,11 @@ type getWorkspaceSettingsOrganization struct {
 // GetId returns getWorkspaceSettingsOrganization.Id, and is useful for accessing the field via an interface.
 func (v *getWorkspaceSettingsOrganization) GetId() string { return v.Organization.Id }
 
+// GetAllowMembersToInvite returns getWorkspaceSettingsOrganization.AllowMembersToInvite, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetAllowMembersToInvite() bool {
+	return v.Organization.AllowMembersToInvite
+}
+
 // GetRoadmapEnabled returns getWorkspaceSettingsOrganization.RoadmapEnabled, and is useful for accessing the field via an interface.
 func (v *getWorkspaceSettingsOrganization) GetRoadmapEnabled() bool {
 	return v.Organization.RoadmapEnabled
@@ -2648,6 +2658,8 @@ func (v *getWorkspaceSettingsOrganization) UnmarshalJSON(b []byte) error {
 type __premarshalgetWorkspaceSettingsOrganization struct {
 	Id string `json:"id"`
 
+	AllowMembersToInvite bool `json:"allowMembersToInvite"`
+
 	RoadmapEnabled bool `json:"roadmapEnabled"`
 
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
@@ -2667,6 +2679,7 @@ func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetW
 	var retval __premarshalgetWorkspaceSettingsOrganization
 
 	retval.Id = v.Organization.Id
+	retval.AllowMembersToInvite = v.Organization.AllowMembersToInvite
 	retval.RoadmapEnabled = v.Organization.RoadmapEnabled
 	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
 	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
@@ -3322,6 +3335,11 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	return v.Organization.Id
 }
 
+// GetAllowMembersToInvite returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.AllowMembersToInvite, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetAllowMembersToInvite() bool {
+	return v.Organization.AllowMembersToInvite
+}
+
 // GetRoadmapEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RoadmapEnabled, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRoadmapEnabled() bool {
 	return v.Organization.RoadmapEnabled
@@ -3365,6 +3383,8 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 type __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization struct {
 	Id string `json:"id"`
 
+	AllowMembersToInvite bool `json:"allowMembersToInvite"`
+
 	RoadmapEnabled bool `json:"roadmapEnabled"`
 
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
@@ -3384,6 +3404,7 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	var retval __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization
 
 	retval.Id = v.Organization.Id
+	retval.AllowMembersToInvite = v.Organization.AllowMembersToInvite
 	retval.RoadmapEnabled = v.Organization.RoadmapEnabled
 	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
 	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
@@ -4043,6 +4064,7 @@ query getWorkspaceSettings {
 }
 fragment Organization on Organization {
 	id
+	allowMembersToInvite
 	roadmapEnabled
 	gitLinkbackMessagesEnabled
 	gitPublicLinkbackMessagesEnabled
@@ -4297,6 +4319,7 @@ mutation updateWorkspaceSettings ($input: OrganizationUpdateInput!) {
 }
 fragment Organization on Organization {
 	id
+	allowMembersToInvite
 	roadmapEnabled
 	gitLinkbackMessagesEnabled
 	gitPublicLinkbackMessagesEnabled
