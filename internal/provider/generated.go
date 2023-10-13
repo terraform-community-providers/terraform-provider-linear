@@ -486,7 +486,7 @@ type TeamCreateInput struct {
 	// The identifier of the default template for non-members of this team.
 	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId,omitempty"`
 	// The identifier of the default project template of this team.
-	DefaultProjectTemplateId string `json:"defaultProjectTemplateId"`
+	DefaultProjectTemplateId string `json:"defaultProjectTemplateId,omitempty"`
 	// Internal. Whether the team is private or not.
 	Private bool `json:"private"`
 	// Period after which issues are automatically closed, in months.
@@ -662,7 +662,7 @@ type TeamUpdateInput struct {
 	// The workflow state into which issues are moved when a review has been requested for the PR.
 	ReviewWorkflowStateId string `json:"reviewWorkflowStateId,omitempty"`
 	// The workflow state into which issues are moved when a PR is ready to be merged.
-	MergeableWorkflowStateId string `json:"mergeableWorkflowStateId"`
+	MergeableWorkflowStateId string `json:"mergeableWorkflowStateId,omitempty"`
 	// The workflow state into which issues are moved when a PR has been merged.
 	MergeWorkflowStateId string `json:"mergeWorkflowStateId,omitempty"`
 	// Whether to send new issue notifications to Slack.
@@ -678,7 +678,7 @@ type TeamUpdateInput struct {
 	// The identifier of the default template for non-members of this team.
 	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId,omitempty"`
 	// The identifier of the default project template of this team.
-	DefaultProjectTemplateId string `json:"defaultProjectTemplateId"`
+	DefaultProjectTemplateId string `json:"defaultProjectTemplateId,omitempty"`
 	// Whether the team is private or not.
 	Private bool `json:"private"`
 	// Whether triage mode is enabled for the team.

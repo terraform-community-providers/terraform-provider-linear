@@ -45,6 +45,7 @@ query getTeam($key: String!) {
 # @genqlient(for: "TeamCreateInput.organizationId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForMembersId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForNonMembersId", omitempty: true)
+# @genqlient(for: "TeamCreateInput.defaultProjectTemplateId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.autoCloseStateId", omitempty: true)
 mutation createTeam(
@@ -67,12 +68,14 @@ mutation createTeam(
 # @genqlient(for: "TeamUpdateInput.draftWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.startWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.reviewWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.mergeableWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.mergeWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.defaultIssueStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.autoCloseStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.defaultTemplateForMembersId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.defaultTemplateForNonMembersId", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.defaultProjectTemplateId", omitempty: true)
 mutation updateTeam(
   $input: TeamUpdateInput!,
   $id: String!
