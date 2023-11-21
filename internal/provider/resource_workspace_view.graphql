@@ -1,0 +1,43 @@
+fragment CustomView on CustomView {
+  name
+}
+
+fragment CustomViewPayload on CustomViewPayload {
+  customView {
+    ...CustomView
+  }
+  success
+}
+
+mutation customViewCreate(
+  $input: CustomViewCreateInput!
+) {
+  customViewCreate(input: $input) {
+    ...CustomViewPayload
+  }
+}
+
+query customView(
+  $id: String!
+) {
+  customView(id: $id) {
+    ...CustomView
+  }
+}
+
+mutation customViewUpdate(
+  $input: CustomViewUpdateInput!,
+  $id: String!
+) {
+  customViewUpdate(input: $input, id: $id) {
+    ...CustomViewPayload
+  }
+}
+
+mutation customViewDelete(
+  $id: String!
+) {
+  customViewDelete(id: $id) {
+    success
+  }
+}
