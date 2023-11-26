@@ -20,6 +20,10 @@ type CustomView struct {
 	Name string `json:"name"`
 	// The description of the custom view.
 	Description *string `json:"description"`
+	// The color of the icon of the custom view.
+	Color *string `json:"color"`
+	// The icon of the custom view.
+	Icon *string `json:"icon"`
 }
 
 // GetId returns CustomView.Id, and is useful for accessing the field via an interface.
@@ -31,17 +35,23 @@ func (v *CustomView) GetName() string { return v.Name }
 // GetDescription returns CustomView.Description, and is useful for accessing the field via an interface.
 func (v *CustomView) GetDescription() *string { return v.Description }
 
+// GetColor returns CustomView.Color, and is useful for accessing the field via an interface.
+func (v *CustomView) GetColor() *string { return v.Color }
+
+// GetIcon returns CustomView.Icon, and is useful for accessing the field via an interface.
+func (v *CustomView) GetIcon() *string { return v.Icon }
+
 type CustomViewCreateInput struct {
 	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
-	Id *string `json:"id,omitempty"`
+	Id string `json:"id,omitempty"`
 	// The name of the custom view.
-	Name *string `json:"name"`
+	Name string `json:"name"`
 	// The description of the custom view.
-	Description *string `json:"description,omitempty"`
+	Description string `json:"description,omitempty"`
 	// The icon of the custom view.
-	Icon *string `json:"icon,omitempty"`
+	Icon string `json:"icon,omitempty"`
 	// The color of the icon of the custom view.
-	Color *string `json:"color,omitempty"`
+	Color string `json:"color,omitempty"`
 	// The id of the team associated with the custom view.
 	TeamId *string `json:"teamId,omitempty"`
 	// The owner of the custom view.
@@ -57,19 +67,19 @@ type CustomViewCreateInput struct {
 }
 
 // GetId returns CustomViewCreateInput.Id, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetId() *string { return v.Id }
+func (v *CustomViewCreateInput) GetId() string { return v.Id }
 
 // GetName returns CustomViewCreateInput.Name, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetName() *string { return v.Name }
+func (v *CustomViewCreateInput) GetName() string { return v.Name }
 
 // GetDescription returns CustomViewCreateInput.Description, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetDescription() *string { return v.Description }
+func (v *CustomViewCreateInput) GetDescription() string { return v.Description }
 
 // GetIcon returns CustomViewCreateInput.Icon, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetIcon() *string { return v.Icon }
+func (v *CustomViewCreateInput) GetIcon() string { return v.Icon }
 
 // GetColor returns CustomViewCreateInput.Color, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetColor() *string { return v.Color }
+func (v *CustomViewCreateInput) GetColor() string { return v.Color }
 
 // GetTeamId returns CustomViewCreateInput.TeamId, and is useful for accessing the field via an interface.
 func (v *CustomViewCreateInput) GetTeamId() *string { return v.TeamId }
@@ -122,6 +132,12 @@ func (v *CustomViewPayloadCustomView) GetName() string { return v.CustomView.Nam
 // GetDescription returns CustomViewPayloadCustomView.Description, and is useful for accessing the field via an interface.
 func (v *CustomViewPayloadCustomView) GetDescription() *string { return v.CustomView.Description }
 
+// GetColor returns CustomViewPayloadCustomView.Color, and is useful for accessing the field via an interface.
+func (v *CustomViewPayloadCustomView) GetColor() *string { return v.CustomView.Color }
+
+// GetIcon returns CustomViewPayloadCustomView.Icon, and is useful for accessing the field via an interface.
+func (v *CustomViewPayloadCustomView) GetIcon() *string { return v.CustomView.Icon }
+
 func (v *CustomViewPayloadCustomView) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -153,6 +169,10 @@ type __premarshalCustomViewPayloadCustomView struct {
 	Name string `json:"name"`
 
 	Description *string `json:"description"`
+
+	Color *string `json:"color"`
+
+	Icon *string `json:"icon"`
 }
 
 func (v *CustomViewPayloadCustomView) MarshalJSON() ([]byte, error) {
@@ -169,18 +189,20 @@ func (v *CustomViewPayloadCustomView) __premarshalJSON() (*__premarshalCustomVie
 	retval.Id = v.CustomView.Id
 	retval.Name = v.CustomView.Name
 	retval.Description = v.CustomView.Description
+	retval.Color = v.CustomView.Color
+	retval.Icon = v.CustomView.Icon
 	return &retval, nil
 }
 
 type CustomViewUpdateInput struct {
 	// The name of the custom view.
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name,omitempty"`
 	// The description of the custom view.
-	Description *string `json:"description,omitempty"`
+	Description string `json:"description,omitempty"`
 	// The icon of the custom view.
-	Icon *string `json:"icon,omitempty"`
+	Icon string `json:"icon,omitempty"`
 	// The color of the icon of the custom view.
-	Color *string `json:"color,omitempty"`
+	Color string `json:"color,omitempty"`
 	// The id of the team associated with the custom view.
 	TeamId *string `json:"teamId,omitempty"`
 	// The owner of the custom view.
@@ -196,16 +218,16 @@ type CustomViewUpdateInput struct {
 }
 
 // GetName returns CustomViewUpdateInput.Name, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetName() *string { return v.Name }
+func (v *CustomViewUpdateInput) GetName() string { return v.Name }
 
 // GetDescription returns CustomViewUpdateInput.Description, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetDescription() *string { return v.Description }
+func (v *CustomViewUpdateInput) GetDescription() string { return v.Description }
 
 // GetIcon returns CustomViewUpdateInput.Icon, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetIcon() *string { return v.Icon }
+func (v *CustomViewUpdateInput) GetIcon() string { return v.Icon }
 
 // GetColor returns CustomViewUpdateInput.Color, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetColor() *string { return v.Color }
+func (v *CustomViewUpdateInput) GetColor() string { return v.Color }
 
 // GetTeamId returns CustomViewUpdateInput.TeamId, and is useful for accessing the field via an interface.
 func (v *CustomViewUpdateInput) GetTeamId() *string { return v.TeamId }
@@ -2073,6 +2095,12 @@ func (v *customViewCustomView) GetName() string { return v.CustomView.Name }
 // GetDescription returns customViewCustomView.Description, and is useful for accessing the field via an interface.
 func (v *customViewCustomView) GetDescription() *string { return v.CustomView.Description }
 
+// GetColor returns customViewCustomView.Color, and is useful for accessing the field via an interface.
+func (v *customViewCustomView) GetColor() *string { return v.CustomView.Color }
+
+// GetIcon returns customViewCustomView.Icon, and is useful for accessing the field via an interface.
+func (v *customViewCustomView) GetIcon() *string { return v.CustomView.Icon }
+
 func (v *customViewCustomView) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -2104,6 +2132,10 @@ type __premarshalcustomViewCustomView struct {
 	Name string `json:"name"`
 
 	Description *string `json:"description"`
+
+	Color *string `json:"color"`
+
+	Icon *string `json:"icon"`
 }
 
 func (v *customViewCustomView) MarshalJSON() ([]byte, error) {
@@ -2120,6 +2152,8 @@ func (v *customViewCustomView) __premarshalJSON() (*__premarshalcustomViewCustom
 	retval.Id = v.CustomView.Id
 	retval.Name = v.CustomView.Name
 	retval.Description = v.CustomView.Description
+	retval.Color = v.CustomView.Color
+	retval.Icon = v.CustomView.Icon
 	return &retval, nil
 }
 
@@ -4091,6 +4125,8 @@ fragment CustomView on CustomView {
 	id
 	name
 	description
+	color
+	icon
 }
 `,
 		Variables: &__customViewInput{
@@ -4134,6 +4170,8 @@ fragment CustomView on CustomView {
 	id
 	name
 	description
+	color
+	icon
 }
 `,
 		Variables: &__customViewCreateInput{
@@ -4210,6 +4248,8 @@ fragment CustomView on CustomView {
 	id
 	name
 	description
+	color
+	icon
 }
 `,
 		Variables: &__customViewUpdateInput{

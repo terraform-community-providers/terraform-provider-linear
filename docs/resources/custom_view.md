@@ -21,7 +21,9 @@ Linear custom view.
 
 ### Optional
 
+- `color` (String) Color of the view.
 - `description` (String) Description of the view.
+- `icon` (String) Icon of the view.
 
 ### Read-Only
 

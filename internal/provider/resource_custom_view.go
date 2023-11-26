@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -32,6 +33,9 @@ type CustomViewResourceModel struct {
 
 	Name        types.String `tfsdk:"name"`
 	Description types.String `tfsdk:"description"`
+
+	Color types.String `tfsdk:"color"`
+	Icon  types.String `tfsdk:"icon"`
 }
 
 func (r *CustomViewResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -61,6 +65,28 @@ func (r *CustomViewResource) Schema(ctx context.Context, req resource.SchemaRequ
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.UTF8LengthAtLeast(1),
+				},
+			},
+			"color": schema.StringAttribute{
+				MarkdownDescription: "Color of the view.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
+				},
+			},
+			"icon": schema.StringAttribute{
+				MarkdownDescription: "Icon of the view.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(regexp.MustCompile("^[a-zA-Z]+$"), "must only contain letters"),
 				},
 			},
 		},
@@ -97,8 +123,11 @@ func (r *CustomViewResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	input := CustomViewCreateInput{
-		Name:        data.Name.ValueStringPointer(),
-		Description: data.Description.ValueStringPointer(),
+		Name:        data.Name.ValueString(),
+		Description: data.Description.ValueString(),
+
+		Color: data.Color.ValueString(),
+		Icon:  data.Icon.ValueString(),
 
 		FilterData: map[string]interface{}{},
 	}
@@ -116,14 +145,7 @@ func (r *CustomViewResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	tflog.Trace(ctx, "created a custom view")
-
-	view := response.CustomViewCreate.CustomView
-
-	data.Id = types.StringValue(view.Id)
-	data.Name = types.StringValue(view.Name)
-	data.Description = types.StringPointerValue(view.Description)
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, customViewToResourceModel(response.CustomViewCreate.CustomView.CustomView))...)
 }
 
 func (r *CustomViewResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -142,13 +164,8 @@ func (r *CustomViewResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	view := response.CustomView
-
-	data.Id = types.StringValue(view.Id)
-	data.Name = types.StringValue(view.Name)
-	data.Description = types.StringPointerValue(view.Description)
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	tflog.Trace(ctx, "read a custom view")
+	resp.Diagnostics.Append(resp.State.Set(ctx, customViewToResourceModel(response.CustomView.CustomView))...)
 }
 
 func (r *CustomViewResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -161,8 +178,11 @@ func (r *CustomViewResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	input := CustomViewUpdateInput{
-		Name:        data.Name.ValueStringPointer(),
-		Description: data.Description.ValueStringPointer(),
+		Name:        data.Name.ValueString(),
+		Description: data.Description.ValueString(),
+
+		Color: data.Color.ValueString(),
+		Icon:  data.Icon.ValueString(),
 
 		FilterData: map[string]interface{}{},
 	}
@@ -180,14 +200,7 @@ func (r *CustomViewResource) Update(ctx context.Context, req resource.UpdateRequ
 	}
 
 	tflog.Trace(ctx, "updated a custom view")
-
-	view := response.CustomViewUpdate.CustomView
-
-	data.Id = types.StringValue(view.Id)
-	data.Name = types.StringValue(view.Name)
-	data.Description = types.StringPointerValue(view.Description)
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, customViewToResourceModel(response.CustomViewUpdate.CustomView.CustomView))...)
 }
 
 func (r *CustomViewResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -210,4 +223,27 @@ func (r *CustomViewResource) Delete(ctx context.Context, req resource.DeleteRequ
 }
 
 func (r *CustomViewResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	response, err := customView(ctx, *r.client, req.ID)
+
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to import custom view, got error: %s", err))
+		return
+	}
+
+	tflog.Trace(ctx, "imported a custom view")
+	resp.Diagnostics.Append(resp.State.Set(ctx, customViewToResourceModel(response.CustomView.CustomView))...)
+}
+
+func customViewToResourceModel(view CustomView) *CustomViewResourceModel {
+	data := &CustomViewResourceModel{}
+
+	data.Id = types.StringValue(view.Id)
+
+	data.Name = types.StringValue(view.Name)
+	data.Description = types.StringPointerValue(view.Description)
+
+	data.Color = types.StringPointerValue(view.Color)
+	data.Icon = types.StringPointerValue(view.Icon)
+
+	return data
 }

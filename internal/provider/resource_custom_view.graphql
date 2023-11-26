@@ -1,8 +1,14 @@
 # @genqlient(for: "CustomView.description", omitempty: true, pointer: true)
+# @genqlient(for: "CustomView.color", omitempty: true, pointer: true)
+# @genqlient(for: "CustomView.icon", omitempty: true, pointer: true)
 fragment CustomView on CustomView {
   id
+
   name
   description
+
+  color
+  icon
 }
 
 fragment CustomViewPayload on CustomViewPayload {
@@ -12,13 +18,13 @@ fragment CustomViewPayload on CustomViewPayload {
   success
 }
 
-# @genqlient(for: "CustomViewCreateInput.color", omitempty: true, pointer: true)
-# @genqlient(for: "CustomViewCreateInput.description", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewCreateInput.color", omitempty: true)
+# @genqlient(for: "CustomViewCreateInput.description", omitempty: true)
 # @genqlient(for: "CustomViewCreateInput.filterData", omitempty: true)
 # @genqlient(for: "CustomViewCreateInput.filters", omitempty: true)
-# @genqlient(for: "CustomViewCreateInput.icon", omitempty: true, pointer: true)
-# @genqlient(for: "CustomViewCreateInput.id", omitempty: true, pointer: true)
-# @genqlient(for: "CustomViewCreateInput.name", pointer: true)
+# @genqlient(for: "CustomViewCreateInput.icon", omitempty: true)
+# @genqlient(for: "CustomViewCreateInput.id", omitempty: true)
+# @genqlient(for: "CustomViewCreateInput.name")
 # @genqlient(for: "CustomViewCreateInput.ownerId", omitempty: true, pointer: true)
 # @genqlient(for: "CustomViewCreateInput.projectFilterData", omitempty: true)
 # @genqlient(for: "CustomViewCreateInput.shared", omitempty: true, pointer: true)
@@ -39,12 +45,12 @@ query customView(
   }
 }
 
-# @genqlient(for: "CustomViewUpdateInput.color", omitempty: true, pointer: true)
-# @genqlient(for: "CustomViewUpdateInput.description", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewUpdateInput.color", omitempty: true)
+# @genqlient(for: "CustomViewUpdateInput.description", omitempty: true)
 # @genqlient(for: "CustomViewUpdateInput.filterData", omitempty: true)
 # @genqlient(for: "CustomViewUpdateInput.filters", omitempty: true)
-# @genqlient(for: "CustomViewUpdateInput.icon", omitempty: true, pointer: true)
-# @genqlient(for: "CustomViewUpdateInput.name", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewUpdateInput.icon", omitempty: true)
+# @genqlient(for: "CustomViewUpdateInput.name", omitempty: true)
 # @genqlient(for: "CustomViewUpdateInput.ownerId", omitempty: true, pointer: true)
 # @genqlient(for: "CustomViewUpdateInput.projectFilterData", omitempty: true)
 # @genqlient(for: "CustomViewUpdateInput.shared", omitempty: true, pointer: true)
