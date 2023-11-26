@@ -1,0 +1,67 @@
+# @genqlient(for: "CustomView.description", omitempty: true, pointer: true)
+fragment CustomView on CustomView {
+  id
+  name
+  description
+}
+
+fragment CustomViewPayload on CustomViewPayload {
+  customView {
+    ...CustomView
+  }
+  success
+}
+
+# @genqlient(for: "CustomViewCreateInput.color", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewCreateInput.description", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewCreateInput.filterData", omitempty: true)
+# @genqlient(for: "CustomViewCreateInput.filters", omitempty: true)
+# @genqlient(for: "CustomViewCreateInput.icon", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewCreateInput.id", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewCreateInput.name", pointer: true)
+# @genqlient(for: "CustomViewCreateInput.ownerId", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewCreateInput.projectFilterData", omitempty: true)
+# @genqlient(for: "CustomViewCreateInput.shared", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewCreateInput.teamId", omitempty: true, pointer: true)
+mutation customViewCreate(
+  $input: CustomViewCreateInput!
+) {
+  customViewCreate(input: $input) {
+    ...CustomViewPayload
+  }
+}
+
+query customView(
+  $id: String!
+) {
+  customView(id: $id) {
+    ...CustomView
+  }
+}
+
+# @genqlient(for: "CustomViewUpdateInput.color", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewUpdateInput.description", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewUpdateInput.filterData", omitempty: true)
+# @genqlient(for: "CustomViewUpdateInput.filters", omitempty: true)
+# @genqlient(for: "CustomViewUpdateInput.icon", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewUpdateInput.name", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewUpdateInput.ownerId", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewUpdateInput.projectFilterData", omitempty: true)
+# @genqlient(for: "CustomViewUpdateInput.shared", omitempty: true, pointer: true)
+# @genqlient(for: "CustomViewUpdateInput.teamId", omitempty: true, pointer: true)
+mutation customViewUpdate(
+  $input: CustomViewUpdateInput!,
+  $id: String!
+) {
+  customViewUpdate(input: $input, id: $id) {
+    ...CustomViewPayload
+  }
+}
+
+mutation customViewDelete(
+  $id: String!
+) {
+  customViewDelete(id: $id) {
+    success
+  }
+}

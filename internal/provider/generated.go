@@ -14,58 +14,68 @@ import (
 //
 // A custom view that has been saved by a user.
 type CustomView struct {
-	// The name of the custom view.
-	Name string `json:"name"`
-}
-
-// GetName returns CustomView.Name, and is useful for accessing the field via an interface.
-func (v *CustomView) GetName() string { return v.Name }
-
-type CustomViewCreateInput struct {
-	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	// The unique identifier of the entity.
 	Id string `json:"id"`
 	// The name of the custom view.
 	Name string `json:"name"`
 	// The description of the custom view.
-	Description string `json:"description"`
+	Description *string `json:"description"`
+}
+
+// GetId returns CustomView.Id, and is useful for accessing the field via an interface.
+func (v *CustomView) GetId() string { return v.Id }
+
+// GetName returns CustomView.Name, and is useful for accessing the field via an interface.
+func (v *CustomView) GetName() string { return v.Name }
+
+// GetDescription returns CustomView.Description, and is useful for accessing the field via an interface.
+func (v *CustomView) GetDescription() *string { return v.Description }
+
+type CustomViewCreateInput struct {
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id *string `json:"id,omitempty"`
+	// The name of the custom view.
+	Name *string `json:"name"`
+	// The description of the custom view.
+	Description *string `json:"description,omitempty"`
 	// The icon of the custom view.
-	Icon string `json:"icon"`
+	Icon *string `json:"icon,omitempty"`
 	// The color of the icon of the custom view.
-	Color string `json:"color"`
+	Color *string `json:"color,omitempty"`
 	// The id of the team associated with the custom view.
-	TeamId string `json:"teamId"`
+	TeamId *string `json:"teamId,omitempty"`
 	// The owner of the custom view.
-	OwnerId string `json:"ownerId"`
+	OwnerId *string `json:"ownerId,omitempty"`
 	// The filters applied to issues in the custom view.
-	Filters map[string]interface{} `json:"filters"`
+	Filters map[string]interface{} `json:"filters,omitempty"`
 	// The filter applied to issues in the custom view.
-	FilterData map[string]interface{} `json:"filterData"`
+	FilterData map[string]interface{} `json:"filterData,omitempty"`
 	// [ALPHA] The project filter applied to issues in the custom view.
-	ProjectFilterData map[string]interface{} `json:"projectFilterData"`
+	ProjectFilterData map[string]interface{} `json:"projectFilterData,omitempty"`
 	// Whether the custom view is shared with everyone in the organization.
-	Shared bool `json:"shared"`
+	Shared *bool `json:"shared,omitempty"`
 }
 
 // GetId returns CustomViewCreateInput.Id, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetId() string { return v.Id }
+func (v *CustomViewCreateInput) GetId() *string { return v.Id }
 
 // GetName returns CustomViewCreateInput.Name, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetName() string { return v.Name }
+func (v *CustomViewCreateInput) GetName() *string { return v.Name }
 
 // GetDescription returns CustomViewCreateInput.Description, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetDescription() string { return v.Description }
+func (v *CustomViewCreateInput) GetDescription() *string { return v.Description }
 
 // GetIcon returns CustomViewCreateInput.Icon, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetIcon() string { return v.Icon }
+func (v *CustomViewCreateInput) GetIcon() *string { return v.Icon }
 
 // GetColor returns CustomViewCreateInput.Color, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetColor() string { return v.Color }
+func (v *CustomViewCreateInput) GetColor() *string { return v.Color }
 
 // GetTeamId returns CustomViewCreateInput.TeamId, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetTeamId() string { return v.TeamId }
+func (v *CustomViewCreateInput) GetTeamId() *string { return v.TeamId }
 
 // GetOwnerId returns CustomViewCreateInput.OwnerId, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetOwnerId() string { return v.OwnerId }
+func (v *CustomViewCreateInput) GetOwnerId() *string { return v.OwnerId }
 
 // GetFilters returns CustomViewCreateInput.Filters, and is useful for accessing the field via an interface.
 func (v *CustomViewCreateInput) GetFilters() map[string]interface{} { return v.Filters }
@@ -79,7 +89,7 @@ func (v *CustomViewCreateInput) GetProjectFilterData() map[string]interface{} {
 }
 
 // GetShared returns CustomViewCreateInput.Shared, and is useful for accessing the field via an interface.
-func (v *CustomViewCreateInput) GetShared() bool { return v.Shared }
+func (v *CustomViewCreateInput) GetShared() *bool { return v.Shared }
 
 // CustomViewPayload includes the GraphQL fields of CustomViewPayload requested by the fragment CustomViewPayload.
 type CustomViewPayload struct {
@@ -103,8 +113,14 @@ type CustomViewPayloadCustomView struct {
 	CustomView `json:"-"`
 }
 
+// GetId returns CustomViewPayloadCustomView.Id, and is useful for accessing the field via an interface.
+func (v *CustomViewPayloadCustomView) GetId() string { return v.CustomView.Id }
+
 // GetName returns CustomViewPayloadCustomView.Name, and is useful for accessing the field via an interface.
 func (v *CustomViewPayloadCustomView) GetName() string { return v.CustomView.Name }
+
+// GetDescription returns CustomViewPayloadCustomView.Description, and is useful for accessing the field via an interface.
+func (v *CustomViewPayloadCustomView) GetDescription() *string { return v.CustomView.Description }
 
 func (v *CustomViewPayloadCustomView) UnmarshalJSON(b []byte) error {
 
@@ -132,7 +148,11 @@ func (v *CustomViewPayloadCustomView) UnmarshalJSON(b []byte) error {
 }
 
 type __premarshalCustomViewPayloadCustomView struct {
+	Id string `json:"id"`
+
 	Name string `json:"name"`
+
+	Description *string `json:"description"`
 }
 
 func (v *CustomViewPayloadCustomView) MarshalJSON() ([]byte, error) {
@@ -146,50 +166,52 @@ func (v *CustomViewPayloadCustomView) MarshalJSON() ([]byte, error) {
 func (v *CustomViewPayloadCustomView) __premarshalJSON() (*__premarshalCustomViewPayloadCustomView, error) {
 	var retval __premarshalCustomViewPayloadCustomView
 
+	retval.Id = v.CustomView.Id
 	retval.Name = v.CustomView.Name
+	retval.Description = v.CustomView.Description
 	return &retval, nil
 }
 
 type CustomViewUpdateInput struct {
 	// The name of the custom view.
-	Name string `json:"name"`
+	Name *string `json:"name,omitempty"`
 	// The description of the custom view.
-	Description string `json:"description"`
+	Description *string `json:"description,omitempty"`
 	// The icon of the custom view.
-	Icon string `json:"icon"`
+	Icon *string `json:"icon,omitempty"`
 	// The color of the icon of the custom view.
-	Color string `json:"color"`
+	Color *string `json:"color,omitempty"`
 	// The id of the team associated with the custom view.
-	TeamId string `json:"teamId"`
+	TeamId *string `json:"teamId,omitempty"`
 	// The owner of the custom view.
-	OwnerId string `json:"ownerId"`
+	OwnerId *string `json:"ownerId,omitempty"`
 	// The filters applied to issues in the custom view.
-	Filters map[string]interface{} `json:"filters"`
+	Filters map[string]interface{} `json:"filters,omitempty"`
 	// The filter applied to issues in the custom view.
-	FilterData map[string]interface{} `json:"filterData"`
+	FilterData map[string]interface{} `json:"filterData,omitempty"`
 	// [ALPHA] The project filter applied to issues in the custom view.
-	ProjectFilterData map[string]interface{} `json:"projectFilterData"`
+	ProjectFilterData map[string]interface{} `json:"projectFilterData,omitempty"`
 	// Whether the custom view is shared with everyone in the organization.
-	Shared bool `json:"shared"`
+	Shared *bool `json:"shared,omitempty"`
 }
 
 // GetName returns CustomViewUpdateInput.Name, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetName() string { return v.Name }
+func (v *CustomViewUpdateInput) GetName() *string { return v.Name }
 
 // GetDescription returns CustomViewUpdateInput.Description, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetDescription() string { return v.Description }
+func (v *CustomViewUpdateInput) GetDescription() *string { return v.Description }
 
 // GetIcon returns CustomViewUpdateInput.Icon, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetIcon() string { return v.Icon }
+func (v *CustomViewUpdateInput) GetIcon() *string { return v.Icon }
 
 // GetColor returns CustomViewUpdateInput.Color, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetColor() string { return v.Color }
+func (v *CustomViewUpdateInput) GetColor() *string { return v.Color }
 
 // GetTeamId returns CustomViewUpdateInput.TeamId, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetTeamId() string { return v.TeamId }
+func (v *CustomViewUpdateInput) GetTeamId() *string { return v.TeamId }
 
 // GetOwnerId returns CustomViewUpdateInput.OwnerId, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetOwnerId() string { return v.OwnerId }
+func (v *CustomViewUpdateInput) GetOwnerId() *string { return v.OwnerId }
 
 // GetFilters returns CustomViewUpdateInput.Filters, and is useful for accessing the field via an interface.
 func (v *CustomViewUpdateInput) GetFilters() map[string]interface{} { return v.Filters }
@@ -203,7 +225,7 @@ func (v *CustomViewUpdateInput) GetProjectFilterData() map[string]interface{} {
 }
 
 // GetShared returns CustomViewUpdateInput.Shared, and is useful for accessing the field via an interface.
-func (v *CustomViewUpdateInput) GetShared() bool { return v.Shared }
+func (v *CustomViewUpdateInput) GetShared() *bool { return v.Shared }
 
 // The day of the week.
 type Day string
@@ -2042,8 +2064,14 @@ type customViewCustomView struct {
 	CustomView `json:"-"`
 }
 
+// GetId returns customViewCustomView.Id, and is useful for accessing the field via an interface.
+func (v *customViewCustomView) GetId() string { return v.CustomView.Id }
+
 // GetName returns customViewCustomView.Name, and is useful for accessing the field via an interface.
 func (v *customViewCustomView) GetName() string { return v.CustomView.Name }
+
+// GetDescription returns customViewCustomView.Description, and is useful for accessing the field via an interface.
+func (v *customViewCustomView) GetDescription() *string { return v.CustomView.Description }
 
 func (v *customViewCustomView) UnmarshalJSON(b []byte) error {
 
@@ -2071,7 +2099,11 @@ func (v *customViewCustomView) UnmarshalJSON(b []byte) error {
 }
 
 type __premarshalcustomViewCustomView struct {
+	Id string `json:"id"`
+
 	Name string `json:"name"`
+
+	Description *string `json:"description"`
 }
 
 func (v *customViewCustomView) MarshalJSON() ([]byte, error) {
@@ -2085,7 +2117,9 @@ func (v *customViewCustomView) MarshalJSON() ([]byte, error) {
 func (v *customViewCustomView) __premarshalJSON() (*__premarshalcustomViewCustomView, error) {
 	var retval __premarshalcustomViewCustomView
 
+	retval.Id = v.CustomView.Id
 	retval.Name = v.CustomView.Name
+	retval.Description = v.CustomView.Description
 	return &retval, nil
 }
 
@@ -4054,7 +4088,9 @@ query customView ($id: String!) {
 	}
 }
 fragment CustomView on CustomView {
+	id
 	name
+	description
 }
 `,
 		Variables: &__customViewInput{
@@ -4095,7 +4131,9 @@ fragment CustomViewPayload on CustomViewPayload {
 	success
 }
 fragment CustomView on CustomView {
+	id
 	name
+	description
 }
 `,
 		Variables: &__customViewCreateInput{
@@ -4169,7 +4207,9 @@ fragment CustomViewPayload on CustomViewPayload {
 	success
 }
 fragment CustomView on CustomView {
+	id
 	name
+	description
 }
 `,
 		Variables: &__customViewUpdateInput{
