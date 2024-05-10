@@ -675,16 +675,24 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
+	var setIssueSortOrderOnStateChange string
+
+	if data.EnableIssueDefaultToBottom.ValueBool() {
+		setIssueSortOrderOnStateChange = "last"
+	} else {
+		setIssueSortOrderOnStateChange = "first"
+	}
+
 	input := TeamCreateInput{
-		Key:                           data.Key.ValueString(),
-		Name:                          data.Name.ValueString(),
-		Private:                       data.Private.ValueBool(),
-		Description:                   data.Description.ValueStringPointer(),
-		Timezone:                      data.Timezone.ValueString(),
-		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.ValueBool(),
-		GroupIssueHistory:             data.EnableIssueHistoryGrouping.ValueBool(),
-		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.ValueBool(),
-		AutoArchivePeriod:             data.AutoArchivePeriod.ValueFloat64(),
+		Key:                            data.Key.ValueString(),
+		Name:                           data.Name.ValueString(),
+		Private:                        data.Private.ValueBool(),
+		Description:                    data.Description.ValueStringPointer(),
+		Timezone:                       data.Timezone.ValueString(),
+		IssueOrderingNoPriorityFirst:   data.NoPriorityIssuesFirst.ValueBool(),
+		GroupIssueHistory:              data.EnableIssueHistoryGrouping.ValueBool(),
+		SetIssueSortOrderOnStateChange: setIssueSortOrderOnStateChange,
+		AutoArchivePeriod:              data.AutoArchivePeriod.ValueFloat64(),
 	}
 
 	if !data.Icon.IsUnknown() {
@@ -755,7 +763,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	data.Timezone = types.StringValue(team.Timezone)
 	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
 	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
-	data.EnableIssueDefaultToBottom = types.BoolValue(team.IssueSortOrderDefaultToBottom)
+	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
 
 	if team.AutoClosePeriod != nil {
@@ -865,7 +873,7 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	data.Timezone = types.StringValue(team.Timezone)
 	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
 	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
-	data.EnableIssueDefaultToBottom = types.BoolValue(team.IssueSortOrderDefaultToBottom)
+	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
 
 	if team.AutoClosePeriod != nil {
@@ -954,14 +962,22 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
+	var setIssueSortOrderOnStateChange string
+
+	if data.EnableIssueDefaultToBottom.ValueBool() {
+		setIssueSortOrderOnStateChange = "last"
+	} else {
+		setIssueSortOrderOnStateChange = "first"
+	}
+
 	input := TeamUpdateInput{
-		Private:                       data.Private.ValueBool(),
-		Description:                   data.Description.ValueStringPointer(),
-		Timezone:                      data.Timezone.ValueString(),
-		IssueOrderingNoPriorityFirst:  data.NoPriorityIssuesFirst.ValueBool(),
-		GroupIssueHistory:             data.EnableIssueHistoryGrouping.ValueBool(),
-		IssueSortOrderDefaultToBottom: data.EnableIssueDefaultToBottom.ValueBool(),
-		AutoArchivePeriod:             data.AutoArchivePeriod.ValueFloat64(),
+		Private:                        data.Private.ValueBool(),
+		Description:                    data.Description.ValueStringPointer(),
+		Timezone:                       data.Timezone.ValueString(),
+		IssueOrderingNoPriorityFirst:   data.NoPriorityIssuesFirst.ValueBool(),
+		GroupIssueHistory:              data.EnableIssueHistoryGrouping.ValueBool(),
+		SetIssueSortOrderOnStateChange: setIssueSortOrderOnStateChange,
+		AutoArchivePeriod:              data.AutoArchivePeriod.ValueFloat64(),
 	}
 
 	if data.Key.ValueString() != state.Key.ValueString() {
@@ -1044,7 +1060,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	data.Timezone = types.StringValue(team.Timezone)
 	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
 	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
-	data.EnableIssueDefaultToBottom = types.BoolValue(team.IssueSortOrderDefaultToBottom)
+	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
 
 	if team.AutoClosePeriod != nil {

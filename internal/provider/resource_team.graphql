@@ -13,7 +13,7 @@ fragment Team on Team {
   timezone
   issueOrderingNoPriorityFirst
   groupIssueHistory
-  issueSortOrderDefaultToBottom
+  setIssueSortOrderOnStateChange
   autoArchivePeriod
   autoClosePeriod
   triageEnabled

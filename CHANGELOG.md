@@ -1,3 +1,8 @@
+## 0.2.6
+
+### Bug Fixes
+* Fix issue with creating/updating team caused by API change
+
 ## 0.2.5
 
 ### Enhancements

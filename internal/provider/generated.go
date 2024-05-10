@@ -5,6 +5,7 @@ package provider
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/Khan/genqlient/graphql"
 )
@@ -146,7 +147,7 @@ func (v *IssueLabelUpdateInput) GetColor() *string { return v.Color }
 type Organization struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// Whether member users are allowed to send invites
+	// Whether member users are allowed to send invites.
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
 	// Whether the organization is using a roadmap.
 	RoadmapEnabled bool `json:"roadmapEnabled"`
@@ -194,11 +195,13 @@ type OrganizationUpdateInput struct {
 	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay,omitempty"`
 	// The hour at which project updates are sent.
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour,omitempty"`
+	// The month at which the fiscal year starts.
+	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
 	// Whether the organization has opted for reduced customer support attachment information.
 	ReducedPersonalInformation bool `json:"reducedPersonalInformation,omitempty"`
 	// Whether the organization has opted for having to approve all OAuth applications for install.
 	OauthAppReview bool `json:"oauthAppReview,omitempty"`
-	// Linear Preview feature flags
+	// Linear Preview feature flags.
 	LinearPreviewFlags map[string]interface{} `json:"linearPreviewFlags,omitempty"`
 	// List of services that are allowed to be used for login.
 	AllowedAuthServices []string `json:"allowedAuthServices,omitempty"`
@@ -208,6 +211,8 @@ type OrganizationUpdateInput struct {
 	SlaDayCount SLADayCountType `json:"slaDayCount,omitempty"`
 	// Whether member users are allowed to send invites.
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
+	// [ALPHA] Theme settings for the organization.
+	ThemeSettings map[string]interface{} `json:"themeSettings"`
 }
 
 // GetName returns OrganizationUpdateInput.Name, and is useful for accessing the field via an interface.
@@ -250,6 +255,9 @@ func (v *OrganizationUpdateInput) GetProjectUpdateRemindersHour() float64 {
 	return v.ProjectUpdateRemindersHour
 }
 
+// GetFiscalYearStartMonth returns OrganizationUpdateInput.FiscalYearStartMonth, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetFiscalYearStartMonth() float64 { return v.FiscalYearStartMonth }
+
 // GetReducedPersonalInformation returns OrganizationUpdateInput.ReducedPersonalInformation, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetReducedPersonalInformation() bool {
 	return v.ReducedPersonalInformation
@@ -275,6 +283,9 @@ func (v *OrganizationUpdateInput) GetSlaDayCount() SLADayCountType { return v.Sl
 // GetAllowMembersToInvite returns OrganizationUpdateInput.AllowMembersToInvite, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetAllowMembersToInvite() bool { return v.AllowMembersToInvite }
 
+// GetThemeSettings returns OrganizationUpdateInput.ThemeSettings, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetThemeSettings() map[string]interface{} { return v.ThemeSettings }
+
 // The frequency at which to send project update reminders.
 type ProjectUpdateReminderFrequency string
 
@@ -285,7 +296,7 @@ const (
 	ProjectUpdateReminderFrequencyNever    ProjectUpdateReminderFrequency = "never"
 )
 
-// Which day count to use for SLA calculations
+// Which day count to use for SLA calculations.
 type SLADayCountType string
 
 const (
@@ -318,8 +329,8 @@ type Team struct {
 	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
 	// Whether to group recent issue history entries.
 	GroupIssueHistory bool `json:"groupIssueHistory"`
-	// Whether to move issues to bottom of the column when changing state.
-	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
+	// Where to move issues when changing state.
+	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 	// Period after which automatically closed and completed issues are automatically archived in months.
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 	// Period after which issues are automatically closed in months. Null/undefined means disabled.
@@ -382,8 +393,8 @@ func (v *Team) GetIssueOrderingNoPriorityFirst() bool { return v.IssueOrderingNo
 // GetGroupIssueHistory returns Team.GroupIssueHistory, and is useful for accessing the field via an interface.
 func (v *Team) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
 
-// GetIssueSortOrderDefaultToBottom returns Team.IssueSortOrderDefaultToBottom, and is useful for accessing the field via an interface.
-func (v *Team) GetIssueSortOrderDefaultToBottom() bool { return v.IssueSortOrderDefaultToBottom }
+// GetSetIssueSortOrderOnStateChange returns Team.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
+func (v *Team) GetSetIssueSortOrderOnStateChange() string { return v.SetIssueSortOrderOnStateChange }
 
 // GetAutoArchivePeriod returns Team.AutoArchivePeriod, and is useful for accessing the field via an interface.
 func (v *Team) GetAutoArchivePeriod() float64 { return v.AutoArchivePeriod }
@@ -474,7 +485,7 @@ type TeamCreateInput struct {
 	// Whether to allow zeros in issues estimates.
 	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
 	// Whether to move issues to bottom of the column when changing state.
-	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
+	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 	// Whether to add additional points to the estimate scale.
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 	// What to use as an default estimate for unestimated issues.
@@ -568,9 +579,9 @@ func (v *TeamCreateInput) GetIssueEstimationType() string { return v.IssueEstima
 // GetIssueEstimationAllowZero returns TeamCreateInput.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetIssueEstimationAllowZero() bool { return v.IssueEstimationAllowZero }
 
-// GetIssueSortOrderDefaultToBottom returns TeamCreateInput.IssueSortOrderDefaultToBottom, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetIssueSortOrderDefaultToBottom() bool {
-	return v.IssueSortOrderDefaultToBottom
+// GetSetIssueSortOrderOnStateChange returns TeamCreateInput.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetSetIssueSortOrderOnStateChange() string {
+	return v.SetIssueSortOrderOnStateChange
 }
 
 // GetIssueEstimationExtended returns TeamCreateInput.IssueEstimationExtended, and is useful for accessing the field via an interface.
@@ -637,8 +648,10 @@ type TeamUpdateInput struct {
 	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
 	// Only allow issues with cycles in Active Issues.
 	CycleLockToActive bool `json:"cycleLockToActive"`
-	// Whether the first cycle should start in the current or the next week.
+	// [DEPRECATED] Whether the first cycle should start in the current or the next week.
 	CycleEnabledStartWeek string `json:"cycleEnabledStartWeek,omitempty"`
+	// The date to begin cycles on.
+	CycleEnabledStartDate time.Time `json:"cycleEnabledStartDate"`
 	// How many upcoming cycles to create.
 	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
 	// The timezone of the team.
@@ -650,7 +663,7 @@ type TeamUpdateInput struct {
 	// Whether to allow zeros in issues estimates.
 	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
 	// Whether to move issues to bottom of the column when changing state.
-	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
+	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 	// Whether to add additional points to the estimate scale.
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 	// What to use as an default estimate for unestimated issues.
@@ -695,6 +708,10 @@ type TeamUpdateInput struct {
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
 	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
+	// Whether new users should join this team by default. Mutation restricted to workspace admins!
+	JoinByDefault bool `json:"joinByDefault"`
+	// Whether the team is managed by SCIM integration. Mutation restricted to workspace admins and only unsetting is allowed!
+	ScimManaged bool `json:"scimManaged"`
 }
 
 // GetName returns TeamUpdateInput.Name, and is useful for accessing the field via an interface.
@@ -738,6 +755,9 @@ func (v *TeamUpdateInput) GetCycleLockToActive() bool { return v.CycleLockToActi
 // GetCycleEnabledStartWeek returns TeamUpdateInput.CycleEnabledStartWeek, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetCycleEnabledStartWeek() string { return v.CycleEnabledStartWeek }
 
+// GetCycleEnabledStartDate returns TeamUpdateInput.CycleEnabledStartDate, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleEnabledStartDate() time.Time { return v.CycleEnabledStartDate }
+
 // GetUpcomingCycleCount returns TeamUpdateInput.UpcomingCycleCount, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetUpcomingCycleCount() float64 { return v.UpcomingCycleCount }
 
@@ -755,9 +775,9 @@ func (v *TeamUpdateInput) GetIssueEstimationType() string { return v.IssueEstima
 // GetIssueEstimationAllowZero returns TeamUpdateInput.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetIssueEstimationAllowZero() bool { return v.IssueEstimationAllowZero }
 
-// GetIssueSortOrderDefaultToBottom returns TeamUpdateInput.IssueSortOrderDefaultToBottom, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetIssueSortOrderDefaultToBottom() bool {
-	return v.IssueSortOrderDefaultToBottom
+// GetSetIssueSortOrderOnStateChange returns TeamUpdateInput.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSetIssueSortOrderOnStateChange() string {
+	return v.SetIssueSortOrderOnStateChange
 }
 
 // GetIssueEstimationExtended returns TeamUpdateInput.IssueEstimationExtended, and is useful for accessing the field via an interface.
@@ -833,6 +853,12 @@ func (v *TeamUpdateInput) GetAutoArchivePeriod() float64 { return v.AutoArchiveP
 func (v *TeamUpdateInput) GetMarkedAsDuplicateWorkflowStateId() string {
 	return v.MarkedAsDuplicateWorkflowStateId
 }
+
+// GetJoinByDefault returns TeamUpdateInput.JoinByDefault, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetJoinByDefault() bool { return v.JoinByDefault }
+
+// GetScimManaged returns TeamUpdateInput.ScimManaged, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetScimManaged() bool { return v.ScimManaged }
 
 // TeamWorkflow includes the GraphQL fields of Team requested by the fragment TeamWorkflow.
 // The GraphQL type's documentation follows.
@@ -1411,9 +1437,9 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetGroupIssueHistory() bool {
 	return v.Team.GroupIssueHistory
 }
 
-// GetIssueSortOrderDefaultToBottom returns createTeamTeamCreateTeamPayloadTeam.IssueSortOrderDefaultToBottom, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetIssueSortOrderDefaultToBottom() bool {
-	return v.Team.IssueSortOrderDefaultToBottom
+// GetSetIssueSortOrderOnStateChange returns createTeamTeamCreateTeamPayloadTeam.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetSetIssueSortOrderOnStateChange() string {
+	return v.Team.SetIssueSortOrderOnStateChange
 }
 
 // GetAutoArchivePeriod returns createTeamTeamCreateTeamPayloadTeam.AutoArchivePeriod, and is useful for accessing the field via an interface.
@@ -1529,7 +1555,7 @@ type __premarshalcreateTeamTeamCreateTeamPayloadTeam struct {
 
 	GroupIssueHistory bool `json:"groupIssueHistory"`
 
-	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
+	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 
@@ -1583,7 +1609,7 @@ func (v *createTeamTeamCreateTeamPayloadTeam) __premarshalJSON() (*__premarshalc
 	retval.Timezone = v.Team.Timezone
 	retval.IssueOrderingNoPriorityFirst = v.Team.IssueOrderingNoPriorityFirst
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
-	retval.IssueSortOrderDefaultToBottom = v.Team.IssueSortOrderDefaultToBottom
+	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
 	retval.AutoClosePeriod = v.Team.AutoClosePeriod
 	retval.TriageEnabled = v.Team.TriageEnabled
@@ -2065,9 +2091,9 @@ func (v *getTeamTeam) GetIssueOrderingNoPriorityFirst() bool {
 // GetGroupIssueHistory returns getTeamTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetGroupIssueHistory() bool { return v.Team.GroupIssueHistory }
 
-// GetIssueSortOrderDefaultToBottom returns getTeamTeam.IssueSortOrderDefaultToBottom, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetIssueSortOrderDefaultToBottom() bool {
-	return v.Team.IssueSortOrderDefaultToBottom
+// GetSetIssueSortOrderOnStateChange returns getTeamTeam.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetSetIssueSortOrderOnStateChange() string {
+	return v.Team.SetIssueSortOrderOnStateChange
 }
 
 // GetAutoArchivePeriod returns getTeamTeam.AutoArchivePeriod, and is useful for accessing the field via an interface.
@@ -2165,7 +2191,7 @@ type __premarshalgetTeamTeam struct {
 
 	GroupIssueHistory bool `json:"groupIssueHistory"`
 
-	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
+	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 
@@ -2219,7 +2245,7 @@ func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
 	retval.Timezone = v.Team.Timezone
 	retval.IssueOrderingNoPriorityFirst = v.Team.IssueOrderingNoPriorityFirst
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
-	retval.IssueSortOrderDefaultToBottom = v.Team.IssueSortOrderDefaultToBottom
+	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
 	retval.AutoClosePeriod = v.Team.AutoClosePeriod
 	retval.TriageEnabled = v.Team.TriageEnabled
@@ -2878,9 +2904,9 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetGroupIssueHistory() bool {
 	return v.Team.GroupIssueHistory
 }
 
-// GetIssueSortOrderDefaultToBottom returns updateTeamTeamUpdateTeamPayloadTeam.IssueSortOrderDefaultToBottom, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIssueSortOrderDefaultToBottom() bool {
-	return v.Team.IssueSortOrderDefaultToBottom
+// GetSetIssueSortOrderOnStateChange returns updateTeamTeamUpdateTeamPayloadTeam.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetSetIssueSortOrderOnStateChange() string {
+	return v.Team.SetIssueSortOrderOnStateChange
 }
 
 // GetAutoArchivePeriod returns updateTeamTeamUpdateTeamPayloadTeam.AutoArchivePeriod, and is useful for accessing the field via an interface.
@@ -2996,7 +3022,7 @@ type __premarshalupdateTeamTeamUpdateTeamPayloadTeam struct {
 
 	GroupIssueHistory bool `json:"groupIssueHistory"`
 
-	IssueSortOrderDefaultToBottom bool `json:"issueSortOrderDefaultToBottom"`
+	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 
@@ -3050,7 +3076,7 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalu
 	retval.Timezone = v.Team.Timezone
 	retval.IssueOrderingNoPriorityFirst = v.Team.IssueOrderingNoPriorityFirst
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
-	retval.IssueSortOrderDefaultToBottom = v.Team.IssueSortOrderDefaultToBottom
+	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
 	retval.AutoClosePeriod = v.Team.AutoClosePeriod
 	retval.TriageEnabled = v.Team.TriageEnabled
@@ -3494,7 +3520,7 @@ fragment Team on Team {
 	timezone
 	issueOrderingNoPriorityFirst
 	groupIssueHistory
-	issueSortOrderDefaultToBottom
+	setIssueSortOrderOnStateChange
 	autoArchivePeriod
 	autoClosePeriod
 	triageEnabled
@@ -3848,7 +3874,7 @@ fragment Team on Team {
 	timezone
 	issueOrderingNoPriorityFirst
 	groupIssueHistory
-	issueSortOrderDefaultToBottom
+	setIssueSortOrderOnStateChange
 	autoArchivePeriod
 	autoClosePeriod
 	triageEnabled
@@ -4160,7 +4186,7 @@ fragment Team on Team {
 	timezone
 	issueOrderingNoPriorityFirst
 	groupIssueHistory
-	issueSortOrderDefaultToBottom
+	setIssueSortOrderOnStateChange
 	autoArchivePeriod
 	autoClosePeriod
 	triageEnabled
