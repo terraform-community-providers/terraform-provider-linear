@@ -720,6 +720,9 @@ type AuthOauthClient {
 
   """Webhook URL"""
   webhookUrl: String
+
+  """Webhook secret"""
+  webhookSecret: String
   archivedAt: DateTime
 }
 
@@ -795,6 +798,11 @@ type AuthOrganization {
   """The organization's name."""
   name: String!
 
+  """
+  Whether the organization is enabled. Used as a superuser tool to lock down the org.
+  """
+  enabled: Boolean!
+
   """The organization's unique URL key."""
   urlKey: String!
 
@@ -832,6 +840,17 @@ type AuthOrganization {
   userCount: Float!
 }
 
+type AuthOrganizationBucketNamePayload {
+  """The region for the organization."""
+  region: String!
+
+  """The imports bucket name for the organization."""
+  importsBucketName: String!
+
+  """The uploads bucket name for the organization."""
+  uploadsBucketName: String!
+}
+
 type AuthOrganizationDomain {
   """The unique identifier of the entity."""
   id: ID!
@@ -839,6 +858,9 @@ type AuthOrganizationDomain {
   name: String!
   verified: Boolean!
   claimed: Boolean
+
+  """Prevent users with this domain to create new workspaces."""
+  disableOrganizationCreation: Boolean
   authType: OrganizationDomainAuthType!
 }
 
@@ -930,6 +952,9 @@ type AuthResolverResponse {
   """List of active users that belong to the user account."""
   users: [AuthUser!]!
 
+  """List of locked users that are locked by login restrictions"""
+  lockedUsers: [AuthUser!]!
+
   """
   List of organizations allowing this user account to join automatically.
   """
@@ -967,6 +992,11 @@ type AuthUser {
 
   """An URL to the user's avatar image."""
   avatarUrl: String
+
+  """
+  Whether the user is an organization admin or guest on a database level.
+  """
+  role: UserRoleType!
 
   """Whether the user is active."""
   active: Boolean!
@@ -1042,7 +1072,7 @@ type Comment implements Node {
   editedAt: DateTime
 
   """[Internal] The comment content as a Prosemirror document."""
-  bodyData: String!
+  bodyData: String
 
   """
   The text that this comment references. Only defined for inline comments.
@@ -1090,6 +1120,9 @@ type Comment implements Node {
 
   """The bot that created the comment."""
   botActor: ActorBot
+
+  """Reactions associated with the comment."""
+  reactions: [Reaction!]!
 }
 
 """Comment filtering options."""
@@ -1120,6 +1153,12 @@ input CommentCollectionFilter {
 
   """Filters that the comments document content must satisfy."""
   documentContent: DocumentContentFilter
+
+  """Filters that the comments reactions must satisfy."""
+  reactions: ReactionCollectionFilter
+
+  """Filters that the comment's customer needs must satisfy."""
+  needs: CustomerNeedCollectionFilter
 
   """Compound filters, all of which need to be matched by the comment."""
   and: [CommentCollectionFilter!]
@@ -1201,6 +1240,11 @@ input CommentCreateInput {
   The text that this comment references. Only defined for inline comments.
   """
   quotedText: String
+
+  """
+  [INTERNAL] The identifiers of the users subscribing to this comment thread.
+  """
+  subscriberIds: [String!]
 }
 
 type CommentEdge {
@@ -1239,11 +1283,33 @@ input CommentFilter {
   """Filters that the comments document content must satisfy."""
   documentContent: DocumentContentFilter
 
+  """Filters that the comments reactions must satisfy."""
+  reactions: ReactionCollectionFilter
+
+  """Filters that the comment's customer needs must satisfy."""
+  needs: CustomerNeedCollectionFilter
+
   """Compound filters, all of which need to be matched by the comment."""
   and: [CommentFilter!]
 
   """Compound filters, one of which need to be matched by the comment."""
   or: [CommentFilter!]
+}
+
+"""A comment related notification."""
+type CommentNotification {
+  """
+  Related comment ID. Null if the notification is not related to a comment.
+  """
+  commentId: String
+
+  """
+  Related parent comment ID. Null if the notification is not related to a comment.
+  """
+  parentCommentId: String
+
+  """Name of the reaction emoji related to the notification."""
+  reactionEmoji: String
 }
 
 type CommentPayload {
@@ -1274,62 +1340,14 @@ input CommentUpdateInput {
   The text that this comment references. Only defined for inline comments.
   """
   quotedText: String
-}
 
-"""A company related to issue's origin."""
-type Company implements Node {
-  """The unique identifier of the entity."""
-  id: ID!
-
-  """The time at which the entity was created."""
-  createdAt: DateTime!
+  """[INTERNAL] The identifiers of the users subscribing to this comment."""
+  subscriberIds: [String!]
 
   """
-  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
-      for which updates should not produce an update to updatedAt (see
-  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
-      been updated after creation.
+  [INTERNAL] Flag to prevent auto subscription to the issue the comment is updated on.
   """
-  updatedAt: DateTime!
-
-  """
-  The time at which the entity was archived. Null if the entity has not been archived.
-  """
-  archivedAt: DateTime
-
-  """Company name."""
-  name: String!
-
-  """Company ID in an external system."""
-  externalId: String!
-
-  """Company website URL."""
-  websiteUrl: String
-
-  """Company logo URL."""
-  logoUrl: String
-
-  """The user who added the company."""
-  creator: User!
-
-  """The organization of the customer."""
-  organization: Organization!
-
-  """Custom company properties."""
-  companyProperties: JSONObject!
-}
-
-type CompanyConnection {
-  edges: [CompanyEdge!]!
-  nodes: [Company!]!
-  pageInfo: PageInfo!
-}
-
-type CompanyEdge {
-  node: Company!
-
-  """Used in `before` and `after` args"""
-  cursor: String!
+  doNotSubscribeToIssue: Boolean
 }
 
 """Issue completion date sorting options."""
@@ -1437,6 +1455,612 @@ input CreateOrganizationInput {
 type CreateOrJoinOrganizationResponse {
   organization: AuthOrganization!
   user: AuthUser!
+}
+
+"""[ALPHA] A custom attribute on a Customer entity."""
+type CustomAttribute implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The customer that this custom attribute is attached to."""
+  customer: Customer!
+
+  """The field that is defining this custom attribute."""
+  field: CustomerSchemaField!
+
+  """The type of the value stored by the attribute."""
+  type: SchemaFieldType!
+
+  """The value of the custom attribute."""
+  value: JSON!
+}
+
+type CustomAttributeConnection {
+  edges: [CustomAttributeEdge!]!
+  nodes: [CustomAttribute!]!
+  pageInfo: PageInfo!
+}
+
+type CustomAttributeEdge {
+  node: CustomAttribute!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+"""[ALPHA] A customer whose needs will be tied to issues or projects."""
+type Customer implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The customer's name."""
+  name: String!
+
+  """The customer's logo URL."""
+  logoUrl: String
+
+  """The domains associated with this customer."""
+  domains: [String!]!
+
+  """The ids of the customers in external systems."""
+  externalIds: [String!]!
+
+  """The ID of the Slack channel used to interact with the customer."""
+  slackChannelId: String
+
+  """The user who owns the customer."""
+  owner: User!
+
+  """The current status of the customer."""
+  status: CustomerStatus!
+}
+
+"""Customer filtering options."""
+input CustomerCollectionFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the customer name."""
+  name: StringComparator
+
+  """Comparator for the customer slack channel ID."""
+  slackChannelId: StringComparator
+
+  """Comparator for the customer's domains."""
+  domains: StringArrayComparator
+
+  """Comparator for the customer's external IDs."""
+  externalIds: StringArrayComparator
+
+  """Filters that the customer owner must satisfy."""
+  owner: UserFilter
+
+  """Filters that the customer's needs must satisfy."""
+  needs: CustomerNeedCollectionFilter
+
+  """Compound filters, all of which need to be matched by the customer."""
+  and: [CustomerCollectionFilter!]
+
+  """Compound filters, one of which need to be matched by the customer."""
+  or: [CustomerCollectionFilter!]
+
+  """Filters that needs to be matched by some customers."""
+  some: CustomerFilter
+
+  """Filters that needs to be matched by all customers."""
+  every: CustomerFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
+}
+
+type CustomerConnection {
+  edges: [CustomerEdge!]!
+  nodes: [Customer!]!
+  pageInfo: PageInfo!
+}
+
+input CustomerCreateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The name of the customer."""
+  name: String!
+
+  """The domains associated with this customer."""
+  domains: [String!] = []
+
+  """The ids of the customers in external systems."""
+  externalIds: [String!] = []
+
+  """The ID of the Slack channel used to interact with the customer."""
+  slackChannelId: String
+
+  """The user who owns the customer."""
+  ownerId: String
+
+  """The status of the customer."""
+  statusId: String
+}
+
+type CustomerEdge {
+  node: Customer!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+"""Customer filtering options."""
+input CustomerFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the customer name."""
+  name: StringComparator
+
+  """Comparator for the customer slack channel ID."""
+  slackChannelId: StringComparator
+
+  """Comparator for the customer's domains."""
+  domains: StringArrayComparator
+
+  """Comparator for the customer's external IDs."""
+  externalIds: StringArrayComparator
+
+  """Filters that the customer owner must satisfy."""
+  owner: UserFilter
+
+  """Filters that the customer's needs must satisfy."""
+  needs: CustomerNeedCollectionFilter
+
+  """Compound filters, all of which need to be matched by the customer."""
+  and: [CustomerFilter!]
+
+  """Compound filters, one of which need to be matched by the customer."""
+  or: [CustomerFilter!]
+}
+
+"""
+[ALPHA] A customer need, expressed through a reference to an issue, project, or comment.
+"""
+type CustomerNeed implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The customer that this need is attached to."""
+  customer: Customer!
+
+  """The issue this need is referencing."""
+  issue: Issue
+
+  """The project this need is referencing."""
+  project: Project
+
+  """The comment this need is referencing."""
+  comment: Comment
+
+  """The priority of the need."""
+  priority: Float
+}
+
+"""Customer needs filtering options."""
+input CustomerNeedCollectionFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the customer need priority."""
+  priority: NumberComparator
+
+  """Filters that the need's project must satisfy."""
+  project: NullableProjectFilter
+
+  """Filters that the need's issue must satisfy."""
+  issue: NullableIssueFilter
+
+  """Filters that the need's comment must satisfy."""
+  comment: NullableCommentFilter
+
+  """Filters that the need's customer must satisfy."""
+  customer: CustomerFilter
+
+  """
+  Compound filters, all of which need to be matched by the customer needs.
+  """
+  and: [CustomerNeedCollectionFilter!]
+
+  """
+  Compound filters, one of which need to be matched by the customer needs.
+  """
+  or: [CustomerNeedCollectionFilter!]
+
+  """Filters that needs to be matched by some customer needs."""
+  some: CustomerNeedFilter
+
+  """Filters that needs to be matched by all customer needs."""
+  every: CustomerNeedFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
+}
+
+type CustomerNeedConnection {
+  edges: [CustomerNeedEdge!]!
+  nodes: [CustomerNeed!]!
+  pageInfo: PageInfo!
+}
+
+input CustomerNeedCreateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The uuid of the customer the need belongs to."""
+  customerId: String!
+
+  """The issue this need is referencing."""
+  issueId: String
+
+  """The project this need is referencing."""
+  projectId: String
+
+  """The comment this need is referencing."""
+  commentId: String
+
+  """The priority of the need."""
+  priority: Float
+}
+
+type CustomerNeedEdge {
+  node: CustomerNeed!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+"""Customer filtering options."""
+input CustomerNeedFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the customer need priority."""
+  priority: NumberComparator
+
+  """Filters that the need's project must satisfy."""
+  project: NullableProjectFilter
+
+  """Filters that the need's issue must satisfy."""
+  issue: NullableIssueFilter
+
+  """Filters that the need's comment must satisfy."""
+  comment: NullableCommentFilter
+
+  """Filters that the need's customer must satisfy."""
+  customer: CustomerFilter
+
+  """
+  Compound filters, all of which need to be matched by the customer need.
+  """
+  and: [CustomerNeedFilter!]
+
+  """
+  Compound filters, one of which need to be matched by the customer need.
+  """
+  or: [CustomerNeedFilter!]
+}
+
+type CustomerNeedPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The customer need that was created or updated."""
+  need: CustomerNeed!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
+input CustomerNeedUpdateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The priority of the need."""
+  priority: Float
+}
+
+type CustomerPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The customer that was created or updated."""
+  customer: Customer!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
+"""[ALPHA] A customer schema."""
+type CustomerSchema implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The schema display name."""
+  displayName: String!
+}
+
+type CustomerSchemaConnection {
+  edges: [CustomerSchemaEdge!]!
+  nodes: [CustomerSchema!]!
+  pageInfo: PageInfo!
+}
+
+type CustomerSchemaEdge {
+  node: CustomerSchema!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+"""[ALPHA] A customer schema field."""
+type CustomerSchemaField implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The name of the field in the schema."""
+  name: String!
+
+  """The type of the field in the schema."""
+  type: SchemaFieldType!
+
+  """Whether this field is enabled to be used as a custom attribute."""
+  enabled: Boolean!
+}
+
+type CustomerSchemaFieldConnection {
+  edges: [CustomerSchemaFieldEdge!]!
+  nodes: [CustomerSchemaField!]!
+  pageInfo: PageInfo!
+}
+
+type CustomerSchemaFieldEdge {
+  node: CustomerSchemaField!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+"""[ALPHA] A customer status."""
+type CustomerStatus implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The name of the status."""
+  name: String!
+
+  """The UI color of the status as a HEX string."""
+  color: String!
+
+  """The type of the customer status."""
+  type: CustomerStatusType!
+
+  """Description of the status."""
+  description: String
+
+  """The position of the status in the workspace's customers flow."""
+  position: Float!
+}
+
+type CustomerStatusConnection {
+  edges: [CustomerStatusEdge!]!
+  nodes: [CustomerStatus!]!
+  pageInfo: PageInfo!
+}
+
+input CustomerStatusCreateInput {
+  """
+  The identifier in UUID v4 format. If none is provided, the backend will generate one.
+  """
+  id: String
+
+  """The name of the status."""
+  name: String!
+
+  """The UI color of the status as a HEX string."""
+  color: String!
+
+  """Description of the status."""
+  description: String
+
+  """The position of the status in the workspace's customer flow."""
+  position: Float!
+
+  """The type of the customer status."""
+  type: CustomerStatusType!
+}
+
+type CustomerStatusEdge {
+  node: CustomerStatus!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+type CustomerStatusPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """The customer status that was created or updated."""
+  status: CustomerStatus!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+}
+
+"""A type of customer status."""
+enum CustomerStatusType {
+  active
+  inactive
+}
+
+input CustomerStatusUpdateInput {
+  """The name of the status."""
+  name: String
+
+  """The UI color of the status as a HEX string."""
+  color: String
+
+  """Description of the status."""
+  description: String
+
+  """The position of the status in the workspace's customer flow."""
+  position: Float
+
+  """The type of the customer status."""
+  type: CustomerStatusType
+}
+
+input CustomerUpdateInput {
+  """The name of the customer."""
+  name: String
+
+  """The domains associated with this customer."""
+  domains: [String!]
+
+  """The ids of the customers in external systems."""
+  externalIds: [String!]
+
+  """The ID of the Slack channel used to interact with the customer."""
+  slackChannelId: String
+
+  """The user who owns the customer."""
+  ownerId: String
+
+  """The status of the customer."""
+  statusId: String
 }
 
 """A custom view that has been saved by a user."""
@@ -1602,8 +2226,11 @@ input CustomViewCreateInput {
   """The id of the team associated with the custom view."""
   teamId: String
 
-  """[Internal] The id of the project associated with the custom view."""
+  """The id of the project associated with the custom view."""
   projectId: String
+
+  """The id of the initiative associated with the custom view."""
+  initiativeId: String
 
   """The owner of the custom view."""
   ownerId: String
@@ -1675,6 +2302,11 @@ type CustomViewNotificationSubscription implements NotificationSubscription & En
   """
   project: Project
 
+  """
+  The contextual initiative view associated with the notification subscription.
+  """
+  initiative: Initiative
+
   """The team associated with the notification subscription."""
   team: Team
 
@@ -1738,6 +2370,9 @@ input CustomViewUpdateInput {
 
   """[Internal] The id of the project associated with the custom view."""
   projectId: String
+
+  """[Internal] The id of the initiative associated with the custom view."""
+  initiativeId: String
 
   """The owner of the custom view."""
   ownerId: String
@@ -1818,6 +2453,9 @@ type Cycle implements Node {
 
   """The team that the cycle is associated with."""
   team: Team!
+
+  """[Internal] The progress history of the cycle."""
+  progressHistory: JSONObject!
 
   """Issues associated with the cycle."""
   issues(
@@ -2039,6 +2677,11 @@ type CycleNotificationSubscription implements NotificationSubscription & Entity 
   """
   project: Project
 
+  """
+  The contextual initiative view associated with the notification subscription.
+  """
+  initiative: Initiative
+
   """The team associated with the notification subscription."""
   team: Team
 
@@ -2226,7 +2869,7 @@ type DiaryEntry implements Node {
   archivedAt: DateTime
 
   """[Internal] The entry content as a Prosemirror document."""
-  bodyData: String!
+  bodyData: String
 
   """The user who the diary belongs to."""
   user: User!
@@ -2251,7 +2894,7 @@ input DiaryEntryCreateInput {
   id: String
 
   """The date for which the entry is created."""
-  date: TimelessDate
+  date: TimelessDate!
 
   """[Internal] The comment content as a Prosemirror diaryEntry."""
   bodyData: JSON
@@ -2336,6 +2979,9 @@ type Document implements Node {
   """
   hiddenAt: DateTime
 
+  """A flag that indicates whether the document is in the trash bin."""
+  trashed: Boolean
+
   """The order of the item in the resources list."""
   sortOrder: Float!
 
@@ -2350,6 +2996,18 @@ type Document implements Node {
 
   """[Internal] The documents content as a Prosemirror document."""
   contentData: JSON @deprecated(reason: "Use content instead.")
+}
+
+"""A generic payload return from entity archive mutations."""
+type DocumentArchivePayload implements ArchivePayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """Whether the operation was successful."""
+  success: Boolean!
+
+  """The archived/unarchived entity. Null if entity was deleted."""
+  entity: Document
 }
 
 """Document filtering options."""
@@ -2374,6 +3032,9 @@ input DocumentCollectionFilter {
 
   """Filters that the document's project must satisfy."""
   project: ProjectFilter
+
+  """Filters that the document's initiative must satisfy."""
+  initiative: InitiativeFilter
 
   """Compound filters, all of which need to be matched by the document."""
   and: [DocumentCollectionFilter!]
@@ -2504,7 +3165,7 @@ type DocumentContentHistory implements Node {
 
 type DocumentContentHistoryPayload {
   """The document content history entries."""
-  history: [DocumentContentHistoryType!]
+  history: [DocumentContentHistoryType!]!
 
   """Whether the operation was successful."""
   success: Boolean!
@@ -2526,7 +3187,7 @@ type DocumentContentHistoryType {
   contentDataSnapshotAt: DateTime!
 
   """[Internal] The document content as Prosemirror document."""
-  contentData: JSON!
+  contentData: JSON
 
   """The ID of the author of the change."""
   actorIds: [String!]
@@ -2564,6 +3225,9 @@ input DocumentCreateInput {
 
   """The order of the item in the resources list."""
   sortOrder: Float
+
+  """[INTERNAL] The identifiers of the users subscribing to this document."""
+  subscriberIds: [String!]
 }
 
 type DocumentEdge {
@@ -2596,6 +3260,9 @@ input DocumentFilter {
   """Filters that the document's project must satisfy."""
   project: ProjectFilter
 
+  """Filters that the document's initiative must satisfy."""
+  initiative: InitiativeFilter
+
   """Compound filters, all of which need to be matched by the document."""
   and: [DocumentFilter!]
 
@@ -2605,6 +3272,19 @@ input DocumentFilter {
 
 """A document related notification."""
 type DocumentNotification implements Notification & Entity & Node {
+  """
+  Related comment ID. Null if the notification is not related to a comment.
+  """
+  commentId: String
+
+  """
+  Related parent comment ID. Null if the notification is not related to a comment.
+  """
+  parentCommentId: String
+
+  """Name of the reaction emoji related to the notification."""
+  reactionEmoji: String
+
   """The unique identifier of the entity."""
   id: ID!
 
@@ -2655,8 +3335,46 @@ type DocumentNotification implements Notification & Entity & Node {
   """The time at which a notification was unsnoozed.."""
   unsnoozedAt: DateTime
 
+  """[Internal] URL to the target of the notification."""
+  url: String!
+
+  """[Internal] Inbox URL for the notification."""
+  inboxUrl: String!
+
+  """[Internal] Notification title."""
+  title: String!
+
+  """[Internal] Notification subtitle."""
+  subtitle: String!
+
+  """[Internal] If notification actor was Linear."""
+  isLinearActor: Boolean!
+
+  """[Internal] Notification avatar URL."""
+  actorAvatarUrl: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorInitials: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorAvatarColor: String
+
+  """[Internal] Issue's status type for issue notifications."""
+  issueStatusType: String
+
+  """[Internal] Project update health for new updates."""
+  projectUpdateHealth: String
+
+  """
+  [Internal] Notifications with the same grouping key will be grouped together in the UI.
+  """
+  groupingKey: String!
+
   """The bot that caused the notification."""
   botActor: ActorBot
+
+  """Related document ID."""
+  documentId: String!
 }
 
 type DocumentPayload {
@@ -2736,6 +3454,9 @@ type DocumentSearchResult implements Node {
   """
   hiddenAt: DateTime
 
+  """A flag that indicates whether the document is in the trash bin."""
+  trashed: Boolean
+
   """The order of the item in the resources list."""
   sortOrder: Float!
 
@@ -2798,6 +3519,61 @@ input DocumentUpdateInput {
 
   """The order of the item in the resources list."""
   sortOrder: Float
+
+  """Whether the document has been trashed."""
+  trashed: Boolean
+
+  """[INTERNAL] The identifiers of the users subscribing to this document."""
+  subscriberIds: [String!]
+}
+
+"""A general purpose draft. Used for comments, project updates, etc."""
+type Draft implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The text content as a Prosemirror document."""
+  bodyData: JSON!
+
+  """Additional properties for the draft."""
+  data: JSONObject
+
+  """Whether the draft was autogenerated for the user."""
+  isAutogenerated: Boolean!
+
+  """[INTERNAL] Whether the draft was ported from a local draft."""
+  wasLocalDraft: Boolean!
+
+  """The user who created the draft."""
+  user: User!
+
+  """The issue for which this is a draft comment."""
+  issue: Issue
+
+  """The project for which this is a draft project update."""
+  project: Project
+
+  """The project update for which this is a draft comment."""
+  projectUpdate: ProjectUpdate
+
+  """The comment for which this is a draft comment reply."""
+  parentComment: Comment
 }
 
 """Issue due date sorting options."""
@@ -3085,7 +3861,10 @@ input EntityExternalLinkCreateInput {
   label: String!
 
   """Related initiative link."""
-  initiativeId: String!
+  initiativeId: String
+
+  """Related project link."""
+  projectId: String
 
   """The order of the item in the entities resources list."""
   sortOrder: Float
@@ -3235,8 +4014,8 @@ type ExternalUserEdge {
 }
 
 """
-[ALPHA] A facet. Facets are joins between entities. A facet can tie a custom
-view to a project, or a a project to a roadmap for example.
+A facet. Facets are joins between entities. A facet can tie a custom view to a
+project, or a a project to a roadmap for example.
 """
 type Facet implements Node {
   """The unique identifier of the entity."""
@@ -3260,6 +4039,24 @@ type Facet implements Node {
 
   """The sort order of the facet."""
   sortOrder: Float!
+
+  """The owning organization."""
+  sourceOrganization: Organization
+
+  """The owning team."""
+  sourceTeam: Team
+
+  """The owning project."""
+  sourceProject: Project
+
+  """The owning initiative."""
+  sourceInitiative: Initiative
+
+  """The owning page."""
+  sourcePage: FacetPageSource
+
+  """The targeted custom view."""
+  targetCustomView: CustomView
 }
 
 type FacetConnection {
@@ -3273,6 +4070,10 @@ type FacetEdge {
 
   """Used in `before` and `after` args"""
   cursor: String!
+}
+
+enum FacetPageSource {
+  projects
 }
 
 """User favorites presented in the sidebar."""
@@ -3310,6 +4111,9 @@ type Favorite implements Node {
 
   """The type of favorited predefined view."""
   predefinedViewType: String
+
+  """The targeted tab of the initiative."""
+  initiativeTab: InitiativeTab
 
   """The owner of the favorite."""
   owner: User!
@@ -3350,7 +4154,10 @@ type Favorite implements Node {
   """The favorited project."""
   project: Project
 
-  """The favorited team of the project."""
+  """[INTERNAL] The favorited facet."""
+  facet: Facet
+
+  """[DEPRECATED] The favorited team of the project."""
   projectTeam: Team
 
   """The favorited cycle."""
@@ -3368,11 +4175,17 @@ type Favorite implements Node {
   """The favorited roadmap."""
   roadmap: Roadmap
 
+  """The favorited initiative."""
+  initiative: Initiative
+
   """The favorited label."""
   label: IssueLabel
 
   """The favorited user."""
   user: User
+
+  """URL of the favorited entity. Folders return 'null' value."""
+  url: String
 }
 
 type FavoriteConnection {
@@ -3394,7 +4207,7 @@ input FavoriteCreateInput {
   """The identifier of the issue to favorite."""
   issueId: String
 
-  """[INTERNAL] The identifier of the facet to favorite."""
+  """The identifier of the facet to favorite."""
   facetId: String
 
   """The identifier of the project to favorite."""
@@ -3402,9 +4215,6 @@ input FavoriteCreateInput {
 
   """The tab of the project to favorite."""
   projectTab: ProjectTab
-
-  """The identifier of the project team to favorite."""
-  projectTeamId: String
 
   """The type of the predefined view to favorite."""
   predefinedViewType: String
@@ -3426,6 +4236,9 @@ input FavoriteCreateInput {
 
   """[INTERNAL] The identifier of the initiative to favorite."""
   initiativeId: String
+
+  """The tab of the initiative to favorite."""
+  initiativeTab: InitiativeTab
 
   """The identifier of the label to favorite."""
   labelId: String
@@ -3466,6 +4279,148 @@ input FavoriteUpdateInput {
 
   """The name of the favorite folder."""
   folderName: String
+}
+
+"""A feature flag for a project."""
+type FeatureFlag implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The unique key as defined by the feature flag provider."""
+  key: String!
+
+  """Url to the feature flag provider's page about the feature flag."""
+  externalUrl: String!
+
+  """The description of the feature flag."""
+  description: String
+
+  """Whether the feature flag is enabled."""
+  isEnabled: Boolean!
+
+  """The status of the feature flag."""
+  status: String!
+
+  """The description of the feature flag."""
+  lastStageUpdatedAt: DateTime
+
+  """The organization of the feature flag."""
+  organization: Organization!
+
+  """The project the feature flag is associated with."""
+  project: Project
+
+  """The integration providing the feature flag."""
+  integration: Integration!
+
+  """
+  The rollout stage of the feature flag, should be defined for all feature flags in use.
+  """
+  rolloutStage: FeatureFlagRolloutStage!
+
+  """The pending rollout stage for the feature flag."""
+  pendingRolloutStage: FeatureFlagRolloutStage
+
+  """The user who last changed the stage of the feature flag."""
+  lastStageUpdatedBy: User
+
+  """The user who created the feature flag."""
+  creator: User
+}
+
+type FeatureFlagConnection {
+  edges: [FeatureFlagEdge!]!
+  nodes: [FeatureFlag!]!
+  pageInfo: PageInfo!
+}
+
+type FeatureFlagEdge {
+  node: FeatureFlag!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+"""A rollout stage for a feature flag."""
+type FeatureFlagRolloutStage implements Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The name of the rollout stage."""
+  name: String!
+
+  """The description of the rollout stage."""
+  description: String
+
+  """
+  Which feature flag provider segments this rollout stage is associated with.
+  """
+  segmentKeys: [String!]!
+
+  """The type of the feature flag rollout stage."""
+  type: FeatureFlagRolloutStageType!
+
+  """The order of the rollout stages within an organization."""
+  sortOrder: Float!
+
+  """The organization of the feature flag rollout stage."""
+  organization: Organization!
+
+  """The integration providing the feature flag."""
+  integration: Integration!
+}
+
+type FeatureFlagRolloutStageConnection {
+  edges: [FeatureFlagRolloutStageEdge!]!
+  nodes: [FeatureFlagRolloutStage!]!
+  pageInfo: PageInfo!
+}
+
+type FeatureFlagRolloutStageEdge {
+  node: FeatureFlagRolloutStage!
+
+  """Used in `before` and `after` args"""
+  cursor: String!
+}
+
+"""The type of a feature flag rollout stage."""
+enum FeatureFlagRolloutStageType {
+  dev
+  internal
+  partial
+  full
 }
 
 type FrontAttachmentPayload {
@@ -3756,32 +4711,63 @@ type GitHubCommitIntegrationPayload {
   webhookSecret: String!
 }
 
-"""
-GitHub OAuth token, plus information about the organizations the user is a member of.
-"""
-type GithubOAuthTokenPayload {
-  """The OAuth token if the operation to fetch it was successful."""
-  token: String
-
-  """
-  A list of the GitHub organizations the user is a member of with attached repositories.
-  """
-  organizations: [GithubOrg!]
+type GitHubEnterpriseServerInstallVerificationPayload {
+  """Has the install been successful."""
+  success: Boolean!
 }
 
-"""Relevant information for the GitHub organization."""
-type GithubOrg {
-  """GitHub organization id."""
-  id: String!
+type GitHubEnterpriseServerPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
 
-  """The login for the GitHub organization."""
-  login: String!
+  """The integration that was created or updated."""
+  integration: Integration
 
-  """Repositories that the organization owns."""
-  repositories: [GithubRepo!]!
+  """Whether the operation was successful."""
+  success: Boolean!
 
-  """Whether or not this org is the user's personal repositories."""
-  isPersonal: Boolean
+  """The setup address."""
+  setupUrl: String!
+
+  """The app install address."""
+  installUrl: String!
+
+  """The webhook secret to provide to GitHub."""
+  webhookSecret: String!
+}
+
+"""Metadata and settings for a GitHub import integration."""
+type GitHubImportSettings {
+  """The GitHub organization's name."""
+  orgLogin: String!
+
+  """The avatar URL for the GitHub organization."""
+  orgAvatarUrl: String!
+
+  """The names of the repositories connected for the GitHub integration."""
+  repositories: [GitHubRepo!]!
+
+  """The type of Github org"""
+  orgType: GithubOrgType!
+}
+
+input GitHubImportSettingsInput {
+  """The GitHub organization's name."""
+  orgLogin: String!
+
+  """The avatar URL for the GitHub organization."""
+  orgAvatarUrl: String!
+
+  """The names of the repositories connected for the GitHub integration."""
+  repositories: [GitHubRepoInput!]!
+
+  """The type of Github org"""
+  orgType: GithubOrgType!
+}
+
+enum GithubOrgType {
+  user
+  organization
 }
 
 """Metadata and settings for a GitHub Personal integration."""
@@ -3793,15 +4779,6 @@ type GitHubPersonalSettings {
 input GitHubPersonalSettingsInput {
   """The GitHub user's name."""
   login: String!
-}
-
-"""Relevant information for the GitHub repository."""
-type GithubRepo {
-  """The id of the GitHub repository."""
-  id: String!
-
-  """The name of the GitHub repository."""
-  name: String!
 }
 
 """GitHub repos available to sync."""
@@ -3824,7 +4801,7 @@ input GitHubRepoInput {
 """Metadata and settings for a GitHub integration."""
 type GitHubSettings {
   """The avatar URL for the GitHub organization."""
-  orgAvatarUrl: String!
+  orgAvatarUrl: String
 
   """The GitHub organization's name."""
   orgLogin: String!
@@ -3834,11 +4811,14 @@ type GitHubSettings {
 
   """Mapping of team to repository for syncing."""
   repositoriesMapping: [TeamRepoMapping!]
+
+  """The type of Github org"""
+  orgType: GithubOrgType
 }
 
 input GitHubSettingsInput {
   """The avatar URL for the GitHub organization."""
-  orgAvatarUrl: String!
+  orgAvatarUrl: String
 
   """The GitHub organization's name."""
   orgLogin: String!
@@ -3848,6 +4828,9 @@ input GitHubSettingsInput {
 
   """Mapping of team to repository for syncing."""
   repositoriesMapping: [TeamRepoMappingInput!]
+
+  """The type of Github org"""
+  orgType: GithubOrgType
 }
 
 """Metadata and settings for a GitLab integration."""
@@ -3878,14 +4861,14 @@ type GoogleSheetsSettings {
   spreadsheetId: String!
   spreadsheetUrl: String!
   sheetId: Float!
-  updatedIssuesAt: DateTime!
+  updatedIssuesAt: DateTime
 }
 
 input GoogleSheetsSettingsInput {
   spreadsheetId: String!
   spreadsheetUrl: String!
   sheetId: Float!
-  updatedIssuesAt: DateTime!
+  updatedIssuesAt: DateTime
 }
 
 input GoogleUserAccountAuthInput {
@@ -3908,6 +4891,11 @@ input GoogleUserAccountAuthInput {
   An optional invite link for an organization used to populate available organizations.
   """
   inviteLink: String
+
+  """
+  An optional parameter to disable new user signup and force login. Default: false.
+  """
+  disallowSignup: Boolean
 }
 
 """Comparator for identifiers."""
@@ -3936,7 +4924,7 @@ type ImageUploadFromUrlPayload {
   success: Boolean!
 }
 
-"""[INTERNAL] An initiative to group projects."""
+"""An initiative to group projects."""
 type Initiative implements Node {
   """The unique identifier of the entity."""
   id: ID!
@@ -3960,7 +4948,7 @@ type Initiative implements Node {
   """The name of the initiative."""
   name: String!
 
-  """[Internal] The description of the initiative."""
+  """The description of the initiative."""
   description: String
 
   """The organization of the initiative."""
@@ -3981,17 +4969,24 @@ type Initiative implements Node {
   """The initiative's color."""
   color: String
 
+  """The icon of the initiative."""
+  icon: String
+
+  """A flag that indicates whether the initiative is in the trash bin."""
+  trashed: Boolean
+
   """The estimated completion date of the initiative."""
   targetDate: TimelessDate
 
-  """
-  [INTERNAL] The resolution of the initiative's estimated completion date.
-  """
+  """The resolution of the initiative's estimated completion date."""
   targetDateResolution: DateResolutionType
+
+  """The status of the initiative. One of Planned, Active, Completed"""
+  status: InitiativeStatus!
 
   """Projects associated with the initiative."""
   projects(
-    """[Internal] Filter returned projects."""
+    """Filter returned projects."""
     filter: ProjectFilter
 
     """A cursor to be used with last for backward pagination."""
@@ -4076,6 +5071,9 @@ input InitiativeCollectionFilter {
   """Comparator for the initiative slug ID."""
   slugId: StringComparator
 
+  """Comparator for the initiative status."""
+  status: StringComparator
+
   """Filters that the initiative creator must satisfy."""
   creator: UserFilter
 
@@ -4101,7 +5099,7 @@ type InitiativeConnection {
   pageInfo: PageInfo!
 }
 
-"""[Internal] The properties of the initiative to create."""
+"""The properties of the initiative to create."""
 input InitiativeCreateInput {
   """
   The identifier in UUID v4 format. If none is provided, the backend will generate one.
@@ -4111,7 +5109,7 @@ input InitiativeCreateInput {
   """The name of the initiative."""
   name: String!
 
-  """[Internal] The description of the initiative."""
+  """The description of the initiative."""
   description: String
 
   """The owner of the initiative."""
@@ -4122,6 +5120,18 @@ input InitiativeCreateInput {
 
   """The initiative's color."""
   color: String
+
+  """The initiative's icon."""
+  icon: String
+
+  """The initiative's status."""
+  status: InitiativeStatus
+
+  """The estimated completion date of the initiative."""
+  targetDate: TimelessDate
+
+  """The resolution of the initiative's estimated completion date."""
+  targetDateResolution: DateResolutionType
 }
 
 type InitiativeEdge {
@@ -4148,6 +5158,9 @@ input InitiativeFilter {
   """Comparator for the initiative slug ID."""
   slugId: StringComparator
 
+  """Comparator for the initiative status."""
+  status: StringComparator
+
   """Filters that the initiative creator must satisfy."""
   creator: UserFilter
 
@@ -4158,7 +5171,184 @@ input InitiativeFilter {
   or: [InitiativeFilter!]
 }
 
-"""[Internal] The payload returned by the initiative mutations."""
+"""An initiative related notification."""
+type InitiativeNotification implements Notification & Entity & Node {
+  """
+  Related comment ID. Null if the notification is not related to a comment.
+  """
+  commentId: String
+
+  """
+  Related parent comment ID. Null if the notification is not related to a comment.
+  """
+  parentCommentId: String
+
+  """Name of the reaction emoji related to the notification."""
+  reactionEmoji: String
+
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """Notification type."""
+  type: String!
+
+  """The user that caused the notification."""
+  actor: User
+
+  """The external user that caused the notification."""
+  externalUserActor: ExternalUser
+
+  """The user that received the notification."""
+  user: User!
+
+  """
+  The time at when the user marked the notification as read. Null, if the the user hasn't read the notification
+  """
+  readAt: DateTime
+
+  """
+  The time at when an email reminder for this notification was sent to the user. Null, if no email
+      reminder has been sent.
+  """
+  emailedAt: DateTime
+
+  """
+  The time until a notification will be snoozed. After that it will appear in the inbox again.
+  """
+  snoozedUntilAt: DateTime
+
+  """The time at which a notification was unsnoozed.."""
+  unsnoozedAt: DateTime
+
+  """[Internal] URL to the target of the notification."""
+  url: String!
+
+  """[Internal] Inbox URL for the notification."""
+  inboxUrl: String!
+
+  """[Internal] Notification title."""
+  title: String!
+
+  """[Internal] Notification subtitle."""
+  subtitle: String!
+
+  """[Internal] If notification actor was Linear."""
+  isLinearActor: Boolean!
+
+  """[Internal] Notification avatar URL."""
+  actorAvatarUrl: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorInitials: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorAvatarColor: String
+
+  """[Internal] Issue's status type for issue notifications."""
+  issueStatusType: String
+
+  """[Internal] Project update health for new updates."""
+  projectUpdateHealth: String
+
+  """
+  [Internal] Notifications with the same grouping key will be grouped together in the UI.
+  """
+  groupingKey: String!
+
+  """The bot that caused the notification."""
+  botActor: ActorBot
+
+  """Related initiative ID."""
+  initiativeId: String!
+}
+
+"""An initiative notification subscription."""
+type InitiativeNotificationSubscription implements NotificationSubscription & Entity & Node {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """
+  The last time at which the entity was meaningfully updated, i.e. for all changes of syncable properties except those
+      for which updates should not produce an update to updatedAt (see
+  skipUpdatedAtKeys). This is the same as the creation time if the entity hasn't
+      been updated after creation.
+  """
+  updatedAt: DateTime!
+
+  """
+  The time at which the entity was archived. Null if the entity has not been archived.
+  """
+  archivedAt: DateTime
+
+  """The user that subscribed to receive notifications."""
+  subscriber: User!
+
+  """
+  The contextual custom view associated with the notification subscription.
+  """
+  customView: CustomView
+
+  """
+  The contextual cycle view associated with the notification subscription.
+  """
+  cycle: Cycle
+
+  """
+  The contextual label view associated with the notification subscription.
+  """
+  label: IssueLabel
+
+  """
+  The contextual project view associated with the notification subscription.
+  """
+  project: Project
+
+  """The initiative subscribed to."""
+  initiative: Initiative!
+
+  """The team associated with the notification subscription."""
+  team: Team
+
+  """The user view associated with the notification subscription."""
+  user: User
+
+  """
+  The type of view to which the notification subscription context is associated with.
+  """
+  contextViewType: ContextViewType
+
+  """
+  The type of user view to which the notification subscription context is associated with.
+  """
+  userContextViewType: UserContextViewType
+
+  """Whether the subscription is active or not."""
+  active: Boolean!
+
+  """The type of subscription."""
+  notificationSubscriptionTypes: [String!]!
+}
+
+"""The payload returned by the initiative mutations."""
 type InitiativePayload {
   """The identifier of the last sync operation."""
   lastSyncId: Float!
@@ -4170,7 +5360,19 @@ type InitiativePayload {
   success: Boolean!
 }
 
-"""[INTERNAL] Join table between projects and initiatives."""
+enum InitiativeStatus {
+  Planned
+  Active
+  Completed
+}
+
+"""Different tabs available inside an initiative."""
+enum InitiativeTab {
+  overview
+  projects
+}
+
+"""Join table between projects and initiatives."""
 type InitiativeToProject implements Node {
   """The unique identifier of the entity."""
   id: ID!
@@ -4207,7 +5409,7 @@ type InitiativeToProjectConnection {
   pageInfo: PageInfo!
 }
 
-"""[INTERNAL] The properties of the initiativeToProject to create."""
+"""The properties of the initiativeToProject to create."""
 input InitiativeToProjectCreateInput {
   """
   The identifier in UUID v4 format. If none is provided, the backend will generate one.
@@ -4231,7 +5433,7 @@ type InitiativeToProjectEdge {
   cursor: String!
 }
 
-"""[INTERNAL] The result of a initiativeToProject mutation."""
+"""The result of a initiativeToProject mutation."""
 type InitiativeToProjectPayload {
   """The identifier of the last sync operation."""
   lastSyncId: Float!
@@ -4243,18 +5445,18 @@ type InitiativeToProjectPayload {
   success: Boolean!
 }
 
-"""[INTERNAL] The properties of the initiativeToProject to update."""
+"""The properties of the initiativeToProject to update."""
 input InitiativeToProjectUpdateInput {
   """The sort order for the project within its organization."""
   sortOrder: Float
 }
 
-"""[Internal] The properties of the initiative to update."""
+"""The properties of the initiative to update."""
 input InitiativeUpdateInput {
   """The name of the initiative."""
   name: String
 
-  """[Internal] The description of the initiative."""
+  """The description of the initiative."""
   description: String
 
   """The owner of the initiative."""
@@ -4266,8 +5468,20 @@ input InitiativeUpdateInput {
   """The initiative's color."""
   color: String
 
+  """The initiative's icon."""
+  icon: String
+
   """The estimated completion date of the initiative."""
   targetDate: TimelessDate
+
+  """The initiative's status."""
+  status: InitiativeStatus
+
+  """The resolution of the initiative's estimated completion date."""
+  targetDateResolution: DateResolutionType
+
+  """Whether the initiative has been trashed."""
+  trashed: Boolean
 }
 
 """An integration with an external service."""
@@ -4357,7 +5571,9 @@ enum IntegrationService {
   figmaPlugin
   front
   github
+  githubEnterpriseServer
   githubCommit
+  githubImport
   githubPersonal
   gitlab
   googleCalendarPersonal
@@ -4365,12 +5581,14 @@ enum IntegrationService {
   intercom
   jira
   jiraPersonal
+  launchDarkly
   loom
   notion
   opsgenie
   pagerDuty
   slack
   slackAsks
+  slackCustomViewNotifications
   slackOrgProjectUpdatesPost
   slackPersonal
   slackPost
@@ -4387,9 +5605,11 @@ type IntegrationSettings {
   slackAsks: SlackAsksSettings
   slackPost: SlackPostSettings
   slackProjectPost: SlackPostSettings
+  slackCustomViewNotifications: SlackPostSettings
   slackOrgProjectUpdatesPost: SlackPostSettings
   googleSheets: GoogleSheetsSettings
   gitHub: GitHubSettings
+  gitHubImport: GitHubImportSettings
   gitHubPersonal: GitHubPersonalSettings
   gitLab: GitLabSettings
   sentry: SentrySettings
@@ -4400,6 +5620,7 @@ type IntegrationSettings {
   notion: NotionSettings
   opsgenie: OpsgenieSettings
   pagerDuty: PagerDutySettings
+  launchDarkly: LaunchDarklySettings
   jiraPersonal: JiraPersonalSettings
 }
 
@@ -4408,9 +5629,11 @@ input IntegrationSettingsInput {
   slackAsks: SlackAsksSettingsInput
   slackPost: SlackPostSettingsInput
   slackProjectPost: SlackPostSettingsInput
+  slackCustomViewNotifications: SlackPostSettingsInput
   slackOrgProjectUpdatesPost: SlackPostSettingsInput
   googleSheets: GoogleSheetsSettingsInput
   gitHub: GitHubSettingsInput
+  gitHubImport: GitHubImportSettingsInput
   gitHubPersonal: GitHubPersonalSettingsInput
   gitLab: GitLabSettingsInput
   sentry: SentrySettingsInput
@@ -4421,6 +5644,7 @@ input IntegrationSettingsInput {
   notion: NotionSettingsInput
   opsgenie: OpsgenieInput
   pagerDuty: PagerDutyInput
+  launchDarkly: LaunchDarklySettingsInput
   jiraPersonal: JiraPersonalSettingsInput
 }
 
@@ -4459,6 +5683,11 @@ type IntegrationsSettings implements Node {
   Whether to send a Slack message when any of the project or team's issues change to completed or cancelled.
   """
   slackIssueStatusChangedDone: Boolean
+
+  """
+  Whether to send a Slack message when an issue is added to the custom view.
+  """
+  slackIssueAddedToView: Boolean
 
   """
   Whether to send a Slack message when any of the project or team's issues has a change in status.
@@ -4501,6 +5730,9 @@ input IntegrationsSettingsCreateInput {
   Whether to send a Slack message when a new issue is created for the project or the team.
   """
   slackIssueCreated: Boolean
+
+  """Whether to send a Slack message when an issue is added to a view."""
+  slackIssueAddedToView: Boolean
 
   """
   Whether to send a Slack message when a comment is created on any of the project or team's issues.
@@ -4574,6 +5806,9 @@ input IntegrationsSettingsUpdateInput {
   Whether to send a Slack message when a new issue is created for the project or the team.
   """
   slackIssueCreated: Boolean
+
+  """Whether to send a Slack message when an issue is added to a view."""
+  slackIssueAddedToView: Boolean
 
   """
   Whether to send a Slack message when a comment is created on any of the project or team's issues.
@@ -4784,6 +6019,11 @@ type Issue implements Node {
   """The order of the item in relation to other items in the organization."""
   sortOrder: Float!
 
+  """
+  [ALPHA] The order of the item in relation to other items in the organization, when ordered by priority.
+  """
+  prioritySortOrder: Float!
+
   """The time at which the issue was moved into started state."""
   startedAt: DateTime
 
@@ -4864,6 +6104,9 @@ type Issue implements Node {
   The order of the item in the sub-issue list. Only set if the issue has a parent.
   """
   subIssueSortOrder: Float
+
+  """Emoji reaction summary, grouped by emoji type."""
+  reactionData: JSONObject!
 
   """Label for the priority."""
   priorityLabel: String!
@@ -5139,6 +6382,9 @@ type Issue implements Node {
 
   """[Internal] The issue's description content as YJS state."""
   descriptionState: String
+
+  """Reactions associated with the issue."""
+  reactions: [Reaction!]!
 }
 
 """A generic payload return from entity archive mutations."""
@@ -5280,6 +6526,12 @@ input IssueCollectionFilter {
   """Comparator for the issues sla status."""
   slaStatus: SlaStatusComparator
 
+  """Filters that the issues reactions must satisfy."""
+  reactions: ReactionCollectionFilter
+
+  """Filters that the issue's customer needs must satisfy."""
+  needs: CustomerNeedFilter
+
   """Compound filters, all of which need to be matched by the issue."""
   and: [IssueCollectionFilter!]
 
@@ -5337,7 +6589,7 @@ input IssueCreateInput {
   """The identifiers of the issue labels associated with this ticket."""
   labelIds: [String!]
 
-  """The identifier or key of the team associated with the issue."""
+  """The identifier of the team associated with the issue."""
   teamId: String!
 
   """The cycle associated with the issue."""
@@ -5366,6 +6618,11 @@ input IssueCreateInput {
 
   """The position of the issue related to other issues."""
   sortOrder: Float
+
+  """
+  [ALPHA] The position of the issue related to other issues, when ordered by priority.
+  """
+  prioritySortOrder: Float
 
   """The position of the issue in parent's sub-issue list."""
   subIssueSortOrder: Float
@@ -5482,7 +6739,7 @@ type IssueDraft implements Node {
   descriptionData: JSON
 
   """Serialized array of JSONs representing attachments."""
-  attachments: JSONObject!
+  attachments: JSONObject
 }
 
 type IssueEdge {
@@ -5608,6 +6865,12 @@ input IssueFilter {
   """Comparator for the issues sla status."""
   slaStatus: SlaStatusComparator
 
+  """Filters that the issues reactions must satisfy."""
+  reactions: ReactionCollectionFilter
+
+  """Filters that the issue's customer needs must satisfy."""
+  needs: CustomerNeedFilter
+
   """Compound filters, all of which need to be matched by the issue."""
   and: [IssueFilter!]
 
@@ -5645,11 +6908,6 @@ type IssueHistory implements Node {
   issue: Issue!
 
   """
-  The user who made these changes. If null, possibly means that the change made by an integration.
-  """
-  actor: User
-
-  """
   The id of user who made these changes. If null, possibly means that the change made by an integration.
   """
   actorId: String
@@ -5663,14 +6921,8 @@ type IssueHistory implements Node {
   """What the title was changed to."""
   toTitle: String
 
-  """The user from whom the issue was re-assigned from."""
-  fromAssignee: User
-
   """The id of user from whom the issue was re-assigned from."""
   fromAssigneeId: String
-
-  """The user to whom the issue was assigned to."""
-  toAssignee: User
 
   """The id of user to whom the issue was assigned to."""
   toAssigneeId: String
@@ -5681,68 +6933,35 @@ type IssueHistory implements Node {
   """What the priority was changed to."""
   toPriority: Float
 
-  """The team from which the issue was moved from."""
-  fromTeam: Team
-
   """The id of team from which the issue was moved from."""
   fromTeamId: String
-
-  """The team to which the issue was moved to."""
-  toTeam: Team
 
   """The id of team to which the issue was moved to."""
   toTeamId: String
 
-  """The previous parent of the issue."""
-  fromParent: Issue
-
   """The id of previous parent of the issue."""
   fromParentId: String
-
-  """The new parent of the issue."""
-  toParent: Issue
 
   """The id of new parent of the issue."""
   toParentId: String
 
-  """The previous workflow state of the issue."""
-  fromState: WorkflowState
-
   """The id of previous workflow state of the issue."""
   fromStateId: String
-
-  """The new workflow state of the issue."""
-  toState: WorkflowState
 
   """The id of new workflow state of the issue."""
   toStateId: String
 
-  """The previous cycle of the issue."""
-  fromCycle: Cycle
-
   """The id of previous cycle of the issue."""
   fromCycleId: String
-
-  """The new cycle of the issue."""
-  toCycle: Cycle
 
   """The id of new cycle of the issue."""
   toCycleId: String
 
-  """The new project created from the issue."""
-  toConvertedProject: Project
-
   """The id of new project created from the issue."""
   toConvertedProjectId: String
 
-  """The previous project of the issue."""
-  fromProject: Project
-
   """The id of previous project of the issue."""
   fromProjectId: String
-
-  """The new project of the issue."""
-  toProject: Project
 
   """The id of new project of the issue."""
   toProjectId: String
@@ -5758,12 +6977,6 @@ type IssueHistory implements Node {
 
   """Whether the issue was trashed or un-trashed."""
   trashed: Boolean
-
-  """The import record."""
-  issueImport: IssueImport
-
-  """The linked attachment."""
-  attachment: Attachment
 
   """The id of linked attachment."""
   attachmentId: String
@@ -5793,11 +7006,72 @@ type IssueHistory implements Node {
   [Internal] Serialized JSON representing changes for certain non-relational properties.
   """
   changes: JSONObject
+
+  """
+  The actor that performed the actions. This field may be empty in the case of integrations or automations.
+  """
+  actor: User @deprecated(reason: "Use actors instead.")
+
+  """
+  The actors that performed the actions. This field may be empty in the case of integrations or automations.
+  """
+  actors: [User!]
+
+  """The user that was unassigned from the issue."""
+  fromAssignee: User
+
+  """The user that was assigned to the issue."""
+  toAssignee: User
+
+  """The cycle that the issue was moved from."""
+  fromCycle: Cycle
+
+  """The cycle that the issue was moved to."""
+  toCycle: Cycle
+
+  """The new project created from the issue."""
+  toConvertedProject: Project
+
+  """The project that the issue was moved from."""
+  fromProject: Project
+
+  """The project that the issue was moved to."""
+  toProject: Project
+
+  """The state that the issue was moved from."""
+  fromState: WorkflowState
+
+  """The state that the issue was moved to."""
+  toState: WorkflowState
+
+  """The team that the issue was moved from."""
+  fromTeam: Team
+
+  """The team that the issue was moved to."""
+  toTeam: Team
+
+  """The parent issue that the issue was moved from."""
+  fromParent: Issue
+
+  """The parent issue that the issue was moved to."""
+  toParent: Issue
+
+  """The linked attachment."""
+  attachment: Attachment
+
+  """The import record."""
+  issueImport: IssueImport
+
+  """The users that were notified of the issue."""
   triageResponsibilityNotifiedUsers: [User!]
 
   """The bot that performed the action."""
   botActor: ActorBot
+
+  """The labels that were added to the issue."""
   addedLabels: [IssueLabel!]
+
+  """The labels that were removed from the issue."""
   removedLabels: [IssueLabel!]
 }
 
@@ -5861,6 +7135,12 @@ type IssueImport implements Node {
 
   """Error code and metadata, if one has occurred during the import."""
   errorMetadata: JSONObject
+
+  """Metadata related to import service."""
+  serviceMetadata: JSONObject
+
+  """The display name of the import service."""
+  displayName: String!
 }
 
 type IssueImportCheckPayload {
@@ -5958,9 +7238,6 @@ type IssueLabel implements Node {
   """The parent label."""
   parent: IssueLabel
 
-  """Whether this label is considered to be a group."""
-  isGroup: Boolean!
-
   """Issues associated with the label."""
   issues(
     """Filter returned issues."""
@@ -6020,6 +7297,9 @@ type IssueLabel implements Node {
     """
     orderBy: PaginationOrderBy
   ): IssueLabelConnection!
+
+  """Whether this label is considered to be a group."""
+  isGroup: Boolean!
 }
 
 """Issue label filtering options."""
@@ -6155,6 +7435,19 @@ input IssueLabelUpdateInput {
 
 """An issue related notification."""
 type IssueNotification implements Notification & Entity & Node {
+  """
+  Related comment ID. Null if the notification is not related to a comment.
+  """
+  commentId: String
+
+  """
+  Related parent comment ID. Null if the notification is not related to a comment.
+  """
+  parentCommentId: String
+
+  """Name of the reaction emoji related to the notification."""
+  reactionEmoji: String
+
   """The unique identifier of the entity."""
   id: ID!
 
@@ -6205,17 +7498,57 @@ type IssueNotification implements Notification & Entity & Node {
   """The time at which a notification was unsnoozed.."""
   unsnoozedAt: DateTime
 
+  """[Internal] URL to the target of the notification."""
+  url: String!
+
+  """[Internal] Inbox URL for the notification."""
+  inboxUrl: String!
+
+  """[Internal] Notification title."""
+  title: String!
+
+  """[Internal] Notification subtitle."""
+  subtitle: String!
+
+  """[Internal] If notification actor was Linear."""
+  isLinearActor: Boolean!
+
+  """[Internal] Notification avatar URL."""
+  actorAvatarUrl: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorInitials: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorAvatarColor: String
+
+  """[Internal] Issue's status type for issue notifications."""
+  issueStatusType: String
+
+  """[Internal] Project update health for new updates."""
+  projectUpdateHealth: String
+
+  """
+  [Internal] Notifications with the same grouping key will be grouped together in the UI.
+  """
+  groupingKey: String!
+
   """The bot that caused the notification."""
   botActor: ActorBot
 
-  """Name of the reaction emoji related to the notification."""
-  reactionEmoji: String
+  """Related issue ID."""
+  issueId: String!
 
   """The issue related to the notification."""
   issue: Issue!
 
   """The comment related to the notification."""
   comment: Comment
+
+  """
+  The parent comment related to the notification, if a notification is a reply comment notification.
+  """
+  parentComment: Comment
 
   """The team related to the issue notification."""
   team: Team!
@@ -6395,6 +7728,11 @@ type IssueSearchResult implements Node {
   """The order of the item in relation to other items in the organization."""
   sortOrder: Float!
 
+  """
+  [ALPHA] The order of the item in relation to other items in the organization, when ordered by priority.
+  """
+  prioritySortOrder: Float!
+
   """The time at which the issue was moved into started state."""
   startedAt: DateTime
 
@@ -6475,6 +7813,9 @@ type IssueSearchResult implements Node {
   The order of the item in the sub-issue list. Only set if the issue has a parent.
   """
   subIssueSortOrder: Float
+
+  """Emoji reaction summary, grouped by emoji type."""
+  reactionData: JSONObject!
 
   """Label for the priority."""
   priorityLabel: String!
@@ -6751,6 +8092,9 @@ type IssueSearchResult implements Node {
   """[Internal] The issue's description content as YJS state."""
   descriptionState: String
 
+  """Reactions associated with the issue."""
+  reactions: [Reaction!]!
+
   """Metadata related to search result."""
   metadata: JSONObject!
 }
@@ -6849,7 +8193,7 @@ input IssueUpdateInput {
   """The identifiers of the issue labels associated with this ticket."""
   labelIds: [String!]
 
-  """The identifier or key of the team associated with the issue."""
+  """The identifier of the team associated with the issue."""
   teamId: String
 
   """The cycle associated with the issue."""
@@ -6873,6 +8217,11 @@ input IssueUpdateInput {
   """The position of the issue related to other issues."""
   sortOrder: Float
 
+  """
+  [ALPHA] The position of the issue related to other issues, when ordered by priority.
+  """
+  prioritySortOrder: Float
+
   """The position of the issue in parent's sub-issue list."""
   subIssueSortOrder: Float
 
@@ -6892,9 +8241,6 @@ input IssueUpdateInput {
 
   """The identifier of the user who snoozed the issue."""
   snoozedById: String
-
-  """The identifiers of the companies associated with this ticket."""
-  companyIds: [String!]
 }
 
 input JiraConfigurationInput {
@@ -6907,8 +8253,11 @@ input JiraConfigurationInput {
   """The Jira installation hostname."""
   hostname: String!
 
-  """The Jira project keys to scope the integration to."""
+  """[DEPRECATED] The Jira project keys to scope the integration to."""
   project: String
+
+  """Whether this integration will be setup using the manual webhook flow."""
+  manualSetup: Boolean
 }
 
 """Tuple for mapping Jira projects to Linear teams."""
@@ -6990,9 +8339,14 @@ type JiraSettings {
   isJiraServer: Boolean
 
   """
-  Whether the user needs to provide setup information about the webhook to complete the integration setup.
+  Whether the user needs to provide setup information about the webhook to
+  complete the integration setup. Only relevant for integrations that use a
+  manual setup flow
   """
-  needsManualSetup: Boolean
+  setupPending: Boolean
+
+  """Whether this integration is using a manual setup flow."""
+  manualSetup: Boolean
 }
 
 input JiraSettingsInput {
@@ -7006,9 +8360,14 @@ input JiraSettingsInput {
   isJiraServer: Boolean = false
 
   """
-  Whether the user needs to provide setup information about the webhook to complete the integration setup.
+  Whether the user needs to provide setup information about the webhook to
+  complete the integration setup. Only relevant for integrations that use a
+  manual setup flow
   """
-  needsManualSetup: Boolean
+  setupPending: Boolean
+
+  """Whether this integration is using a manual setup flow."""
+  manualSetup: Boolean
 }
 
 input JiraUpdateInput {
@@ -7088,6 +8447,11 @@ type LabelNotificationSubscription implements NotificationSubscription & Entity 
   """
   project: Project
 
+  """
+  The contextual initiative view associated with the notification subscription.
+  """
+  initiative: Initiative
+
   """The team associated with the notification subscription."""
   team: Team
 
@@ -7120,6 +8484,23 @@ input LabelSort {
   order: PaginationSortOrder
 }
 
+"""LaunchDarkly specific settings."""
+type LaunchDarklySettings {
+  """The project key of the LaunchDarkly integration."""
+  projectKey: String!
+
+  """The environment of the LaunchDarkly integration."""
+  environment: String!
+}
+
+input LaunchDarklySettingsInput {
+  """The project key of the LaunchDarkly integration."""
+  projectKey: String!
+
+  """The environment of the LaunchDarkly integration."""
+  environment: String!
+}
+
 type LogoutResponse {
   """Whether the operation was successful."""
   success: Boolean!
@@ -7144,13 +8525,13 @@ input MilestoneSort {
 }
 
 type Mutation {
-  """Creates a new API key."""
+  """[INTERNAL] Creates a new API key."""
   apiKeyCreate(
     """The api key object to create."""
     input: ApiKeyCreateInput!
   ): ApiKeyPayload!
 
-  """Deletes an API key."""
+  """[INTERNAL] Deletes an API key."""
   apiKeyDelete(
     """The identifier of the API key to delete."""
     id: String!
@@ -7364,6 +8745,14 @@ type Mutation {
     url: String!
   ): AttachmentPayload!
 
+  """
+  Begin syncing the thread for an existing Slack message attachment with a comment thread on its issue.
+  """
+  attachmentSyncToSlack(
+    """The ID of the Slack attachment to begin syncing."""
+    id: String!
+  ): AttachmentPayload!
+
   """Link an existing Slack message to an issue."""
   attachmentLinkSlack(
     """
@@ -7515,6 +8904,20 @@ type Mutation {
     input: GoogleUserAccountAuthInput!
   ): AuthResolverResponse!
 
+  """[INTERNAL] Starts passkey login process."""
+  passkeyLoginStart(
+    """Random ID to start passkey login with."""
+    authId: String!
+  ): PasskeyLoginStartResponse!
+
+  """[INTERNAL] Finish passkey login process."""
+  passkeyLoginFinish(
+    response: JSONObject!
+
+    """Random ID to start passkey login with."""
+    authId: String!
+  ): AuthResolverResponse!
+
   """Creates an organization from onboarding."""
   createOrganizationFromOnboarding(
     """Onboarding survey."""
@@ -7597,6 +9000,69 @@ type Mutation {
     """The contact entry to create."""
     input: ContactSalesCreateInput!
   ): ContactPayload!
+
+  """[ALPHA] Creates a new customer need."""
+  customerNeedCreate(
+    """The customer need to create."""
+    input: CustomerNeedCreateInput!
+  ): CustomerNeedPayload!
+
+  """[ALPHA] Updates a customer need"""
+  customerNeedUpdate(
+    """The properties of the customer need to update."""
+    input: CustomerNeedUpdateInput!
+
+    """The identifier of the customer need to update."""
+    id: String!
+  ): CustomerNeedPayload!
+
+  """[ALPHA] Deletes a customer need."""
+  customerNeedDelete(
+    """The identifier of the customer need to delete."""
+    id: String!
+  ): DeletePayload!
+
+  """[ALPHA] Creates a new customer."""
+  customerCreate(
+    """The customer to create."""
+    input: CustomerCreateInput!
+  ): CustomerPayload!
+
+  """[ALPHA] Updates a customer"""
+  customerUpdate(
+    """The properties of the customer to update."""
+    input: CustomerUpdateInput!
+
+    """The identifier of the customer to update."""
+    id: String!
+  ): CustomerPayload!
+
+  """[ALPHA] Deletes a customer."""
+  customerDelete(
+    """The identifier of the customer to delete."""
+    id: String!
+  ): DeletePayload!
+
+  """[ALPHA] Creates a new customer status."""
+  customerStatusCreate(
+    """The CustomerStatus object to create."""
+    input: CustomerStatusCreateInput!
+  ): CustomerStatusPayload!
+
+  """[ALPHA] Updates a customer status."""
+  customerStatusUpdate(
+    """A partial CustomerStatus object to update the CustomerStatus with."""
+    input: CustomerStatusUpdateInput!
+
+    """The identifier of the customer status to update."""
+    id: String!
+  ): CustomerStatusPayload!
+
+  """[ALPHA] Deletes a customer status."""
+  customerStatusDelete(
+    """The identifier of the customer status to delete."""
+    id: String!
+  ): DeletePayload!
 
   """Creates a new custom view."""
   customViewCreate(
@@ -7684,22 +9150,17 @@ type Mutation {
     id: String!
   ): DocumentPayload!
 
-  """Deletes a document."""
+  """Deletes (trashes) a document."""
   documentDelete(
     """The identifier of the document to delete."""
     id: String!
-  ): DeletePayload!
+  ): DocumentArchivePayload!
 
-  """
-  Adds a document reminder. Will cause a notification to be sent when the issue reminder time is reached.
-  """
-  documentReminder(
-    """The time when a reminder notification will be sent."""
-    reminderAt: DateTime!
-
-    """The identifier of the document to add a reminder for."""
+  """Restores a document."""
+  documentUnarchive(
+    """The identifier of the document to restore."""
     id: String!
-  ): DocumentPayload!
+  ): DocumentArchivePayload!
 
   """Creates a new email intake address."""
   emailIntakeAddressCreate(
@@ -7767,13 +9228,13 @@ type Mutation {
     id: String!
   ): DeletePayload!
 
-  """[INTERNAL] Creates a new initiativeToProject join."""
+  """Creates a new initiativeToProject join."""
   initiativeToProjectCreate(
     """The properties of the initiativeToProject to create."""
     input: InitiativeToProjectCreateInput!
   ): InitiativeToProjectPayload!
 
-  """[INTERNAL] Updates a initiativeToProject."""
+  """Updates a initiativeToProject."""
   initiativeToProjectUpdate(
     """The properties of the initiativeToProject to update."""
     input: InitiativeToProjectUpdateInput!
@@ -7782,19 +9243,19 @@ type Mutation {
     id: String!
   ): InitiativeToProjectPayload!
 
-  """[INTERNAL] Deletes a initiativeToProject."""
+  """Deletes a initiativeToProject."""
   initiativeToProjectDelete(
     """The identifier of the initiativeToProject to delete."""
     id: String!
   ): DeletePayload!
 
-  """[Internal] Creates a new initiative."""
+  """Creates a new initiative."""
   initiativeCreate(
     """The properties of the initiative to create."""
     input: InitiativeCreateInput!
   ): InitiativePayload!
 
-  """[Internal] Updates a initiative."""
+  """Updates a initiative."""
   initiativeUpdate(
     """The properties of the initiative to update."""
     input: InitiativeUpdateInput!
@@ -7803,19 +9264,19 @@ type Mutation {
     id: String!
   ): InitiativePayload!
 
-  """[Internal] Archives a initiative."""
+  """Archives a initiative."""
   initiativeArchive(
     """The identifier of the initiative to archive."""
     id: String!
   ): InitiativeArchivePayload!
 
-  """[Internal] Unarchives a initiative."""
+  """Unarchives a initiative."""
   initiativeUnarchive(
     """The identifier of the initiative to unarchive."""
     id: String!
   ): InitiativeArchivePayload!
 
-  """[Internal] Deletes a initiative."""
+  """Deletes (trashes) an initiative."""
   initiativeDelete(
     """The identifier of the initiative to delete."""
     id: String!
@@ -7951,6 +9412,21 @@ type Mutation {
     installationId: String!
   ): IntegrationPayload!
 
+  """Connects the organization with the GitHub Import App."""
+  integrationGithubImportConnect(
+    """The GitHub data to connect with."""
+    installationId: String!
+  ): IntegrationPayload!
+
+  """Connects the organization with a GitHub Enterprise Server."""
+  integrationGitHubEnterpriseServerConnect(
+    """The name of GitHub organization."""
+    organizationName: String
+
+    """The base URL of the GitHub Enterprise Server installation."""
+    githubUrl: String!
+  ): GitHubEnterpriseServerPayload!
+
   """Connects the organization with a GitLab Access Token."""
   integrationGitlabConnect(
     """The URL of the GitLab installation."""
@@ -7972,6 +9448,18 @@ type Mutation {
   integrationGoogleCalendarPersonalConnect(
     """[Internal] The Google OAuth code."""
     code: String!
+  ): IntegrationPayload!
+
+  """[INTERNAL] Integrates the organization with LaunchDarkly."""
+  integrationLaunchDarklyConnect(
+    """The LaunchDarkly API key."""
+    apiKey: String!
+
+    """The LaunchDarkly project key."""
+    projectKey: String!
+
+    """The LaunchDarkly environment."""
+    environment: String!
   ): IntegrationPayload!
 
   """
@@ -8142,6 +9630,18 @@ type Mutation {
     code: String!
   ): SlackChannelConnectPayload!
 
+  """Slack integration for custom view notifications."""
+  integrationSlackCustomViewNotifications(
+    """The Slack OAuth redirect URI."""
+    redirectUri: String!
+
+    """Integration's associated custom view."""
+    customViewId: String!
+
+    """The Slack OAuth code."""
+    code: String!
+  ): SlackChannelConnectPayload!
+
   """Slack integration for organization level project update notifications."""
   integrationSlackOrgProjectUpdatesPost(
     """The Slack OAuth redirect URI."""
@@ -8270,19 +9770,29 @@ type Mutation {
     """Name of new team. When teamId is not set."""
     teamName: String
 
-    """GitHub token to fetch information from the GitHub API."""
-    githubToken: String!
+    """[DEPRECATED] GitHub token to fetch information from the GitHub API."""
+    githubToken: String
 
-    """ID of the Github repository from which we will import data."""
+    """[DEPRECATED] GitHub repository name from which we will import data."""
+    githubRepoName: String
+
+    """
+    [DEPRECATED] GitHub owner (user or org) for the repository from which we will import data.
+    """
+    githubRepoOwner: String
+
+    """
+    [DEPRECATED] ID of the Github repository from which we will import data.
+    """
     githubRepoId: String
 
-    """GitHub repository name from which we will import data."""
-    githubRepoName: String!
+    """IDs of the Github repositories from which we will import data."""
+    githubRepoIds: [Int!]
 
     """
-    GitHub owner (user or org) for the repository from which we will import data.
+    [DEPRECATED] ID of the Github import integration to use to access issues.
     """
-    githubRepoOwner: String!
+    integrationId: String
 
     """Whether or not we should import GitHub organization level projects."""
     githubShouldImportOrgProjects: Boolean
@@ -8294,9 +9804,6 @@ type Mutation {
 
     """Whether or not we should collect the data for closed issues."""
     includeClosedIssues: Boolean
-
-    """ID of issue import. If not provided it will be generated."""
-    id: String
   ): IssueImportPayload!
 
   """Kicks off a Jira import job."""
@@ -8420,6 +9927,15 @@ type Mutation {
     id: String
   ): IssueImportPayload!
 
+  """[INTERNAL] Kicks off a Linear to Linear import job."""
+  issueImportCreateLinearV2(
+    """The source organization to import from."""
+    linearSourceOrganizationId: String!
+
+    """ID of issue import. If not provided it will be generated."""
+    id: String
+  ): IssueImportPayload!
+
   """Deletes an import job."""
   issueImportDelete(
     """ID of the issue import to delete."""
@@ -8477,6 +9993,9 @@ type Mutation {
 
   """Creates a new issue relation."""
   issueRelationCreate(
+    """Used by client undo operations. Should not be set directly."""
+    overrideCreatedAt: DateTime
+
     """The issue relation to create."""
     input: IssueRelationCreateInput!
   ): IssueRelationPayload!
@@ -8537,6 +10056,11 @@ type Mutation {
 
   """Deletes (trashes) an issue."""
   issueDelete(
+    """
+    Whether to permanently delete the issue and skip the grace period of 30 days. Available only to admins!
+    """
+    permanentlyDelete: Boolean
+
     """The identifier of the issue to delete."""
     id: String!
   ): IssueArchivePayload!
@@ -8610,7 +10134,7 @@ type Mutation {
     id: String!
   ): NotificationPayload!
 
-  """Marks all past notifications for the associated entity as read."""
+  """Marks notification and all related notifications as read."""
   notificationMarkReadAll(
     """The time when notification was marked as read."""
     readAt: DateTime!
@@ -8619,15 +10143,13 @@ type Mutation {
     input: NotificationEntityInput!
   ): NotificationBatchActionPayload!
 
-  """Marks all past notifications for the associated entity as unread."""
+  """Marks notification and all related notifications as unread."""
   notificationMarkUnreadAll(
     """The type and id of the entity to archive notifications for."""
     input: NotificationEntityInput!
   ): NotificationBatchActionPayload!
 
-  """
-  Snoozes a notification and all past notifications for the associated entity.
-  """
+  """Snoozes a notification and all related notifications."""
   notificationSnoozeAll(
     """
     The time until a notification will be snoozed. After that it will appear in the inbox again.
@@ -8638,9 +10160,7 @@ type Mutation {
     input: NotificationEntityInput!
   ): NotificationBatchActionPayload!
 
-  """
-  Unsnoozes a notification and all past notifications for the associated entity.
-  """
+  """Unsnoozes a notification and all related notifications."""
   notificationUnsnoozeAll(
     """The time when the notification was unsnoozed."""
     unsnoozedAt: DateTime!
@@ -8655,9 +10175,7 @@ type Mutation {
     id: String!
   ): NotificationArchivePayload!
 
-  """
-  Archives all of the user's past notifications for the associated entity.
-  """
+  """Archives a notification and all related notifications."""
   notificationArchiveAll(
     """The type and id of the entity to archive notifications for."""
     input: NotificationEntityInput!
@@ -8713,6 +10231,15 @@ type Mutation {
 
     """The organization domain entry to create."""
     input: OrganizationDomainCreateInput!
+  ): OrganizationDomainPayload!
+
+  """[INTERNAL] Updates an organization domain settings."""
+  organizationDomainUpdate(
+    """The organization domain entry to update."""
+    input: OrganizationDomainUpdateInput!
+
+    """The identifier of the domain to update."""
+    id: String!
   ): OrganizationDomainPayload!
 
   """Deletes a domain."""
@@ -8771,9 +10298,9 @@ type Mutation {
   organizationCancelDelete: OrganizationCancelDeletePayload!
 
   """
-  Starts a plus trial for the organization. Administrator privileges required.
+  Starts a trial for the organization. Administrator privileges required.
   """
-  organizationStartPlusTrial: OrganizationStartPlusTrialPayload!
+  organizationStartTrial: OrganizationStartTrialPayload!
 
   """Creates a new project link."""
   projectLinkCreate(
@@ -8859,6 +10386,19 @@ type Mutation {
     """
     id: String!
   ): ProjectPayload!
+
+  """
+  [INTERNAL] Updates all projects currently assigned to to a project status to a new project status.
+  """
+  projectReassignStatus(
+    """The identifier of the new project status to update the projects to."""
+    newProjectStatusId: String!
+
+    """
+    The identifier of the project status with which projects will be updated.
+    """
+    originalProjectStatusId: String!
+  ): SuccessPayload!
 
   """Deletes (trashes) a project."""
   projectDelete(
@@ -9041,7 +10581,7 @@ type Mutation {
   Creates a new team. The user who creates the team will automatically be added as a member to the newly created team.
   """
   teamCreate(
-    """The team id to copy settings from."""
+    """The team id to copy settings from, if any."""
     copySettingsFromTeamId: String
 
     """The team object to create."""
@@ -9226,12 +10766,6 @@ type Mutation {
     id: String!
   ): UserSettingsPayload!
 
-  """[Deprecated] Updates a user's settings flag."""
-  userSettingsFlagIncrement(
-    """Flag to increment."""
-    flag: String!
-  ): UserSettingsFlagPayload!
-
   """Resets user's setting flags."""
   userSettingsFlagsReset(
     """The flags to reset. If not provided all flags will be reset."""
@@ -9370,6 +10904,41 @@ interface Notification {
   """The time at which a notification was unsnoozed.."""
   unsnoozedAt: DateTime
 
+  """[Internal] URL to the target of the notification."""
+  url: String!
+
+  """[Internal] Inbox URL for the notification."""
+  inboxUrl: String!
+
+  """[Internal] Notification title."""
+  title: String!
+
+  """[Internal] Notification subtitle."""
+  subtitle: String!
+
+  """[Internal] If notification actor was Linear."""
+  isLinearActor: Boolean!
+
+  """[Internal] Notification avatar URL."""
+  actorAvatarUrl: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorInitials: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorAvatarColor: String
+
+  """[Internal] Issue's status type for issue notifications."""
+  issueStatusType: String
+
+  """[Internal] Project update health for new updates."""
+  projectUpdateHealth: String
+
+  """
+  [Internal] Notifications with the same grouping key will be grouped together in the UI.
+  """
+  groupingKey: String!
+
   """The bot that caused the notification."""
   botActor: ActorBot
 }
@@ -9403,6 +10972,104 @@ type NotificationConnection {
   pageInfo: PageInfo!
 }
 
+"""A user's notification delivery preferences."""
+type NotificationDeliveryPreferences {
+  """The delivery preferences for the mobile channel."""
+  mobile: NotificationDeliveryPreferencesChannel
+}
+
+"""A user's notification delivery preferences."""
+type NotificationDeliveryPreferencesChannel {
+  """Whether notifications are enabled for this channel."""
+  notificationsDisabled: Boolean
+
+  """The schedule for notifications on this channel."""
+  schedule: NotificationDeliveryPreferencesSchedule
+}
+
+input NotificationDeliveryPreferencesChannelInput {
+  """Whether notifications are enabled for this channel."""
+  notificationsDisabled: Boolean
+
+  """The schedule for notifications on this channel."""
+  schedule: NotificationDeliveryPreferencesScheduleInput
+}
+
+"""A user's notification delivery schedule for a particular day."""
+type NotificationDeliveryPreferencesDay {
+  """The time notifications start."""
+  start: String
+
+  """The time notifications end."""
+  end: String
+}
+
+input NotificationDeliveryPreferencesDayInput {
+  """The time notifications start."""
+  start: String
+
+  """The time notifications end."""
+  end: String
+}
+
+input NotificationDeliveryPreferencesInput {
+  """The delivery preferences for the mobile channel."""
+  mobile: NotificationDeliveryPreferencesChannelInput
+}
+
+"""A user's notification delivery schedule for a particular day."""
+type NotificationDeliveryPreferencesSchedule {
+  """Whether the schedule is disabled."""
+  disabled: Boolean
+
+  """Delivery preferences for Sunday."""
+  sunday: NotificationDeliveryPreferencesDay!
+
+  """Delivery preferences for Monday."""
+  monday: NotificationDeliveryPreferencesDay!
+
+  """Delivery preferences for Tuesday."""
+  tuesday: NotificationDeliveryPreferencesDay!
+
+  """Delivery preferences for Wednesday."""
+  wednesday: NotificationDeliveryPreferencesDay!
+
+  """Delivery preferences for Thursday."""
+  thursday: NotificationDeliveryPreferencesDay!
+
+  """Delivery preferences for Friday."""
+  friday: NotificationDeliveryPreferencesDay!
+
+  """Delivery preferences for Saturday."""
+  saturday: NotificationDeliveryPreferencesDay!
+}
+
+input NotificationDeliveryPreferencesScheduleInput {
+  """Whether the schedule is disabled."""
+  disabled: Boolean
+
+  """Delivery preferences for Sunday."""
+  sunday: NotificationDeliveryPreferencesDayInput!
+
+  """Delivery preferences for Monday."""
+  monday: NotificationDeliveryPreferencesDayInput!
+
+  """Delivery preferences for Tuesday."""
+  tuesday: NotificationDeliveryPreferencesDayInput!
+
+  """Delivery preferences for Wednesday."""
+  wednesday: NotificationDeliveryPreferencesDayInput!
+
+  """Delivery preferences for Thursday."""
+  thursday: NotificationDeliveryPreferencesDayInput!
+
+  """Delivery preferences for Friday."""
+  friday: NotificationDeliveryPreferencesDayInput!
+
+  """Delivery preferences for Saturday."""
+  saturday: NotificationDeliveryPreferencesDayInput!
+}
+
 type NotificationEdge {
   node: Notification!
 
@@ -9415,14 +11082,44 @@ input NotificationEntityInput {
   """The id of the issue related to the notification."""
   issueId: String
 
-  """The id of the project related to the notification."""
+  """[DEPRECATED] The id of the project related to the notification."""
   projectId: String
+
+  """The id of the initiative related to the notification."""
+  initiativeId: String
 
   """The id of the project update related to the notification."""
   projectUpdateId: String
 
   """The id of the OAuth client approval related to the notification."""
   oauthClientApprovalId: String
+
+  """The id of the notification."""
+  id: String
+}
+
+"""Notification filtering options."""
+input NotificationFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the notification type."""
+  type: StringComparator
+
+  """Comparator for the archived at date."""
+  archivedAt: DateComparator
+
+  """Compound filters, all of which need to be matched by the notification."""
+  and: [NotificationFilter!]
+
+  """Compound filters, one of which need to be matched by the notification."""
+  or: [NotificationFilter!]
 }
 
 type NotificationPayload {
@@ -9480,6 +11177,11 @@ interface NotificationSubscription {
   """
   project: Project
 
+  """
+  The contextual initiative view associated with the notification subscription.
+  """
+  initiative: Initiative
+
   """The team associated with the notification subscription."""
   team: Team
 
@@ -9529,6 +11231,9 @@ input NotificationSubscriptionCreateInput {
 
   """The identifier of the user to subscribe to."""
   userId: String
+
+  """The identifier of the initiative to subscribe to."""
+  initiativeId: String
 
   """
   The type of view to which the notification subscription context is associated with.
@@ -9631,6 +11336,12 @@ input NullableCommentFilter {
 
   """Filters that the comments document content must satisfy."""
   documentContent: DocumentContentFilter
+
+  """Filters that the comments reactions must satisfy."""
+  reactions: ReactionCollectionFilter
+
+  """Filters that the comment's customer needs must satisfy."""
+  needs: CustomerNeedCollectionFilter
 
   """Filter based on the existence of the relation."""
   null: Boolean
@@ -9785,6 +11496,9 @@ input NullableDocumentFilter {
   """Filters that the document's project must satisfy."""
   project: ProjectFilter
 
+  """Filters that the document's initiative must satisfy."""
+  initiative: InitiativeFilter
+
   """Filter based on the existence of the relation."""
   null: Boolean
 
@@ -9911,6 +11625,12 @@ input NullableIssueFilter {
   """Comparator for the issues sla status."""
   slaStatus: SlaStatusComparator
 
+  """Filters that the issues reactions must satisfy."""
+  reactions: ReactionCollectionFilter
+
+  """Filters that the issue's customer needs must satisfy."""
+  needs: CustomerNeedFilter
+
   """Filter based on the existence of the relation."""
   null: Boolean
 
@@ -9984,6 +11704,9 @@ input NullableProjectFilter {
   """Filters that the project's status must satisfy."""
   status: ProjectStatusFilter
 
+  """[ALPHA] Comparator for the projects priority."""
+  priority: NullableNumberComparator
+
   """[Internal] Comparator for the project's content."""
   searchableContent: ContentComparator
 
@@ -9999,6 +11722,24 @@ input NullableProjectFilter {
   """Comparator for the project health."""
   health: StringComparator
 
+  """Comparator for filtering projects with relations."""
+  hasRelatedRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which this is depended on by."""
+  hasDependedOnByRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which this depends on."""
+  hasDependsOnRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which are blocked."""
+  hasBlockedByRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which are blocking."""
+  hasBlockingRelations: RelationExistsComparator
+
+  """Comparator for the project updates."""
+  projectUpdates: ProjectUpdatesCollectionFilter
+
   """Filters that the projects creator must satisfy."""
   creator: UserFilter
 
@@ -10006,7 +11747,7 @@ input NullableProjectFilter {
   lead: NullableUserFilter
 
   """Filters that the projects members must satisfy."""
-  members: UserFilter
+  members: UserCollectionFilter
 
   """Filters that the projects issues must satisfy."""
   issues: IssueCollectionFilter
@@ -10031,6 +11772,9 @@ input NullableProjectFilter {
 
   """Filters that the last applied template must satisfy."""
   lastAppliedTemplate: NullableTemplateFilter
+
+  """Filters that the project's customer needs must satisfy."""
+  needs: CustomerNeedCollectionFilter
 
   """Filter based on the existence of the relation."""
   null: Boolean
@@ -10071,6 +11815,61 @@ input NullableProjectMilestoneFilter {
   Compound filters, one of which need to be matched by the project milestone.
   """
   or: [NullableProjectMilestoneFilter!]
+}
+
+"""Options for filtering projects by project updates."""
+input NullableProjectUpdatesFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the project update health."""
+  health: StringComparator
+
+  """Filter based on the existence of the relation."""
+  null: Boolean
+
+  """
+  Compound filters, all of which need to be matched by the project updates.
+  """
+  and: [NullableProjectUpdatesFilter!]
+
+  """
+  Compound filters, one of which need to be matched by the project updates.
+  """
+  or: [NullableProjectUpdatesFilter!]
+}
+
+"""Reaction filtering options."""
+input NullableReactionFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the reactions emoji."""
+  emoji: StringComparator
+
+  """Comparator for the reactions custom emoji."""
+  customEmojiId: IDComparator
+
+  """Filter based on the existence of the relation."""
+  null: Boolean
+
+  """Compound filters, all of which need to be matched by the reaction."""
+  and: [NullableReactionFilter!]
+
+  """Compound filters, one of which need to be matched by the reaction."""
+  or: [NullableReactionFilter!]
 }
 
 """Comparator for optional strings."""
@@ -10484,8 +12283,46 @@ type OauthClientApprovalNotification implements Notification & Entity & Node {
   """The time at which a notification was unsnoozed.."""
   unsnoozedAt: DateTime
 
+  """[Internal] URL to the target of the notification."""
+  url: String!
+
+  """[Internal] Inbox URL for the notification."""
+  inboxUrl: String!
+
+  """[Internal] Notification title."""
+  title: String!
+
+  """[Internal] Notification subtitle."""
+  subtitle: String!
+
+  """[Internal] If notification actor was Linear."""
+  isLinearActor: Boolean!
+
+  """[Internal] Notification avatar URL."""
+  actorAvatarUrl: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorInitials: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorAvatarColor: String
+
+  """[Internal] Issue's status type for issue notifications."""
+  issueStatusType: String
+
+  """[Internal] Project update health for new updates."""
+  projectUpdateHealth: String
+
+  """
+  [Internal] Notifications with the same grouping key will be grouped together in the UI.
+  """
+  groupingKey: String!
+
   """The bot that caused the notification."""
   botActor: ActorBot
+
+  """Related OAuth client approval request ID."""
+  oauthClientApprovalId: String!
 
   """The OAuth client approval request related to the notification."""
   oauthClientApproval: OauthClientApproval!
@@ -10539,13 +12376,13 @@ input OnboardingCustomerSurvey {
 
 input OpsgenieInput {
   """The date when the Opsgenie API failed with an unauthorized error."""
-  apiFailedWithUnauthorizedErrorAt: DateTime!
+  apiFailedWithUnauthorizedErrorAt: DateTime
 }
 
 """Opsgenie specific settings."""
 type OpsgenieSettings {
   """The date when the Opsgenie API failed with an unauthorized error."""
-  apiFailedWithUnauthorizedErrorAt: DateTime!
+  apiFailedWithUnauthorizedErrorAt: DateTime
 }
 
 """
@@ -10601,8 +12438,10 @@ type Organization implements Node {
   """Whether the organization is using a roadmap."""
   roadmapEnabled: Boolean!
 
-  """The frequency at which to prompt for project updates."""
-  projectUpdatesReminderFrequency: ProjectUpdateReminderFrequency!
+  """
+  The n-weekly frequency at which to prompt for project updates. When not set, reminders are off.
+  """
+  projectUpdateReminderFrequencyInWeeks: Float
 
   """The day at which to prompt for project updates."""
   projectUpdateRemindersDay: Day!
@@ -10625,10 +12464,13 @@ type Organization implements Node {
   """Allowed authentication providers, empty array means all are allowed."""
   allowedAuthServices: [String!]!
 
+  """IP restriction configurations."""
+  ipRestrictions: [OrganizationIpRestriction!]
+
   """The time at which deletion of the organization was requested."""
   deletionRequestedAt: DateTime
 
-  """The time at which the trial of the plus plan will end."""
+  """The time at which the trial will end."""
   trialEndsAt: DateTime
 
   """
@@ -10650,6 +12492,9 @@ type Organization implements Node {
 
   """The organization's project statuses."""
   projectStatuses: [ProjectStatus!]!
+
+  """[DEPRECATED] The frequency at which to prompt for project updates."""
+  projectUpdatesReminderFrequency: ProjectUpdateReminderFrequency! @deprecated(reason: "Use organization.projectUpdatesReminderFrequencyInWeeks instead")
 
   """Users associated with the organization."""
   users(
@@ -10860,6 +12705,9 @@ type OrganizationDomain implements Node {
   Whether the domains was claimed by the organization through DNS verification.
   """
   claimed: Boolean
+
+  """Prevent users with this domain to create new workspaces."""
+  disableOrganizationCreation: Boolean
 }
 
 """What type of auth is the domain used for."""
@@ -10906,6 +12754,13 @@ type OrganizationDomainPayload {
 type OrganizationDomainSimplePayload {
   """Whether the operation was successful."""
   success: Boolean!
+}
+
+input OrganizationDomainUpdateInput {
+  """
+  Prevent users with this domain to create new workspaces. Only allowed to set on claimed domains!
+  """
+  disableOrganizationCreation: Boolean
 }
 
 input OrganizationDomainVerificationInput {
@@ -10965,7 +12820,7 @@ type OrganizationInvite implements Node {
   expiresAt: DateTime
 
   """Extra metadata associated with the organization invite."""
-  metadata: JSONObject!
+  metadata: JSONObject
 
   """The user who created the invitation."""
   inviter: User!
@@ -11094,6 +12949,35 @@ input OrganizationInviteUpdateInput {
   teamIds: [String!]!
 }
 
+type OrganizationIpRestriction {
+  """IP range in CIDR format."""
+  range: String!
+
+  """Restriction type."""
+  type: String!
+
+  """Optional restriction description."""
+  description: String
+
+  """Whether the restriction is enabled."""
+  enabled: Boolean!
+}
+
+"""[INTERNAL] Organization IP restriction configuration."""
+input OrganizationIpRestrictionInput {
+  """IP range in CIDR format."""
+  range: String!
+
+  """Restriction type."""
+  type: String!
+
+  """Optional restriction description."""
+  description: String
+
+  """Whether the restriction is enabled."""
+  enabled: Boolean!
+}
+
 type OrganizationMeta {
   """The region the organization is hosted in."""
   region: String!
@@ -11121,7 +13005,7 @@ type OrganizationRegionResponse {
   region: String
 }
 
-type OrganizationStartPlusTrialPayload {
+type OrganizationStartTrialPayload {
   """Whether the operation was successful."""
   success: Boolean!
 }
@@ -11154,8 +13038,8 @@ input OrganizationUpdateInput {
   """Whether the organization is using roadmap."""
   roadmapEnabled: Boolean
 
-  """The frequency at which project updates are sent."""
-  projectUpdatesReminderFrequency: ProjectUpdateReminderFrequency
+  """The n-weekly frequency at which to prompt for project updates."""
+  projectUpdateReminderFrequencyInWeeks: Float
 
   """The day at which project updates are sent."""
   projectUpdateRemindersDay: Day
@@ -11176,9 +13060,6 @@ input OrganizationUpdateInput {
   """
   oauthAppReview: Boolean
 
-  """Linear Preview feature flags."""
-  linearPreviewFlags: JSONObject
-
   """List of services that are allowed to be used for login."""
   allowedAuthServices: [String!]
 
@@ -11190,6 +13071,11 @@ input OrganizationUpdateInput {
 
   """Whether member users are allowed to send invites."""
   allowMembersToInvite: Boolean
+
+  """
+  IP restriction configurations controlling allowed access the workspace.
+  """
+  ipRestrictions: [OrganizationIpRestrictionInput!]
 
   """[ALPHA] Theme settings for the organization."""
   themeSettings: JSONObject
@@ -11211,13 +13097,13 @@ type PageInfo {
 
 input PagerDutyInput {
   """The date when the PagerDuty API failed with an unauthorized error."""
-  apiFailedWithUnauthorizedErrorAt: DateTime!
+  apiFailedWithUnauthorizedErrorAt: DateTime
 }
 
 """PagerDuty specific settings."""
 type PagerDutySettings {
   """The date when the PagerDuty API failed with an unauthorized error."""
-  apiFailedWithUnauthorizedErrorAt: DateTime!
+  apiFailedWithUnauthorizedErrorAt: DateTime
 }
 
 """How to treat NULL values, whether they should appear first or last"""
@@ -11280,7 +13166,7 @@ type PaidSubscription implements Node {
   """
   The collection method for this subscription, either automatically charged or invoiced.
   """
-  collectionMethod: String
+  collectionMethod: String!
 
   """The date the subscription was canceled, if any."""
   canceledAt: DateTime
@@ -11290,6 +13176,52 @@ type PaidSubscription implements Node {
 
   """The date the subscription will be billed next."""
   nextBillingAt: DateTime
+}
+
+"""Registered passkey for authentication."""
+type Passkey {
+  id: String!
+  label: String!
+  aaguid: String!
+
+  """Date when the passkey was last updated."""
+  updatedAt: DateTime!
+  lastUsedSessionId: String
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """The time when the passkey was last used."""
+  lastUsedAt: DateTime!
+
+  """Type of application used to create."""
+  clientType: AuthenticationSessionType!
+
+  """Location region code. Only set on creation."""
+  locationRegionCode: String
+
+  """Location city name. Only set on creation."""
+  locationCity: String
+
+  """Creating session's user-agent. Only set on creation."""
+  userAgent: String
+
+  """Used web browser. Only set on creation."""
+  browserType: String
+
+  """IP address. Only set on creation."""
+  ip: String
+
+  """Location country name. Only set on creation."""
+  locationCountry: String
+
+  """Location country code. Only set on creation."""
+  locationCountryCode: String
+}
+
+type PasskeyLoginStartResponse {
+  success: Boolean!
+  options: JSONObject!
 }
 
 """Issue priority sorting options."""
@@ -11384,11 +13316,21 @@ type Project implements Node {
   """The sort order for the project within the organization."""
   sortOrder: Float!
 
+  """
+  [ALPHA] The sort order for the project within the organization, when ordered by priority.
+  """
+  prioritySortOrder: Float!
+
   """The project was created based on this issue."""
   convertedFromIssue: Issue
 
   """The last template that was applied to this project."""
   lastAppliedTemplate: Template
+
+  """
+  The priority of the project. 0 = No priority, 1 = Urgent, 2 = High, 3 = Normal, 4 = Low.
+  """
+  priority: Int!
 
   """The total number of issues in the project after each week."""
   issueCountHistory: [Float!]!
@@ -11404,6 +13346,9 @@ type Project implements Node {
 
   """The number of in progress estimation points after each week."""
   inProgressScopeHistory: [Float!]!
+
+  """[Internal] The progress history of the project."""
+  progressHistory: JSONObject!
 
   """Whether to send new issue notifications to Slack."""
   slackNewIssue: Boolean!
@@ -11600,7 +13545,7 @@ type Project implements Node {
     orderBy: PaginationOrderBy
   ): IssueConnection!
 
-  """Links associated with the project."""
+  """[DEPRECATED] Links associated with the project."""
   links(
     """A cursor to be used with last for backward pagination."""
     before: String
@@ -11625,13 +13570,43 @@ type Project implements Node {
     By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
     """
     orderBy: PaginationOrderBy
-  ): ProjectLinkConnection!
+  ): ProjectLinkConnection! @deprecated(reason: "Use externalLinks instead")
+
+  """External links associated with the project."""
+  externalLinks(
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): EntityExternalLinkConnection!
 
   """
   The overall progress of the project. This is the (completed estimate points +
   0.25 * in progress estimate points) / total estimate points.
   """
   progress: Float!
+
+  """The health of the project based on the last project update."""
+  health: ProjectUpdateHealthType
 
   """The overall scope (total estimate points) of the project."""
   scope: Float!
@@ -11684,6 +13659,9 @@ input ProjectCollectionFilter {
   """Filters that the project's status must satisfy."""
   status: ProjectStatusFilter
 
+  """[ALPHA] Comparator for the projects priority."""
+  priority: NullableNumberComparator
+
   """[Internal] Comparator for the project's content."""
   searchableContent: ContentComparator
 
@@ -11699,6 +13677,24 @@ input ProjectCollectionFilter {
   """Comparator for the project health."""
   health: StringComparator
 
+  """Comparator for filtering projects with relations."""
+  hasRelatedRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which this is depended on by."""
+  hasDependedOnByRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which this depends on."""
+  hasDependsOnRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which are blocked."""
+  hasBlockedByRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which are blocking."""
+  hasBlockingRelations: RelationExistsComparator
+
+  """Comparator for the project updates."""
+  projectUpdates: ProjectUpdatesCollectionFilter
+
   """Filters that the projects creator must satisfy."""
   creator: UserFilter
 
@@ -11706,7 +13702,7 @@ input ProjectCollectionFilter {
   lead: NullableUserFilter
 
   """Filters that the projects members must satisfy."""
-  members: UserFilter
+  members: UserCollectionFilter
 
   """Filters that the projects issues must satisfy."""
   issues: IssueCollectionFilter
@@ -11731,6 +13727,9 @@ input ProjectCollectionFilter {
 
   """Filters that the last applied template must satisfy."""
   lastAppliedTemplate: NullableTemplateFilter
+
+  """Filters that the project's customer needs must satisfy."""
+  needs: CustomerNeedCollectionFilter
 
   """Compound filters, all of which need to be matched by the project."""
   and: [ProjectCollectionFilter!]
@@ -11807,25 +13806,16 @@ input ProjectCreateInput {
 
   """The sort order for the project within shared views."""
   sortOrder: Float
-}
 
-input ProjectDetailSuggestionInput {
-  """The name of the project."""
-  name: String!
+  """
+  [ALPHA] The sort order for the project within shared views, when ordered by priority.
+  """
+  prioritySortOrder: Float
 
-  """The description for the project."""
-  description: String
-
-  """The content of the project as markdown."""
-  documentContent: String
-}
-
-type ProjectDetailSuggestionPayload {
-  """The suggested project color."""
-  color: String
-
-  """The suggested view icon."""
-  icon: String
+  """
+  The priority of the project. 0 = No priority, 1 = Urgent, 2 = High, 3 = Normal, 4 = Low.
+  """
+  priority: Int
 }
 
 type ProjectEdge {
@@ -11858,6 +13848,9 @@ input ProjectFilter {
   """Filters that the project's status must satisfy."""
   status: ProjectStatusFilter
 
+  """[ALPHA] Comparator for the projects priority."""
+  priority: NullableNumberComparator
+
   """[Internal] Comparator for the project's content."""
   searchableContent: ContentComparator
 
@@ -11873,6 +13866,24 @@ input ProjectFilter {
   """Comparator for the project health."""
   health: StringComparator
 
+  """Comparator for filtering projects with relations."""
+  hasRelatedRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which this is depended on by."""
+  hasDependedOnByRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which this depends on."""
+  hasDependsOnRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which are blocked."""
+  hasBlockedByRelations: RelationExistsComparator
+
+  """Comparator for filtering projects which are blocking."""
+  hasBlockingRelations: RelationExistsComparator
+
+  """Comparator for the project updates."""
+  projectUpdates: ProjectUpdatesCollectionFilter
+
   """Filters that the projects creator must satisfy."""
   creator: UserFilter
 
@@ -11880,7 +13891,7 @@ input ProjectFilter {
   lead: NullableUserFilter
 
   """Filters that the projects members must satisfy."""
-  members: UserFilter
+  members: UserCollectionFilter
 
   """Filters that the projects issues must satisfy."""
   issues: IssueCollectionFilter
@@ -11905,6 +13916,9 @@ input ProjectFilter {
 
   """Filters that the last applied template must satisfy."""
   lastAppliedTemplate: NullableTemplateFilter
+
+  """Filters that the project's customer needs must satisfy."""
+  needs: CustomerNeedCollectionFilter
 
   """Compound filters, all of which need to be matched by the project."""
   and: [ProjectFilter!]
@@ -12219,6 +14233,19 @@ input ProjectMilestoneUpdateInput {
 
 """A project related notification."""
 type ProjectNotification implements Notification & Entity & Node {
+  """
+  Related comment ID. Null if the notification is not related to a comment.
+  """
+  commentId: String
+
+  """
+  Related parent comment ID. Null if the notification is not related to a comment.
+  """
+  parentCommentId: String
+
+  """Name of the reaction emoji related to the notification."""
+  reactionEmoji: String
+
   """The unique identifier of the entity."""
   id: ID!
 
@@ -12269,14 +14296,66 @@ type ProjectNotification implements Notification & Entity & Node {
   """The time at which a notification was unsnoozed.."""
   unsnoozedAt: DateTime
 
+  """[Internal] URL to the target of the notification."""
+  url: String!
+
+  """[Internal] Inbox URL for the notification."""
+  inboxUrl: String!
+
+  """[Internal] Notification title."""
+  title: String!
+
+  """[Internal] Notification subtitle."""
+  subtitle: String!
+
+  """[Internal] If notification actor was Linear."""
+  isLinearActor: Boolean!
+
+  """[Internal] Notification avatar URL."""
+  actorAvatarUrl: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorInitials: String
+
+  """[Internal] Notification actor initials if avatar is not available."""
+  actorAvatarColor: String
+
+  """[Internal] Issue's status type for issue notifications."""
+  issueStatusType: String
+
+  """[Internal] Project update health for new updates."""
+  projectUpdateHealth: String
+
+  """
+  [Internal] Notifications with the same grouping key will be grouped together in the UI.
+  """
+  groupingKey: String!
+
   """The bot that caused the notification."""
   botActor: ActorBot
+
+  """Related project ID."""
+  projectId: String!
+
+  """Related project milestone ID."""
+  projectMilestoneId: String
+
+  """Related project update ID."""
+  projectUpdateId: String
 
   """The project related to the notification."""
   project: Project!
 
   """The project update related to the notification."""
   projectUpdate: ProjectUpdate
+
+  """The comment related to the notification."""
+  comment: Comment
+
+  """
+  The parent comment related to the notification, if a notification is a reply comment notification.
+  """
+  parentComment: Comment
 }
 
 """A project notification subscription."""
@@ -12320,6 +14399,11 @@ type ProjectNotificationSubscription implements NotificationSubscription & Entit
 
   """The project subscribed to."""
   project: Project!
+
+  """
+  The contextual initiative view associated with the notification subscription.
+  """
+  initiative: Initiative
 
   """The team associated with the notification subscription."""
   team: Team
@@ -12400,6 +14484,9 @@ type ProjectRelation implements Node {
 
   """The type of anchor on the relatedProject end of the relation."""
   relatedAnchorType: String!
+
+  """The last user who created or modified the relation."""
+  user: User
 }
 
 type ProjectRelationConnection {
@@ -12570,11 +14657,21 @@ type ProjectSearchResult implements Node {
   """The sort order for the project within the organization."""
   sortOrder: Float!
 
+  """
+  [ALPHA] The sort order for the project within the organization, when ordered by priority.
+  """
+  prioritySortOrder: Float!
+
   """The project was created based on this issue."""
   convertedFromIssue: Issue
 
   """The last template that was applied to this project."""
   lastAppliedTemplate: Template
+
+  """
+  The priority of the project. 0 = No priority, 1 = Urgent, 2 = High, 3 = Normal, 4 = Low.
+  """
+  priority: Int!
 
   """The total number of issues in the project after each week."""
   issueCountHistory: [Float!]!
@@ -12590,6 +14687,9 @@ type ProjectSearchResult implements Node {
 
   """The number of in progress estimation points after each week."""
   inProgressScopeHistory: [Float!]!
+
+  """[Internal] The progress history of the project."""
+  progressHistory: JSONObject!
 
   """Whether to send new issue notifications to Slack."""
   slackNewIssue: Boolean!
@@ -12786,7 +14886,7 @@ type ProjectSearchResult implements Node {
     orderBy: PaginationOrderBy
   ): IssueConnection!
 
-  """Links associated with the project."""
+  """[DEPRECATED] Links associated with the project."""
   links(
     """A cursor to be used with last for backward pagination."""
     before: String
@@ -12811,13 +14911,43 @@ type ProjectSearchResult implements Node {
     By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
     """
     orderBy: PaginationOrderBy
-  ): ProjectLinkConnection!
+  ): ProjectLinkConnection! @deprecated(reason: "Use externalLinks instead")
+
+  """External links associated with the project."""
+  externalLinks(
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): EntityExternalLinkConnection!
 
   """
   The overall progress of the project. This is the (completed estimate points +
   0.25 * in progress estimate points) / total estimate points.
   """
   progress: Float!
+
+  """The health of the project based on the last project update."""
+  health: ProjectUpdateHealthType
 
   """The overall scope (total estimate points) of the project."""
   scope: Float!
@@ -12964,7 +15094,6 @@ enum ProjectStatusType {
 enum ProjectTab {
   documents
   issues
-  activity
 }
 
 """A update associated with an project."""
@@ -13019,6 +15148,9 @@ type ProjectUpdate implements Node {
   """
   bodyData: String!
 
+  """The project update's unique URL slug."""
+  slugId: String!
+
   """The URL to the project update."""
   url: String!
 
@@ -13029,6 +15161,9 @@ type ProjectUpdate implements Node {
   The diff between the current update and the previous one, formatted as markdown.
   """
   diffMarkdown: String
+
+  """Reactions associated with the project update."""
+  reactions: [Reaction!]!
 
   """Comments associated with the project update."""
   comments(
@@ -13098,7 +15233,7 @@ type ProjectUpdateEdge {
   cursor: String!
 }
 
-"""ProjectUpdate filtering options."""
+"""Options for filtering project updates."""
 input ProjectUpdateFilter {
   """Comparator for the identifier."""
   id: IDComparator
@@ -13114,6 +15249,9 @@ input ProjectUpdateFilter {
 
   """Filters that the project update project must satisfy."""
   project: ProjectFilter
+
+  """Filters that the project updates reactions must satisfy."""
+  reactions: ReactionCollectionFilter
 
   """
   Compound filters, all of which need to be matched by the ProjectUpdate.
@@ -13199,6 +15337,19 @@ input ProjectUpdateInput {
 
   """The sort order for the project in shared views."""
   sortOrder: Float
+
+  """
+  [ALPHA] The sort order for the project within shared views, when ordered by priority.
+  """
+  prioritySortOrder: Float
+
+  """Whether the project has been trashed."""
+  trashed: Boolean
+
+  """
+  The priority of the project. 0 = No priority, 1 = Urgent, 2 = High, 3 = Normal, 4 = Low.
+  """
+  priority: Int
 }
 
 """
@@ -13296,6 +15447,65 @@ type ProjectUpdateReminderPayload {
   success: Boolean!
 }
 
+"""
+Collection filtering options for filtering projects by project updates.
+"""
+input ProjectUpdatesCollectionFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the project update health."""
+  health: StringComparator
+
+  """
+  Compound filters, all of which need to be matched by the project update.
+  """
+  and: [ProjectUpdatesCollectionFilter!]
+
+  """Compound filters, one of which need to be matched by the update."""
+  or: [ProjectUpdatesCollectionFilter!]
+
+  """Filters that needs to be matched by some updates."""
+  some: ProjectUpdatesFilter
+
+  """Filters that needs to be matched by all updates."""
+  every: ProjectUpdatesFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
+}
+
+"""Options for filtering projects by project updates."""
+input ProjectUpdatesFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the project update health."""
+  health: StringComparator
+
+  """
+  Compound filters, all of which need to be matched by the project updates.
+  """
+  and: [ProjectUpdatesFilter!]
+
+  """
+  Compound filters, one of which need to be matched by the project updates.
+  """
+  or: [ProjectUpdatesFilter!]
+}
+
 input ProjectUpdateUpdateInput {
   """The content of the project update in markdown format."""
   body: String
@@ -13326,7 +15536,7 @@ type ProjectUpdateWithInteractionPayload {
   interaction: ProjectUpdateInteraction!
 }
 
-"""A user's web browser push notification subscription."""
+"""A user's web or mobile push notification subscription."""
 type PushSubscription implements Node {
   """The unique identifier of the entity."""
   id: ID!
@@ -13657,6 +15867,102 @@ type Query {
     hash: String
   ): Comment!
 
+  """All customer needs."""
+  customerNeeds(
+    """Filter returned customers needs."""
+    filter: CustomerNeedFilter
+
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): CustomerNeedConnection!
+
+  """One specific customer need"""
+  customerNeed(id: String!): CustomerNeed!
+
+  """All customers."""
+  customers(
+    """Filter returned customers."""
+    filter: CustomerFilter
+
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): CustomerConnection!
+
+  """One specific customer."""
+  customer(id: String!): Customer!
+
+  """All customer statuses."""
+  customerStatuses(
+    """A cursor to be used with last for backward pagination."""
+    before: String
+
+    """A cursor to be used with first for forward pagination"""
+    after: String
+
+    """
+    The number of items to forward paginate (used with after). Defaults to 50.
+    """
+    first: Int
+
+    """
+    The number of items to backward paginate (used with before). Defaults to 50.
+    """
+    last: Int
+
+    """Should archived resources be included (default: false)"""
+    includeArchived: Boolean
+
+    """
+    By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
+    """
+    orderBy: PaginationOrderBy
+  ): CustomerStatusConnection!
+
+  """One specific customer status."""
+  customerStatus(id: String!): CustomerStatus!
+
   """Custom views for the user."""
   customViews(
     """A cursor to be used with last for backward pagination."""
@@ -13839,7 +16145,7 @@ type Query {
     id: String!
   ): ExternalUser!
 
-  """[INTERNAL] returns a list of initiative to project entities."""
+  """returns a list of initiative to project entities."""
   initiativeToProjects(
     """A cursor to be used with last for backward pagination."""
     before: String
@@ -13866,10 +16172,10 @@ type Query {
     orderBy: PaginationOrderBy
   ): InitiativeToProjectConnection!
 
-  """[INTERNAL] One specific initiativeToProject."""
+  """One specific initiativeToProject."""
   initiativeToProject(id: String!): InitiativeToProject!
 
-  """[Internal] All initiatives in the workspace."""
+  """All initiatives in the workspace."""
   initiatives(
     """A cursor to be used with last for backward pagination."""
     before: String
@@ -13896,7 +16202,7 @@ type Query {
     orderBy: PaginationOrderBy
   ): InitiativeConnection!
 
-  """[Internal] One specific initiative."""
+  """One specific initiative."""
   initiative(id: String!): Initiative!
 
   """The user's favorites."""
@@ -13958,6 +16264,11 @@ type Query {
 
   """One specific integration."""
   integration(id: String!): Integration!
+
+  """
+  Verify that we received the correct response from the GitHub Enterprise Server.
+  """
+  verifyGitHubEnterpriseServerInstallation: GitHubEnterpriseServerInstallVerificationPayload!
 
   """Checks if the integration has all required scopes."""
   integrationHasScopes(
@@ -14030,12 +16341,6 @@ type Query {
 
   """One specific integrationTemplate."""
   integrationTemplate(id: String!): IntegrationTemplate!
-
-  """Fetches the GitHub token, completing the OAuth flow."""
-  issueImportFinishGithubOAuth(
-    """OAuth code."""
-    code: String!
-  ): GithubOAuthTokenPayload!
 
   """Checks a CSV file validity against a specific import service."""
   issueImportCheckCSV(
@@ -14160,6 +16465,9 @@ type Query {
     """Filter returned issues."""
     filter: IssueFilter
 
+    """[Deprecated] Search string to look for."""
+    query: String
+
     """A cursor to be used with last for backward pagination."""
     before: String
 
@@ -14183,9 +16491,6 @@ type Query {
     By which field should the pagination order by. Available options are createdAt (default) and updatedAt.
     """
     orderBy: PaginationOrderBy
-
-    """[Deprecated] Search string to look for."""
-    query: String
   ): IssueConnection!
 
   """Find issue based on the VCS branch name."""
@@ -14236,6 +16541,9 @@ type Query {
 
   """All notifications."""
   notifications(
+    """Filters returned notifications."""
+    filter: NotificationFilter
+
     """A cursor to be used with last for backward pagination."""
     before: String
 
@@ -14260,6 +16568,9 @@ type Query {
     """
     orderBy: PaginationOrderBy
   ): NotificationConnection!
+
+  """[Internal] A number of unread notifications."""
+  notificationsUnreadCount: Int!
 
   """One specific notification."""
   notification(id: String!): Notification!
@@ -14473,11 +16784,6 @@ type Query {
 
   """Suggests filters for a project view based on a text prompt."""
   projectFilterSuggestion(prompt: String!): ProjectFilterSuggestionPayload!
-
-  """
-  [INTERNAL] Suggests icon, color for a project based on its info while composing.
-  """
-  projectDetailsSuggestion(project: ProjectDetailSuggestionInput!): ProjectDetailSuggestionPayload!
 
   """All interactions on project updates."""
   projectUpdateInteractions(
@@ -15084,6 +17390,39 @@ type Reaction implements Node {
   user: User
 }
 
+"""Reaction filtering options."""
+input ReactionCollectionFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the reactions emoji."""
+  emoji: StringComparator
+
+  """Comparator for the reactions custom emoji."""
+  customEmojiId: IDComparator
+
+  """Compound filters, all of which need to be matched by the reaction."""
+  and: [ReactionCollectionFilter!]
+
+  """Compound filters, one of which need to be matched by the reaction."""
+  or: [ReactionCollectionFilter!]
+
+  """Filters that needs to be matched by some reactions."""
+  some: ReactionFilter
+
+  """Filters that needs to be matched by all reactions."""
+  every: ReactionFilter
+
+  """Comparator for the collection length."""
+  length: NumberComparator
+}
+
 type ReactionConnection {
   edges: [ReactionEdge!]!
   nodes: [Reaction!]!
@@ -15097,7 +17436,7 @@ input ReactionCreateInput {
   id: String
 
   """The emoji the user reacted with."""
-  emoji: String
+  emoji: String!
 
   """The comment to associate the reaction with."""
   commentId: String
@@ -15114,6 +17453,30 @@ type ReactionEdge {
 
   """Used in `before` and `after` args"""
   cursor: String!
+}
+
+"""Reaction filtering options."""
+input ReactionFilter {
+  """Comparator for the identifier."""
+  id: IDComparator
+
+  """Comparator for the created at date."""
+  createdAt: DateComparator
+
+  """Comparator for the updated at date."""
+  updatedAt: DateComparator
+
+  """Comparator for the reactions emoji."""
+  emoji: StringComparator
+
+  """Comparator for the reactions custom emoji."""
+  customEmojiId: IDComparator
+
+  """Compound filters, all of which need to be matched by the reaction."""
+  and: [ReactionFilter!]
+
+  """Compound filters, one of which need to be matched by the reaction."""
+  or: [ReactionFilter!]
 }
 
 type ReactionPayload {
@@ -15165,10 +17528,10 @@ type Reminder implements Node {
   user: User!
 
   """The time when a reminder triggers a notification in the user's inbox."""
-  remindAt: DateTime!
+  remindAt: DateTime
 
   """Scheduling settings for recurring reminders."""
-  schedule: JSONObject!
+  schedule: JSONObject
 
   """The reminder's comment."""
   comment: String
@@ -15476,6 +17839,13 @@ input RoadmapUpdateInput {
   color: String
 }
 
+enum SchemaFieldType {
+  stringType
+  numberType
+  booleanType
+  dateType
+}
+
 enum SendStrategy {
   desktopThenPush
   desktopAndPush
@@ -15505,6 +17875,9 @@ type SharedSlackSettings {
   """Enterprise name of the connected Slack enterprise"""
   enterpriseName: String
 
+  """Enterprise id of the connected Slack enterprise"""
+  enterpriseId: String
+
   """Whether to show unfurl previews in Slack"""
   shouldUnfurl: Boolean
 }
@@ -15518,6 +17891,9 @@ input SharedSlackSettingsInput {
 
   """Enterprise name of the connected Slack enterprise"""
   enterpriseName: String
+
+  """Enterprise id of the connected Slack enterprise"""
+  enterpriseId: String
 
   """Whether to show unfurl previews in Slack"""
   shouldUnfurl: Boolean
@@ -15533,6 +17909,9 @@ type SlackAsksSettings {
 
   """Enterprise name of the connected Slack enterprise"""
   enterpriseName: String
+
+  """Enterprise id of the connected Slack enterprise"""
+  enterpriseId: String
 
   """Whether to show unfurl previews in Slack"""
   shouldUnfurl: Boolean
@@ -15555,6 +17934,9 @@ input SlackAsksSettingsInput {
 
   """Enterprise name of the connected Slack enterprise"""
   enterpriseName: String
+
+  """Enterprise id of the connected Slack enterprise"""
+  enterpriseId: String
 
   """Whether to show unfurl previews in Slack"""
   shouldUnfurl: Boolean
@@ -15739,6 +18121,9 @@ type SlackSettings {
   """Enterprise name of the connected Slack enterprise"""
   enterpriseName: String
 
+  """Enterprise id of the connected Slack enterprise"""
+  enterpriseId: String
+
   """Whether to show unfurl previews in Slack"""
   shouldUnfurl: Boolean
 
@@ -15757,6 +18142,9 @@ input SlackSettingsInput {
 
   """Enterprise name of the connected Slack enterprise"""
   enterpriseName: String
+
+  """Enterprise id of the connected Slack enterprise"""
+  enterpriseId: String
 
   """Whether to show unfurl previews in Slack"""
   shouldUnfurl: Boolean
@@ -15780,7 +18168,6 @@ enum SlaStatus {
   LowRisk
   Completed
   Failed
-  Paused
 }
 
 """Comparator for sla status."""
@@ -15912,7 +18299,87 @@ type SsoUrlFromEmailResponse {
 }
 
 """Comparator for strings."""
+input StringArrayComparator {
+  """Length of the array. Matches any values that have the given length."""
+  length: NumberComparator
+
+  """Compound filters, all of which need to be matched."""
+  every: [StringItemComparator!]
+
+  """Compound filters, one of which needs to be matched."""
+  some: [StringItemComparator!]
+}
+
+"""Comparator for strings."""
 input StringComparator {
+  """Equals constraint."""
+  eq: String
+
+  """Not-equals constraint."""
+  neq: String
+
+  """In-array constraint."""
+  in: [String!]
+
+  """Not-in-array constraint."""
+  nin: [String!]
+
+  """
+  Equals case insensitive. Matches any values that matches the given string case insensitive.
+  """
+  eqIgnoreCase: String
+
+  """
+  Not-equals case insensitive. Matches any values that don't match the given string case insensitive.
+  """
+  neqIgnoreCase: String
+
+  """
+  Starts with constraint. Matches any values that start with the given string.
+  """
+  startsWith: String
+
+  """
+  Starts with case insensitive constraint. Matches any values that start with the given string.
+  """
+  startsWithIgnoreCase: String
+
+  """
+  Doesn't start with constraint. Matches any values that don't start with the given string.
+  """
+  notStartsWith: String
+
+  """
+  Ends with constraint. Matches any values that end with the given string.
+  """
+  endsWith: String
+
+  """
+  Doesn't end with constraint. Matches any values that don't end with the given string.
+  """
+  notEndsWith: String
+
+  """Contains constraint. Matches any values that contain the given string."""
+  contains: String
+
+  """
+  Contains case insensitive constraint. Matches any values that contain the given string case insensitive.
+  """
+  containsIgnoreCase: String
+
+  """
+  Doesn't contain constraint. Matches any values that don't contain the given string.
+  """
+  notContains: String
+
+  """
+  Doesn't contain case insensitive constraint. Matches any values that don't contain the given string case insensitive.
+  """
+  notContainsIgnoreCase: String
+}
+
+"""Comparator for strings in arrays."""
+input StringItemComparator {
   """Equals constraint."""
   eq: String
 
@@ -15997,6 +18464,14 @@ input SubTypeComparator {
   Null constraint. Matches any non-null values if the given value is false, otherwise it matches null values.
   """
   null: Boolean
+}
+
+type SuccessPayload {
+  """The identifier of the last sync operation."""
+  lastSyncId: Float!
+
+  """Whether the operation was successful."""
+  success: Boolean!
 }
 
 type SummaryPayload {
@@ -16145,6 +18620,12 @@ type Team implements Node {
 
   """Whether the team is managed by SCIM integration."""
   scimManaged: Boolean!
+
+  """The SCIM group name for the team."""
+  scimGroupName: String
+
+  """[Internal] The progress history of the team."""
+  progressHistory: JSONObject!
 
   """
   The workflow state into which issues are moved when a PR has been opened as draft.
@@ -16314,6 +18795,12 @@ type Team implements Node {
     """
     orderBy: PaginationOrderBy
   ): UserConnection!
+
+  """The membership of the given user in the team."""
+  membership(
+    """The user ID."""
+    userId: String!
+  ): TeamMembership
 
   """
   Memberships associated with the team. For easier access of the same data, use `members` query.
@@ -16745,7 +19232,7 @@ type TeamMembership implements Node {
   team: Team!
 
   """Whether the user is the owner of the team."""
-  owner: Boolean
+  owner: Boolean!
 
   """The order of the item in the users team list."""
   sortOrder: Float!
@@ -16845,6 +19332,11 @@ type TeamNotificationSubscription implements NotificationSubscription & Entity &
   The contextual project view associated with the notification subscription.
   """
   project: Project
+
+  """
+  The contextual initiative view associated with the notification subscription.
+  """
+  initiative: Initiative
 
   """The team subscribed to."""
   team: Team!
@@ -17203,7 +19695,7 @@ input TemplateUpdateInput {
   sortOrder: Float
 }
 
-"""A text draft, used for comments and project updates."""
+"""[DEPRECATED] A text draft, used for comments and project updates."""
 type TextDraft implements Node {
   """The unique identifier of the entity."""
   id: ID!
@@ -17226,6 +19718,9 @@ type TextDraft implements Node {
 
   """The text content as a Prosemirror document."""
   bodyData: JSON!
+
+  """Additional properties for the draft."""
+  data: JSONObject
 
   """Whether the draft was autogenerated for the user."""
   isAutogenerated: Boolean!
@@ -17321,7 +19816,7 @@ type TimeSchedule implements Node {
   name: String!
 
   """The schedule entries."""
-  entries: [TimeScheduleEntry!]!
+  entries: [TimeScheduleEntry!]
 
   """The identifier of the external schedule."""
   externalId: String
@@ -17690,6 +20185,12 @@ type User implements Node {
   """
   lastSeen: DateTime
 
+  """The initials of the user."""
+  initials: String!
+
+  """The background color of the avatar for users without set avatar."""
+  avatarBackgroundColor: String!
+
   """
   Whether the user is a guest in the workspace and limited to accessing a subset of teams.
   """
@@ -17700,6 +20201,9 @@ type User implements Node {
 
   """User's profile URL."""
   url: String!
+
+  """[Internal] Text drafts created by the user."""
+  textDrafts: [TextDraft!]!
 
   """Issues assigned to the user."""
   assignedIssues(
@@ -18086,6 +20590,7 @@ enum UserFlagType {
   milestoneOnboardingIsSeenAndDismissed
   projectBoardOnboardingIsSeenAndDismissed
   figmaPluginBannerDismissed
+  initiativesBannerDismissed
   all
 }
 
@@ -18140,6 +20645,11 @@ type UserNotificationSubscription implements NotificationSubscription & Entity &
   The contextual project view associated with the notification subscription.
   """
   project: Project
+
+  """
+  The contextual initiative view associated with the notification subscription.
+  """
+  initiative: Initiative
 
   """The team associated with the notification subscription."""
   team: Team
@@ -18206,6 +20716,9 @@ type UserSettings implements Node {
   """The notification channel settings the user has selected."""
   notificationPreferences: JSONObject!
 
+  """The notification delivery preferences for the user."""
+  notificationDeliveryPreferences: NotificationDeliveryPreferences!
+
   """The email types the user has unsubscribed from."""
   unsubscribedFrom: [String!]! @deprecated(reason: "Use individual subscription fields instead. This field's value is now outdated.")
 
@@ -18243,10 +20756,10 @@ type UserSettingsFlagPayload {
   lastSyncId: Float!
 
   """The flag key which was updated."""
-  flag: String!
+  flag: String
 
   """The flag value after update."""
-  value: Int!
+  value: Int
 
   """Whether the operation was successful."""
   success: Boolean!
@@ -18299,6 +20812,9 @@ input UserSettingsUpdateInput {
 
   """The user's notification preferences."""
   notificationPreferences: JSONObject
+
+  """The user's notification delivery preferences."""
+  notificationDeliveryPreferences: NotificationDeliveryPreferencesInput
 
   """[Internal] The user's usage warning history."""
   usageWarningHistory: JSONObject
@@ -18484,7 +21000,10 @@ enum ViewType {
   roadmapClosed
   roadmapBacklog
   initiative
+  initiativeOverview
   initiatives
+  initiativesPlanned
+  initiativesCompleted
   projects
   projectsAll
   projectsBacklog
@@ -18495,7 +21014,6 @@ enum ViewType {
   archive
   quickView
   issueIdentifiers
-  myViews
 }
 
 """A webhook used to send HTTP notifications over data updates."""
@@ -18588,6 +21106,32 @@ type WebhookEdge {
 
   """Used in `before` and `after` args"""
   cursor: String!
+}
+
+"""Entity representing a webhook execution failure."""
+type WebhookFailureEvent {
+  """The unique identifier of the entity."""
+  id: ID!
+
+  """The time at which the entity was created."""
+  createdAt: DateTime!
+
+  """The webhook that this failure event is associated with."""
+  webhook: Webhook!
+
+  """The URL that the webhook was trying to push to."""
+  url: String!
+
+  """The HTTP status code returned by the recipient."""
+  httpStatus: Float
+
+  """The HTTP response body returned by the recipient or error occured."""
+  responseOrError: String
+
+  """
+  The unique execution ID of the webhook push. This is retained between retries of the same push.
+  """
+  executionId: String!
 }
 
 type WebhookPayload {
@@ -18730,7 +21274,7 @@ type WorkflowDefinition implements Node {
   triggerType: WorkflowTriggerType!
 
   """The conditions that need to be match for the workflow to be triggered."""
-  conditions: JSONObject!
+  conditions: JSONObject
   enabled: Boolean!
 
   """

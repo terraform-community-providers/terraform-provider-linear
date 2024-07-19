@@ -174,6 +174,30 @@ func (v *Organization) GetGitPublicLinkbackMessagesEnabled() bool {
 	return v.GitPublicLinkbackMessagesEnabled
 }
 
+// [INTERNAL] Organization IP restriction configuration.
+type OrganizationIpRestrictionInput struct {
+	// IP range in CIDR format.
+	Range string `json:"range"`
+	// Restriction type.
+	Type string `json:"type"`
+	// Optional restriction description.
+	Description string `json:"description"`
+	// Whether the restriction is enabled.
+	Enabled bool `json:"enabled"`
+}
+
+// GetRange returns OrganizationIpRestrictionInput.Range, and is useful for accessing the field via an interface.
+func (v *OrganizationIpRestrictionInput) GetRange() string { return v.Range }
+
+// GetType returns OrganizationIpRestrictionInput.Type, and is useful for accessing the field via an interface.
+func (v *OrganizationIpRestrictionInput) GetType() string { return v.Type }
+
+// GetDescription returns OrganizationIpRestrictionInput.Description, and is useful for accessing the field via an interface.
+func (v *OrganizationIpRestrictionInput) GetDescription() string { return v.Description }
+
+// GetEnabled returns OrganizationIpRestrictionInput.Enabled, and is useful for accessing the field via an interface.
+func (v *OrganizationIpRestrictionInput) GetEnabled() bool { return v.Enabled }
+
 type OrganizationUpdateInput struct {
 	// The name of the organization.
 	Name string `json:"name,omitempty"`
@@ -189,8 +213,8 @@ type OrganizationUpdateInput struct {
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
 	// Whether the organization is using roadmap.
 	RoadmapEnabled bool `json:"roadmapEnabled"`
-	// The frequency at which project updates are sent.
-	ProjectUpdatesReminderFrequency ProjectUpdateReminderFrequency `json:"projectUpdatesReminderFrequency,omitempty"`
+	// The n-weekly frequency at which to prompt for project updates.
+	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks,omitempty"`
 	// The day at which project updates are sent.
 	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay,omitempty"`
 	// The hour at which project updates are sent.
@@ -201,8 +225,6 @@ type OrganizationUpdateInput struct {
 	ReducedPersonalInformation bool `json:"reducedPersonalInformation,omitempty"`
 	// Whether the organization has opted for having to approve all OAuth applications for install.
 	OauthAppReview bool `json:"oauthAppReview,omitempty"`
-	// Linear Preview feature flags.
-	LinearPreviewFlags map[string]interface{} `json:"linearPreviewFlags,omitempty"`
 	// List of services that are allowed to be used for login.
 	AllowedAuthServices []string `json:"allowedAuthServices,omitempty"`
 	// Internal. Whether SLAs have been enabled for the organization.
@@ -211,6 +233,8 @@ type OrganizationUpdateInput struct {
 	SlaDayCount SLADayCountType `json:"slaDayCount,omitempty"`
 	// Whether member users are allowed to send invites.
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
+	// IP restriction configurations controlling allowed access the workspace.
+	IpRestrictions []OrganizationIpRestrictionInput `json:"ipRestrictions"`
 	// [ALPHA] Theme settings for the organization.
 	ThemeSettings map[string]interface{} `json:"themeSettings"`
 }
@@ -240,9 +264,9 @@ func (v *OrganizationUpdateInput) GetGitPublicLinkbackMessagesEnabled() bool {
 // GetRoadmapEnabled returns OrganizationUpdateInput.RoadmapEnabled, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
 
-// GetProjectUpdatesReminderFrequency returns OrganizationUpdateInput.ProjectUpdatesReminderFrequency, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetProjectUpdatesReminderFrequency() ProjectUpdateReminderFrequency {
-	return v.ProjectUpdatesReminderFrequency
+// GetProjectUpdateReminderFrequencyInWeeks returns OrganizationUpdateInput.ProjectUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetProjectUpdateReminderFrequencyInWeeks() float64 {
+	return v.ProjectUpdateReminderFrequencyInWeeks
 }
 
 // GetProjectUpdateRemindersDay returns OrganizationUpdateInput.ProjectUpdateRemindersDay, and is useful for accessing the field via an interface.
@@ -266,11 +290,6 @@ func (v *OrganizationUpdateInput) GetReducedPersonalInformation() bool {
 // GetOauthAppReview returns OrganizationUpdateInput.OauthAppReview, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetOauthAppReview() bool { return v.OauthAppReview }
 
-// GetLinearPreviewFlags returns OrganizationUpdateInput.LinearPreviewFlags, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetLinearPreviewFlags() map[string]interface{} {
-	return v.LinearPreviewFlags
-}
-
 // GetAllowedAuthServices returns OrganizationUpdateInput.AllowedAuthServices, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetAllowedAuthServices() []string { return v.AllowedAuthServices }
 
@@ -283,18 +302,13 @@ func (v *OrganizationUpdateInput) GetSlaDayCount() SLADayCountType { return v.Sl
 // GetAllowMembersToInvite returns OrganizationUpdateInput.AllowMembersToInvite, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetAllowMembersToInvite() bool { return v.AllowMembersToInvite }
 
+// GetIpRestrictions returns OrganizationUpdateInput.IpRestrictions, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetIpRestrictions() []OrganizationIpRestrictionInput {
+	return v.IpRestrictions
+}
+
 // GetThemeSettings returns OrganizationUpdateInput.ThemeSettings, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetThemeSettings() map[string]interface{} { return v.ThemeSettings }
-
-// The frequency at which to send project update reminders.
-type ProjectUpdateReminderFrequency string
-
-const (
-	ProjectUpdateReminderFrequencyWeek     ProjectUpdateReminderFrequency = "week"
-	ProjectUpdateReminderFrequencyTwoweeks ProjectUpdateReminderFrequency = "twoWeeks"
-	ProjectUpdateReminderFrequencyMonth    ProjectUpdateReminderFrequency = "month"
-	ProjectUpdateReminderFrequencyNever    ProjectUpdateReminderFrequency = "never"
-)
 
 // Which day count to use for SLA calculations.
 type SLADayCountType string
