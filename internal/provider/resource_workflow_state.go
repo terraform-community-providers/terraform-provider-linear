@@ -68,7 +68,7 @@ func (r *WorkflowStateResource) Schema(ctx context.Context, req resource.SchemaR
 					stringplanmodifier.RequiresReplace(),
 				},
 				Validators: []validator.String{
-					stringvalidator.OneOf([]string{"backlog", "unstarted", "started", "completed", "canceled"}...),
+					stringvalidator.OneOf([]string{"triage", "backlog", "unstarted", "started", "completed", "canceled"}...),
 				},
 			},
 			"position": schema.NumberAttribute{
