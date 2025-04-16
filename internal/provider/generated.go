@@ -10,6 +10,246 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+// CustomView includes the GraphQL fields of CustomView requested by the fragment CustomView.
+// The GraphQL type's documentation follows.
+//
+// A custom view that has been saved by a user.
+type CustomView struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The name of the custom view.
+	Name string `json:"name"`
+	// The description of the custom view.
+	Description *string `json:"description"`
+	// The color of the icon of the custom view.
+	Color *string `json:"color"`
+	// The icon of the custom view.
+	Icon *string `json:"icon"`
+}
+
+// GetId returns CustomView.Id, and is useful for accessing the field via an interface.
+func (v *CustomView) GetId() string { return v.Id }
+
+// GetName returns CustomView.Name, and is useful for accessing the field via an interface.
+func (v *CustomView) GetName() string { return v.Name }
+
+// GetDescription returns CustomView.Description, and is useful for accessing the field via an interface.
+func (v *CustomView) GetDescription() *string { return v.Description }
+
+// GetColor returns CustomView.Color, and is useful for accessing the field via an interface.
+func (v *CustomView) GetColor() *string { return v.Color }
+
+// GetIcon returns CustomView.Icon, and is useful for accessing the field via an interface.
+func (v *CustomView) GetIcon() *string { return v.Icon }
+
+type CustomViewCreateInput struct {
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id string `json:"id,omitempty"`
+	// The name of the custom view.
+	Name string `json:"name"`
+	// The description of the custom view.
+	Description string `json:"description,omitempty"`
+	// The icon of the custom view.
+	Icon string `json:"icon,omitempty"`
+	// The color of the icon of the custom view.
+	Color string `json:"color,omitempty"`
+	// The id of the team associated with the custom view.
+	TeamId *string `json:"teamId,omitempty"`
+	// The owner of the custom view.
+	OwnerId *string `json:"ownerId,omitempty"`
+	// The filters applied to issues in the custom view.
+	Filters map[string]interface{} `json:"filters,omitempty"`
+	// The filter applied to issues in the custom view.
+	FilterData map[string]interface{} `json:"filterData,omitempty"`
+	// [ALPHA] The project filter applied to issues in the custom view.
+	ProjectFilterData map[string]interface{} `json:"projectFilterData,omitempty"`
+	// Whether the custom view is shared with everyone in the organization.
+	Shared *bool `json:"shared,omitempty"`
+}
+
+// GetId returns CustomViewCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetId() string { return v.Id }
+
+// GetName returns CustomViewCreateInput.Name, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetName() string { return v.Name }
+
+// GetDescription returns CustomViewCreateInput.Description, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetDescription() string { return v.Description }
+
+// GetIcon returns CustomViewCreateInput.Icon, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetIcon() string { return v.Icon }
+
+// GetColor returns CustomViewCreateInput.Color, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetColor() string { return v.Color }
+
+// GetTeamId returns CustomViewCreateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetTeamId() *string { return v.TeamId }
+
+// GetOwnerId returns CustomViewCreateInput.OwnerId, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetOwnerId() *string { return v.OwnerId }
+
+// GetFilters returns CustomViewCreateInput.Filters, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetFilters() map[string]interface{} { return v.Filters }
+
+// GetFilterData returns CustomViewCreateInput.FilterData, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetFilterData() map[string]interface{} { return v.FilterData }
+
+// GetProjectFilterData returns CustomViewCreateInput.ProjectFilterData, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetProjectFilterData() map[string]interface{} {
+	return v.ProjectFilterData
+}
+
+// GetShared returns CustomViewCreateInput.Shared, and is useful for accessing the field via an interface.
+func (v *CustomViewCreateInput) GetShared() *bool { return v.Shared }
+
+// CustomViewPayload includes the GraphQL fields of CustomViewPayload requested by the fragment CustomViewPayload.
+type CustomViewPayload struct {
+	// The custom view that was created or updated.
+	CustomView CustomViewPayloadCustomView `json:"customView"`
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetCustomView returns CustomViewPayload.CustomView, and is useful for accessing the field via an interface.
+func (v *CustomViewPayload) GetCustomView() CustomViewPayloadCustomView { return v.CustomView }
+
+// GetSuccess returns CustomViewPayload.Success, and is useful for accessing the field via an interface.
+func (v *CustomViewPayload) GetSuccess() bool { return v.Success }
+
+// CustomViewPayloadCustomView includes the requested fields of the GraphQL type CustomView.
+// The GraphQL type's documentation follows.
+//
+// A custom view that has been saved by a user.
+type CustomViewPayloadCustomView struct {
+	CustomView `json:"-"`
+}
+
+// GetId returns CustomViewPayloadCustomView.Id, and is useful for accessing the field via an interface.
+func (v *CustomViewPayloadCustomView) GetId() string { return v.CustomView.Id }
+
+// GetName returns CustomViewPayloadCustomView.Name, and is useful for accessing the field via an interface.
+func (v *CustomViewPayloadCustomView) GetName() string { return v.CustomView.Name }
+
+// GetDescription returns CustomViewPayloadCustomView.Description, and is useful for accessing the field via an interface.
+func (v *CustomViewPayloadCustomView) GetDescription() *string { return v.CustomView.Description }
+
+// GetColor returns CustomViewPayloadCustomView.Color, and is useful for accessing the field via an interface.
+func (v *CustomViewPayloadCustomView) GetColor() *string { return v.CustomView.Color }
+
+// GetIcon returns CustomViewPayloadCustomView.Icon, and is useful for accessing the field via an interface.
+func (v *CustomViewPayloadCustomView) GetIcon() *string { return v.CustomView.Icon }
+
+func (v *CustomViewPayloadCustomView) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*CustomViewPayloadCustomView
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.CustomViewPayloadCustomView = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.CustomView)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalCustomViewPayloadCustomView struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Description *string `json:"description"`
+
+	Color *string `json:"color"`
+
+	Icon *string `json:"icon"`
+}
+
+func (v *CustomViewPayloadCustomView) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *CustomViewPayloadCustomView) __premarshalJSON() (*__premarshalCustomViewPayloadCustomView, error) {
+	var retval __premarshalCustomViewPayloadCustomView
+
+	retval.Id = v.CustomView.Id
+	retval.Name = v.CustomView.Name
+	retval.Description = v.CustomView.Description
+	retval.Color = v.CustomView.Color
+	retval.Icon = v.CustomView.Icon
+	return &retval, nil
+}
+
+type CustomViewUpdateInput struct {
+	// The name of the custom view.
+	Name string `json:"name,omitempty"`
+	// The description of the custom view.
+	Description string `json:"description,omitempty"`
+	// The icon of the custom view.
+	Icon string `json:"icon,omitempty"`
+	// The color of the icon of the custom view.
+	Color string `json:"color,omitempty"`
+	// The id of the team associated with the custom view.
+	TeamId *string `json:"teamId,omitempty"`
+	// The owner of the custom view.
+	OwnerId *string `json:"ownerId,omitempty"`
+	// The filters applied to issues in the custom view.
+	Filters map[string]interface{} `json:"filters,omitempty"`
+	// The filter applied to issues in the custom view.
+	FilterData map[string]interface{} `json:"filterData,omitempty"`
+	// [ALPHA] The project filter applied to issues in the custom view.
+	ProjectFilterData map[string]interface{} `json:"projectFilterData,omitempty"`
+	// Whether the custom view is shared with everyone in the organization.
+	Shared *bool `json:"shared,omitempty"`
+}
+
+// GetName returns CustomViewUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *CustomViewUpdateInput) GetName() string { return v.Name }
+
+// GetDescription returns CustomViewUpdateInput.Description, and is useful for accessing the field via an interface.
+func (v *CustomViewUpdateInput) GetDescription() string { return v.Description }
+
+// GetIcon returns CustomViewUpdateInput.Icon, and is useful for accessing the field via an interface.
+func (v *CustomViewUpdateInput) GetIcon() string { return v.Icon }
+
+// GetColor returns CustomViewUpdateInput.Color, and is useful for accessing the field via an interface.
+func (v *CustomViewUpdateInput) GetColor() string { return v.Color }
+
+// GetTeamId returns CustomViewUpdateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *CustomViewUpdateInput) GetTeamId() *string { return v.TeamId }
+
+// GetOwnerId returns CustomViewUpdateInput.OwnerId, and is useful for accessing the field via an interface.
+func (v *CustomViewUpdateInput) GetOwnerId() *string { return v.OwnerId }
+
+// GetFilters returns CustomViewUpdateInput.Filters, and is useful for accessing the field via an interface.
+func (v *CustomViewUpdateInput) GetFilters() map[string]interface{} { return v.Filters }
+
+// GetFilterData returns CustomViewUpdateInput.FilterData, and is useful for accessing the field via an interface.
+func (v *CustomViewUpdateInput) GetFilterData() map[string]interface{} { return v.FilterData }
+
+// GetProjectFilterData returns CustomViewUpdateInput.ProjectFilterData, and is useful for accessing the field via an interface.
+func (v *CustomViewUpdateInput) GetProjectFilterData() map[string]interface{} {
+	return v.ProjectFilterData
+}
+
+// GetShared returns CustomViewUpdateInput.Shared, and is useful for accessing the field via an interface.
+func (v *CustomViewUpdateInput) GetShared() *bool { return v.Shared }
+
 // The day of the week.
 type Day string
 
@@ -1106,6 +1346,42 @@ type __createWorkflowStateInput struct {
 // GetInput returns __createWorkflowStateInput.Input, and is useful for accessing the field via an interface.
 func (v *__createWorkflowStateInput) GetInput() WorkflowStateCreateInput { return v.Input }
 
+// __customViewCreateInput is used internally by genqlient
+type __customViewCreateInput struct {
+	Input CustomViewCreateInput `json:"input"`
+}
+
+// GetInput returns __customViewCreateInput.Input, and is useful for accessing the field via an interface.
+func (v *__customViewCreateInput) GetInput() CustomViewCreateInput { return v.Input }
+
+// __customViewDeleteInput is used internally by genqlient
+type __customViewDeleteInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __customViewDeleteInput.Id, and is useful for accessing the field via an interface.
+func (v *__customViewDeleteInput) GetId() string { return v.Id }
+
+// __customViewInput is used internally by genqlient
+type __customViewInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __customViewInput.Id, and is useful for accessing the field via an interface.
+func (v *__customViewInput) GetId() string { return v.Id }
+
+// __customViewUpdateInput is used internally by genqlient
+type __customViewUpdateInput struct {
+	Input CustomViewUpdateInput `json:"input"`
+	Id    string                `json:"id"`
+}
+
+// GetInput returns __customViewUpdateInput.Input, and is useful for accessing the field via an interface.
+func (v *__customViewUpdateInput) GetInput() CustomViewUpdateInput { return v.Input }
+
+// GetId returns __customViewUpdateInput.Id, and is useful for accessing the field via an interface.
+func (v *__customViewUpdateInput) GetId() string { return v.Id }
+
 // __deleteLabelInput is used internally by genqlient
 type __deleteLabelInput struct {
 	Id string `json:"id"`
@@ -1767,6 +2043,263 @@ func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState
 	retval.Position = v.WorkflowState.Position
 	retval.Team = v.WorkflowState.Team
 	return &retval, nil
+}
+
+// customViewCreateCustomViewCreateCustomViewPayload includes the requested fields of the GraphQL type CustomViewPayload.
+type customViewCreateCustomViewCreateCustomViewPayload struct {
+	CustomViewPayload `json:"-"`
+}
+
+// GetCustomView returns customViewCreateCustomViewCreateCustomViewPayload.CustomView, and is useful for accessing the field via an interface.
+func (v *customViewCreateCustomViewCreateCustomViewPayload) GetCustomView() CustomViewPayloadCustomView {
+	return v.CustomViewPayload.CustomView
+}
+
+// GetSuccess returns customViewCreateCustomViewCreateCustomViewPayload.Success, and is useful for accessing the field via an interface.
+func (v *customViewCreateCustomViewCreateCustomViewPayload) GetSuccess() bool {
+	return v.CustomViewPayload.Success
+}
+
+func (v *customViewCreateCustomViewCreateCustomViewPayload) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*customViewCreateCustomViewCreateCustomViewPayload
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.customViewCreateCustomViewCreateCustomViewPayload = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.CustomViewPayload)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalcustomViewCreateCustomViewCreateCustomViewPayload struct {
+	CustomView CustomViewPayloadCustomView `json:"customView"`
+
+	Success bool `json:"success"`
+}
+
+func (v *customViewCreateCustomViewCreateCustomViewPayload) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *customViewCreateCustomViewCreateCustomViewPayload) __premarshalJSON() (*__premarshalcustomViewCreateCustomViewCreateCustomViewPayload, error) {
+	var retval __premarshalcustomViewCreateCustomViewCreateCustomViewPayload
+
+	retval.CustomView = v.CustomViewPayload.CustomView
+	retval.Success = v.CustomViewPayload.Success
+	return &retval, nil
+}
+
+// customViewCreateResponse is returned by customViewCreate on success.
+type customViewCreateResponse struct {
+	// Creates a new custom view.
+	CustomViewCreate customViewCreateCustomViewCreateCustomViewPayload `json:"customViewCreate"`
+}
+
+// GetCustomViewCreate returns customViewCreateResponse.CustomViewCreate, and is useful for accessing the field via an interface.
+func (v *customViewCreateResponse) GetCustomViewCreate() customViewCreateCustomViewCreateCustomViewPayload {
+	return v.CustomViewCreate
+}
+
+// customViewCustomView includes the requested fields of the GraphQL type CustomView.
+// The GraphQL type's documentation follows.
+//
+// A custom view that has been saved by a user.
+type customViewCustomView struct {
+	CustomView `json:"-"`
+}
+
+// GetId returns customViewCustomView.Id, and is useful for accessing the field via an interface.
+func (v *customViewCustomView) GetId() string { return v.CustomView.Id }
+
+// GetName returns customViewCustomView.Name, and is useful for accessing the field via an interface.
+func (v *customViewCustomView) GetName() string { return v.CustomView.Name }
+
+// GetDescription returns customViewCustomView.Description, and is useful for accessing the field via an interface.
+func (v *customViewCustomView) GetDescription() *string { return v.CustomView.Description }
+
+// GetColor returns customViewCustomView.Color, and is useful for accessing the field via an interface.
+func (v *customViewCustomView) GetColor() *string { return v.CustomView.Color }
+
+// GetIcon returns customViewCustomView.Icon, and is useful for accessing the field via an interface.
+func (v *customViewCustomView) GetIcon() *string { return v.CustomView.Icon }
+
+func (v *customViewCustomView) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*customViewCustomView
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.customViewCustomView = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.CustomView)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalcustomViewCustomView struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Description *string `json:"description"`
+
+	Color *string `json:"color"`
+
+	Icon *string `json:"icon"`
+}
+
+func (v *customViewCustomView) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *customViewCustomView) __premarshalJSON() (*__premarshalcustomViewCustomView, error) {
+	var retval __premarshalcustomViewCustomView
+
+	retval.Id = v.CustomView.Id
+	retval.Name = v.CustomView.Name
+	retval.Description = v.CustomView.Description
+	retval.Color = v.CustomView.Color
+	retval.Icon = v.CustomView.Icon
+	return &retval, nil
+}
+
+// customViewDeleteCustomViewDeleteDeletePayload includes the requested fields of the GraphQL type DeletePayload.
+// The GraphQL type's documentation follows.
+//
+// A generic payload return from entity deletion mutations.
+type customViewDeleteCustomViewDeleteDeletePayload struct {
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns customViewDeleteCustomViewDeleteDeletePayload.Success, and is useful for accessing the field via an interface.
+func (v *customViewDeleteCustomViewDeleteDeletePayload) GetSuccess() bool { return v.Success }
+
+// customViewDeleteResponse is returned by customViewDelete on success.
+type customViewDeleteResponse struct {
+	// Deletes a custom view.
+	CustomViewDelete customViewDeleteCustomViewDeleteDeletePayload `json:"customViewDelete"`
+}
+
+// GetCustomViewDelete returns customViewDeleteResponse.CustomViewDelete, and is useful for accessing the field via an interface.
+func (v *customViewDeleteResponse) GetCustomViewDelete() customViewDeleteCustomViewDeleteDeletePayload {
+	return v.CustomViewDelete
+}
+
+// customViewResponse is returned by customView on success.
+type customViewResponse struct {
+	// One specific custom view.
+	CustomView customViewCustomView `json:"customView"`
+}
+
+// GetCustomView returns customViewResponse.CustomView, and is useful for accessing the field via an interface.
+func (v *customViewResponse) GetCustomView() customViewCustomView { return v.CustomView }
+
+// customViewUpdateCustomViewUpdateCustomViewPayload includes the requested fields of the GraphQL type CustomViewPayload.
+type customViewUpdateCustomViewUpdateCustomViewPayload struct {
+	CustomViewPayload `json:"-"`
+}
+
+// GetCustomView returns customViewUpdateCustomViewUpdateCustomViewPayload.CustomView, and is useful for accessing the field via an interface.
+func (v *customViewUpdateCustomViewUpdateCustomViewPayload) GetCustomView() CustomViewPayloadCustomView {
+	return v.CustomViewPayload.CustomView
+}
+
+// GetSuccess returns customViewUpdateCustomViewUpdateCustomViewPayload.Success, and is useful for accessing the field via an interface.
+func (v *customViewUpdateCustomViewUpdateCustomViewPayload) GetSuccess() bool {
+	return v.CustomViewPayload.Success
+}
+
+func (v *customViewUpdateCustomViewUpdateCustomViewPayload) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*customViewUpdateCustomViewUpdateCustomViewPayload
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.customViewUpdateCustomViewUpdateCustomViewPayload = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.CustomViewPayload)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalcustomViewUpdateCustomViewUpdateCustomViewPayload struct {
+	CustomView CustomViewPayloadCustomView `json:"customView"`
+
+	Success bool `json:"success"`
+}
+
+func (v *customViewUpdateCustomViewUpdateCustomViewPayload) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *customViewUpdateCustomViewUpdateCustomViewPayload) __premarshalJSON() (*__premarshalcustomViewUpdateCustomViewUpdateCustomViewPayload, error) {
+	var retval __premarshalcustomViewUpdateCustomViewUpdateCustomViewPayload
+
+	retval.CustomView = v.CustomViewPayload.CustomView
+	retval.Success = v.CustomViewPayload.Success
+	return &retval, nil
+}
+
+// customViewUpdateResponse is returned by customViewUpdate on success.
+type customViewUpdateResponse struct {
+	// Updates a custom view.
+	CustomViewUpdate customViewUpdateCustomViewUpdateCustomViewPayload `json:"customViewUpdate"`
+}
+
+// GetCustomViewUpdate returns customViewUpdateResponse.CustomViewUpdate, and is useful for accessing the field via an interface.
+func (v *customViewUpdateResponse) GetCustomViewUpdate() customViewUpdateCustomViewUpdateCustomViewPayload {
+	return v.CustomViewUpdate
 }
 
 // deleteLabelIssueLabelDeleteDeletePayload includes the requested fields of the GraphQL type DeletePayload.
@@ -3604,6 +4137,169 @@ fragment WorkflowState on WorkflowState {
 	var err error
 
 	var data createWorkflowStateResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func customView(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*customViewResponse, error) {
+	req := &graphql.Request{
+		OpName: "customView",
+		Query: `
+query customView ($id: String!) {
+	customView(id: $id) {
+		... CustomView
+	}
+}
+fragment CustomView on CustomView {
+	id
+	name
+	description
+	color
+	icon
+}
+`,
+		Variables: &__customViewInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data customViewResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func customViewCreate(
+	ctx context.Context,
+	client graphql.Client,
+	input CustomViewCreateInput,
+) (*customViewCreateResponse, error) {
+	req := &graphql.Request{
+		OpName: "customViewCreate",
+		Query: `
+mutation customViewCreate ($input: CustomViewCreateInput!) {
+	customViewCreate(input: $input) {
+		... CustomViewPayload
+	}
+}
+fragment CustomViewPayload on CustomViewPayload {
+	customView {
+		... CustomView
+	}
+	success
+}
+fragment CustomView on CustomView {
+	id
+	name
+	description
+	color
+	icon
+}
+`,
+		Variables: &__customViewCreateInput{
+			Input: input,
+		},
+	}
+	var err error
+
+	var data customViewCreateResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func customViewDelete(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*customViewDeleteResponse, error) {
+	req := &graphql.Request{
+		OpName: "customViewDelete",
+		Query: `
+mutation customViewDelete ($id: String!) {
+	customViewDelete(id: $id) {
+		success
+	}
+}
+`,
+		Variables: &__customViewDeleteInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data customViewDeleteResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func customViewUpdate(
+	ctx context.Context,
+	client graphql.Client,
+	input CustomViewUpdateInput,
+	id string,
+) (*customViewUpdateResponse, error) {
+	req := &graphql.Request{
+		OpName: "customViewUpdate",
+		Query: `
+mutation customViewUpdate ($input: CustomViewUpdateInput!, $id: String!) {
+	customViewUpdate(input: $input, id: $id) {
+		... CustomViewPayload
+	}
+}
+fragment CustomViewPayload on CustomViewPayload {
+	customView {
+		... CustomView
+	}
+	success
+}
+fragment CustomView on CustomView {
+	id
+	name
+	description
+	color
+	icon
+}
+`,
+		Variables: &__customViewUpdateInput{
+			Input: input,
+			Id:    id,
+		},
+	}
+	var err error
+
+	var data customViewUpdateResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
