@@ -967,6 +967,123 @@ type TeamWorkflowStartWorkflowState struct {
 // GetId returns TeamWorkflowStartWorkflowState.Id, and is useful for accessing the field via an interface.
 func (v *TeamWorkflowStartWorkflowState) GetId() string { return v.Id }
 
+type TemplateCreateInput struct {
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id *string `json:"id,omitempty"`
+	// The template type, e.g. 'issue'.
+	Type *string `json:"type"`
+	// The identifier or key of the team associated with the template. If not given,
+	// the template will be shared across all teams.
+	TeamId *string `json:"teamId,omitempty"`
+	// The template name.
+	Name *string `json:"name"`
+	// The template description.
+	Description *string `json:"description,omitempty"`
+	// The template data as JSON encoded attributes of the type of entity, such as an issue.
+	TemplateData *string `json:"templateData"`
+	// The position of the template in the templates list.
+	SortOrder float64 `json:"sortOrder"`
+}
+
+// GetId returns TemplateCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetId() *string { return v.Id }
+
+// GetType returns TemplateCreateInput.Type, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetType() *string { return v.Type }
+
+// GetTeamId returns TemplateCreateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetTeamId() *string { return v.TeamId }
+
+// GetName returns TemplateCreateInput.Name, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetName() *string { return v.Name }
+
+// GetDescription returns TemplateCreateInput.Description, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetDescription() *string { return v.Description }
+
+// GetTemplateData returns TemplateCreateInput.TemplateData, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetTemplateData() *string { return v.TemplateData }
+
+// GetSortOrder returns TemplateCreateInput.SortOrder, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetSortOrder() float64 { return v.SortOrder }
+
+// TemplateFragment includes the GraphQL fields of Template requested by the fragment TemplateFragment.
+// The GraphQL type's documentation follows.
+//
+// A template object used for creating entities faster.
+type TemplateFragment struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The team that the template is associated with. If null, the template is global to the workspace.
+	Team TemplateFragmentTeam `json:"team"`
+	// The name of the template.
+	Name *string `json:"name"`
+	// Template description.
+	Description string `json:"description"`
+	// The entity type this template is for.
+	Type *string `json:"type"`
+	// Template data.
+	TemplateData *string `json:"templateData"`
+}
+
+// GetId returns TemplateFragment.Id, and is useful for accessing the field via an interface.
+func (v *TemplateFragment) GetId() string { return v.Id }
+
+// GetTeam returns TemplateFragment.Team, and is useful for accessing the field via an interface.
+func (v *TemplateFragment) GetTeam() TemplateFragmentTeam { return v.Team }
+
+// GetName returns TemplateFragment.Name, and is useful for accessing the field via an interface.
+func (v *TemplateFragment) GetName() *string { return v.Name }
+
+// GetDescription returns TemplateFragment.Description, and is useful for accessing the field via an interface.
+func (v *TemplateFragment) GetDescription() string { return v.Description }
+
+// GetType returns TemplateFragment.Type, and is useful for accessing the field via an interface.
+func (v *TemplateFragment) GetType() *string { return v.Type }
+
+// GetTemplateData returns TemplateFragment.TemplateData, and is useful for accessing the field via an interface.
+func (v *TemplateFragment) GetTemplateData() *string { return v.TemplateData }
+
+// TemplateFragmentTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type TemplateFragmentTeam struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns TemplateFragmentTeam.Id, and is useful for accessing the field via an interface.
+func (v *TemplateFragmentTeam) GetId() string { return v.Id }
+
+type TemplateUpdateInput struct {
+	// The template name.
+	Name string `json:"name"`
+	// The template description.
+	Description string `json:"description"`
+	// The identifier or key of the team associated with the template. If set to
+	// null, the template will be shared across all teams.
+	TeamId string `json:"teamId"`
+	// The template data as JSON encoded attributes of the type of entity, such as an issue.
+	TemplateData string `json:"templateData"`
+	// The position of the template in the templates list.
+	SortOrder float64 `json:"sortOrder"`
+}
+
+// GetName returns TemplateUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *TemplateUpdateInput) GetName() string { return v.Name }
+
+// GetDescription returns TemplateUpdateInput.Description, and is useful for accessing the field via an interface.
+func (v *TemplateUpdateInput) GetDescription() string { return v.Description }
+
+// GetTeamId returns TemplateUpdateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *TemplateUpdateInput) GetTeamId() string { return v.TeamId }
+
+// GetTemplateData returns TemplateUpdateInput.TemplateData, and is useful for accessing the field via an interface.
+func (v *TemplateUpdateInput) GetTemplateData() string { return v.TemplateData }
+
+// GetSortOrder returns TemplateUpdateInput.SortOrder, and is useful for accessing the field via an interface.
+func (v *TemplateUpdateInput) GetSortOrder() float64 { return v.SortOrder }
+
 // WorkflowState includes the GraphQL fields of WorkflowState requested by the fragment WorkflowState.
 // The GraphQL type's documentation follows.
 //
@@ -1194,6 +1311,14 @@ type __getTeamWorkflowStatesInput struct {
 // GetKey returns __getTeamWorkflowStatesInput.Key, and is useful for accessing the field via an interface.
 func (v *__getTeamWorkflowStatesInput) GetKey() string { return v.Key }
 
+// __getTemplateInput is used internally by genqlient
+type __getTemplateInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __getTemplateInput.Id, and is useful for accessing the field via an interface.
+func (v *__getTemplateInput) GetId() string { return v.Id }
+
 // __getWorkflowStateInput is used internally by genqlient
 type __getWorkflowStateInput struct {
 	Id string `json:"id"`
@@ -1201,6 +1326,34 @@ type __getWorkflowStateInput struct {
 
 // GetId returns __getWorkflowStateInput.Id, and is useful for accessing the field via an interface.
 func (v *__getWorkflowStateInput) GetId() string { return v.Id }
+
+// __templateCreateInput is used internally by genqlient
+type __templateCreateInput struct {
+	Input TemplateCreateInput `json:"input"`
+}
+
+// GetInput returns __templateCreateInput.Input, and is useful for accessing the field via an interface.
+func (v *__templateCreateInput) GetInput() TemplateCreateInput { return v.Input }
+
+// __templateDeleteInput is used internally by genqlient
+type __templateDeleteInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __templateDeleteInput.Id, and is useful for accessing the field via an interface.
+func (v *__templateDeleteInput) GetId() string { return v.Id }
+
+// __templateUpdateInput is used internally by genqlient
+type __templateUpdateInput struct {
+	Input TemplateUpdateInput `json:"input"`
+	Id    string              `json:"id"`
+}
+
+// GetInput returns __templateUpdateInput.Input, and is useful for accessing the field via an interface.
+func (v *__templateUpdateInput) GetInput() TemplateUpdateInput { return v.Input }
+
+// GetId returns __templateUpdateInput.Id, and is useful for accessing the field via an interface.
+func (v *__templateUpdateInput) GetId() string { return v.Id }
 
 // __updateLabelInput is used internally by genqlient
 type __updateLabelInput struct {
@@ -2506,6 +2659,100 @@ func (v *getTeamWorkflowTeam) __premarshalJSON() (*__premarshalgetTeamWorkflowTe
 	return &retval, nil
 }
 
+// getTemplateResponse is returned by getTemplate on success.
+type getTemplateResponse struct {
+	// A specific template.
+	Template getTemplateTemplate `json:"template"`
+}
+
+// GetTemplate returns getTemplateResponse.Template, and is useful for accessing the field via an interface.
+func (v *getTemplateResponse) GetTemplate() getTemplateTemplate { return v.Template }
+
+// getTemplateTemplate includes the requested fields of the GraphQL type Template.
+// The GraphQL type's documentation follows.
+//
+// A template object used for creating entities faster.
+type getTemplateTemplate struct {
+	TemplateFragment `json:"-"`
+}
+
+// GetId returns getTemplateTemplate.Id, and is useful for accessing the field via an interface.
+func (v *getTemplateTemplate) GetId() string { return v.TemplateFragment.Id }
+
+// GetTeam returns getTemplateTemplate.Team, and is useful for accessing the field via an interface.
+func (v *getTemplateTemplate) GetTeam() TemplateFragmentTeam { return v.TemplateFragment.Team }
+
+// GetName returns getTemplateTemplate.Name, and is useful for accessing the field via an interface.
+func (v *getTemplateTemplate) GetName() *string { return v.TemplateFragment.Name }
+
+// GetDescription returns getTemplateTemplate.Description, and is useful for accessing the field via an interface.
+func (v *getTemplateTemplate) GetDescription() string { return v.TemplateFragment.Description }
+
+// GetType returns getTemplateTemplate.Type, and is useful for accessing the field via an interface.
+func (v *getTemplateTemplate) GetType() *string { return v.TemplateFragment.Type }
+
+// GetTemplateData returns getTemplateTemplate.TemplateData, and is useful for accessing the field via an interface.
+func (v *getTemplateTemplate) GetTemplateData() *string { return v.TemplateFragment.TemplateData }
+
+func (v *getTemplateTemplate) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*getTemplateTemplate
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.getTemplateTemplate = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.TemplateFragment)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalgetTemplateTemplate struct {
+	Id string `json:"id"`
+
+	Team TemplateFragmentTeam `json:"team"`
+
+	Name *string `json:"name"`
+
+	Description string `json:"description"`
+
+	Type *string `json:"type"`
+
+	TemplateData *string `json:"templateData"`
+}
+
+func (v *getTemplateTemplate) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *getTemplateTemplate) __premarshalJSON() (*__premarshalgetTemplateTemplate, error) {
+	var retval __premarshalgetTemplateTemplate
+
+	retval.Id = v.TemplateFragment.Id
+	retval.Team = v.TemplateFragment.Team
+	retval.Name = v.TemplateFragment.Name
+	retval.Description = v.TemplateFragment.Description
+	retval.Type = v.TemplateFragment.Type
+	retval.TemplateData = v.TemplateFragment.TemplateData
+	return &retval, nil
+}
+
 // getWorkflowStateResponse is returned by getWorkflowState on success.
 type getWorkflowStateResponse struct {
 	// One specific state.
@@ -2735,6 +2982,267 @@ type getWorkspaceSettingsResponse struct {
 // GetOrganization returns getWorkspaceSettingsResponse.Organization, and is useful for accessing the field via an interface.
 func (v *getWorkspaceSettingsResponse) GetOrganization() getWorkspaceSettingsOrganization {
 	return v.Organization
+}
+
+// templateCreateResponse is returned by templateCreate on success.
+type templateCreateResponse struct {
+	// Creates a new template.
+	TemplateCreate templateCreateTemplateCreateTemplatePayload `json:"templateCreate"`
+}
+
+// GetTemplateCreate returns templateCreateResponse.TemplateCreate, and is useful for accessing the field via an interface.
+func (v *templateCreateResponse) GetTemplateCreate() templateCreateTemplateCreateTemplatePayload {
+	return v.TemplateCreate
+}
+
+// templateCreateTemplateCreateTemplatePayload includes the requested fields of the GraphQL type TemplatePayload.
+type templateCreateTemplateCreateTemplatePayload struct {
+	// The template that was created or updated.
+	Template templateCreateTemplateCreateTemplatePayloadTemplate `json:"template"`
+}
+
+// GetTemplate returns templateCreateTemplateCreateTemplatePayload.Template, and is useful for accessing the field via an interface.
+func (v *templateCreateTemplateCreateTemplatePayload) GetTemplate() templateCreateTemplateCreateTemplatePayloadTemplate {
+	return v.Template
+}
+
+// templateCreateTemplateCreateTemplatePayloadTemplate includes the requested fields of the GraphQL type Template.
+// The GraphQL type's documentation follows.
+//
+// A template object used for creating entities faster.
+type templateCreateTemplateCreateTemplatePayloadTemplate struct {
+	TemplateFragment `json:"-"`
+}
+
+// GetId returns templateCreateTemplateCreateTemplatePayloadTemplate.Id, and is useful for accessing the field via an interface.
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) GetId() string {
+	return v.TemplateFragment.Id
+}
+
+// GetTeam returns templateCreateTemplateCreateTemplatePayloadTemplate.Team, and is useful for accessing the field via an interface.
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) GetTeam() TemplateFragmentTeam {
+	return v.TemplateFragment.Team
+}
+
+// GetName returns templateCreateTemplateCreateTemplatePayloadTemplate.Name, and is useful for accessing the field via an interface.
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) GetName() *string {
+	return v.TemplateFragment.Name
+}
+
+// GetDescription returns templateCreateTemplateCreateTemplatePayloadTemplate.Description, and is useful for accessing the field via an interface.
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) GetDescription() string {
+	return v.TemplateFragment.Description
+}
+
+// GetType returns templateCreateTemplateCreateTemplatePayloadTemplate.Type, and is useful for accessing the field via an interface.
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) GetType() *string {
+	return v.TemplateFragment.Type
+}
+
+// GetTemplateData returns templateCreateTemplateCreateTemplatePayloadTemplate.TemplateData, and is useful for accessing the field via an interface.
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) GetTemplateData() *string {
+	return v.TemplateFragment.TemplateData
+}
+
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*templateCreateTemplateCreateTemplatePayloadTemplate
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.templateCreateTemplateCreateTemplatePayloadTemplate = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.TemplateFragment)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshaltemplateCreateTemplateCreateTemplatePayloadTemplate struct {
+	Id string `json:"id"`
+
+	Team TemplateFragmentTeam `json:"team"`
+
+	Name *string `json:"name"`
+
+	Description string `json:"description"`
+
+	Type *string `json:"type"`
+
+	TemplateData *string `json:"templateData"`
+}
+
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) __premarshalJSON() (*__premarshaltemplateCreateTemplateCreateTemplatePayloadTemplate, error) {
+	var retval __premarshaltemplateCreateTemplateCreateTemplatePayloadTemplate
+
+	retval.Id = v.TemplateFragment.Id
+	retval.Team = v.TemplateFragment.Team
+	retval.Name = v.TemplateFragment.Name
+	retval.Description = v.TemplateFragment.Description
+	retval.Type = v.TemplateFragment.Type
+	retval.TemplateData = v.TemplateFragment.TemplateData
+	return &retval, nil
+}
+
+// templateDeleteResponse is returned by templateDelete on success.
+type templateDeleteResponse struct {
+	// Deletes a template.
+	TemplateDelete templateDeleteTemplateDeleteDeletePayload `json:"templateDelete"`
+}
+
+// GetTemplateDelete returns templateDeleteResponse.TemplateDelete, and is useful for accessing the field via an interface.
+func (v *templateDeleteResponse) GetTemplateDelete() templateDeleteTemplateDeleteDeletePayload {
+	return v.TemplateDelete
+}
+
+// templateDeleteTemplateDeleteDeletePayload includes the requested fields of the GraphQL type DeletePayload.
+// The GraphQL type's documentation follows.
+//
+// A generic payload return from entity deletion mutations.
+type templateDeleteTemplateDeleteDeletePayload struct {
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns templateDeleteTemplateDeleteDeletePayload.Success, and is useful for accessing the field via an interface.
+func (v *templateDeleteTemplateDeleteDeletePayload) GetSuccess() bool { return v.Success }
+
+// templateUpdateResponse is returned by templateUpdate on success.
+type templateUpdateResponse struct {
+	// Updates an existing template.
+	TemplateUpdate templateUpdateTemplateUpdateTemplatePayload `json:"templateUpdate"`
+}
+
+// GetTemplateUpdate returns templateUpdateResponse.TemplateUpdate, and is useful for accessing the field via an interface.
+func (v *templateUpdateResponse) GetTemplateUpdate() templateUpdateTemplateUpdateTemplatePayload {
+	return v.TemplateUpdate
+}
+
+// templateUpdateTemplateUpdateTemplatePayload includes the requested fields of the GraphQL type TemplatePayload.
+type templateUpdateTemplateUpdateTemplatePayload struct {
+	// The template that was created or updated.
+	Template templateUpdateTemplateUpdateTemplatePayloadTemplate `json:"template"`
+}
+
+// GetTemplate returns templateUpdateTemplateUpdateTemplatePayload.Template, and is useful for accessing the field via an interface.
+func (v *templateUpdateTemplateUpdateTemplatePayload) GetTemplate() templateUpdateTemplateUpdateTemplatePayloadTemplate {
+	return v.Template
+}
+
+// templateUpdateTemplateUpdateTemplatePayloadTemplate includes the requested fields of the GraphQL type Template.
+// The GraphQL type's documentation follows.
+//
+// A template object used for creating entities faster.
+type templateUpdateTemplateUpdateTemplatePayloadTemplate struct {
+	TemplateFragment `json:"-"`
+}
+
+// GetId returns templateUpdateTemplateUpdateTemplatePayloadTemplate.Id, and is useful for accessing the field via an interface.
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) GetId() string {
+	return v.TemplateFragment.Id
+}
+
+// GetTeam returns templateUpdateTemplateUpdateTemplatePayloadTemplate.Team, and is useful for accessing the field via an interface.
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) GetTeam() TemplateFragmentTeam {
+	return v.TemplateFragment.Team
+}
+
+// GetName returns templateUpdateTemplateUpdateTemplatePayloadTemplate.Name, and is useful for accessing the field via an interface.
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) GetName() *string {
+	return v.TemplateFragment.Name
+}
+
+// GetDescription returns templateUpdateTemplateUpdateTemplatePayloadTemplate.Description, and is useful for accessing the field via an interface.
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) GetDescription() string {
+	return v.TemplateFragment.Description
+}
+
+// GetType returns templateUpdateTemplateUpdateTemplatePayloadTemplate.Type, and is useful for accessing the field via an interface.
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) GetType() *string {
+	return v.TemplateFragment.Type
+}
+
+// GetTemplateData returns templateUpdateTemplateUpdateTemplatePayloadTemplate.TemplateData, and is useful for accessing the field via an interface.
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) GetTemplateData() *string {
+	return v.TemplateFragment.TemplateData
+}
+
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*templateUpdateTemplateUpdateTemplatePayloadTemplate
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.templateUpdateTemplateUpdateTemplatePayloadTemplate = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.TemplateFragment)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshaltemplateUpdateTemplateUpdateTemplatePayloadTemplate struct {
+	Id string `json:"id"`
+
+	Team TemplateFragmentTeam `json:"team"`
+
+	Name *string `json:"name"`
+
+	Description string `json:"description"`
+
+	Type *string `json:"type"`
+
+	TemplateData *string `json:"templateData"`
+}
+
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) __premarshalJSON() (*__premarshaltemplateUpdateTemplateUpdateTemplatePayloadTemplate, error) {
+	var retval __premarshaltemplateUpdateTemplateUpdateTemplatePayloadTemplate
+
+	retval.Id = v.TemplateFragment.Id
+	retval.Team = v.TemplateFragment.Team
+	retval.Name = v.TemplateFragment.Name
+	retval.Description = v.TemplateFragment.Description
+	retval.Type = v.TemplateFragment.Type
+	retval.TemplateData = v.TemplateFragment.TemplateData
+	return &retval, nil
 }
 
 // updateLabelIssueLabelUpdateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
@@ -4017,6 +4525,48 @@ fragment WorkflowState on WorkflowState {
 	return &data, err
 }
 
+func getTemplate(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*getTemplateResponse, error) {
+	req := &graphql.Request{
+		OpName: "getTemplate",
+		Query: `
+query getTemplate ($id: String!) {
+	template(id: $id) {
+		... TemplateFragment
+	}
+}
+fragment TemplateFragment on Template {
+	id
+	team {
+		id
+	}
+	name
+	description
+	type
+	templateData
+}
+`,
+		Variables: &__getTemplateInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data getTemplateResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func getWorkflowState(
 	ctx context.Context,
 	client graphql.Client,
@@ -4114,6 +4664,128 @@ fragment Organization on Organization {
 	var err error
 
 	var data getWorkspaceSettingsResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func templateCreate(
+	ctx context.Context,
+	client graphql.Client,
+	input TemplateCreateInput,
+) (*templateCreateResponse, error) {
+	req := &graphql.Request{
+		OpName: "templateCreate",
+		Query: `
+mutation templateCreate ($input: TemplateCreateInput!) {
+	templateCreate(input: $input) {
+		template {
+			... TemplateFragment
+		}
+	}
+}
+fragment TemplateFragment on Template {
+	id
+	team {
+		id
+	}
+	name
+	description
+	type
+	templateData
+}
+`,
+		Variables: &__templateCreateInput{
+			Input: input,
+		},
+	}
+	var err error
+
+	var data templateCreateResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func templateDelete(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*templateDeleteResponse, error) {
+	req := &graphql.Request{
+		OpName: "templateDelete",
+		Query: `
+mutation templateDelete ($id: String!) {
+	templateDelete(id: $id) {
+		success
+	}
+}
+`,
+		Variables: &__templateDeleteInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data templateDeleteResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func templateUpdate(
+	ctx context.Context,
+	client graphql.Client,
+	input TemplateUpdateInput,
+	id string,
+) (*templateUpdateResponse, error) {
+	req := &graphql.Request{
+		OpName: "templateUpdate",
+		Query: `
+mutation templateUpdate ($input: TemplateUpdateInput!, $id: String!) {
+	templateUpdate(input: $input, id: $id) {
+		template {
+			... TemplateFragment
+		}
+	}
+}
+fragment TemplateFragment on Template {
+	id
+	team {
+		id
+	}
+	name
+	description
+	type
+	templateData
+}
+`,
+		Variables: &__templateUpdateInput{
+			Input: input,
+			Id:    id,
+		},
+	}
+	var err error
+
+	var data templateUpdateResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

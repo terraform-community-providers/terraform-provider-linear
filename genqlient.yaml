@@ -7,3 +7,5 @@ bindings:
     type: time.Time
   JSONObject:
     type: map[string]interface{}
+  JSON:
+    type: string
