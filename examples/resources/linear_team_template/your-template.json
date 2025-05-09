@@ -1,0 +1,32 @@
+{
+    "title": "Example template",
+    "descriptionData": {
+        "type": "doc",
+        "content": [
+            {
+                "type": "paragraph",
+                "content": [
+                    {
+                        "text": "Sample template.",
+                        "type": "text"
+                    }
+                  ]
+            },
+            {
+                "type": "horizontal_rule"
+            },
+            {
+                "type": "paragraph",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Sample template."
+                    }
+                ]
+            }
+        ]
+    },
+    "priority": 0,
+    "stateId": "put-a-state-id-eg-in-progress-here",
+    "teamId": "put-a-team-id-here"
+}
