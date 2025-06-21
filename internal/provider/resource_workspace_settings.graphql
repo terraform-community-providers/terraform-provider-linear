@@ -19,11 +19,21 @@ query getWorkspaceSettings {
 # @genqlient(for: "OrganizationUpdateInput.projectUpdateReminderFrequencyInWeeks", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.projectUpdateRemindersDay", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.projectUpdateRemindersHour", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.initiativeUpdateReminderFrequencyInWeeks", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.initiativeUpdateRemindersDay", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.initiativeUpdateRemindersHour", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.fiscalYearStartMonth", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.workingDays", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.reducedPersonalInformation", omitempty: true)
-# @genqlient(for: "OrganizationUpdateInput.allowedAuthServices", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.oauthAppReview", omitempty: true)
-# @genqlient(for: "OrganizationUpdateInput.slaDayCount", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.allowedAuthServices", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.slaEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.ipRestrictions", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.themeSettings", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.customersConfiguration", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.defaultFeedSummarySchedule", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.aiAddonEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.personalApiKeysEnabled", omitempty: true)
 mutation updateWorkspaceSettings(
   $input: OrganizationUpdateInput!,
 ) {

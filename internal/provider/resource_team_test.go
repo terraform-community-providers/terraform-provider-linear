@@ -24,7 +24,6 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestMatchResourceAttr("linear_team.test", "color", colorRegex()),
 					resource.TestCheckResourceAttr("linear_team.test", "private", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Etc/GMT"),
-					resource.TestCheckResourceAttr("linear_team.test", "no_priority_issues_first", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
@@ -88,7 +87,6 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestMatchResourceAttr("linear_team.test", "color", colorRegex()),
 					resource.TestCheckResourceAttr("linear_team.test", "private", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Etc/GMT"),
-					resource.TestCheckResourceAttr("linear_team.test", "no_priority_issues_first", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
@@ -145,7 +143,6 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_team.test", "private", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Europe/London"),
-					resource.TestCheckResourceAttr("linear_team.test", "no_priority_issues_first", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
@@ -219,7 +216,6 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_team.test", "private", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Europe/London"),
-					resource.TestCheckResourceAttr("linear_team.test", "no_priority_issues_first", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
@@ -283,7 +279,6 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_team.test", "private", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Europe/London"),
-					resource.TestCheckResourceAttr("linear_team.test", "no_priority_issues_first", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
@@ -340,7 +335,6 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_team.test", "private", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Etc/GMT"),
-					resource.TestCheckResourceAttr("linear_team.test", "no_priority_issues_first", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
@@ -416,7 +410,6 @@ resource "linear_team" "test" {
   icon = "Image"
   color = "#00ff00"
   timezone = "Europe/London"
-  no_priority_issues_first = false
   enable_issue_history_grouping = false
   enable_issue_default_to_bottom = true
   auto_archive_period = 3

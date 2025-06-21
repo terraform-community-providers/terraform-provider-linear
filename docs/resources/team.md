@@ -41,7 +41,6 @@ resource "linear_team" "example" {
 - `enable_issue_history_grouping` (Boolean) Enable issue history grouping for the team. **Default** `true`.
 - `estimation` (Attributes) Issue estimation settings of the team. (see [below for nested schema](#nestedatt--estimation))
 - `icon` (String) Icon of the team.
-- `no_priority_issues_first` (Boolean) Prefer issues without priority at the top during issue prioritization order. **Default** `true`.
 - `private` (Boolean) Privacy of the team. **Default** `false`.
 - `started_workflow_state` (Attributes) Settings for the `started` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--started_workflow_state))
 - `timezone` (String) Timezone of the team. **Default** `Etc/GMT`.

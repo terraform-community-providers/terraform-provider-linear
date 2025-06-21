@@ -1,3 +1,13 @@
+## 0.3.0
+
+### BREAKING
+* Removed `no_priority_issues_first` from `linear_team`
+
+### Enhancements
+
+### Bug Fixes
+* Fix issue with creating/updating team when cycles are enabled
+
 ## 0.2.6
 
 ### Bug Fixes

@@ -106,7 +106,6 @@ type TeamResourceModel struct {
 	Icon                       types.String  `tfsdk:"icon"`
 	Color                      types.String  `tfsdk:"color"`
 	Timezone                   types.String  `tfsdk:"timezone"`
-	NoPriorityIssuesFirst      types.Bool    `tfsdk:"no_priority_issues_first"`
 	EnableIssueHistoryGrouping types.Bool    `tfsdk:"enable_issue_history_grouping"`
 	EnableIssueDefaultToBottom types.Bool    `tfsdk:"enable_issue_default_to_bottom"`
 	AutoArchivePeriod          types.Float64 `tfsdk:"auto_archive_period"`
@@ -191,12 +190,6 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Validators: []validator.String{
 					stringvalidator.UTF8LengthAtLeast(1),
 				},
-			},
-			"no_priority_issues_first": schema.BoolAttribute{
-				MarkdownDescription: "Prefer issues without priority at the top during issue prioritization order. **Default** `true`.",
-				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(true),
 			},
 			"enable_issue_history_grouping": schema.BoolAttribute{
 				MarkdownDescription: "Enable issue history grouping for the team. **Default** `true`.",
@@ -689,7 +682,6 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		Private:                        data.Private.ValueBool(),
 		Description:                    data.Description.ValueStringPointer(),
 		Timezone:                       data.Timezone.ValueString(),
-		IssueOrderingNoPriorityFirst:   data.NoPriorityIssuesFirst.ValueBool(),
 		GroupIssueHistory:              data.EnableIssueHistoryGrouping.ValueBool(),
 		SetIssueSortOrderOnStateChange: setIssueSortOrderOnStateChange,
 		AutoArchivePeriod:              data.AutoArchivePeriod.ValueFloat64(),
@@ -761,7 +753,6 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	data.Icon = types.StringPointerValue(team.Icon)
 	data.Color = types.StringPointerValue(team.Color)
 	data.Timezone = types.StringValue(team.Timezone)
-	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
 	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
 	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
@@ -871,7 +862,6 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	data.Icon = types.StringPointerValue(team.Icon)
 	data.Color = types.StringPointerValue(team.Color)
 	data.Timezone = types.StringValue(team.Timezone)
-	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
 	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
 	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
@@ -974,7 +964,6 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		Private:                        data.Private.ValueBool(),
 		Description:                    data.Description.ValueStringPointer(),
 		Timezone:                       data.Timezone.ValueString(),
-		IssueOrderingNoPriorityFirst:   data.NoPriorityIssuesFirst.ValueBool(),
 		GroupIssueHistory:              data.EnableIssueHistoryGrouping.ValueBool(),
 		SetIssueSortOrderOnStateChange: setIssueSortOrderOnStateChange,
 		AutoArchivePeriod:              data.AutoArchivePeriod.ValueFloat64(),
@@ -1037,10 +1026,6 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	input.IssueEstimationAllowZero = estimationData.AllowZero.ValueBool()
 	input.DefaultIssueEstimate = estimationData.Default.ValueFloat64()
 
-	if input.CyclesEnabled {
-		input.CycleEnabledStartWeek = "nextWeek"
-	}
-
 	response, err := updateTeam(ctx, *r.client, input, state.Key.ValueString())
 
 	if err != nil {
@@ -1058,7 +1043,6 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	data.Icon = types.StringPointerValue(team.Icon)
 	data.Color = types.StringPointerValue(team.Color)
 	data.Timezone = types.StringValue(team.Timezone)
-	data.NoPriorityIssuesFirst = types.BoolValue(team.IssueOrderingNoPriorityFirst)
 	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
 	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
