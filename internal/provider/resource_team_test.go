@@ -29,6 +29,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "false"),
+					resource.TestCheckResourceAttr("linear_team.test", "triage.require_priority", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.duration", "1"),
@@ -92,6 +93,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "false"),
+					resource.TestCheckResourceAttr("linear_team.test", "triage.require_priority", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.duration", "1"),
@@ -148,6 +150,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "true"),
+					resource.TestCheckResourceAttr("linear_team.test", "triage.require_priority", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.duration", "3"),
@@ -221,6 +224,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "true"),
+					resource.TestCheckResourceAttr("linear_team.test", "triage.require_priority", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.duration", "3"),
@@ -284,6 +288,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "true"),
+					resource.TestCheckResourceAttr("linear_team.test", "triage.require_priority", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.duration", "3"),
@@ -340,6 +345,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "false"),
+					resource.TestCheckResourceAttr("linear_team.test", "triage.require_priority", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.start_day", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.duration", "1"),
@@ -416,7 +422,8 @@ resource "linear_team" "test" {
   auto_close_period = 0
 
   triage = {
-    enabled = true
+    enabled          = true
+    require_priority = true
   }
 
   cycles = {

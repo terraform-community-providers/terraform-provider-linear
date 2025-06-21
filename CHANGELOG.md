@@ -4,9 +4,11 @@
 * Removed `no_priority_issues_first` from `linear_team`
 
 ### Enhancements
+* Added `triage.require_priority` to `linear_team`
 
 ### Bug Fixes
 * Fix issue with creating/updating team when cycles are enabled
+* Fix issue with reading/creating/updating team workflow
 
 ## 0.2.6
 

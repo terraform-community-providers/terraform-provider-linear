@@ -38,11 +38,13 @@ type TeamResource struct {
 }
 
 type TeamResourceTriageModel struct {
-	Enabled types.Bool `tfsdk:"enabled"`
+	Enabled         types.Bool `tfsdk:"enabled"`
+	RequirePriority types.Bool `tfsdk:"require_priority"`
 }
 
 var triageAttrTypes = map[string]attr.Type{
-	"enabled": types.BoolType,
+	"enabled":          types.BoolType,
+	"require_priority": types.BoolType,
 }
 
 type TeamResourceCyclesModel struct {
@@ -229,13 +231,20 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 					types.ObjectValueMust(
 						triageAttrTypes,
 						map[string]attr.Value{
-							"enabled": types.BoolValue(false),
+							"enabled":          types.BoolValue(false),
+							"require_priority": types.BoolValue(false),
 						},
 					),
 				),
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
 						MarkdownDescription: "Enable triage mode for the team. **Default** `false`.",
+						Optional:            true,
+						Computed:            true,
+						Default:             booldefault.StaticBool(false),
+					},
+					"require_priority": schema.BoolAttribute{
+						MarkdownDescription: "Whether an issue needs to have a priority set before leaving triage. **Default** `false`.",
 						Optional:            true,
 						Computed:            true,
 						Default:             booldefault.StaticBool(false),
@@ -709,6 +718,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	input.TriageEnabled = triageData.Enabled.ValueBool()
+	input.RequirePriorityToLeaveTriage = triageData.RequirePriority.ValueBool()
 
 	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, basetypes.ObjectAsOptions{})...)
 
@@ -766,7 +776,8 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	data.Triage = types.ObjectValueMust(
 		triageAttrTypes,
 		map[string]attr.Value{
-			"enabled": types.BoolValue(team.TriageEnabled),
+			"enabled":          types.BoolValue(team.TriageEnabled),
+			"require_priority": types.BoolValue(team.RequirePriorityToLeaveTriage),
 		},
 	)
 
@@ -875,7 +886,8 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	data.Triage = types.ObjectValueMust(
 		triageAttrTypes,
 		map[string]attr.Value{
-			"enabled": types.BoolValue(team.TriageEnabled),
+			"enabled":          types.BoolValue(team.TriageEnabled),
+			"require_priority": types.BoolValue(team.RequirePriorityToLeaveTriage),
 		},
 	)
 
@@ -999,6 +1011,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	input.TriageEnabled = triageData.Enabled.ValueBool()
+	input.RequirePriorityToLeaveTriage = triageData.RequirePriority.ValueBool()
 
 	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, basetypes.ObjectAsOptions{})...)
 
@@ -1056,7 +1069,8 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	data.Triage = types.ObjectValueMust(
 		triageAttrTypes,
 		map[string]attr.Value{
-			"enabled": types.BoolValue(team.TriageEnabled),
+			"enabled":          types.BoolValue(team.TriageEnabled),
+			"require_priority": types.BoolValue(team.RequirePriorityToLeaveTriage),
 		},
 	)
 

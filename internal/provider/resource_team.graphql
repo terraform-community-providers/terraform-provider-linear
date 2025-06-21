@@ -16,6 +16,7 @@ fragment Team on Team {
   autoArchivePeriod
   autoClosePeriod
   triageEnabled
+  requirePriorityToLeaveTriage
   cyclesEnabled
   cycleStartDay
   cycleDuration
