@@ -77,6 +77,7 @@ type WorkspaceSettingsResourceModel struct {
 	AllowMembersToManageLabels      types.Bool   `tfsdk:"allow_members_to_manage_labels"`
 	EnableGitLinkbackMessages       types.Bool   `tfsdk:"enable_git_linkback_messages"`
 	EnableGitLinkbackMessagesPublic types.Bool   `tfsdk:"enable_git_linkback_messages_public"`
+	FiscalYearStartMonth            types.Int64  `tfsdk:"fiscal_year_start_month"`
 	Projects                        types.Object `tfsdk:"projects"`
 	Initiatives                     types.Object `tfsdk:"initiatives"`
 	Feed                            types.Object `tfsdk:"feed"`
@@ -126,6 +127,15 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
+			},
+			"fiscal_year_start_month": schema.Int64Attribute{
+				MarkdownDescription: "Month at which the fiscal year starts. **Default** `0` representing January.",
+				Optional:            true,
+				Computed:            true,
+				Default:             int64default.StaticInt64(0),
+				Validators: []validator.Int64{
+					int64validator.Between(0, 11),
+				},
 			},
 			"projects": schema.SingleNestedAttribute{
 				MarkdownDescription: "Project settings for the workspace.",
@@ -304,6 +314,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 		RoadmapEnabled:                           initiativesData.Enabled.ValueBool(),
 		GitLinkbackMessagesEnabled:               data.EnableGitLinkbackMessages.ValueBool(),
 		GitPublicLinkbackMessagesEnabled:         data.EnableGitLinkbackMessagesPublic.ValueBool(),
+		FiscalYearStartMonth:                     float64(data.FiscalYearStartMonth.ValueInt64()),
 		ProjectUpdateReminderFrequencyInWeeks:    float64(projectsData.UpdateReminderFrequency.ValueInt64()),
 		ProjectUpdateRemindersDay:                Day(projectsData.UpdateReminderDay.ValueString()),
 		ProjectUpdateRemindersHour:               float64(projectsData.UpdateReminderHour.ValueInt64()),
@@ -329,6 +340,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 	data.AllowMembersToManageLabels = types.BoolValue(!organization.RestrictLabelManagementToAdmins)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
+	data.FiscalYearStartMonth = types.Int64Value(int64(organization.FiscalYearStartMonth))
 
 	data.Projects = types.ObjectValueMust(
 		projectsAttrTypes,
@@ -384,6 +396,7 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 	data.AllowMembersToManageLabels = types.BoolValue(!organization.RestrictLabelManagementToAdmins)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
+	data.FiscalYearStartMonth = types.Int64Value(int64(organization.FiscalYearStartMonth))
 
 	data.Projects = types.ObjectValueMust(
 		projectsAttrTypes,
@@ -442,6 +455,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 		RoadmapEnabled:                           initiativesData.Enabled.ValueBool(),
 		GitLinkbackMessagesEnabled:               data.EnableGitLinkbackMessages.ValueBool(),
 		GitPublicLinkbackMessagesEnabled:         data.EnableGitLinkbackMessagesPublic.ValueBool(),
+		FiscalYearStartMonth:                     float64(data.FiscalYearStartMonth.ValueInt64()),
 		ProjectUpdateReminderFrequencyInWeeks:    float64(projectsData.UpdateReminderFrequency.ValueInt64()),
 		ProjectUpdateRemindersDay:                Day(projectsData.UpdateReminderDay.ValueString()),
 		ProjectUpdateRemindersHour:               float64(projectsData.UpdateReminderHour.ValueInt64()),
@@ -469,6 +483,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 	data.AllowMembersToManageLabels = types.BoolValue(!organization.RestrictLabelManagementToAdmins)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
+	data.FiscalYearStartMonth = types.Int64Value(int64(organization.FiscalYearStartMonth))
 
 	data.Projects = types.ObjectValueMust(
 		projectsAttrTypes,
@@ -515,6 +530,7 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 		RestrictLabelManagementToAdmins:          false,
 		GitLinkbackMessagesEnabled:               true,
 		GitPublicLinkbackMessagesEnabled:         false,
+		FiscalYearStartMonth:                     0,
 		ProjectUpdateReminderFrequencyInWeeks:    0,
 		ProjectUpdateRemindersDay:                Day("Friday"),
 		ProjectUpdateRemindersHour:               14,
