@@ -4,7 +4,7 @@
 * Removed `no_priority_issues_first` from `linear_team`
 
 ### Enhancements
-* Added `enable_thread_summaries` to `linear_team`
+* Added `enable_thread_summaries`, `auto_close_parent_issues` & `auto_close_child_issues` to `linear_team`
 * Added `triage.require_priority` to `linear_team`
 * Added `mergeable` to `linear_team_workflow`
 
