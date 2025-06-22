@@ -5,11 +5,10 @@
 * Move `enable_roadmap` to `initiatives.enabled` in `linear_workspace_settings`
 
 ### Enhancements
-* Added `enable_thread_summaries`, `auto_close_parent_issues` & `auto_close_child_issues` to `linear_team`
-* Added `triage.require_priority` to `linear_team`
+* Added `enable_thread_summaries`, `auto_close_parent_issues`, `auto_close_child_issues` & `triage.require_priority` to `linear_team`
 * Added `mergeable` to `linear_team_workflow`
 * Added `allow_members_to_create_teams` & `allow_members_to_manage_labels` to `linear_workspace_settings`
-* Added `projects` & `initiatives` nested blocks to `linear_workspace_settings`
+* Added `projects`, `initiatives`, & `feed` nested blocks to `linear_workspace_settings`
 * Allow `triage` in `type` for `linear_workflow_state`
 
 ### Bug Fixes

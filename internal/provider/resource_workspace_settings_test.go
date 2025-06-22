@@ -28,6 +28,8 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_day", "Friday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_hour", "14"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "0"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "daily"),
 				),
 			},
 			// ImportState testing
@@ -53,6 +55,8 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_day", "Friday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_hour", "14"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "0"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "daily"),
 				),
 			},
 			// Update and Read testing
@@ -72,6 +76,8 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_day", "Wednesday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_hour", "9"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "2"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "weekly"),
 				),
 			},
 			// ImportState testing
@@ -107,6 +113,8 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_day", "Wednesday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_hour", "9"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "2"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "weekly"),
 				),
 			},
 			// ImportState testing
@@ -132,6 +140,8 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_day", "Wednesday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_hour", "9"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "2"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "weekly"),
 				),
 			},
 			// Update with null values
@@ -151,6 +161,8 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_day", "Friday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_hour", "14"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "0"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "daily"),
 				),
 			},
 			// ImportState testing
@@ -191,6 +203,11 @@ resource "linear_workspace_settings" "test" {
 		update_reminder_day       = "Wednesday"
 		update_reminder_hour      = 9
 		update_reminder_frequency = 2
+	}
+
+	feed = {
+		enabled  = true
+		schedule = "weekly"
 	}
 }
 `
