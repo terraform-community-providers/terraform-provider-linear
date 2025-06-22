@@ -89,6 +89,29 @@ const (
 	GitAutomationStatesMerge     GitAutomationStates = "merge"
 )
 
+type GitAutomationTargetBranchCreateInput struct {
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id *string `json:"id,omitempty"`
+	// The team associated with the Git target branch automation.
+	TeamId string `json:"teamId"`
+	// The target branch pattern.
+	BranchPattern string `json:"branchPattern"`
+	// Whether the branch pattern is a regular expression.
+	IsRegex bool `json:"isRegex"`
+}
+
+// GetId returns GitAutomationTargetBranchCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *GitAutomationTargetBranchCreateInput) GetId() *string { return v.Id }
+
+// GetTeamId returns GitAutomationTargetBranchCreateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *GitAutomationTargetBranchCreateInput) GetTeamId() string { return v.TeamId }
+
+// GetBranchPattern returns GitAutomationTargetBranchCreateInput.BranchPattern, and is useful for accessing the field via an interface.
+func (v *GitAutomationTargetBranchCreateInput) GetBranchPattern() string { return v.BranchPattern }
+
+// GetIsRegex returns GitAutomationTargetBranchCreateInput.IsRegex, and is useful for accessing the field via an interface.
+func (v *GitAutomationTargetBranchCreateInput) GetIsRegex() bool { return v.IsRegex }
+
 // IssueLabel includes the GraphQL fields of IssueLabel requested by the fragment IssueLabel.
 // The GraphQL type's documentation follows.
 //
@@ -1225,10 +1248,17 @@ func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAuto
 //
 // A Git target branch for which there are automations (GitAutomationState).
 type TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
 	// The target branch pattern.
 	BranchPattern string `json:"branchPattern"`
 	// Whether the branch pattern is a regular expression.
 	IsRegex bool `json:"isRegex"`
+}
+
+// GetId returns TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch.Id, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch) GetId() string {
+	return v.Id
 }
 
 // GetBranchPattern returns TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch.BranchPattern, and is useful for accessing the field via an interface.
@@ -1364,6 +1394,16 @@ type __createGitAutomationStateInput struct {
 // GetInput returns __createGitAutomationStateInput.Input, and is useful for accessing the field via an interface.
 func (v *__createGitAutomationStateInput) GetInput() GitAutomationStateCreateInput { return v.Input }
 
+// __createGitAutomationTargetBranchInput is used internally by genqlient
+type __createGitAutomationTargetBranchInput struct {
+	Input GitAutomationTargetBranchCreateInput `json:"input"`
+}
+
+// GetInput returns __createGitAutomationTargetBranchInput.Input, and is useful for accessing the field via an interface.
+func (v *__createGitAutomationTargetBranchInput) GetInput() GitAutomationTargetBranchCreateInput {
+	return v.Input
+}
+
 // __createLabelInput is used internally by genqlient
 type __createLabelInput struct {
 	Input IssueLabelCreateInput `json:"input"`
@@ -1395,6 +1435,14 @@ type __deleteGitAutomationStateInput struct {
 
 // GetId returns __deleteGitAutomationStateInput.Id, and is useful for accessing the field via an interface.
 func (v *__deleteGitAutomationStateInput) GetId() string { return v.Id }
+
+// __deleteGitAutomationTargetBranchInput is used internally by genqlient
+type __deleteGitAutomationTargetBranchInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __deleteGitAutomationTargetBranchInput.Id, and is useful for accessing the field via an interface.
+func (v *__deleteGitAutomationTargetBranchInput) GetId() string { return v.Id }
 
 // __deleteLabelInput is used internally by genqlient
 type __deleteLabelInput struct {
@@ -1568,6 +1616,63 @@ type createGitAutomationStateResponse struct {
 // GetGitAutomationStateCreate returns createGitAutomationStateResponse.GitAutomationStateCreate, and is useful for accessing the field via an interface.
 func (v *createGitAutomationStateResponse) GetGitAutomationStateCreate() createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload {
 	return v.GitAutomationStateCreate
+}
+
+// createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload includes the requested fields of the GraphQL type GitAutomationTargetBranchPayload.
+type createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload struct {
+	// The Git target branch automation that was created or updated.
+	TargetBranch createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch `json:"targetBranch"`
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetTargetBranch returns createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload.TargetBranch, and is useful for accessing the field via an interface.
+func (v *createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload) GetTargetBranch() createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch {
+	return v.TargetBranch
+}
+
+// GetSuccess returns createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload.Success, and is useful for accessing the field via an interface.
+func (v *createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload) GetSuccess() bool {
+	return v.Success
+}
+
+// createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch includes the requested fields of the GraphQL type GitAutomationTargetBranch.
+// The GraphQL type's documentation follows.
+//
+// A Git target branch for which there are automations (GitAutomationState).
+type createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The target branch pattern.
+	BranchPattern string `json:"branchPattern"`
+	// Whether the branch pattern is a regular expression.
+	IsRegex bool `json:"isRegex"`
+}
+
+// GetId returns createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch.Id, and is useful for accessing the field via an interface.
+func (v *createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch) GetId() string {
+	return v.Id
+}
+
+// GetBranchPattern returns createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch.BranchPattern, and is useful for accessing the field via an interface.
+func (v *createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch) GetBranchPattern() string {
+	return v.BranchPattern
+}
+
+// GetIsRegex returns createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch.IsRegex, and is useful for accessing the field via an interface.
+func (v *createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch) GetIsRegex() bool {
+	return v.IsRegex
+}
+
+// createGitAutomationTargetBranchResponse is returned by createGitAutomationTargetBranch on success.
+type createGitAutomationTargetBranchResponse struct {
+	// Creates a Git target branch automation.
+	GitAutomationTargetBranchCreate createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload `json:"gitAutomationTargetBranchCreate"`
+}
+
+// GetGitAutomationTargetBranchCreate returns createGitAutomationTargetBranchResponse.GitAutomationTargetBranchCreate, and is useful for accessing the field via an interface.
+func (v *createGitAutomationTargetBranchResponse) GetGitAutomationTargetBranchCreate() createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload {
+	return v.GitAutomationTargetBranchCreate
 }
 
 // createLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
@@ -2116,6 +2221,31 @@ type deleteGitAutomationStateResponse struct {
 // GetGitAutomationStateDelete returns deleteGitAutomationStateResponse.GitAutomationStateDelete, and is useful for accessing the field via an interface.
 func (v *deleteGitAutomationStateResponse) GetGitAutomationStateDelete() deleteGitAutomationStateGitAutomationStateDeleteDeletePayload {
 	return v.GitAutomationStateDelete
+}
+
+// deleteGitAutomationTargetBranchGitAutomationTargetBranchDeleteDeletePayload includes the requested fields of the GraphQL type DeletePayload.
+// The GraphQL type's documentation follows.
+//
+// A generic payload return from entity deletion mutations.
+type deleteGitAutomationTargetBranchGitAutomationTargetBranchDeleteDeletePayload struct {
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns deleteGitAutomationTargetBranchGitAutomationTargetBranchDeleteDeletePayload.Success, and is useful for accessing the field via an interface.
+func (v *deleteGitAutomationTargetBranchGitAutomationTargetBranchDeleteDeletePayload) GetSuccess() bool {
+	return v.Success
+}
+
+// deleteGitAutomationTargetBranchResponse is returned by deleteGitAutomationTargetBranch on success.
+type deleteGitAutomationTargetBranchResponse struct {
+	// Archives a Git target branch automation.
+	GitAutomationTargetBranchDelete deleteGitAutomationTargetBranchGitAutomationTargetBranchDeleteDeletePayload `json:"gitAutomationTargetBranchDelete"`
+}
+
+// GetGitAutomationTargetBranchDelete returns deleteGitAutomationTargetBranchResponse.GitAutomationTargetBranchDelete, and is useful for accessing the field via an interface.
+func (v *deleteGitAutomationTargetBranchResponse) GetGitAutomationTargetBranchDelete() deleteGitAutomationTargetBranchGitAutomationTargetBranchDeleteDeletePayload {
+	return v.GitAutomationTargetBranchDelete
 }
 
 // deleteLabelIssueLabelDeleteDeletePayload includes the requested fields of the GraphQL type DeletePayload.
@@ -3958,6 +4088,43 @@ mutation createGitAutomationState ($input: GitAutomationStateCreateInput!) {
 	return &data, err
 }
 
+func createGitAutomationTargetBranch(
+	ctx context.Context,
+	client graphql.Client,
+	input GitAutomationTargetBranchCreateInput,
+) (*createGitAutomationTargetBranchResponse, error) {
+	req := &graphql.Request{
+		OpName: "createGitAutomationTargetBranch",
+		Query: `
+mutation createGitAutomationTargetBranch ($input: GitAutomationTargetBranchCreateInput!) {
+	gitAutomationTargetBranchCreate(input: $input) {
+		targetBranch {
+			id
+			branchPattern
+			isRegex
+		}
+		success
+	}
+}
+`,
+		Variables: &__createGitAutomationTargetBranchInput{
+			Input: input,
+		},
+	}
+	var err error
+
+	var data createGitAutomationTargetBranchResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func createLabel(
 	ctx context.Context,
 	client graphql.Client,
@@ -4135,6 +4302,38 @@ mutation deleteGitAutomationState ($id: String!) {
 	var err error
 
 	var data deleteGitAutomationStateResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func deleteGitAutomationTargetBranch(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*deleteGitAutomationTargetBranchResponse, error) {
+	req := &graphql.Request{
+		OpName: "deleteGitAutomationTargetBranch",
+		Query: `
+mutation deleteGitAutomationTargetBranch ($id: String!) {
+	gitAutomationTargetBranchDelete(id: $id) {
+		success
+	}
+}
+`,
+		Variables: &__deleteGitAutomationTargetBranchInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data deleteGitAutomationTargetBranchResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -4482,6 +4681,7 @@ fragment TeamWorkflow on Team {
 			}
 			event
 			targetBranch {
+				id
 				branchPattern
 				isRegex
 			}

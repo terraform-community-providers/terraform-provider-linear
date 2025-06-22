@@ -11,6 +11,7 @@ fragment TeamWorkflow on Team {
       }
       event
       targetBranch {
+        id
         branchPattern
         isRegex
       }
@@ -48,6 +49,26 @@ mutation updateGitAutomationState(
 
 mutation deleteGitAutomationState($id: String!) {
   gitAutomationStateDelete(id: $id) {
+    success
+  }
+}
+
+# @genqlient(for: "GitAutomationTargetBranchCreateInput.id", omitempty: true, pointer: true)
+mutation createGitAutomationTargetBranch(
+  $input: GitAutomationTargetBranchCreateInput!
+) {
+  gitAutomationTargetBranchCreate(input: $input) {
+    targetBranch {
+      id
+      branchPattern
+      isRegex
+    }
+    success
+  }
+}
+
+mutation deleteGitAutomationTargetBranch($id: String!) {
+  gitAutomationTargetBranchDelete(id: $id) {
     success
   }
 }
