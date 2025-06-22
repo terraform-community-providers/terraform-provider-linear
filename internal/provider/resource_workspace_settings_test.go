@@ -22,6 +22,9 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Friday"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "14"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "0"),
 				),
 			},
 			// ImportState testing
@@ -41,6 +44,9 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Friday"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "14"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "0"),
 				),
 			},
 			// Update and Read testing
@@ -54,6 +60,9 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Wednesday"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "9"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "2"),
 				),
 			},
 			// ImportState testing
@@ -83,6 +92,9 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Wednesday"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "9"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "2"),
 				),
 			},
 			// ImportState testing
@@ -102,6 +114,9 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Wednesday"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "9"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "2"),
 				),
 			},
 			// Update with null values
@@ -115,6 +130,9 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_roadmap", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Friday"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "14"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "0"),
 				),
 			},
 			// ImportState testing
@@ -144,6 +162,12 @@ resource "linear_workspace_settings" "test" {
 	enable_roadmap = true
 	enable_git_linkback_messages = false
 	enable_git_linkback_messages_public = true
+
+	projects = {
+		update_reminder_day       = "Wednesday"
+		update_reminder_hour      = 9
+		update_reminder_frequency = 2
+	}
 }
 `
 }

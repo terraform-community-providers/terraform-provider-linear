@@ -8,6 +8,8 @@
 * Added `triage.require_priority` to `linear_team`
 * Added `mergeable` to `linear_team_workflow`
 * Added `allow_members_to_create_teams` & `allow_members_to_manage_labels` to `linear_workspace_settings`
+* Added `projects` nested block to `linear_workspace_settings`
+* Allow `triage` in `type` for `linear_workflow_state`
 
 ### Bug Fixes
 * Fix issue with creating/updating team when cycles are enabled
