@@ -105,6 +105,7 @@ type TeamResourceModel struct {
 	Key                        types.String  `tfsdk:"key"`
 	Name                       types.String  `tfsdk:"name"`
 	Private                    types.Bool    `tfsdk:"private"`
+	ParentId                   types.String  `tfsdk:"parent_id"`
 	Description                types.String  `tfsdk:"description"`
 	Icon                       types.String  `tfsdk:"icon"`
 	Color                      types.String  `tfsdk:"color"`
@@ -161,6 +162,13 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
+			},
+			"parent_id": schema.StringAttribute{
+				MarkdownDescription: "Identifier of the parent team.",
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
+				},
 			},
 			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the team.",
@@ -711,6 +719,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		Key:                            data.Key.ValueString(),
 		Name:                           data.Name.ValueString(),
 		Private:                        data.Private.ValueBool(),
+		ParentId:                       data.ParentId.ValueStringPointer(),
 		Description:                    data.Description.ValueStringPointer(),
 		Timezone:                       data.Timezone.ValueString(),
 		GroupIssueHistory:              data.EnableIssueHistoryGrouping.ValueBool(),
@@ -866,6 +875,12 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	data.AutoCloseParentIssues = types.BoolValue(team.AutoCloseParentIssues)
 	data.AutoCloseChildIssues = types.BoolValue(team.AutoCloseChildIssues)
 
+	if team.Parent != nil {
+		data.ParentId = types.StringValue(team.Parent.Id)
+	} else {
+		data.ParentId = types.StringNull()
+	}
+
 	if team.AutoClosePeriod != nil {
 		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
 	} else {
@@ -1014,6 +1029,7 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 
 	input := TeamUpdateInput{
 		Private:                        data.Private.ValueBool(),
+		ParentId:                       data.ParentId.ValueStringPointer(),
 		Description:                    data.Description.ValueStringPointer(),
 		Timezone:                       data.Timezone.ValueString(),
 		GroupIssueHistory:              data.EnableIssueHistoryGrouping.ValueBool(),
@@ -1107,6 +1123,12 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
 	data.AutoCloseParentIssues = types.BoolValue(team.AutoCloseParentIssues)
 	data.AutoCloseChildIssues = types.BoolValue(team.AutoCloseChildIssues)
+
+	if team.Parent != nil {
+		data.ParentId = types.StringValue(team.Parent.Id)
+	} else {
+		data.ParentId = types.StringNull()
+	}
 
 	if team.AutoClosePeriod != nil {
 		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)

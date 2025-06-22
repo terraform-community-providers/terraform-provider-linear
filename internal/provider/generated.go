@@ -584,6 +584,8 @@ type Team struct {
 	Icon *string `json:"icon"`
 	// The team's color.
 	Color *string `json:"color"`
+	// [Internal] The team's parent team.
+	Parent *TeamParentTeam `json:"parent"`
 	// The timezone of the team. Defaults to "America/Los_Angeles"
 	Timezone string `json:"timezone"`
 	// Whether to group recent issue history entries.
@@ -650,6 +652,9 @@ func (v *Team) GetIcon() *string { return v.Icon }
 
 // GetColor returns Team.Color, and is useful for accessing the field via an interface.
 func (v *Team) GetColor() *string { return v.Color }
+
+// GetParent returns Team.Parent, and is useful for accessing the field via an interface.
+func (v *Team) GetParent() *TeamParentTeam { return v.Parent }
 
 // GetTimezone returns Team.Timezone, and is useful for accessing the field via an interface.
 func (v *Team) GetTimezone() string { return v.Timezone }
@@ -785,7 +790,7 @@ type TeamCreateInput struct {
 	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
 	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
 	// The parent team ID.
-	ParentId *string `json:"parentId,omitempty"`
+	ParentId *string `json:"parentId"`
 	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.
 	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope"`
 	// [Internal] The scope of product intelligence suggestion data for the team.
@@ -916,6 +921,18 @@ func (v *TeamCreateInput) GetProductIntelligenceScope() ProductIntelligenceScope
 	return v.ProductIntelligenceScope
 }
 
+// TeamParentTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// An organizational unit that contains issues.
+type TeamParentTeam struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns TeamParentTeam.Id, and is useful for accessing the field via an interface.
+func (v *TeamParentTeam) GetId() string { return v.Id }
+
 type TeamUpdateInput struct {
 	// The name of the team.
 	Name string `json:"name,omitempty"`
@@ -1000,7 +1017,7 @@ type TeamUpdateInput struct {
 	// Whether the team is managed by SCIM integration. Mutation restricted to workspace admins and only unsetting is allowed!
 	ScimManaged bool `json:"scimManaged"`
 	// The parent team ID.
-	ParentId *string `json:"parentId,omitempty"`
+	ParentId *string `json:"parentId"`
 	// [Internal] Whether the team should inherit workflow statuses from its parent.
 	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
 	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.
@@ -1843,6 +1860,9 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetIcon() *string { return v.Team.
 // GetColor returns createTeamTeamCreateTeamPayloadTeam.Color, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetColor() *string { return v.Team.Color }
 
+// GetParent returns createTeamTeamCreateTeamPayloadTeam.Parent, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetParent() *TeamParentTeam { return v.Team.Parent }
+
 // GetTimezone returns createTeamTeamCreateTeamPayloadTeam.Timezone, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetTimezone() string { return v.Team.Timezone }
 
@@ -1983,6 +2003,8 @@ type __premarshalcreateTeamTeamCreateTeamPayloadTeam struct {
 
 	Color *string `json:"color"`
 
+	Parent *TeamParentTeam `json:"parent"`
+
 	Timezone string `json:"timezone"`
 
 	GroupIssueHistory bool `json:"groupIssueHistory"`
@@ -2046,6 +2068,7 @@ func (v *createTeamTeamCreateTeamPayloadTeam) __premarshalJSON() (*__premarshalc
 	retval.Description = v.Team.Description
 	retval.Icon = v.Team.Icon
 	retval.Color = v.Team.Color
+	retval.Parent = v.Team.Parent
 	retval.Timezone = v.Team.Timezone
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
 	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
@@ -2573,6 +2596,9 @@ func (v *getTeamTeam) GetIcon() *string { return v.Team.Icon }
 // GetColor returns getTeamTeam.Color, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetColor() *string { return v.Team.Color }
 
+// GetParent returns getTeamTeam.Parent, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetParent() *TeamParentTeam { return v.Team.Parent }
+
 // GetTimezone returns getTeamTeam.Timezone, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetTimezone() string { return v.Team.Timezone }
 
@@ -2687,6 +2713,8 @@ type __premarshalgetTeamTeam struct {
 
 	Color *string `json:"color"`
 
+	Parent *TeamParentTeam `json:"parent"`
+
 	Timezone string `json:"timezone"`
 
 	GroupIssueHistory bool `json:"groupIssueHistory"`
@@ -2750,6 +2778,7 @@ func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
 	retval.Description = v.Team.Description
 	retval.Icon = v.Team.Icon
 	retval.Color = v.Team.Color
+	retval.Parent = v.Team.Parent
 	retval.Timezone = v.Team.Timezone
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
 	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
@@ -3494,6 +3523,9 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIcon() *string { return v.Team.
 // GetColor returns updateTeamTeamUpdateTeamPayloadTeam.Color, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetColor() *string { return v.Team.Color }
 
+// GetParent returns updateTeamTeamUpdateTeamPayloadTeam.Parent, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetParent() *TeamParentTeam { return v.Team.Parent }
+
 // GetTimezone returns updateTeamTeamUpdateTeamPayloadTeam.Timezone, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetTimezone() string { return v.Team.Timezone }
 
@@ -3634,6 +3666,8 @@ type __premarshalupdateTeamTeamUpdateTeamPayloadTeam struct {
 
 	Color *string `json:"color"`
 
+	Parent *TeamParentTeam `json:"parent"`
+
 	Timezone string `json:"timezone"`
 
 	GroupIssueHistory bool `json:"groupIssueHistory"`
@@ -3697,6 +3731,7 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalu
 	retval.Description = v.Team.Description
 	retval.Icon = v.Team.Icon
 	retval.Color = v.Team.Color
+	retval.Parent = v.Team.Parent
 	retval.Timezone = v.Team.Timezone
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
 	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
@@ -4194,6 +4229,9 @@ fragment Team on Team {
 	description
 	icon
 	color
+	parent {
+		id
+	}
 	timezone
 	groupIssueHistory
 	setIssueSortOrderOnStateChange
@@ -4615,6 +4653,9 @@ fragment Team on Team {
 	description
 	icon
 	color
+	parent {
+		id
+	}
 	timezone
 	groupIssueHistory
 	setIssueSortOrderOnStateChange
@@ -4978,6 +5019,9 @@ fragment Team on Team {
 	description
 	icon
 	color
+	parent {
+		id
+	}
 	timezone
 	groupIssueHistory
 	setIssueSortOrderOnStateChange
