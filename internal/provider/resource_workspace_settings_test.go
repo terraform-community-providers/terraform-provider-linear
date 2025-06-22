@@ -31,6 +31,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "0"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "daily"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "customers.enabled", "false"),
 				),
 			},
 			// ImportState testing
@@ -59,6 +60,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "0"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "daily"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "customers.enabled", "false"),
 				),
 			},
 			// Update and Read testing
@@ -81,6 +83,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "2"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "weekly"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "customers.enabled", "true"),
 				),
 			},
 			// ImportState testing
@@ -119,6 +122,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "2"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "weekly"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "customers.enabled", "true"),
 				),
 			},
 			// ImportState testing
@@ -147,6 +151,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "2"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "weekly"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "customers.enabled", "true"),
 				),
 			},
 			// Update with null values
@@ -169,6 +174,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "initiatives.update_reminder_frequency", "0"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.enabled", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "feed.schedule", "daily"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "customers.enabled", "false"),
 				),
 			},
 			// ImportState testing
@@ -215,6 +221,10 @@ resource "linear_workspace_settings" "test" {
 	feed = {
 		enabled  = true
 		schedule = "weekly"
+	}
+
+	customers = {
+		enabled = true
 	}
 }
 `

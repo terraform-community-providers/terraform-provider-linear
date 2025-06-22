@@ -70,6 +70,14 @@ var feedAttrTypes = map[string]attr.Type{
 	"schedule": types.StringType,
 }
 
+type WorkspaceSettingsResourceCustomersModel struct {
+	Enabled types.Bool `tfsdk:"enabled"`
+}
+
+var customersAttrTypes = map[string]attr.Type{
+	"enabled": types.BoolType,
+}
+
 type WorkspaceSettingsResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
 	AllowMembersToInvite            types.Bool   `tfsdk:"allow_members_to_invite"`
@@ -81,6 +89,7 @@ type WorkspaceSettingsResourceModel struct {
 	Projects                        types.Object `tfsdk:"projects"`
 	Initiatives                     types.Object `tfsdk:"initiatives"`
 	Feed                            types.Object `tfsdk:"feed"`
+	Customers                       types.Object `tfsdk:"customers"`
 }
 
 func (r *WorkspaceSettingsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -198,7 +207,7 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 				),
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
-						MarkdownDescription: "Enable roadmap for initiatives. **Default** `false`.",
+						MarkdownDescription: "Enable initiatives. **Default** `false`.",
 						Optional:            true,
 						Computed:            true,
 						Default:             booldefault.StaticBool(false),
@@ -263,6 +272,27 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 					},
 				},
 			},
+			"customers": schema.SingleNestedAttribute{
+				MarkdownDescription: "Customer Requests settings for the workspace.",
+				Optional:            true,
+				Computed:            true,
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						customersAttrTypes,
+						map[string]attr.Value{
+							"enabled": types.BoolValue(false),
+						},
+					),
+				),
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						MarkdownDescription: "Enable customer requests. **Default** `false`.",
+						Optional:            true,
+						Computed:            true,
+						Default:             booldefault.StaticBool(false),
+					},
+				},
+			},
 		},
 	}
 }
@@ -292,6 +322,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 	var projectsData *WorkspaceSettingsResourceProjectsModel
 	var initiativesData *WorkspaceSettingsResourceInitiativesModel
 	var feedData *WorkspaceSettingsResourceFeedModel
+	var customersData *WorkspaceSettingsResourceCustomersModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
@@ -302,6 +333,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 	resp.Diagnostics.Append(data.Projects.As(ctx, &projectsData, basetypes.ObjectAsOptions{})...)
 	resp.Diagnostics.Append(data.Initiatives.As(ctx, &initiativesData, basetypes.ObjectAsOptions{})...)
 	resp.Diagnostics.Append(data.Feed.As(ctx, &feedData, basetypes.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Customers.As(ctx, &customersData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -323,6 +355,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 		InitiativeUpdateRemindersHour:            float64(initiativesData.UpdateReminderHour.ValueInt64()),
 		FeedEnabled:                              feedData.Enabled.ValueBool(),
 		DefaultFeedSummarySchedule:               FeedSummarySchedule(feedData.Schedule.ValueString()),
+		CustomersEnabled:                         customersData.Enabled.ValueBool(),
 	}
 
 	response, err := updateWorkspaceSettings(ctx, *r.client, input)
@@ -366,6 +399,13 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 		map[string]attr.Value{
 			"enabled":  types.BoolValue(organization.FeedEnabled),
 			"schedule": types.StringValue(string(organization.DefaultFeedSummarySchedule)),
+		},
+	)
+
+	data.Customers = types.ObjectValueMust(
+		customersAttrTypes,
+		map[string]attr.Value{
+			"enabled": types.BoolValue(customersData.Enabled.ValueBool()),
 		},
 	)
 
@@ -425,6 +465,13 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 		},
 	)
 
+	data.Customers = types.ObjectValueMust(
+		customersAttrTypes,
+		map[string]attr.Value{
+			"enabled": types.BoolValue(organization.CustomersEnabled),
+		},
+	)
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -433,6 +480,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 	var projectsData *WorkspaceSettingsResourceProjectsModel
 	var initiativesData *WorkspaceSettingsResourceInitiativesModel
 	var feedData *WorkspaceSettingsResourceFeedModel
+	var customersData *WorkspaceSettingsResourceCustomersModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
@@ -443,6 +491,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 	resp.Diagnostics.Append(data.Projects.As(ctx, &projectsData, basetypes.ObjectAsOptions{})...)
 	resp.Diagnostics.Append(data.Initiatives.As(ctx, &initiativesData, basetypes.ObjectAsOptions{})...)
 	resp.Diagnostics.Append(data.Feed.As(ctx, &feedData, basetypes.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Customers.As(ctx, &customersData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -464,6 +513,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 		InitiativeUpdateRemindersHour:            float64(initiativesData.UpdateReminderHour.ValueInt64()),
 		FeedEnabled:                              feedData.Enabled.ValueBool(),
 		DefaultFeedSummarySchedule:               FeedSummarySchedule(feedData.Schedule.ValueString()),
+		CustomersEnabled:                         customersData.Enabled.ValueBool(),
 	}
 
 	response, err := updateWorkspaceSettings(ctx, *r.client, input)
@@ -512,6 +562,13 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 		},
 	)
 
+	data.Customers = types.ObjectValueMust(
+		customersAttrTypes,
+		map[string]attr.Value{
+			"enabled": types.BoolValue(customersData.Enabled.ValueBool()),
+		},
+	)
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -540,6 +597,7 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 		InitiativeUpdateRemindersHour:            14,
 		FeedEnabled:                              false,
 		DefaultFeedSummarySchedule:               FeedSummarySchedule("daily"),
+		CustomersEnabled:                         false,
 	}
 
 	_, err := updateWorkspaceSettings(ctx, *r.client, input)

@@ -15,6 +15,7 @@ fragment Organization on Organization {
   initiativeUpdateRemindersHour
   feedEnabled
   defaultFeedSummarySchedule
+  customersEnabled
 }
 
 query getWorkspaceSettings {
@@ -34,7 +35,7 @@ query getWorkspaceSettings {
 # @genqlient(for: "OrganizationUpdateInput.slaEnabled", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.ipRestrictions", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.themeSettings", omitempty: true)
-# @genqlient(for: "OrganizationUpdateInput.customersConfiguration", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.customersConfiguration", omitempty: true, pointer: true)
 # @genqlient(for: "OrganizationUpdateInput.aiAddonEnabled", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.personalApiKeysEnabled", omitempty: true)
 mutation updateWorkspaceSettings(
