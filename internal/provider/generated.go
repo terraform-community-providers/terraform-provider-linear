@@ -503,6 +503,8 @@ type Team struct {
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
 	// Whether triage mode is enabled for the team or not.
 	TriageEnabled bool `json:"triageEnabled"`
+	// Whether an issue needs to have a priority set before leaving triage.
+	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
 	// Whether the team uses cycles.
 	CyclesEnabled bool `json:"cyclesEnabled"`
 	// The day of the week that a new cycle starts.
@@ -567,6 +569,9 @@ func (v *Team) GetAutoClosePeriod() *float64 { return v.AutoClosePeriod }
 
 // GetTriageEnabled returns Team.TriageEnabled, and is useful for accessing the field via an interface.
 func (v *Team) GetTriageEnabled() bool { return v.TriageEnabled }
+
+// GetRequirePriorityToLeaveTriage returns Team.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
+func (v *Team) GetRequirePriorityToLeaveTriage() bool { return v.RequirePriorityToLeaveTriage }
 
 // GetCyclesEnabled returns Team.CyclesEnabled, and is useful for accessing the field via an interface.
 func (v *Team) GetCyclesEnabled() bool { return v.CyclesEnabled }
@@ -1674,6 +1679,11 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetAutoClosePeriod() *float64 {
 // GetTriageEnabled returns createTeamTeamCreateTeamPayloadTeam.TriageEnabled, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetTriageEnabled() bool { return v.Team.TriageEnabled }
 
+// GetRequirePriorityToLeaveTriage returns createTeamTeamCreateTeamPayloadTeam.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetRequirePriorityToLeaveTriage() bool {
+	return v.Team.RequirePriorityToLeaveTriage
+}
+
 // GetCyclesEnabled returns createTeamTeamCreateTeamPayloadTeam.CyclesEnabled, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetCyclesEnabled() bool { return v.Team.CyclesEnabled }
 
@@ -1780,6 +1790,8 @@ type __premarshalcreateTeamTeamCreateTeamPayloadTeam struct {
 
 	TriageEnabled bool `json:"triageEnabled"`
 
+	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
+
 	CyclesEnabled bool `json:"cyclesEnabled"`
 
 	CycleStartDay float64 `json:"cycleStartDay"`
@@ -1829,6 +1841,7 @@ func (v *createTeamTeamCreateTeamPayloadTeam) __premarshalJSON() (*__premarshalc
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
 	retval.AutoClosePeriod = v.Team.AutoClosePeriod
 	retval.TriageEnabled = v.Team.TriageEnabled
+	retval.RequirePriorityToLeaveTriage = v.Team.RequirePriorityToLeaveTriage
 	retval.CyclesEnabled = v.Team.CyclesEnabled
 	retval.CycleStartDay = v.Team.CycleStartDay
 	retval.CycleDuration = v.Team.CycleDuration
@@ -2341,6 +2354,11 @@ func (v *getTeamTeam) GetAutoClosePeriod() *float64 { return v.Team.AutoClosePer
 // GetTriageEnabled returns getTeamTeam.TriageEnabled, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetTriageEnabled() bool { return v.Team.TriageEnabled }
 
+// GetRequirePriorityToLeaveTriage returns getTeamTeam.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetRequirePriorityToLeaveTriage() bool {
+	return v.Team.RequirePriorityToLeaveTriage
+}
+
 // GetCyclesEnabled returns getTeamTeam.CyclesEnabled, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetCyclesEnabled() bool { return v.Team.CyclesEnabled }
 
@@ -2433,6 +2451,8 @@ type __premarshalgetTeamTeam struct {
 
 	TriageEnabled bool `json:"triageEnabled"`
 
+	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
+
 	CyclesEnabled bool `json:"cyclesEnabled"`
 
 	CycleStartDay float64 `json:"cycleStartDay"`
@@ -2482,6 +2502,7 @@ func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
 	retval.AutoClosePeriod = v.Team.AutoClosePeriod
 	retval.TriageEnabled = v.Team.TriageEnabled
+	retval.RequirePriorityToLeaveTriage = v.Team.RequirePriorityToLeaveTriage
 	retval.CyclesEnabled = v.Team.CyclesEnabled
 	retval.CycleStartDay = v.Team.CycleStartDay
 	retval.CycleDuration = v.Team.CycleDuration
@@ -3148,6 +3169,11 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAutoClosePeriod() *float64 {
 // GetTriageEnabled returns updateTeamTeamUpdateTeamPayloadTeam.TriageEnabled, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetTriageEnabled() bool { return v.Team.TriageEnabled }
 
+// GetRequirePriorityToLeaveTriage returns updateTeamTeamUpdateTeamPayloadTeam.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetRequirePriorityToLeaveTriage() bool {
+	return v.Team.RequirePriorityToLeaveTriage
+}
+
 // GetCyclesEnabled returns updateTeamTeamUpdateTeamPayloadTeam.CyclesEnabled, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetCyclesEnabled() bool { return v.Team.CyclesEnabled }
 
@@ -3254,6 +3280,8 @@ type __premarshalupdateTeamTeamUpdateTeamPayloadTeam struct {
 
 	TriageEnabled bool `json:"triageEnabled"`
 
+	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
+
 	CyclesEnabled bool `json:"cyclesEnabled"`
 
 	CycleStartDay float64 `json:"cycleStartDay"`
@@ -3303,6 +3331,7 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalu
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
 	retval.AutoClosePeriod = v.Team.AutoClosePeriod
 	retval.TriageEnabled = v.Team.TriageEnabled
+	retval.RequirePriorityToLeaveTriage = v.Team.RequirePriorityToLeaveTriage
 	retval.CyclesEnabled = v.Team.CyclesEnabled
 	retval.CycleStartDay = v.Team.CycleStartDay
 	retval.CycleDuration = v.Team.CycleDuration
@@ -3663,6 +3692,7 @@ fragment Team on Team {
 	autoArchivePeriod
 	autoClosePeriod
 	triageEnabled
+	requirePriorityToLeaveTriage
 	cyclesEnabled
 	cycleStartDay
 	cycleDuration
@@ -4048,6 +4078,7 @@ fragment Team on Team {
 	autoArchivePeriod
 	autoClosePeriod
 	triageEnabled
+	requirePriorityToLeaveTriage
 	cyclesEnabled
 	cycleStartDay
 	cycleDuration
@@ -4394,6 +4425,7 @@ fragment Team on Team {
 	autoArchivePeriod
 	autoClosePeriod
 	triageEnabled
+	requirePriorityToLeaveTriage
 	cyclesEnabled
 	cycleStartDay
 	cycleDuration

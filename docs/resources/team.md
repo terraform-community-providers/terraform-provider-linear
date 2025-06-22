@@ -143,6 +143,7 @@ Read-Only:
 Optional:
 
 - `enabled` (Boolean) Enable triage mode for the team. **Default** `false`.
+- `require_priority` (Boolean) Whether an issue needs to have a priority set before leaving triage. **Default** `false`.
 
 
 <a id="nestedatt--unstarted_workflow_state"></a>
