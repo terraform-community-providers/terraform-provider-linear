@@ -4,6 +4,8 @@ fragment Organization on Organization {
   roadmapEnabled
   gitLinkbackMessagesEnabled
   gitPublicLinkbackMessagesEnabled
+  restrictTeamCreationToAdmins
+  restrictLabelManagementToAdmins
 }
 
 query getWorkspaceSettings {
