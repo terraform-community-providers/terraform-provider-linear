@@ -529,6 +529,8 @@ type Team struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 	// What to use as a default estimate for unestimated issues.
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+	// Whether to enable resolved thread AI summaries.
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 }
 
 // GetId returns Team.Id, and is useful for accessing the field via an interface.
@@ -608,6 +610,9 @@ func (v *Team) GetIssueEstimationExtended() bool { return v.IssueEstimationExten
 
 // GetDefaultIssueEstimate returns Team.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *Team) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
+
+// GetAiThreadSummariesEnabled returns Team.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *Team) GetAiThreadSummariesEnabled() bool { return v.AiThreadSummariesEnabled }
 
 type TeamCreateInput struct {
 	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
@@ -1738,6 +1743,11 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetDefaultIssueEstimate() float64 
 	return v.Team.DefaultIssueEstimate
 }
 
+// GetAiThreadSummariesEnabled returns createTeamTeamCreateTeamPayloadTeam.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetAiThreadSummariesEnabled() bool {
+	return v.Team.AiThreadSummariesEnabled
+}
+
 func (v *createTeamTeamCreateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -1815,6 +1825,8 @@ type __premarshalcreateTeamTeamCreateTeamPayloadTeam struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 }
 
 func (v *createTeamTeamCreateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
@@ -1854,6 +1866,7 @@ func (v *createTeamTeamCreateTeamPayloadTeam) __premarshalJSON() (*__premarshalc
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	retval.AiThreadSummariesEnabled = v.Team.AiThreadSummariesEnabled
 	return &retval, nil
 }
 
@@ -2399,6 +2412,9 @@ func (v *getTeamTeam) GetIssueEstimationExtended() bool { return v.Team.IssueEst
 // GetDefaultIssueEstimate returns getTeamTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetDefaultIssueEstimate() float64 { return v.Team.DefaultIssueEstimate }
 
+// GetAiThreadSummariesEnabled returns getTeamTeam.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetAiThreadSummariesEnabled() bool { return v.Team.AiThreadSummariesEnabled }
+
 func (v *getTeamTeam) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -2476,6 +2492,8 @@ type __premarshalgetTeamTeam struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 }
 
 func (v *getTeamTeam) MarshalJSON() ([]byte, error) {
@@ -2515,6 +2533,7 @@ func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	retval.AiThreadSummariesEnabled = v.Team.AiThreadSummariesEnabled
 	return &retval, nil
 }
 
@@ -3228,6 +3247,11 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetDefaultIssueEstimate() float64 
 	return v.Team.DefaultIssueEstimate
 }
 
+// GetAiThreadSummariesEnabled returns updateTeamTeamUpdateTeamPayloadTeam.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAiThreadSummariesEnabled() bool {
+	return v.Team.AiThreadSummariesEnabled
+}
+
 func (v *updateTeamTeamUpdateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -3305,6 +3329,8 @@ type __premarshalupdateTeamTeamUpdateTeamPayloadTeam struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 }
 
 func (v *updateTeamTeamUpdateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
@@ -3344,6 +3370,7 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalu
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	retval.AiThreadSummariesEnabled = v.Team.AiThreadSummariesEnabled
 	return &retval, nil
 }
 
@@ -3705,6 +3732,7 @@ fragment Team on Team {
 	issueEstimationAllowZero
 	issueEstimationExtended
 	defaultIssueEstimate
+	aiThreadSummariesEnabled
 }
 `,
 		Variables: &__createTeamInput{
@@ -4091,6 +4119,7 @@ fragment Team on Team {
 	issueEstimationAllowZero
 	issueEstimationExtended
 	defaultIssueEstimate
+	aiThreadSummariesEnabled
 }
 `,
 		Variables: &__getTeamInput{
@@ -4438,6 +4467,7 @@ fragment Team on Team {
 	issueEstimationAllowZero
 	issueEstimationExtended
 	defaultIssueEstimate
+	aiThreadSummariesEnabled
 }
 `,
 		Variables: &__updateTeamInput{

@@ -26,6 +26,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Etc/GMT"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "false"),
+					resource.TestCheckResourceAttr("linear_team.test", "enable_thread_summaries", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "false"),
@@ -90,6 +91,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Etc/GMT"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "false"),
+					resource.TestCheckResourceAttr("linear_team.test", "enable_thread_summaries", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "false"),
@@ -147,6 +149,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Europe/London"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "true"),
+					resource.TestCheckResourceAttr("linear_team.test", "enable_thread_summaries", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "true"),
@@ -221,6 +224,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Europe/London"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "true"),
+					resource.TestCheckResourceAttr("linear_team.test", "enable_thread_summaries", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "true"),
@@ -285,6 +289,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Europe/London"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "true"),
+					resource.TestCheckResourceAttr("linear_team.test", "enable_thread_summaries", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "3"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_close_period", "0"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "true"),
@@ -342,6 +347,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Etc/GMT"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_default_to_bottom", "false"),
+					resource.TestCheckResourceAttr("linear_team.test", "enable_thread_summaries", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "auto_archive_period", "6"),
 					resource.TestCheckResourceAttr("linear_team.test", "triage.enabled", "false"),
@@ -418,6 +424,7 @@ resource "linear_team" "test" {
   timezone = "Europe/London"
   enable_issue_history_grouping = false
   enable_issue_default_to_bottom = true
+  enable_thread_summaries = false
   auto_archive_period = 3
   auto_close_period = 0
 

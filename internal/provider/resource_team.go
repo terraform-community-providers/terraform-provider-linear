@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -110,6 +111,7 @@ type TeamResourceModel struct {
 	Timezone                   types.String  `tfsdk:"timezone"`
 	EnableIssueHistoryGrouping types.Bool    `tfsdk:"enable_issue_history_grouping"`
 	EnableIssueDefaultToBottom types.Bool    `tfsdk:"enable_issue_default_to_bottom"`
+	EnableThreadSummaries      types.Bool    `tfsdk:"enable_thread_summaries"`
 	AutoArchivePeriod          types.Float64 `tfsdk:"auto_archive_period"`
 	AutoClosePeriod            types.Float64 `tfsdk:"auto_close_period"`
 	Triage                     types.Object  `tfsdk:"triage"`
@@ -204,6 +206,12 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
+			},
+			"enable_thread_summaries": schema.BoolAttribute{
+				MarkdownDescription: "Enable resolved thread AI summaries for the team. **Default** `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
 			},
 			"auto_archive_period": schema.Float64Attribute{
 				MarkdownDescription: "Period after which closed and completed issues are automatically archived, in months. **Default** `6`.",
@@ -757,53 +765,17 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	team := response.TeamCreate.Team
 
-	data.Id = types.StringValue(team.Id)
-	data.Private = types.BoolValue(team.Private)
-	data.Description = types.StringPointerValue(team.Description)
-	data.Icon = types.StringPointerValue(team.Icon)
-	data.Color = types.StringPointerValue(team.Color)
-	data.Timezone = types.StringValue(team.Timezone)
-	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
-	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
-	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
+	// Update team in order to update the fields that are not settable on creation
+	var state TeamResourceModel
 
-	if team.AutoClosePeriod != nil {
-		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
-	} else {
-		data.AutoClosePeriod = types.Float64Value(0)
+	state.Key = types.StringValue(team.Key)
+	state.Name = types.StringValue(team.Name)
+
+	resp.Diagnostics.Append(update(ctx, r.client, state, data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
 	}
-
-	data.Triage = types.ObjectValueMust(
-		triageAttrTypes,
-		map[string]attr.Value{
-			"enabled":          types.BoolValue(team.TriageEnabled),
-			"require_priority": types.BoolValue(team.RequirePriorityToLeaveTriage),
-		},
-	)
-
-	data.Cycles = types.ObjectValueMust(
-		cyclesAttrTypes,
-		map[string]attr.Value{
-			"enabled":            types.BoolValue(team.CyclesEnabled),
-			"start_day":          types.Float64Value(team.CycleStartDay),
-			"duration":           types.Float64Value(team.CycleDuration),
-			"cooldown":           types.Float64Value(team.CycleCooldownTime),
-			"upcoming":           types.Float64Value(team.UpcomingCycleCount),
-			"auto_add_started":   types.BoolValue(team.CycleIssueAutoAssignStarted),
-			"auto_add_completed": types.BoolValue(team.CycleIssueAutoAssignCompleted),
-			"need_for_active":    types.BoolValue(team.CycleLockToActive),
-		},
-	)
-
-	data.Estimation = types.ObjectValueMust(
-		estimationAttrTypes,
-		map[string]attr.Value{
-			"type":       types.StringValue(team.IssueEstimationType),
-			"extended":   types.BoolValue(team.IssueEstimationExtended),
-			"allow_zero": types.BoolValue(team.IssueEstimationAllowZero),
-			"default":    types.Float64Value(team.DefaultIssueEstimate),
-		},
-	)
 
 	// Read the workflow states so that we can update them
 
@@ -875,6 +847,7 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	data.Timezone = types.StringValue(team.Timezone)
 	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
 	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
+	data.EnableThreadSummaries = types.BoolValue(team.AiThreadSummariesEnabled)
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
 
 	if team.AutoClosePeriod != nil {
@@ -946,10 +919,6 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data *TeamResourceModel
-	var triageData *TeamResourceTriageModel
-	var cyclesData *TeamResourceCyclesModel
-	var estimationData *TeamResourceEstimationModel
-
 	var state *TeamResourceModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -964,139 +933,11 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	var setIssueSortOrderOnStateChange string
-
-	if data.EnableIssueDefaultToBottom.ValueBool() {
-		setIssueSortOrderOnStateChange = "last"
-	} else {
-		setIssueSortOrderOnStateChange = "first"
-	}
-
-	input := TeamUpdateInput{
-		Private:                        data.Private.ValueBool(),
-		Description:                    data.Description.ValueStringPointer(),
-		Timezone:                       data.Timezone.ValueString(),
-		GroupIssueHistory:              data.EnableIssueHistoryGrouping.ValueBool(),
-		SetIssueSortOrderOnStateChange: setIssueSortOrderOnStateChange,
-		AutoArchivePeriod:              data.AutoArchivePeriod.ValueFloat64(),
-	}
-
-	if data.Key.ValueString() != state.Key.ValueString() {
-		input.Key = data.Key.ValueString()
-	}
-
-	if data.Name.ValueString() != state.Name.ValueString() {
-		input.Name = data.Name.ValueString()
-	}
-
-	if !data.Icon.IsUnknown() {
-		value := data.Icon.ValueString()
-		input.Icon = &value
-	}
-
-	if !data.Color.IsUnknown() {
-		value := data.Color.ValueString()
-		input.Color = &value
-	}
-
-	if data.AutoClosePeriod.ValueFloat64() != 0 {
-		value := data.AutoClosePeriod.ValueFloat64()
-		input.AutoClosePeriod = &value
-	}
-
-	resp.Diagnostics.Append(data.Triage.As(ctx, &triageData, basetypes.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(update(ctx, r.client, *state, data)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	input.TriageEnabled = triageData.Enabled.ValueBool()
-	input.RequirePriorityToLeaveTriage = triageData.RequirePriority.ValueBool()
-
-	resp.Diagnostics.Append(data.Cycles.As(ctx, &cyclesData, basetypes.ObjectAsOptions{})...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	input.CyclesEnabled = cyclesData.Enabled.ValueBool()
-	input.CycleStartDay = cyclesData.StartDay.ValueFloat64()
-	input.CycleDuration = int(cyclesData.Duration.ValueFloat64())
-	input.CycleCooldownTime = int(cyclesData.Cooldown.ValueFloat64())
-	input.UpcomingCycleCount = cyclesData.Upcoming.ValueFloat64()
-	input.CycleIssueAutoAssignStarted = cyclesData.AutoAddStarted.ValueBool()
-	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.ValueBool()
-	input.CycleLockToActive = cyclesData.NeedForActive.ValueBool()
-
-	resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, basetypes.ObjectAsOptions{})...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	input.IssueEstimationType = estimationData.Type.ValueString()
-	input.IssueEstimationExtended = estimationData.Extended.ValueBool()
-	input.IssueEstimationAllowZero = estimationData.AllowZero.ValueBool()
-	input.DefaultIssueEstimate = estimationData.Default.ValueFloat64()
-
-	response, err := updateTeam(ctx, *r.client, input, state.Key.ValueString())
-
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team, got error: %s", err))
-		return
-	}
-
-	tflog.Trace(ctx, "updated a team")
-
-	team := response.TeamUpdate.Team
-
-	data.Id = types.StringValue(team.Id)
-	data.Private = types.BoolValue(team.Private)
-	data.Description = types.StringPointerValue(team.Description)
-	data.Icon = types.StringPointerValue(team.Icon)
-	data.Color = types.StringPointerValue(team.Color)
-	data.Timezone = types.StringValue(team.Timezone)
-	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
-	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
-	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
-
-	if team.AutoClosePeriod != nil {
-		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
-	} else {
-		data.AutoClosePeriod = types.Float64Value(0)
-	}
-
-	data.Triage = types.ObjectValueMust(
-		triageAttrTypes,
-		map[string]attr.Value{
-			"enabled":          types.BoolValue(team.TriageEnabled),
-			"require_priority": types.BoolValue(team.RequirePriorityToLeaveTriage),
-		},
-	)
-
-	data.Cycles = types.ObjectValueMust(
-		cyclesAttrTypes,
-		map[string]attr.Value{
-			"enabled":            types.BoolValue(team.CyclesEnabled),
-			"start_day":          types.Float64Value(team.CycleStartDay),
-			"duration":           types.Float64Value(team.CycleDuration),
-			"cooldown":           types.Float64Value(team.CycleCooldownTime),
-			"upcoming":           types.Float64Value(team.UpcomingCycleCount),
-			"auto_add_started":   types.BoolValue(team.CycleIssueAutoAssignStarted),
-			"auto_add_completed": types.BoolValue(team.CycleIssueAutoAssignCompleted),
-			"need_for_active":    types.BoolValue(team.CycleLockToActive),
-		},
-	)
-
-	data.Estimation = types.ObjectValueMust(
-		estimationAttrTypes,
-		map[string]attr.Value{
-			"type":       types.StringValue(team.IssueEstimationType),
-			"extended":   types.BoolValue(team.IssueEstimationExtended),
-			"allow_zero": types.BoolValue(team.IssueEstimationAllowZero),
-			"default":    types.Float64Value(team.DefaultIssueEstimate),
-		},
-	)
 
 	// Update the workflow states
 
@@ -1140,6 +981,152 @@ func (r *TeamResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 
 func (r *TeamResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("key"), req, resp)
+}
+
+func update(ctx context.Context, client *graphql.Client, state TeamResourceModel, data *TeamResourceModel) diag.Diagnostics {
+	var triageData *TeamResourceTriageModel
+	var cyclesData *TeamResourceCyclesModel
+	var estimationData *TeamResourceEstimationModel
+
+	var setIssueSortOrderOnStateChange string
+
+	if data.EnableIssueDefaultToBottom.ValueBool() {
+		setIssueSortOrderOnStateChange = "last"
+	} else {
+		setIssueSortOrderOnStateChange = "first"
+	}
+
+	input := TeamUpdateInput{
+		Private:                        data.Private.ValueBool(),
+		Description:                    data.Description.ValueStringPointer(),
+		Timezone:                       data.Timezone.ValueString(),
+		GroupIssueHistory:              data.EnableIssueHistoryGrouping.ValueBool(),
+		SetIssueSortOrderOnStateChange: setIssueSortOrderOnStateChange,
+		AiThreadSummariesEnabled:       data.EnableThreadSummaries.ValueBool(),
+		AutoArchivePeriod:              data.AutoArchivePeriod.ValueFloat64(),
+	}
+
+	if data.Key.ValueString() != state.Key.ValueString() {
+		input.Key = data.Key.ValueString()
+	}
+
+	if data.Name.ValueString() != state.Name.ValueString() {
+		input.Name = data.Name.ValueString()
+	}
+
+	if !data.Icon.IsUnknown() {
+		value := data.Icon.ValueString()
+		input.Icon = &value
+	}
+
+	if !data.Color.IsUnknown() {
+		value := data.Color.ValueString()
+		input.Color = &value
+	}
+
+	if data.AutoClosePeriod.ValueFloat64() != 0 {
+		value := data.AutoClosePeriod.ValueFloat64()
+		input.AutoClosePeriod = &value
+	}
+
+	diags := data.Triage.As(ctx, &triageData, basetypes.ObjectAsOptions{})
+
+	if diags.HasError() {
+		return diags
+	}
+
+	input.TriageEnabled = triageData.Enabled.ValueBool()
+	input.RequirePriorityToLeaveTriage = triageData.RequirePriority.ValueBool()
+
+	diags = data.Cycles.As(ctx, &cyclesData, basetypes.ObjectAsOptions{})
+
+	if diags.HasError() {
+		return diags
+	}
+
+	input.CyclesEnabled = cyclesData.Enabled.ValueBool()
+	input.CycleStartDay = cyclesData.StartDay.ValueFloat64()
+	input.CycleDuration = int(cyclesData.Duration.ValueFloat64())
+	input.CycleCooldownTime = int(cyclesData.Cooldown.ValueFloat64())
+	input.UpcomingCycleCount = cyclesData.Upcoming.ValueFloat64()
+	input.CycleIssueAutoAssignStarted = cyclesData.AutoAddStarted.ValueBool()
+	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.ValueBool()
+	input.CycleLockToActive = cyclesData.NeedForActive.ValueBool()
+
+	diags = data.Estimation.As(ctx, &estimationData, basetypes.ObjectAsOptions{})
+
+	if diags.HasError() {
+		return diags
+	}
+
+	input.IssueEstimationType = estimationData.Type.ValueString()
+	input.IssueEstimationExtended = estimationData.Extended.ValueBool()
+	input.IssueEstimationAllowZero = estimationData.AllowZero.ValueBool()
+	input.DefaultIssueEstimate = estimationData.Default.ValueFloat64()
+
+	response, err := updateTeam(ctx, *client, input, state.Key.ValueString())
+
+	if err != nil {
+		diags = diag.Diagnostics{}
+		diags.AddError("Client Error", fmt.Sprintf("Unable to update team, got error: %s", err))
+
+		return diags
+	}
+
+	tflog.Trace(ctx, "updated a team")
+
+	team := response.TeamUpdate.Team
+
+	data.Id = types.StringValue(team.Id)
+	data.Private = types.BoolValue(team.Private)
+	data.Description = types.StringPointerValue(team.Description)
+	data.Icon = types.StringPointerValue(team.Icon)
+	data.Color = types.StringPointerValue(team.Color)
+	data.Timezone = types.StringValue(team.Timezone)
+	data.EnableIssueHistoryGrouping = types.BoolValue(team.GroupIssueHistory)
+	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
+	data.EnableThreadSummaries = types.BoolValue(team.AiThreadSummariesEnabled)
+	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
+
+	if team.AutoClosePeriod != nil {
+		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
+	} else {
+		data.AutoClosePeriod = types.Float64Value(0)
+	}
+
+	data.Triage = types.ObjectValueMust(
+		triageAttrTypes,
+		map[string]attr.Value{
+			"enabled":          types.BoolValue(team.TriageEnabled),
+			"require_priority": types.BoolValue(team.RequirePriorityToLeaveTriage),
+		},
+	)
+
+	data.Cycles = types.ObjectValueMust(
+		cyclesAttrTypes,
+		map[string]attr.Value{
+			"enabled":            types.BoolValue(team.CyclesEnabled),
+			"start_day":          types.Float64Value(team.CycleStartDay),
+			"duration":           types.Float64Value(team.CycleDuration),
+			"cooldown":           types.Float64Value(team.CycleCooldownTime),
+			"upcoming":           types.Float64Value(team.UpcomingCycleCount),
+			"auto_add_started":   types.BoolValue(team.CycleIssueAutoAssignStarted),
+			"auto_add_completed": types.BoolValue(team.CycleIssueAutoAssignCompleted),
+			"need_for_active":    types.BoolValue(team.CycleLockToActive),
+		},
+	)
+
+	data.Estimation = types.ObjectValueMust(
+		estimationAttrTypes,
+		map[string]attr.Value{
+			"type":       types.StringValue(team.IssueEstimationType),
+			"extended":   types.BoolValue(team.IssueEstimationExtended),
+			"allow_zero": types.BoolValue(team.IssueEstimationAllowZero),
+			"default":    types.Float64Value(team.DefaultIssueEstimate),
+		},
+	)
+
+	return nil
 }
 
 func findWorkflowStateType(workflowStates []getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState, ty string) *getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState {
