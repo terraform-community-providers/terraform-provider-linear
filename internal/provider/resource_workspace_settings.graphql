@@ -1,7 +1,6 @@
 fragment Organization on Organization {
   id
   allowMembersToInvite
-  roadmapEnabled
   gitLinkbackMessagesEnabled
   gitPublicLinkbackMessagesEnabled
   restrictTeamCreationToAdmins
@@ -9,9 +8,12 @@ fragment Organization on Organization {
   projectUpdateReminderFrequencyInWeeks
   projectUpdateRemindersDay
   projectUpdateRemindersHour
+  roadmapEnabled
   initiativeUpdateReminderFrequencyInWeeks
   initiativeUpdateRemindersDay
   initiativeUpdateRemindersHour
+  feedEnabled
+  defaultFeedSummarySchedule
 }
 
 query getWorkspaceSettings {
@@ -33,7 +35,6 @@ query getWorkspaceSettings {
 # @genqlient(for: "OrganizationUpdateInput.ipRestrictions", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.themeSettings", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.customersConfiguration", omitempty: true)
-# @genqlient(for: "OrganizationUpdateInput.defaultFeedSummarySchedule", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.aiAddonEnabled", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.personalApiKeysEnabled", omitempty: true)
 mutation updateWorkspaceSettings(

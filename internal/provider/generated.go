@@ -220,8 +220,6 @@ type Organization struct {
 	Id string `json:"id"`
 	// Whether member users are allowed to send invites.
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
-	// Whether the organization is using a roadmap.
-	RoadmapEnabled bool `json:"roadmapEnabled"`
 	// Whether the Git integration linkback messages should be sent to private repositories.
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 	// Whether the Git integration linkback messages should be sent to public repositories.
@@ -236,12 +234,18 @@ type Organization struct {
 	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
 	// The hour at which to prompt for project updates.
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
+	// Whether the organization is using a roadmap.
+	RoadmapEnabled bool `json:"roadmapEnabled"`
 	// The n-weekly frequency at which to prompt for initiative updates. When not set, reminders are off.
 	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks"`
 	// The day at which to prompt for initiative updates.
 	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay"`
 	// The hour at which to prompt for initiative updates.
 	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour"`
+	// Whether the organization has enabled the feed feature.
+	FeedEnabled bool `json:"feedEnabled"`
+	// Default schedule for how often feed summaries are generated.
+	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
 }
 
 // GetId returns Organization.Id, and is useful for accessing the field via an interface.
@@ -249,9 +253,6 @@ func (v *Organization) GetId() string { return v.Id }
 
 // GetAllowMembersToInvite returns Organization.AllowMembersToInvite, and is useful for accessing the field via an interface.
 func (v *Organization) GetAllowMembersToInvite() bool { return v.AllowMembersToInvite }
-
-// GetRoadmapEnabled returns Organization.RoadmapEnabled, and is useful for accessing the field via an interface.
-func (v *Organization) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
 
 // GetGitLinkbackMessagesEnabled returns Organization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *Organization) GetGitLinkbackMessagesEnabled() bool { return v.GitLinkbackMessagesEnabled }
@@ -280,6 +281,9 @@ func (v *Organization) GetProjectUpdateRemindersDay() Day { return v.ProjectUpda
 // GetProjectUpdateRemindersHour returns Organization.ProjectUpdateRemindersHour, and is useful for accessing the field via an interface.
 func (v *Organization) GetProjectUpdateRemindersHour() float64 { return v.ProjectUpdateRemindersHour }
 
+// GetRoadmapEnabled returns Organization.RoadmapEnabled, and is useful for accessing the field via an interface.
+func (v *Organization) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
+
 // GetInitiativeUpdateReminderFrequencyInWeeks returns Organization.InitiativeUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
 func (v *Organization) GetInitiativeUpdateReminderFrequencyInWeeks() float64 {
 	return v.InitiativeUpdateReminderFrequencyInWeeks
@@ -291,6 +295,14 @@ func (v *Organization) GetInitiativeUpdateRemindersDay() Day { return v.Initiati
 // GetInitiativeUpdateRemindersHour returns Organization.InitiativeUpdateRemindersHour, and is useful for accessing the field via an interface.
 func (v *Organization) GetInitiativeUpdateRemindersHour() float64 {
 	return v.InitiativeUpdateRemindersHour
+}
+
+// GetFeedEnabled returns Organization.FeedEnabled, and is useful for accessing the field via an interface.
+func (v *Organization) GetFeedEnabled() bool { return v.FeedEnabled }
+
+// GetDefaultFeedSummarySchedule returns Organization.DefaultFeedSummarySchedule, and is useful for accessing the field via an interface.
+func (v *Organization) GetDefaultFeedSummarySchedule() FeedSummarySchedule {
+	return v.DefaultFeedSummarySchedule
 }
 
 // [INTERNAL] Organization IP restriction configuration.
@@ -375,7 +387,7 @@ type OrganizationUpdateInput struct {
 	// Whether the organization has enabled the feed feature.
 	FeedEnabled bool `json:"feedEnabled"`
 	// Default schedule for how often feed summaries are generated.
-	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule,omitempty"`
+	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
 	// [INTERNAL] Whether the organization has enabled the AI add-on.
 	AiAddonEnabled bool `json:"aiAddonEnabled,omitempty"`
 	// [INTERNAL] Whether the organization has opted in to AI telemetry.
@@ -2976,11 +2988,6 @@ func (v *getWorkspaceSettingsOrganization) GetAllowMembersToInvite() bool {
 	return v.Organization.AllowMembersToInvite
 }
 
-// GetRoadmapEnabled returns getWorkspaceSettingsOrganization.RoadmapEnabled, and is useful for accessing the field via an interface.
-func (v *getWorkspaceSettingsOrganization) GetRoadmapEnabled() bool {
-	return v.Organization.RoadmapEnabled
-}
-
 // GetGitLinkbackMessagesEnabled returns getWorkspaceSettingsOrganization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *getWorkspaceSettingsOrganization) GetGitLinkbackMessagesEnabled() bool {
 	return v.Organization.GitLinkbackMessagesEnabled
@@ -3016,6 +3023,11 @@ func (v *getWorkspaceSettingsOrganization) GetProjectUpdateRemindersHour() float
 	return v.Organization.ProjectUpdateRemindersHour
 }
 
+// GetRoadmapEnabled returns getWorkspaceSettingsOrganization.RoadmapEnabled, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetRoadmapEnabled() bool {
+	return v.Organization.RoadmapEnabled
+}
+
 // GetInitiativeUpdateReminderFrequencyInWeeks returns getWorkspaceSettingsOrganization.InitiativeUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
 func (v *getWorkspaceSettingsOrganization) GetInitiativeUpdateReminderFrequencyInWeeks() float64 {
 	return v.Organization.InitiativeUpdateReminderFrequencyInWeeks
@@ -3029,6 +3041,14 @@ func (v *getWorkspaceSettingsOrganization) GetInitiativeUpdateRemindersDay() Day
 // GetInitiativeUpdateRemindersHour returns getWorkspaceSettingsOrganization.InitiativeUpdateRemindersHour, and is useful for accessing the field via an interface.
 func (v *getWorkspaceSettingsOrganization) GetInitiativeUpdateRemindersHour() float64 {
 	return v.Organization.InitiativeUpdateRemindersHour
+}
+
+// GetFeedEnabled returns getWorkspaceSettingsOrganization.FeedEnabled, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetFeedEnabled() bool { return v.Organization.FeedEnabled }
+
+// GetDefaultFeedSummarySchedule returns getWorkspaceSettingsOrganization.DefaultFeedSummarySchedule, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetDefaultFeedSummarySchedule() FeedSummarySchedule {
+	return v.Organization.DefaultFeedSummarySchedule
 }
 
 func (v *getWorkspaceSettingsOrganization) UnmarshalJSON(b []byte) error {
@@ -3061,8 +3081,6 @@ type __premarshalgetWorkspaceSettingsOrganization struct {
 
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
 
-	RoadmapEnabled bool `json:"roadmapEnabled"`
-
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
@@ -3077,11 +3095,17 @@ type __premarshalgetWorkspaceSettingsOrganization struct {
 
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
 
+	RoadmapEnabled bool `json:"roadmapEnabled"`
+
 	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks"`
 
 	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay"`
 
 	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour"`
+
+	FeedEnabled bool `json:"feedEnabled"`
+
+	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
 }
 
 func (v *getWorkspaceSettingsOrganization) MarshalJSON() ([]byte, error) {
@@ -3097,7 +3121,6 @@ func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetW
 
 	retval.Id = v.Organization.Id
 	retval.AllowMembersToInvite = v.Organization.AllowMembersToInvite
-	retval.RoadmapEnabled = v.Organization.RoadmapEnabled
 	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
 	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
 	retval.RestrictTeamCreationToAdmins = v.Organization.RestrictTeamCreationToAdmins
@@ -3105,9 +3128,12 @@ func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetW
 	retval.ProjectUpdateReminderFrequencyInWeeks = v.Organization.ProjectUpdateReminderFrequencyInWeeks
 	retval.ProjectUpdateRemindersDay = v.Organization.ProjectUpdateRemindersDay
 	retval.ProjectUpdateRemindersHour = v.Organization.ProjectUpdateRemindersHour
+	retval.RoadmapEnabled = v.Organization.RoadmapEnabled
 	retval.InitiativeUpdateReminderFrequencyInWeeks = v.Organization.InitiativeUpdateReminderFrequencyInWeeks
 	retval.InitiativeUpdateRemindersDay = v.Organization.InitiativeUpdateRemindersDay
 	retval.InitiativeUpdateRemindersHour = v.Organization.InitiativeUpdateRemindersHour
+	retval.FeedEnabled = v.Organization.FeedEnabled
+	retval.DefaultFeedSummarySchedule = v.Organization.DefaultFeedSummarySchedule
 	return &retval, nil
 }
 
@@ -3696,11 +3722,6 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	return v.Organization.AllowMembersToInvite
 }
 
-// GetRoadmapEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RoadmapEnabled, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRoadmapEnabled() bool {
-	return v.Organization.RoadmapEnabled
-}
-
 // GetGitLinkbackMessagesEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetGitLinkbackMessagesEnabled() bool {
 	return v.Organization.GitLinkbackMessagesEnabled
@@ -3736,6 +3757,11 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	return v.Organization.ProjectUpdateRemindersHour
 }
 
+// GetRoadmapEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RoadmapEnabled, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRoadmapEnabled() bool {
+	return v.Organization.RoadmapEnabled
+}
+
 // GetInitiativeUpdateReminderFrequencyInWeeks returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.InitiativeUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetInitiativeUpdateReminderFrequencyInWeeks() float64 {
 	return v.Organization.InitiativeUpdateReminderFrequencyInWeeks
@@ -3749,6 +3775,16 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 // GetInitiativeUpdateRemindersHour returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.InitiativeUpdateRemindersHour, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetInitiativeUpdateRemindersHour() float64 {
 	return v.Organization.InitiativeUpdateRemindersHour
+}
+
+// GetFeedEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.FeedEnabled, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetFeedEnabled() bool {
+	return v.Organization.FeedEnabled
+}
+
+// GetDefaultFeedSummarySchedule returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.DefaultFeedSummarySchedule, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetDefaultFeedSummarySchedule() FeedSummarySchedule {
+	return v.Organization.DefaultFeedSummarySchedule
 }
 
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) UnmarshalJSON(b []byte) error {
@@ -3781,8 +3817,6 @@ type __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrg
 
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
 
-	RoadmapEnabled bool `json:"roadmapEnabled"`
-
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
@@ -3797,11 +3831,17 @@ type __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrg
 
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
 
+	RoadmapEnabled bool `json:"roadmapEnabled"`
+
 	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks"`
 
 	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay"`
 
 	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour"`
+
+	FeedEnabled bool `json:"feedEnabled"`
+
+	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
 }
 
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) MarshalJSON() ([]byte, error) {
@@ -3817,7 +3857,6 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 
 	retval.Id = v.Organization.Id
 	retval.AllowMembersToInvite = v.Organization.AllowMembersToInvite
-	retval.RoadmapEnabled = v.Organization.RoadmapEnabled
 	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
 	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
 	retval.RestrictTeamCreationToAdmins = v.Organization.RestrictTeamCreationToAdmins
@@ -3825,9 +3864,12 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	retval.ProjectUpdateReminderFrequencyInWeeks = v.Organization.ProjectUpdateReminderFrequencyInWeeks
 	retval.ProjectUpdateRemindersDay = v.Organization.ProjectUpdateRemindersDay
 	retval.ProjectUpdateRemindersHour = v.Organization.ProjectUpdateRemindersHour
+	retval.RoadmapEnabled = v.Organization.RoadmapEnabled
 	retval.InitiativeUpdateReminderFrequencyInWeeks = v.Organization.InitiativeUpdateReminderFrequencyInWeeks
 	retval.InitiativeUpdateRemindersDay = v.Organization.InitiativeUpdateRemindersDay
 	retval.InitiativeUpdateRemindersHour = v.Organization.InitiativeUpdateRemindersHour
+	retval.FeedEnabled = v.Organization.FeedEnabled
+	retval.DefaultFeedSummarySchedule = v.Organization.DefaultFeedSummarySchedule
 	return &retval, nil
 }
 
@@ -4556,7 +4598,6 @@ query getWorkspaceSettings {
 fragment Organization on Organization {
 	id
 	allowMembersToInvite
-	roadmapEnabled
 	gitLinkbackMessagesEnabled
 	gitPublicLinkbackMessagesEnabled
 	restrictTeamCreationToAdmins
@@ -4564,9 +4605,12 @@ fragment Organization on Organization {
 	projectUpdateReminderFrequencyInWeeks
 	projectUpdateRemindersDay
 	projectUpdateRemindersHour
+	roadmapEnabled
 	initiativeUpdateReminderFrequencyInWeeks
 	initiativeUpdateRemindersDay
 	initiativeUpdateRemindersHour
+	feedEnabled
+	defaultFeedSummarySchedule
 }
 `,
 	}
@@ -4798,7 +4842,6 @@ mutation updateWorkspaceSettings ($input: OrganizationUpdateInput!) {
 fragment Organization on Organization {
 	id
 	allowMembersToInvite
-	roadmapEnabled
 	gitLinkbackMessagesEnabled
 	gitPublicLinkbackMessagesEnabled
 	restrictTeamCreationToAdmins
@@ -4806,9 +4849,12 @@ fragment Organization on Organization {
 	projectUpdateReminderFrequencyInWeeks
 	projectUpdateRemindersDay
 	projectUpdateRemindersHour
+	roadmapEnabled
 	initiativeUpdateReminderFrequencyInWeeks
 	initiativeUpdateRemindersDay
 	initiativeUpdateRemindersHour
+	feedEnabled
+	defaultFeedSummarySchedule
 }
 `,
 		Variables: &__updateWorkspaceSettingsInput{

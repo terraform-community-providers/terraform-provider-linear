@@ -28,12 +28,22 @@ resource "linear_workspace_settings" "example" {
 - `allow_members_to_manage_labels` (Boolean) Allow members to manage labels in the workspace. **Default** `true`.
 - `enable_git_linkback_messages` (Boolean) Enable git linkbacks for private repositories. **Default** `true`.
 - `enable_git_linkback_messages_public` (Boolean) Enable git linkbacks for public repositories. **Default** `false`.
+- `feed` (Attributes) Feed settings for the workspace. (see [below for nested schema](#nestedatt--feed))
 - `initiatives` (Attributes) Initiative settings for the workspace. (see [below for nested schema](#nestedatt--initiatives))
 - `projects` (Attributes) Project settings for the workspace. (see [below for nested schema](#nestedatt--projects))
 
 ### Read-Only
 
 - `id` (String) Identifier of the workspace.
+
+<a id="nestedatt--feed"></a>
+### Nested Schema for `feed`
+
+Optional:
+
+- `enabled` (Boolean) Enable feed summaries for the workspace. **Default** `false`.
+- `schedule` (String) Schedule for feed summaries (daily, weekly). **Default** `daily`.
+
 
 <a id="nestedatt--initiatives"></a>
 ### Nested Schema for `initiatives`

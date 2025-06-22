@@ -60,6 +60,16 @@ var initiativesAttrTypes = map[string]attr.Type{
 	"update_reminder_frequency": types.Int64Type,
 }
 
+type WorkspaceSettingsResourceFeedModel struct {
+	Enabled  types.Bool   `tfsdk:"enabled"`
+	Schedule types.String `tfsdk:"schedule"`
+}
+
+var feedAttrTypes = map[string]attr.Type{
+	"enabled":  types.BoolType,
+	"schedule": types.StringType,
+}
+
 type WorkspaceSettingsResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
 	AllowMembersToInvite            types.Bool   `tfsdk:"allow_members_to_invite"`
@@ -69,6 +79,7 @@ type WorkspaceSettingsResourceModel struct {
 	EnableGitLinkbackMessagesPublic types.Bool   `tfsdk:"enable_git_linkback_messages_public"`
 	Projects                        types.Object `tfsdk:"projects"`
 	Initiatives                     types.Object `tfsdk:"initiatives"`
+	Feed                            types.Object `tfsdk:"feed"`
 }
 
 func (r *WorkspaceSettingsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -211,6 +222,37 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 					},
 				},
 			},
+			"feed": schema.SingleNestedAttribute{
+				MarkdownDescription: "Feed settings for the workspace.",
+				Optional:            true,
+				Computed:            true,
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						feedAttrTypes,
+						map[string]attr.Value{
+							"enabled":  types.BoolValue(false),
+							"schedule": types.StringValue("daily"),
+						},
+					),
+				),
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						MarkdownDescription: "Enable feed summaries for the workspace. **Default** `false`.",
+						Optional:            true,
+						Computed:            true,
+						Default:             booldefault.StaticBool(false),
+					},
+					"schedule": schema.StringAttribute{
+						MarkdownDescription: "Schedule for feed summaries (daily, weekly). **Default** `daily`.",
+						Optional:            true,
+						Computed:            true,
+						Default:             stringdefault.StaticString("daily"),
+						Validators: []validator.String{
+							stringvalidator.OneOf("daily", "weekly"),
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -239,6 +281,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 	var data *WorkspaceSettingsResourceModel
 	var projectsData *WorkspaceSettingsResourceProjectsModel
 	var initiativesData *WorkspaceSettingsResourceInitiativesModel
+	var feedData *WorkspaceSettingsResourceFeedModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
@@ -248,6 +291,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 
 	resp.Diagnostics.Append(data.Projects.As(ctx, &projectsData, basetypes.ObjectAsOptions{})...)
 	resp.Diagnostics.Append(data.Initiatives.As(ctx, &initiativesData, basetypes.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Feed.As(ctx, &feedData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -266,6 +310,8 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 		InitiativeUpdateReminderFrequencyInWeeks: float64(initiativesData.UpdateReminderFrequency.ValueInt64()),
 		InitiativeUpdateRemindersDay:             Day(initiativesData.UpdateReminderDay.ValueString()),
 		InitiativeUpdateRemindersHour:            float64(initiativesData.UpdateReminderHour.ValueInt64()),
+		FeedEnabled:                              feedData.Enabled.ValueBool(),
+		DefaultFeedSummarySchedule:               FeedSummarySchedule(feedData.Schedule.ValueString()),
 	}
 
 	response, err := updateWorkspaceSettings(ctx, *r.client, input)
@@ -300,6 +346,14 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 			"update_reminder_frequency": types.Int64Value(int64(organization.InitiativeUpdateReminderFrequencyInWeeks)),
 			"update_reminder_day":       types.StringValue(string(organization.InitiativeUpdateRemindersDay)),
 			"update_reminder_hour":      types.Int64Value(int64(organization.InitiativeUpdateRemindersHour)),
+		},
+	)
+
+	data.Feed = types.ObjectValueMust(
+		feedAttrTypes,
+		map[string]attr.Value{
+			"enabled":  types.BoolValue(organization.FeedEnabled),
+			"schedule": types.StringValue(string(organization.DefaultFeedSummarySchedule)),
 		},
 	)
 
@@ -350,6 +404,14 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 		},
 	)
 
+	data.Feed = types.ObjectValueMust(
+		feedAttrTypes,
+		map[string]attr.Value{
+			"enabled":  types.BoolValue(organization.FeedEnabled),
+			"schedule": types.StringValue(string(organization.DefaultFeedSummarySchedule)),
+		},
+	)
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -357,6 +419,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 	var data *WorkspaceSettingsResourceModel
 	var projectsData *WorkspaceSettingsResourceProjectsModel
 	var initiativesData *WorkspaceSettingsResourceInitiativesModel
+	var feedData *WorkspaceSettingsResourceFeedModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
@@ -366,6 +429,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 
 	resp.Diagnostics.Append(data.Projects.As(ctx, &projectsData, basetypes.ObjectAsOptions{})...)
 	resp.Diagnostics.Append(data.Initiatives.As(ctx, &initiativesData, basetypes.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Feed.As(ctx, &feedData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -384,6 +448,8 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 		InitiativeUpdateReminderFrequencyInWeeks: float64(initiativesData.UpdateReminderFrequency.ValueInt64()),
 		InitiativeUpdateRemindersDay:             Day(initiativesData.UpdateReminderDay.ValueString()),
 		InitiativeUpdateRemindersHour:            float64(initiativesData.UpdateReminderHour.ValueInt64()),
+		FeedEnabled:                              feedData.Enabled.ValueBool(),
+		DefaultFeedSummarySchedule:               FeedSummarySchedule(feedData.Schedule.ValueString()),
 	}
 
 	response, err := updateWorkspaceSettings(ctx, *r.client, input)
@@ -423,6 +489,14 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 		},
 	)
 
+	data.Feed = types.ObjectValueMust(
+		feedAttrTypes,
+		map[string]attr.Value{
+			"enabled":  types.BoolValue(organization.FeedEnabled),
+			"schedule": types.StringValue(string(organization.DefaultFeedSummarySchedule)),
+		},
+	)
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -448,6 +522,8 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 		InitiativeUpdateReminderFrequencyInWeeks: 0,
 		InitiativeUpdateRemindersDay:             Day("Friday"),
 		InitiativeUpdateRemindersHour:            14,
+		FeedEnabled:                              false,
+		DefaultFeedSummarySchedule:               FeedSummarySchedule("daily"),
 	}
 
 	_, err := updateWorkspaceSettings(ctx, *r.client, input)
