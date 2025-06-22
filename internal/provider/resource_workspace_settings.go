@@ -174,7 +174,7 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 						MarkdownDescription: "Hour of day (0-23) at which to prompt for project updates. **Default** `14`.",
 						Optional:            true,
 						Computed:            true,
-						Default:             int64default.StaticInt64(2),
+						Default:             int64default.StaticInt64(14),
 						Validators: []validator.Int64{
 							int64validator.Between(0, 23),
 						},
@@ -225,7 +225,7 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 						MarkdownDescription: "Hour of day (0-23) at which to prompt for initiative updates. **Default** `14`.",
 						Optional:            true,
 						Computed:            true,
-						Default:             int64default.StaticInt64(2),
+						Default:             int64default.StaticInt64(14),
 						Validators: []validator.Int64{
 							int64validator.Between(0, 23),
 						},
