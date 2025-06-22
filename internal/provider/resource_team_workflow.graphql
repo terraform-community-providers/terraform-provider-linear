@@ -1,21 +1,20 @@
-# @genqlient(for: "Team.draftWorkflowState", pointer: true)
-# @genqlient(for: "Team.startWorkflowState", pointer: true)
-# @genqlient(for: "Team.reviewWorkflowState", pointer: true)
-# @genqlient(for: "Team.mergeWorkflowState", pointer: true)
+# @genqlient(for: "GitAutomationState.state", pointer: true)
+# @genqlient(for: "GitAutomationState.targetBranch", pointer: true)
 fragment TeamWorkflow on Team {
   id
   key
-  draftWorkflowState {
-    id
-  }
-  startWorkflowState {
-    id
-  }
-  reviewWorkflowState {
-    id
-  }
-  mergeWorkflowState {
-    id
+  gitAutomationStates {
+    nodes {
+      id
+      state {
+        id
+      }
+      event
+      targetBranch {
+        branchPattern
+        isRegex
+      }
+    }
   }
 }
 
@@ -25,25 +24,30 @@ query getTeamWorkflow($key: String!) {
   }
 }
 
-mutation updateTeamWorkflow(
-  $id: String!
-  # @genqlient(pointer: true)
-  $draft: String,
-  # @genqlient(pointer: true)
-  $start: String,
-  # @genqlient(pointer: true)
-  $review: String,
-  # @genqlient(pointer: true)
-  $merge: String,
+# @genqlient(for: "GitAutomationStateCreateInput.id", omitempty: true, pointer: true)
+# @genqlient(for: "GitAutomationStateCreateInput.stateId", pointer: true)
+# @genqlient(for: "GitAutomationStateCreateInput.targetBranchId", pointer: true)
+mutation createGitAutomationState(
+  $input: GitAutomationStateCreateInput!
 ) {
-  teamUpdate(input: {
-    draftWorkflowStateId: $draft,
-    startWorkflowStateId: $start,
-    reviewWorkflowStateId: $review,
-    mergeWorkflowStateId: $merge,
-  }, id: $id) {
-    team {
-      ...TeamWorkflow
-    }
+  gitAutomationStateCreate(input: $input) {
+    success
+  }
+}
+
+# @genqlient(for: "GitAutomationStateUpdateInput.stateId", pointer: true)
+# @genqlient(for: "GitAutomationStateUpdateInput.targetBranchId", pointer: true)
+mutation updateGitAutomationState(
+  $id: String!
+  $input: GitAutomationStateUpdateInput!
+) {
+  gitAutomationStateUpdate(id: $id, input: $input) {
+    success
+  }
+}
+
+mutation deleteGitAutomationState($id: String!) {
+  gitAutomationStateDelete(id: $id) {
+    success
   }
 }

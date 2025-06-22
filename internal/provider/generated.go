@@ -23,6 +23,72 @@ const (
 	DaySaturday  Day = "Saturday"
 )
 
+// Cadence to generate feed summary
+type FeedSummarySchedule string
+
+const (
+	FeedSummaryScheduleDaily  FeedSummarySchedule = "daily"
+	FeedSummaryScheduleWeekly FeedSummarySchedule = "weekly"
+	FeedSummaryScheduleNever  FeedSummarySchedule = "never"
+)
+
+type GitAutomationStateCreateInput struct {
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id *string `json:"id,omitempty"`
+	// The team associated with the automation state.
+	TeamId string `json:"teamId"`
+	// The associated workflow state. If null, will override default behaviour and take no action.
+	StateId *string `json:"stateId"`
+	// The associated target branch. If null, all branches are targeted.
+	TargetBranchId *string `json:"targetBranchId"`
+	// The event that triggers the automation.
+	Event GitAutomationStates `json:"event"`
+}
+
+// GetId returns GitAutomationStateCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateCreateInput) GetId() *string { return v.Id }
+
+// GetTeamId returns GitAutomationStateCreateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateCreateInput) GetTeamId() string { return v.TeamId }
+
+// GetStateId returns GitAutomationStateCreateInput.StateId, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateCreateInput) GetStateId() *string { return v.StateId }
+
+// GetTargetBranchId returns GitAutomationStateCreateInput.TargetBranchId, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateCreateInput) GetTargetBranchId() *string { return v.TargetBranchId }
+
+// GetEvent returns GitAutomationStateCreateInput.Event, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateCreateInput) GetEvent() GitAutomationStates { return v.Event }
+
+type GitAutomationStateUpdateInput struct {
+	// The associated workflow state.
+	StateId *string `json:"stateId"`
+	// The associated target branch. If null, all branches are targeted.
+	TargetBranchId *string `json:"targetBranchId"`
+	// The event that triggers the automation.
+	Event GitAutomationStates `json:"event"`
+}
+
+// GetStateId returns GitAutomationStateUpdateInput.StateId, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateUpdateInput) GetStateId() *string { return v.StateId }
+
+// GetTargetBranchId returns GitAutomationStateUpdateInput.TargetBranchId, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateUpdateInput) GetTargetBranchId() *string { return v.TargetBranchId }
+
+// GetEvent returns GitAutomationStateUpdateInput.Event, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateUpdateInput) GetEvent() GitAutomationStates { return v.Event }
+
+// The various states of a pull/merge request.
+type GitAutomationStates string
+
+const (
+	GitAutomationStatesDraft     GitAutomationStates = "draft"
+	GitAutomationStatesStart     GitAutomationStates = "start"
+	GitAutomationStatesReview    GitAutomationStates = "review"
+	GitAutomationStatesMergeable GitAutomationStates = "mergeable"
+	GitAutomationStatesMerge     GitAutomationStates = "merge"
+)
+
 // IssueLabel includes the GraphQL fields of IssueLabel requested by the fragment IssueLabel.
 // The GraphQL type's documentation follows.
 //
@@ -73,6 +139,8 @@ type IssueLabelCreateInput struct {
 	ParentId *string `json:"parentId"`
 	// The team associated with the label. If not given, the label will be associated with the entire workspace.
 	TeamId *string `json:"teamId"`
+	// Whether the label is a group.
+	IsGroup bool `json:"isGroup"`
 }
 
 // GetId returns IssueLabelCreateInput.Id, and is useful for accessing the field via an interface.
@@ -92,6 +160,9 @@ func (v *IssueLabelCreateInput) GetParentId() *string { return v.ParentId }
 
 // GetTeamId returns IssueLabelCreateInput.TeamId, and is useful for accessing the field via an interface.
 func (v *IssueLabelCreateInput) GetTeamId() *string { return v.TeamId }
+
+// GetIsGroup returns IssueLabelCreateInput.IsGroup, and is useful for accessing the field via an interface.
+func (v *IssueLabelCreateInput) GetIsGroup() bool { return v.IsGroup }
 
 // IssueLabelParentIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
@@ -219,8 +290,16 @@ type OrganizationUpdateInput struct {
 	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay,omitempty"`
 	// The hour at which project updates are sent.
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour,omitempty"`
+	// [ALPHA] The n-weekly frequency at which to prompt for initiative updates.
+	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks,omitempty"`
+	// [ALPHA] The day at which initiative updates are sent.
+	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay,omitempty"`
+	// [ALPHA] The hour at which initiative updates are sent.
+	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour,omitempty"`
 	// The month at which the fiscal year starts.
-	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
+	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth,omitempty"`
+	// [Internal] The list of working days. Sunday is 0, Monday is 1, etc.
+	WorkingDays []float64 `json:"workingDays,omitempty"`
 	// Whether the organization has opted for reduced customer support attachment information.
 	ReducedPersonalInformation bool `json:"reducedPersonalInformation,omitempty"`
 	// Whether the organization has opted for having to approve all OAuth applications for install.
@@ -229,14 +308,32 @@ type OrganizationUpdateInput struct {
 	AllowedAuthServices []string `json:"allowedAuthServices,omitempty"`
 	// Internal. Whether SLAs have been enabled for the organization.
 	SlaEnabled bool `json:"slaEnabled,omitempty"`
-	// Which day count to use for SLA calculation.
-	SlaDayCount SLADayCountType `json:"slaDayCount,omitempty"`
 	// Whether member users are allowed to send invites.
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
+	// Whether team creation is restricted to admins.
+	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
+	// Whether label creation is restricted to admins.
+	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+	// Whether agent invocation is restricted to full workspace members.
+	RestrictAgentInvocationToMembers bool `json:"restrictAgentInvocationToMembers"`
 	// IP restriction configurations controlling allowed access the workspace.
-	IpRestrictions []OrganizationIpRestrictionInput `json:"ipRestrictions"`
+	IpRestrictions []OrganizationIpRestrictionInput `json:"ipRestrictions,omitempty"`
 	// [ALPHA] Theme settings for the organization.
-	ThemeSettings map[string]interface{} `json:"themeSettings"`
+	ThemeSettings map[string]interface{} `json:"themeSettings,omitempty"`
+	// [INTERNAL] Whether the organization is using customers.
+	CustomersEnabled bool `json:"customersEnabled"`
+	// [INTERNAL] Configuration settings for the Customers feature.
+	CustomersConfiguration map[string]interface{} `json:"customersConfiguration,omitempty"`
+	// Whether the organization has enabled the feed feature.
+	FeedEnabled bool `json:"feedEnabled"`
+	// Default schedule for how often feed summaries are generated.
+	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule,omitempty"`
+	// [INTERNAL] Whether the organization has enabled the AI add-on.
+	AiAddonEnabled bool `json:"aiAddonEnabled,omitempty"`
+	// [INTERNAL] Whether the organization has opted in to AI telemetry.
+	AiTelemetryEnabled bool `json:"aiTelemetryEnabled"`
+	// [INTERNAL] Whether the organization has enabled the member API keys.
+	PersonalApiKeysEnabled bool `json:"personalApiKeysEnabled,omitempty"`
 }
 
 // GetName returns OrganizationUpdateInput.Name, and is useful for accessing the field via an interface.
@@ -279,8 +376,26 @@ func (v *OrganizationUpdateInput) GetProjectUpdateRemindersHour() float64 {
 	return v.ProjectUpdateRemindersHour
 }
 
+// GetInitiativeUpdateReminderFrequencyInWeeks returns OrganizationUpdateInput.InitiativeUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetInitiativeUpdateReminderFrequencyInWeeks() float64 {
+	return v.InitiativeUpdateReminderFrequencyInWeeks
+}
+
+// GetInitiativeUpdateRemindersDay returns OrganizationUpdateInput.InitiativeUpdateRemindersDay, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetInitiativeUpdateRemindersDay() Day {
+	return v.InitiativeUpdateRemindersDay
+}
+
+// GetInitiativeUpdateRemindersHour returns OrganizationUpdateInput.InitiativeUpdateRemindersHour, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetInitiativeUpdateRemindersHour() float64 {
+	return v.InitiativeUpdateRemindersHour
+}
+
 // GetFiscalYearStartMonth returns OrganizationUpdateInput.FiscalYearStartMonth, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetFiscalYearStartMonth() float64 { return v.FiscalYearStartMonth }
+
+// GetWorkingDays returns OrganizationUpdateInput.WorkingDays, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetWorkingDays() []float64 { return v.WorkingDays }
 
 // GetReducedPersonalInformation returns OrganizationUpdateInput.ReducedPersonalInformation, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetReducedPersonalInformation() bool {
@@ -296,11 +411,23 @@ func (v *OrganizationUpdateInput) GetAllowedAuthServices() []string { return v.A
 // GetSlaEnabled returns OrganizationUpdateInput.SlaEnabled, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetSlaEnabled() bool { return v.SlaEnabled }
 
-// GetSlaDayCount returns OrganizationUpdateInput.SlaDayCount, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetSlaDayCount() SLADayCountType { return v.SlaDayCount }
-
 // GetAllowMembersToInvite returns OrganizationUpdateInput.AllowMembersToInvite, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetAllowMembersToInvite() bool { return v.AllowMembersToInvite }
+
+// GetRestrictTeamCreationToAdmins returns OrganizationUpdateInput.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetRestrictTeamCreationToAdmins() bool {
+	return v.RestrictTeamCreationToAdmins
+}
+
+// GetRestrictLabelManagementToAdmins returns OrganizationUpdateInput.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetRestrictLabelManagementToAdmins() bool {
+	return v.RestrictLabelManagementToAdmins
+}
+
+// GetRestrictAgentInvocationToMembers returns OrganizationUpdateInput.RestrictAgentInvocationToMembers, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetRestrictAgentInvocationToMembers() bool {
+	return v.RestrictAgentInvocationToMembers
+}
 
 // GetIpRestrictions returns OrganizationUpdateInput.IpRestrictions, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetIpRestrictions() []OrganizationIpRestrictionInput {
@@ -310,12 +437,39 @@ func (v *OrganizationUpdateInput) GetIpRestrictions() []OrganizationIpRestrictio
 // GetThemeSettings returns OrganizationUpdateInput.ThemeSettings, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetThemeSettings() map[string]interface{} { return v.ThemeSettings }
 
-// Which day count to use for SLA calculations.
-type SLADayCountType string
+// GetCustomersEnabled returns OrganizationUpdateInput.CustomersEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCustomersEnabled() bool { return v.CustomersEnabled }
+
+// GetCustomersConfiguration returns OrganizationUpdateInput.CustomersConfiguration, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCustomersConfiguration() map[string]interface{} {
+	return v.CustomersConfiguration
+}
+
+// GetFeedEnabled returns OrganizationUpdateInput.FeedEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetFeedEnabled() bool { return v.FeedEnabled }
+
+// GetDefaultFeedSummarySchedule returns OrganizationUpdateInput.DefaultFeedSummarySchedule, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetDefaultFeedSummarySchedule() FeedSummarySchedule {
+	return v.DefaultFeedSummarySchedule
+}
+
+// GetAiAddonEnabled returns OrganizationUpdateInput.AiAddonEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAiAddonEnabled() bool { return v.AiAddonEnabled }
+
+// GetAiTelemetryEnabled returns OrganizationUpdateInput.AiTelemetryEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAiTelemetryEnabled() bool { return v.AiTelemetryEnabled }
+
+// GetPersonalApiKeysEnabled returns OrganizationUpdateInput.PersonalApiKeysEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetPersonalApiKeysEnabled() bool { return v.PersonalApiKeysEnabled }
+
+// [Internal] The scope of product intelligence suggestion data for a team.
+type ProductIntelligenceScope string
 
 const (
-	SLADayCountTypeAll              SLADayCountType = "all"
-	SLADayCountTypeOnlybusinessdays SLADayCountType = "onlyBusinessDays"
+	ProductIntelligenceScopeWorkspace     ProductIntelligenceScope = "workspace"
+	ProductIntelligenceScopeTeamhierarchy ProductIntelligenceScope = "teamHierarchy"
+	ProductIntelligenceScopeTeam          ProductIntelligenceScope = "team"
+	ProductIntelligenceScopeNone          ProductIntelligenceScope = "none"
 )
 
 // Team includes the GraphQL fields of Team requested by the fragment Team.
@@ -339,8 +493,6 @@ type Team struct {
 	Color *string `json:"color"`
 	// The timezone of the team. Defaults to "America/Los_Angeles"
 	Timezone string `json:"timezone"`
-	// Whether issues without priority should be sorted first.
-	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
 	// Whether to group recent issue history entries.
 	GroupIssueHistory bool `json:"groupIssueHistory"`
 	// Where to move issues when changing state.
@@ -373,7 +525,7 @@ type Team struct {
 	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
 	// Whether to add additional points to the estimate scale.
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
-	// What to use as an default estimate for unestimated issues.
+	// What to use as a default estimate for unestimated issues.
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
 }
 
@@ -400,9 +552,6 @@ func (v *Team) GetColor() *string { return v.Color }
 
 // GetTimezone returns Team.Timezone, and is useful for accessing the field via an interface.
 func (v *Team) GetTimezone() string { return v.Timezone }
-
-// GetIssueOrderingNoPriorityFirst returns Team.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
-func (v *Team) GetIssueOrderingNoPriorityFirst() bool { return v.IssueOrderingNoPriorityFirst }
 
 // GetGroupIssueHistory returns Team.GroupIssueHistory, and is useful for accessing the field via an interface.
 func (v *Team) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
@@ -468,8 +617,6 @@ type TeamCreateInput struct {
 	Icon *string `json:"icon,omitempty"`
 	// The color of the team.
 	Color *string `json:"color,omitempty"`
-	// The organization associated with the team.
-	OrganizationId string `json:"organizationId,omitempty"`
 	// Whether the team uses cycles.
 	CyclesEnabled bool `json:"cyclesEnabled"`
 	// The day of the week that a new cycle starts.
@@ -492,8 +639,10 @@ type TeamCreateInput struct {
 	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
 	// The timezone of the team.
 	Timezone string `json:"timezone"`
-	// Whether issues without priority should be sorted first.
-	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
+	// Whether the team should inherit estimation settings from its parent. Only applies to sub-teams.
+	InheritIssueEstimation bool `json:"inheritIssueEstimation"`
+	// [Internal] Whether the team should inherit workflow statuses from its parent.
+	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
 	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
 	IssueEstimationType string `json:"issueEstimationType"`
 	// Whether to allow zeros in issues estimates.
@@ -522,6 +671,12 @@ type TeamCreateInput struct {
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
 	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
+	// The parent team ID.
+	ParentId *string `json:"parentId,omitempty"`
+	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.
+	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope"`
+	// [Internal] The scope of product intelligence suggestion data for the team.
+	ProductIntelligenceScope ProductIntelligenceScope `json:"productIntelligenceScope,omitempty"`
 }
 
 // GetId returns TeamCreateInput.Id, and is useful for accessing the field via an interface.
@@ -541,9 +696,6 @@ func (v *TeamCreateInput) GetIcon() *string { return v.Icon }
 
 // GetColor returns TeamCreateInput.Color, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetColor() *string { return v.Color }
-
-// GetOrganizationId returns TeamCreateInput.OrganizationId, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetOrganizationId() string { return v.OrganizationId }
 
 // GetCyclesEnabled returns TeamCreateInput.CyclesEnabled, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetCyclesEnabled() bool { return v.CyclesEnabled }
@@ -582,10 +734,11 @@ func (v *TeamCreateInput) GetRequirePriorityToLeaveTriage() bool {
 // GetTimezone returns TeamCreateInput.Timezone, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetTimezone() string { return v.Timezone }
 
-// GetIssueOrderingNoPriorityFirst returns TeamCreateInput.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetIssueOrderingNoPriorityFirst() bool {
-	return v.IssueOrderingNoPriorityFirst
-}
+// GetInheritIssueEstimation returns TeamCreateInput.InheritIssueEstimation, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetInheritIssueEstimation() bool { return v.InheritIssueEstimation }
+
+// GetInheritWorkflowStatuses returns TeamCreateInput.InheritWorkflowStatuses, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetInheritWorkflowStatuses() bool { return v.InheritWorkflowStatuses }
 
 // GetIssueEstimationType returns TeamCreateInput.IssueEstimationType, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetIssueEstimationType() string { return v.IssueEstimationType }
@@ -637,6 +790,19 @@ func (v *TeamCreateInput) GetMarkedAsDuplicateWorkflowStateId() string {
 	return v.MarkedAsDuplicateWorkflowStateId
 }
 
+// GetParentId returns TeamCreateInput.ParentId, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetParentId() *string { return v.ParentId }
+
+// GetInheritProductIntelligenceScope returns TeamCreateInput.InheritProductIntelligenceScope, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetInheritProductIntelligenceScope() bool {
+	return v.InheritProductIntelligenceScope
+}
+
+// GetProductIntelligenceScope returns TeamCreateInput.ProductIntelligenceScope, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetProductIntelligenceScope() ProductIntelligenceScope {
+	return v.ProductIntelligenceScope
+}
+
 type TeamUpdateInput struct {
 	// The name of the team.
 	Name string `json:"name,omitempty"`
@@ -662,16 +828,14 @@ type TeamUpdateInput struct {
 	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
 	// Only allow issues with cycles in Active Issues.
 	CycleLockToActive bool `json:"cycleLockToActive"`
-	// [DEPRECATED] Whether the first cycle should start in the current or the next week.
-	CycleEnabledStartWeek string `json:"cycleEnabledStartWeek,omitempty"`
 	// The date to begin cycles on.
-	CycleEnabledStartDate time.Time `json:"cycleEnabledStartDate"`
+	CycleEnabledStartDate *time.Time `json:"cycleEnabledStartDate,omitempty"`
 	// How many upcoming cycles to create.
 	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
 	// The timezone of the team.
 	Timezone string `json:"timezone"`
-	// Whether issues without priority should be sorted first.
-	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
+	// Whether the team should inherit estimation settings from its parent. Only applies to sub-teams.
+	InheritIssueEstimation bool `json:"inheritIssueEstimation"`
 	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
 	IssueEstimationType string `json:"issueEstimationType"`
 	// Whether to allow zeros in issues estimates.
@@ -682,16 +846,6 @@ type TeamUpdateInput struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 	// What to use as an default estimate for unestimated issues.
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
-	// The workflow state into which issues are moved when a draft PR has been opened.
-	DraftWorkflowStateId string `json:"draftWorkflowStateId,omitempty"`
-	// The workflow state into which issues are moved when a PR has been opened.
-	StartWorkflowStateId string `json:"startWorkflowStateId,omitempty"`
-	// The workflow state into which issues are moved when a review has been requested for the PR.
-	ReviewWorkflowStateId string `json:"reviewWorkflowStateId,omitempty"`
-	// The workflow state into which issues are moved when a PR is ready to be merged.
-	MergeableWorkflowStateId string `json:"mergeableWorkflowStateId,omitempty"`
-	// The workflow state into which issues are moved when a PR has been merged.
-	MergeWorkflowStateId string `json:"mergeWorkflowStateId,omitempty"`
 	// Whether to send new issue notifications to Slack.
 	SlackNewIssue bool `json:"slackNewIssue"`
 	// Whether to send new issue comment notifications to Slack.
@@ -700,6 +854,8 @@ type TeamUpdateInput struct {
 	SlackIssueStatuses bool `json:"slackIssueStatuses"`
 	// Whether to group recent issue history entries.
 	GroupIssueHistory bool `json:"groupIssueHistory"`
+	// Whether to enable resolved thread AI summaries.
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 	// The identifier of the default template for members of this team.
 	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId,omitempty"`
 	// The identifier of the default template for non-members of this team.
@@ -718,6 +874,10 @@ type TeamUpdateInput struct {
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
 	// The canceled workflow state which auto closed issues will be set to.
 	AutoCloseStateId string `json:"autoCloseStateId,omitempty"`
+	// [INTERNAL] Whether to automatically close a parent issue in this team if all its sub-issues are closed.
+	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
+	// [INTERNAL] Whether to automatically close all sub-issues when a parent issue in this team is closed.
+	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
 	// Period after which closed and completed issues are automatically archived, in months.
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
@@ -726,6 +886,14 @@ type TeamUpdateInput struct {
 	JoinByDefault bool `json:"joinByDefault"`
 	// Whether the team is managed by SCIM integration. Mutation restricted to workspace admins and only unsetting is allowed!
 	ScimManaged bool `json:"scimManaged"`
+	// The parent team ID.
+	ParentId *string `json:"parentId,omitempty"`
+	// [Internal] Whether the team should inherit workflow statuses from its parent.
+	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
+	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.
+	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope"`
+	// [Internal] The scope of product intelligence suggestion data for the team.
+	ProductIntelligenceScope ProductIntelligenceScope `json:"productIntelligenceScope,omitempty"`
 }
 
 // GetName returns TeamUpdateInput.Name, and is useful for accessing the field via an interface.
@@ -766,11 +934,8 @@ func (v *TeamUpdateInput) GetCycleIssueAutoAssignCompleted() bool {
 // GetCycleLockToActive returns TeamUpdateInput.CycleLockToActive, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetCycleLockToActive() bool { return v.CycleLockToActive }
 
-// GetCycleEnabledStartWeek returns TeamUpdateInput.CycleEnabledStartWeek, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetCycleEnabledStartWeek() string { return v.CycleEnabledStartWeek }
-
 // GetCycleEnabledStartDate returns TeamUpdateInput.CycleEnabledStartDate, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetCycleEnabledStartDate() time.Time { return v.CycleEnabledStartDate }
+func (v *TeamUpdateInput) GetCycleEnabledStartDate() *time.Time { return v.CycleEnabledStartDate }
 
 // GetUpcomingCycleCount returns TeamUpdateInput.UpcomingCycleCount, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetUpcomingCycleCount() float64 { return v.UpcomingCycleCount }
@@ -778,10 +943,8 @@ func (v *TeamUpdateInput) GetUpcomingCycleCount() float64 { return v.UpcomingCyc
 // GetTimezone returns TeamUpdateInput.Timezone, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetTimezone() string { return v.Timezone }
 
-// GetIssueOrderingNoPriorityFirst returns TeamUpdateInput.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetIssueOrderingNoPriorityFirst() bool {
-	return v.IssueOrderingNoPriorityFirst
-}
+// GetInheritIssueEstimation returns TeamUpdateInput.InheritIssueEstimation, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetInheritIssueEstimation() bool { return v.InheritIssueEstimation }
 
 // GetIssueEstimationType returns TeamUpdateInput.IssueEstimationType, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetIssueEstimationType() string { return v.IssueEstimationType }
@@ -800,21 +963,6 @@ func (v *TeamUpdateInput) GetIssueEstimationExtended() bool { return v.IssueEsti
 // GetDefaultIssueEstimate returns TeamUpdateInput.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
 
-// GetDraftWorkflowStateId returns TeamUpdateInput.DraftWorkflowStateId, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetDraftWorkflowStateId() string { return v.DraftWorkflowStateId }
-
-// GetStartWorkflowStateId returns TeamUpdateInput.StartWorkflowStateId, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetStartWorkflowStateId() string { return v.StartWorkflowStateId }
-
-// GetReviewWorkflowStateId returns TeamUpdateInput.ReviewWorkflowStateId, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetReviewWorkflowStateId() string { return v.ReviewWorkflowStateId }
-
-// GetMergeableWorkflowStateId returns TeamUpdateInput.MergeableWorkflowStateId, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetMergeableWorkflowStateId() string { return v.MergeableWorkflowStateId }
-
-// GetMergeWorkflowStateId returns TeamUpdateInput.MergeWorkflowStateId, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetMergeWorkflowStateId() string { return v.MergeWorkflowStateId }
-
 // GetSlackNewIssue returns TeamUpdateInput.SlackNewIssue, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetSlackNewIssue() bool { return v.SlackNewIssue }
 
@@ -826,6 +974,9 @@ func (v *TeamUpdateInput) GetSlackIssueStatuses() bool { return v.SlackIssueStat
 
 // GetGroupIssueHistory returns TeamUpdateInput.GroupIssueHistory, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
+
+// GetAiThreadSummariesEnabled returns TeamUpdateInput.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAiThreadSummariesEnabled() bool { return v.AiThreadSummariesEnabled }
 
 // GetDefaultTemplateForMembersId returns TeamUpdateInput.DefaultTemplateForMembersId, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetDefaultTemplateForMembersId() string {
@@ -860,6 +1011,12 @@ func (v *TeamUpdateInput) GetAutoClosePeriod() *float64 { return v.AutoClosePeri
 // GetAutoCloseStateId returns TeamUpdateInput.AutoCloseStateId, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetAutoCloseStateId() string { return v.AutoCloseStateId }
 
+// GetAutoCloseParentIssues returns TeamUpdateInput.AutoCloseParentIssues, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAutoCloseParentIssues() bool { return v.AutoCloseParentIssues }
+
+// GetAutoCloseChildIssues returns TeamUpdateInput.AutoCloseChildIssues, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAutoCloseChildIssues() bool { return v.AutoCloseChildIssues }
+
 // GetAutoArchivePeriod returns TeamUpdateInput.AutoArchivePeriod, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetAutoArchivePeriod() float64 { return v.AutoArchivePeriod }
 
@@ -874,6 +1031,22 @@ func (v *TeamUpdateInput) GetJoinByDefault() bool { return v.JoinByDefault }
 // GetScimManaged returns TeamUpdateInput.ScimManaged, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetScimManaged() bool { return v.ScimManaged }
 
+// GetParentId returns TeamUpdateInput.ParentId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetParentId() *string { return v.ParentId }
+
+// GetInheritWorkflowStatuses returns TeamUpdateInput.InheritWorkflowStatuses, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetInheritWorkflowStatuses() bool { return v.InheritWorkflowStatuses }
+
+// GetInheritProductIntelligenceScope returns TeamUpdateInput.InheritProductIntelligenceScope, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetInheritProductIntelligenceScope() bool {
+	return v.InheritProductIntelligenceScope
+}
+
+// GetProductIntelligenceScope returns TeamUpdateInput.ProductIntelligenceScope, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetProductIntelligenceScope() ProductIntelligenceScope {
+	return v.ProductIntelligenceScope
+}
+
 // TeamWorkflow includes the GraphQL fields of Team requested by the fragment TeamWorkflow.
 // The GraphQL type's documentation follows.
 //
@@ -883,14 +1056,8 @@ type TeamWorkflow struct {
 	Id string `json:"id"`
 	// The team's unique key. The key is used in URLs.
 	Key string `json:"key"`
-	// The workflow state into which issues are moved when a PR has been opened as draft.
-	DraftWorkflowState *TeamWorkflowDraftWorkflowState `json:"draftWorkflowState"`
-	// The workflow state into which issues are moved when a PR has been opened.
-	StartWorkflowState *TeamWorkflowStartWorkflowState `json:"startWorkflowState"`
-	// The workflow state into which issues are moved when a review has been requested for the PR.
-	ReviewWorkflowState *TeamWorkflowReviewWorkflowState `json:"reviewWorkflowState"`
-	// The workflow state into which issues are moved when a PR has been merged.
-	MergeWorkflowState *TeamWorkflowMergeWorkflowState `json:"mergeWorkflowState"`
+	// The Git automation states for the team.
+	GitAutomationStates TeamWorkflowGitAutomationStatesGitAutomationStateConnection `json:"gitAutomationStates"`
 }
 
 // GetId returns TeamWorkflow.Id, and is useful for accessing the field via an interface.
@@ -899,73 +1066,90 @@ func (v *TeamWorkflow) GetId() string { return v.Id }
 // GetKey returns TeamWorkflow.Key, and is useful for accessing the field via an interface.
 func (v *TeamWorkflow) GetKey() string { return v.Key }
 
-// GetDraftWorkflowState returns TeamWorkflow.DraftWorkflowState, and is useful for accessing the field via an interface.
-func (v *TeamWorkflow) GetDraftWorkflowState() *TeamWorkflowDraftWorkflowState {
-	return v.DraftWorkflowState
+// GetGitAutomationStates returns TeamWorkflow.GitAutomationStates, and is useful for accessing the field via an interface.
+func (v *TeamWorkflow) GetGitAutomationStates() TeamWorkflowGitAutomationStatesGitAutomationStateConnection {
+	return v.GitAutomationStates
 }
 
-// GetStartWorkflowState returns TeamWorkflow.StartWorkflowState, and is useful for accessing the field via an interface.
-func (v *TeamWorkflow) GetStartWorkflowState() *TeamWorkflowStartWorkflowState {
-	return v.StartWorkflowState
+// TeamWorkflowGitAutomationStatesGitAutomationStateConnection includes the requested fields of the GraphQL type GitAutomationStateConnection.
+type TeamWorkflowGitAutomationStatesGitAutomationStateConnection struct {
+	Nodes []TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState `json:"nodes"`
 }
 
-// GetReviewWorkflowState returns TeamWorkflow.ReviewWorkflowState, and is useful for accessing the field via an interface.
-func (v *TeamWorkflow) GetReviewWorkflowState() *TeamWorkflowReviewWorkflowState {
-	return v.ReviewWorkflowState
+// GetNodes returns TeamWorkflowGitAutomationStatesGitAutomationStateConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnection) GetNodes() []TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState {
+	return v.Nodes
 }
 
-// GetMergeWorkflowState returns TeamWorkflow.MergeWorkflowState, and is useful for accessing the field via an interface.
-func (v *TeamWorkflow) GetMergeWorkflowState() *TeamWorkflowMergeWorkflowState {
-	return v.MergeWorkflowState
+// TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState includes the requested fields of the GraphQL type GitAutomationState.
+// The GraphQL type's documentation follows.
+//
+// A trigger that updates the issue status according to Git automations.
+type TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The associated workflow state.
+	State *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState `json:"state"`
+	// The event that triggers the automation.
+	Event GitAutomationStates `json:"event"`
+	// The target branch associated to this automation state.
+	TargetBranch *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch `json:"targetBranch"`
 }
 
-// TeamWorkflowDraftWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// GetId returns TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState.Id, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState) GetId() string {
+	return v.Id
+}
+
+// GetState returns TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState.State, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState) GetState() *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState {
+	return v.State
+}
+
+// GetEvent returns TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState.Event, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState) GetEvent() GitAutomationStates {
+	return v.Event
+}
+
+// GetTargetBranch returns TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState.TargetBranch, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState) GetTargetBranch() *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch {
+	return v.TargetBranch
+}
+
+// TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
 // A state in a team workflow.
-type TeamWorkflowDraftWorkflowState struct {
+type TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
 }
 
-// GetId returns TeamWorkflowDraftWorkflowState.Id, and is useful for accessing the field via an interface.
-func (v *TeamWorkflowDraftWorkflowState) GetId() string { return v.Id }
-
-// TeamWorkflowMergeWorkflowState includes the requested fields of the GraphQL type WorkflowState.
-// The GraphQL type's documentation follows.
-//
-// A state in a team workflow.
-type TeamWorkflowMergeWorkflowState struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
+// GetId returns TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState.Id, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState) GetId() string {
+	return v.Id
 }
 
-// GetId returns TeamWorkflowMergeWorkflowState.Id, and is useful for accessing the field via an interface.
-func (v *TeamWorkflowMergeWorkflowState) GetId() string { return v.Id }
-
-// TeamWorkflowReviewWorkflowState includes the requested fields of the GraphQL type WorkflowState.
+// TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch includes the requested fields of the GraphQL type GitAutomationTargetBranch.
 // The GraphQL type's documentation follows.
 //
-// A state in a team workflow.
-type TeamWorkflowReviewWorkflowState struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
+// A Git target branch for which there are automations (GitAutomationState).
+type TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch struct {
+	// The target branch pattern.
+	BranchPattern string `json:"branchPattern"`
+	// Whether the branch pattern is a regular expression.
+	IsRegex bool `json:"isRegex"`
 }
 
-// GetId returns TeamWorkflowReviewWorkflowState.Id, and is useful for accessing the field via an interface.
-func (v *TeamWorkflowReviewWorkflowState) GetId() string { return v.Id }
-
-// TeamWorkflowStartWorkflowState includes the requested fields of the GraphQL type WorkflowState.
-// The GraphQL type's documentation follows.
-//
-// A state in a team workflow.
-type TeamWorkflowStartWorkflowState struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
+// GetBranchPattern returns TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch.BranchPattern, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch) GetBranchPattern() string {
+	return v.BranchPattern
 }
 
-// GetId returns TeamWorkflowStartWorkflowState.Id, and is useful for accessing the field via an interface.
-func (v *TeamWorkflowStartWorkflowState) GetId() string { return v.Id }
+// GetIsRegex returns TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch.IsRegex, and is useful for accessing the field via an interface.
+func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch) GetIsRegex() bool {
+	return v.IsRegex
+}
 
 // WorkflowState includes the GraphQL fields of WorkflowState requested by the fragment WorkflowState.
 // The GraphQL type's documentation follows.
@@ -1082,6 +1266,14 @@ func (v *WorkflowStateUpdateInput) GetDescription() *string { return v.Descripti
 // GetPosition returns WorkflowStateUpdateInput.Position, and is useful for accessing the field via an interface.
 func (v *WorkflowStateUpdateInput) GetPosition() float64 { return v.Position }
 
+// __createGitAutomationStateInput is used internally by genqlient
+type __createGitAutomationStateInput struct {
+	Input GitAutomationStateCreateInput `json:"input"`
+}
+
+// GetInput returns __createGitAutomationStateInput.Input, and is useful for accessing the field via an interface.
+func (v *__createGitAutomationStateInput) GetInput() GitAutomationStateCreateInput { return v.Input }
+
 // __createLabelInput is used internally by genqlient
 type __createLabelInput struct {
 	Input IssueLabelCreateInput `json:"input"`
@@ -1105,6 +1297,14 @@ type __createWorkflowStateInput struct {
 
 // GetInput returns __createWorkflowStateInput.Input, and is useful for accessing the field via an interface.
 func (v *__createWorkflowStateInput) GetInput() WorkflowStateCreateInput { return v.Input }
+
+// __deleteGitAutomationStateInput is used internally by genqlient
+type __deleteGitAutomationStateInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __deleteGitAutomationStateInput.Id, and is useful for accessing the field via an interface.
+func (v *__deleteGitAutomationStateInput) GetId() string { return v.Id }
 
 // __deleteLabelInput is used internally by genqlient
 type __deleteLabelInput struct {
@@ -1202,6 +1402,18 @@ type __getWorkflowStateInput struct {
 // GetId returns __getWorkflowStateInput.Id, and is useful for accessing the field via an interface.
 func (v *__getWorkflowStateInput) GetId() string { return v.Id }
 
+// __updateGitAutomationStateInput is used internally by genqlient
+type __updateGitAutomationStateInput struct {
+	Id    string                        `json:"id"`
+	Input GitAutomationStateUpdateInput `json:"input"`
+}
+
+// GetId returns __updateGitAutomationStateInput.Id, and is useful for accessing the field via an interface.
+func (v *__updateGitAutomationStateInput) GetId() string { return v.Id }
+
+// GetInput returns __updateGitAutomationStateInput.Input, and is useful for accessing the field via an interface.
+func (v *__updateGitAutomationStateInput) GetInput() GitAutomationStateUpdateInput { return v.Input }
+
 // __updateLabelInput is used internally by genqlient
 type __updateLabelInput struct {
 	Input IssueLabelUpdateInput `json:"input"`
@@ -1226,30 +1438,6 @@ func (v *__updateTeamInput) GetInput() TeamUpdateInput { return v.Input }
 // GetId returns __updateTeamInput.Id, and is useful for accessing the field via an interface.
 func (v *__updateTeamInput) GetId() string { return v.Id }
 
-// __updateTeamWorkflowInput is used internally by genqlient
-type __updateTeamWorkflowInput struct {
-	Id     string  `json:"id"`
-	Draft  *string `json:"draft"`
-	Start  *string `json:"start"`
-	Review *string `json:"review"`
-	Merge  *string `json:"merge"`
-}
-
-// GetId returns __updateTeamWorkflowInput.Id, and is useful for accessing the field via an interface.
-func (v *__updateTeamWorkflowInput) GetId() string { return v.Id }
-
-// GetDraft returns __updateTeamWorkflowInput.Draft, and is useful for accessing the field via an interface.
-func (v *__updateTeamWorkflowInput) GetDraft() *string { return v.Draft }
-
-// GetStart returns __updateTeamWorkflowInput.Start, and is useful for accessing the field via an interface.
-func (v *__updateTeamWorkflowInput) GetStart() *string { return v.Start }
-
-// GetReview returns __updateTeamWorkflowInput.Review, and is useful for accessing the field via an interface.
-func (v *__updateTeamWorkflowInput) GetReview() *string { return v.Review }
-
-// GetMerge returns __updateTeamWorkflowInput.Merge, and is useful for accessing the field via an interface.
-func (v *__updateTeamWorkflowInput) GetMerge() *string { return v.Merge }
-
 // __updateWorkflowStateInput is used internally by genqlient
 type __updateWorkflowStateInput struct {
 	Input WorkflowStateUpdateInput `json:"input"`
@@ -1269,6 +1457,28 @@ type __updateWorkspaceSettingsInput struct {
 
 // GetInput returns __updateWorkspaceSettingsInput.Input, and is useful for accessing the field via an interface.
 func (v *__updateWorkspaceSettingsInput) GetInput() OrganizationUpdateInput { return v.Input }
+
+// createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload includes the requested fields of the GraphQL type GitAutomationStatePayload.
+type createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload struct {
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload.Success, and is useful for accessing the field via an interface.
+func (v *createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload) GetSuccess() bool {
+	return v.Success
+}
+
+// createGitAutomationStateResponse is returned by createGitAutomationState on success.
+type createGitAutomationStateResponse struct {
+	// Creates a new automation state.
+	GitAutomationStateCreate createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload `json:"gitAutomationStateCreate"`
+}
+
+// GetGitAutomationStateCreate returns createGitAutomationStateResponse.GitAutomationStateCreate, and is useful for accessing the field via an interface.
+func (v *createGitAutomationStateResponse) GetGitAutomationStateCreate() createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload {
+	return v.GitAutomationStateCreate
+}
 
 // createLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
 type createLabelIssueLabelCreateIssueLabelPayload struct {
@@ -1441,11 +1651,6 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetColor() *string { return v.Team
 // GetTimezone returns createTeamTeamCreateTeamPayloadTeam.Timezone, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetTimezone() string { return v.Team.Timezone }
 
-// GetIssueOrderingNoPriorityFirst returns createTeamTeamCreateTeamPayloadTeam.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetIssueOrderingNoPriorityFirst() bool {
-	return v.Team.IssueOrderingNoPriorityFirst
-}
-
 // GetGroupIssueHistory returns createTeamTeamCreateTeamPayloadTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetGroupIssueHistory() bool {
 	return v.Team.GroupIssueHistory
@@ -1565,8 +1770,6 @@ type __premarshalcreateTeamTeamCreateTeamPayloadTeam struct {
 
 	Timezone string `json:"timezone"`
 
-	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
-
 	GroupIssueHistory bool `json:"groupIssueHistory"`
 
 	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
@@ -1621,7 +1824,6 @@ func (v *createTeamTeamCreateTeamPayloadTeam) __premarshalJSON() (*__premarshalc
 	retval.Icon = v.Team.Icon
 	retval.Color = v.Team.Color
 	retval.Timezone = v.Team.Timezone
-	retval.IssueOrderingNoPriorityFirst = v.Team.IssueOrderingNoPriorityFirst
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
 	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
@@ -1767,6 +1969,31 @@ func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState
 	retval.Position = v.WorkflowState.Position
 	retval.Team = v.WorkflowState.Team
 	return &retval, nil
+}
+
+// deleteGitAutomationStateGitAutomationStateDeleteDeletePayload includes the requested fields of the GraphQL type DeletePayload.
+// The GraphQL type's documentation follows.
+//
+// A generic payload return from entity deletion mutations.
+type deleteGitAutomationStateGitAutomationStateDeleteDeletePayload struct {
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns deleteGitAutomationStateGitAutomationStateDeleteDeletePayload.Success, and is useful for accessing the field via an interface.
+func (v *deleteGitAutomationStateGitAutomationStateDeleteDeletePayload) GetSuccess() bool {
+	return v.Success
+}
+
+// deleteGitAutomationStateResponse is returned by deleteGitAutomationState on success.
+type deleteGitAutomationStateResponse struct {
+	// Archives an automation state.
+	GitAutomationStateDelete deleteGitAutomationStateGitAutomationStateDeleteDeletePayload `json:"gitAutomationStateDelete"`
+}
+
+// GetGitAutomationStateDelete returns deleteGitAutomationStateResponse.GitAutomationStateDelete, and is useful for accessing the field via an interface.
+func (v *deleteGitAutomationStateResponse) GetGitAutomationStateDelete() deleteGitAutomationStateGitAutomationStateDeleteDeletePayload {
+	return v.GitAutomationStateDelete
 }
 
 // deleteLabelIssueLabelDeleteDeletePayload includes the requested fields of the GraphQL type DeletePayload.
@@ -2097,11 +2324,6 @@ func (v *getTeamTeam) GetColor() *string { return v.Team.Color }
 // GetTimezone returns getTeamTeam.Timezone, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetTimezone() string { return v.Team.Timezone }
 
-// GetIssueOrderingNoPriorityFirst returns getTeamTeam.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetIssueOrderingNoPriorityFirst() bool {
-	return v.Team.IssueOrderingNoPriorityFirst
-}
-
 // GetGroupIssueHistory returns getTeamTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetGroupIssueHistory() bool { return v.Team.GroupIssueHistory }
 
@@ -2201,8 +2423,6 @@ type __premarshalgetTeamTeam struct {
 
 	Timezone string `json:"timezone"`
 
-	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
-
 	GroupIssueHistory bool `json:"groupIssueHistory"`
 
 	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
@@ -2257,7 +2477,6 @@ func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
 	retval.Icon = v.Team.Icon
 	retval.Color = v.Team.Color
 	retval.Timezone = v.Team.Timezone
-	retval.IssueOrderingNoPriorityFirst = v.Team.IssueOrderingNoPriorityFirst
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
 	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
@@ -2427,24 +2646,9 @@ func (v *getTeamWorkflowTeam) GetId() string { return v.TeamWorkflow.Id }
 // GetKey returns getTeamWorkflowTeam.Key, and is useful for accessing the field via an interface.
 func (v *getTeamWorkflowTeam) GetKey() string { return v.TeamWorkflow.Key }
 
-// GetDraftWorkflowState returns getTeamWorkflowTeam.DraftWorkflowState, and is useful for accessing the field via an interface.
-func (v *getTeamWorkflowTeam) GetDraftWorkflowState() *TeamWorkflowDraftWorkflowState {
-	return v.TeamWorkflow.DraftWorkflowState
-}
-
-// GetStartWorkflowState returns getTeamWorkflowTeam.StartWorkflowState, and is useful for accessing the field via an interface.
-func (v *getTeamWorkflowTeam) GetStartWorkflowState() *TeamWorkflowStartWorkflowState {
-	return v.TeamWorkflow.StartWorkflowState
-}
-
-// GetReviewWorkflowState returns getTeamWorkflowTeam.ReviewWorkflowState, and is useful for accessing the field via an interface.
-func (v *getTeamWorkflowTeam) GetReviewWorkflowState() *TeamWorkflowReviewWorkflowState {
-	return v.TeamWorkflow.ReviewWorkflowState
-}
-
-// GetMergeWorkflowState returns getTeamWorkflowTeam.MergeWorkflowState, and is useful for accessing the field via an interface.
-func (v *getTeamWorkflowTeam) GetMergeWorkflowState() *TeamWorkflowMergeWorkflowState {
-	return v.TeamWorkflow.MergeWorkflowState
+// GetGitAutomationStates returns getTeamWorkflowTeam.GitAutomationStates, and is useful for accessing the field via an interface.
+func (v *getTeamWorkflowTeam) GetGitAutomationStates() TeamWorkflowGitAutomationStatesGitAutomationStateConnection {
+	return v.TeamWorkflow.GitAutomationStates
 }
 
 func (v *getTeamWorkflowTeam) UnmarshalJSON(b []byte) error {
@@ -2477,13 +2681,7 @@ type __premarshalgetTeamWorkflowTeam struct {
 
 	Key string `json:"key"`
 
-	DraftWorkflowState *TeamWorkflowDraftWorkflowState `json:"draftWorkflowState"`
-
-	StartWorkflowState *TeamWorkflowStartWorkflowState `json:"startWorkflowState"`
-
-	ReviewWorkflowState *TeamWorkflowReviewWorkflowState `json:"reviewWorkflowState"`
-
-	MergeWorkflowState *TeamWorkflowMergeWorkflowState `json:"mergeWorkflowState"`
+	GitAutomationStates TeamWorkflowGitAutomationStatesGitAutomationStateConnection `json:"gitAutomationStates"`
 }
 
 func (v *getTeamWorkflowTeam) MarshalJSON() ([]byte, error) {
@@ -2499,10 +2697,7 @@ func (v *getTeamWorkflowTeam) __premarshalJSON() (*__premarshalgetTeamWorkflowTe
 
 	retval.Id = v.TeamWorkflow.Id
 	retval.Key = v.TeamWorkflow.Key
-	retval.DraftWorkflowState = v.TeamWorkflow.DraftWorkflowState
-	retval.StartWorkflowState = v.TeamWorkflow.StartWorkflowState
-	retval.ReviewWorkflowState = v.TeamWorkflow.ReviewWorkflowState
-	retval.MergeWorkflowState = v.TeamWorkflow.MergeWorkflowState
+	retval.GitAutomationStates = v.TeamWorkflow.GitAutomationStates
 	return &retval, nil
 }
 
@@ -2737,6 +2932,28 @@ func (v *getWorkspaceSettingsResponse) GetOrganization() getWorkspaceSettingsOrg
 	return v.Organization
 }
 
+// updateGitAutomationStateGitAutomationStateUpdateGitAutomationStatePayload includes the requested fields of the GraphQL type GitAutomationStatePayload.
+type updateGitAutomationStateGitAutomationStateUpdateGitAutomationStatePayload struct {
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns updateGitAutomationStateGitAutomationStateUpdateGitAutomationStatePayload.Success, and is useful for accessing the field via an interface.
+func (v *updateGitAutomationStateGitAutomationStateUpdateGitAutomationStatePayload) GetSuccess() bool {
+	return v.Success
+}
+
+// updateGitAutomationStateResponse is returned by updateGitAutomationState on success.
+type updateGitAutomationStateResponse struct {
+	// Updates an existing state.
+	GitAutomationStateUpdate updateGitAutomationStateGitAutomationStateUpdateGitAutomationStatePayload `json:"gitAutomationStateUpdate"`
+}
+
+// GetGitAutomationStateUpdate returns updateGitAutomationStateResponse.GitAutomationStateUpdate, and is useful for accessing the field via an interface.
+func (v *updateGitAutomationStateResponse) GetGitAutomationStateUpdate() updateGitAutomationStateGitAutomationStateUpdateGitAutomationStatePayload {
+	return v.GitAutomationStateUpdate
+}
+
 // updateLabelIssueLabelUpdateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
 type updateLabelIssueLabelUpdateIssueLabelPayload struct {
 	// The label that was created or updated.
@@ -2908,11 +3125,6 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetColor() *string { return v.Team
 // GetTimezone returns updateTeamTeamUpdateTeamPayloadTeam.Timezone, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetTimezone() string { return v.Team.Timezone }
 
-// GetIssueOrderingNoPriorityFirst returns updateTeamTeamUpdateTeamPayloadTeam.IssueOrderingNoPriorityFirst, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetIssueOrderingNoPriorityFirst() bool {
-	return v.Team.IssueOrderingNoPriorityFirst
-}
-
 // GetGroupIssueHistory returns updateTeamTeamUpdateTeamPayloadTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetGroupIssueHistory() bool {
 	return v.Team.GroupIssueHistory
@@ -3032,8 +3244,6 @@ type __premarshalupdateTeamTeamUpdateTeamPayloadTeam struct {
 
 	Timezone string `json:"timezone"`
 
-	IssueOrderingNoPriorityFirst bool `json:"issueOrderingNoPriorityFirst"`
-
 	GroupIssueHistory bool `json:"groupIssueHistory"`
 
 	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
@@ -3088,7 +3298,6 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalu
 	retval.Icon = v.Team.Icon
 	retval.Color = v.Team.Color
 	retval.Timezone = v.Team.Timezone
-	retval.IssueOrderingNoPriorityFirst = v.Team.IssueOrderingNoPriorityFirst
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
 	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
@@ -3106,121 +3315,6 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalu
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
-	return &retval, nil
-}
-
-// updateTeamWorkflowResponse is returned by updateTeamWorkflow on success.
-type updateTeamWorkflowResponse struct {
-	// Updates a team.
-	TeamUpdate updateTeamWorkflowTeamUpdateTeamPayload `json:"teamUpdate"`
-}
-
-// GetTeamUpdate returns updateTeamWorkflowResponse.TeamUpdate, and is useful for accessing the field via an interface.
-func (v *updateTeamWorkflowResponse) GetTeamUpdate() updateTeamWorkflowTeamUpdateTeamPayload {
-	return v.TeamUpdate
-}
-
-// updateTeamWorkflowTeamUpdateTeamPayload includes the requested fields of the GraphQL type TeamPayload.
-type updateTeamWorkflowTeamUpdateTeamPayload struct {
-	// The team that was created or updated.
-	Team updateTeamWorkflowTeamUpdateTeamPayloadTeam `json:"team"`
-}
-
-// GetTeam returns updateTeamWorkflowTeamUpdateTeamPayload.Team, and is useful for accessing the field via an interface.
-func (v *updateTeamWorkflowTeamUpdateTeamPayload) GetTeam() updateTeamWorkflowTeamUpdateTeamPayloadTeam {
-	return v.Team
-}
-
-// updateTeamWorkflowTeamUpdateTeamPayloadTeam includes the requested fields of the GraphQL type Team.
-// The GraphQL type's documentation follows.
-//
-// An organizational unit that contains issues.
-type updateTeamWorkflowTeamUpdateTeamPayloadTeam struct {
-	TeamWorkflow `json:"-"`
-}
-
-// GetId returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.Id, and is useful for accessing the field via an interface.
-func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetId() string { return v.TeamWorkflow.Id }
-
-// GetKey returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.Key, and is useful for accessing the field via an interface.
-func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetKey() string { return v.TeamWorkflow.Key }
-
-// GetDraftWorkflowState returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.DraftWorkflowState, and is useful for accessing the field via an interface.
-func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetDraftWorkflowState() *TeamWorkflowDraftWorkflowState {
-	return v.TeamWorkflow.DraftWorkflowState
-}
-
-// GetStartWorkflowState returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.StartWorkflowState, and is useful for accessing the field via an interface.
-func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetStartWorkflowState() *TeamWorkflowStartWorkflowState {
-	return v.TeamWorkflow.StartWorkflowState
-}
-
-// GetReviewWorkflowState returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.ReviewWorkflowState, and is useful for accessing the field via an interface.
-func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetReviewWorkflowState() *TeamWorkflowReviewWorkflowState {
-	return v.TeamWorkflow.ReviewWorkflowState
-}
-
-// GetMergeWorkflowState returns updateTeamWorkflowTeamUpdateTeamPayloadTeam.MergeWorkflowState, and is useful for accessing the field via an interface.
-func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) GetMergeWorkflowState() *TeamWorkflowMergeWorkflowState {
-	return v.TeamWorkflow.MergeWorkflowState
-}
-
-func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
-
-	if string(b) == "null" {
-		return nil
-	}
-
-	var firstPass struct {
-		*updateTeamWorkflowTeamUpdateTeamPayloadTeam
-		graphql.NoUnmarshalJSON
-	}
-	firstPass.updateTeamWorkflowTeamUpdateTeamPayloadTeam = v
-
-	err := json.Unmarshal(b, &firstPass)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(
-		b, &v.TeamWorkflow)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-type __premarshalupdateTeamWorkflowTeamUpdateTeamPayloadTeam struct {
-	Id string `json:"id"`
-
-	Key string `json:"key"`
-
-	DraftWorkflowState *TeamWorkflowDraftWorkflowState `json:"draftWorkflowState"`
-
-	StartWorkflowState *TeamWorkflowStartWorkflowState `json:"startWorkflowState"`
-
-	ReviewWorkflowState *TeamWorkflowReviewWorkflowState `json:"reviewWorkflowState"`
-
-	MergeWorkflowState *TeamWorkflowMergeWorkflowState `json:"mergeWorkflowState"`
-}
-
-func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
-	premarshaled, err := v.__premarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	return json.Marshal(premarshaled)
-}
-
-func (v *updateTeamWorkflowTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalupdateTeamWorkflowTeamUpdateTeamPayloadTeam, error) {
-	var retval __premarshalupdateTeamWorkflowTeamUpdateTeamPayloadTeam
-
-	retval.Id = v.TeamWorkflow.Id
-	retval.Key = v.TeamWorkflow.Key
-	retval.DraftWorkflowState = v.TeamWorkflow.DraftWorkflowState
-	retval.StartWorkflowState = v.TeamWorkflow.StartWorkflowState
-	retval.ReviewWorkflowState = v.TeamWorkflow.ReviewWorkflowState
-	retval.MergeWorkflowState = v.TeamWorkflow.MergeWorkflowState
 	return &retval, nil
 }
 
@@ -3462,6 +3556,38 @@ func (v *updateWorkspaceSettingsResponse) GetOrganizationUpdate() updateWorkspac
 	return v.OrganizationUpdate
 }
 
+func createGitAutomationState(
+	ctx context.Context,
+	client graphql.Client,
+	input GitAutomationStateCreateInput,
+) (*createGitAutomationStateResponse, error) {
+	req := &graphql.Request{
+		OpName: "createGitAutomationState",
+		Query: `
+mutation createGitAutomationState ($input: GitAutomationStateCreateInput!) {
+	gitAutomationStateCreate(input: $input) {
+		success
+	}
+}
+`,
+		Variables: &__createGitAutomationStateInput{
+			Input: input,
+		},
+	}
+	var err error
+
+	var data createGitAutomationStateResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func createLabel(
 	ctx context.Context,
 	client graphql.Client,
@@ -3532,7 +3658,6 @@ fragment Team on Team {
 	icon
 	color
 	timezone
-	issueOrderingNoPriorityFirst
 	groupIssueHistory
 	setIssueSortOrderOnStateChange
 	autoArchivePeriod
@@ -3604,6 +3729,38 @@ fragment WorkflowState on WorkflowState {
 	var err error
 
 	var data createWorkflowStateResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func deleteGitAutomationState(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*deleteGitAutomationStateResponse, error) {
+	req := &graphql.Request{
+		OpName: "deleteGitAutomationState",
+		Query: `
+mutation deleteGitAutomationState ($id: String!) {
+	gitAutomationStateDelete(id: $id) {
+		success
+	}
+}
+`,
+		Variables: &__deleteGitAutomationStateInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data deleteGitAutomationStateResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -3886,7 +4043,6 @@ fragment Team on Team {
 	icon
 	color
 	timezone
-	issueOrderingNoPriorityFirst
 	groupIssueHistory
 	setIssueSortOrderOnStateChange
 	autoArchivePeriod
@@ -3940,17 +4096,18 @@ query getTeamWorkflow ($key: String!) {
 fragment TeamWorkflow on Team {
 	id
 	key
-	draftWorkflowState {
-		id
-	}
-	startWorkflowState {
-		id
-	}
-	reviewWorkflowState {
-		id
-	}
-	mergeWorkflowState {
-		id
+	gitAutomationStates {
+		nodes {
+			id
+			state {
+				id
+			}
+			event
+			targetBranch {
+				branchPattern
+				isRegex
+			}
+		}
 	}
 }
 `,
@@ -4125,6 +4282,40 @@ fragment Organization on Organization {
 	return &data, err
 }
 
+func updateGitAutomationState(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+	input GitAutomationStateUpdateInput,
+) (*updateGitAutomationStateResponse, error) {
+	req := &graphql.Request{
+		OpName: "updateGitAutomationState",
+		Query: `
+mutation updateGitAutomationState ($id: String!, $input: GitAutomationStateUpdateInput!) {
+	gitAutomationStateUpdate(id: $id, input: $input) {
+		success
+	}
+}
+`,
+		Variables: &__updateGitAutomationStateInput{
+			Id:    id,
+			Input: input,
+		},
+	}
+	var err error
+
+	var data updateGitAutomationStateResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func updateLabel(
 	ctx context.Context,
 	client graphql.Client,
@@ -4198,7 +4389,6 @@ fragment Team on Team {
 	icon
 	color
 	timezone
-	issueOrderingNoPriorityFirst
 	groupIssueHistory
 	setIssueSortOrderOnStateChange
 	autoArchivePeriod
@@ -4226,64 +4416,6 @@ fragment Team on Team {
 	var err error
 
 	var data updateTeamResponse
-	resp := &graphql.Response{Data: &data}
-
-	err = client.MakeRequest(
-		ctx,
-		req,
-		resp,
-	)
-
-	return &data, err
-}
-
-func updateTeamWorkflow(
-	ctx context.Context,
-	client graphql.Client,
-	id string,
-	draft *string,
-	start *string,
-	review *string,
-	merge *string,
-) (*updateTeamWorkflowResponse, error) {
-	req := &graphql.Request{
-		OpName: "updateTeamWorkflow",
-		Query: `
-mutation updateTeamWorkflow ($id: String!, $draft: String, $start: String, $review: String, $merge: String) {
-	teamUpdate(input: {draftWorkflowStateId:$draft,startWorkflowStateId:$start,reviewWorkflowStateId:$review,mergeWorkflowStateId:$merge}, id: $id) {
-		team {
-			... TeamWorkflow
-		}
-	}
-}
-fragment TeamWorkflow on Team {
-	id
-	key
-	draftWorkflowState {
-		id
-	}
-	startWorkflowState {
-		id
-	}
-	reviewWorkflowState {
-		id
-	}
-	mergeWorkflowState {
-		id
-	}
-}
-`,
-		Variables: &__updateTeamWorkflowInput{
-			Id:     id,
-			Draft:  draft,
-			Start:  start,
-			Review: review,
-			Merge:  merge,
-		},
-	}
-	var err error
-
-	var data updateTeamWorkflowResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

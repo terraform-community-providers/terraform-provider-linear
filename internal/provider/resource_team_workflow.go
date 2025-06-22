@@ -121,16 +121,14 @@ func (r *TeamWorkflowResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	response, err := update(ctx, data, r.client)
+	err := update(ctx, r.client, data)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create team workflow, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("%s", err))
 		return
 	}
 
 	tflog.Trace(ctx, "created a team workflow")
-
-	read(data, response)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -151,26 +149,7 @@ func (r *TeamWorkflowResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	team := response.Team
-
-	data.Id = types.StringValue(team.Id)
-	data.Key = types.StringValue(team.Key)
-
-	if team.DraftWorkflowState != nil {
-		data.Draft = types.StringValue(team.DraftWorkflowState.Id)
-	}
-
-	if team.StartWorkflowState != nil {
-		data.Start = types.StringValue(team.StartWorkflowState.Id)
-	}
-
-	if team.ReviewWorkflowState != nil {
-		data.Review = types.StringValue(team.ReviewWorkflowState.Id)
-	}
-
-	if team.MergeWorkflowState != nil {
-		data.Merge = types.StringValue(team.MergeWorkflowState.Id)
-	}
+	read(data, response.Team)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -184,30 +163,31 @@ func (r *TeamWorkflowResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	response, err := update(ctx, data, r.client)
+	err := update(ctx, r.client, data)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update team workflow, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("%s", err))
 		return
 	}
 
 	tflog.Trace(ctx, "updated a team workflow")
 
-	read(data, response)
-
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *TeamWorkflowResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *TeamWorkflowResourceModel
+	var data TeamWorkflowResourceModel
+	var state *TeamWorkflowResourceModel
 
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	_, err := updateTeamWorkflow(ctx, *r.client, data.Key.ValueString(), nil, nil, nil, nil)
+	data.Key = state.Key
+
+	err := update(ctx, r.client, &data)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete team workflow, got error: %s", err))
@@ -221,34 +201,113 @@ func (r *TeamWorkflowResource) ImportState(ctx context.Context, req resource.Imp
 	resource.ImportStatePassthroughID(ctx, path.Root("key"), req, resp)
 }
 
-func update(ctx context.Context, data *TeamWorkflowResourceModel, client *graphql.Client) (*updateTeamWorkflowResponse, error) {
-	draft := data.Draft.ValueStringPointer()
-	start := data.Start.ValueStringPointer()
-	review := data.Review.ValueStringPointer()
-	merge := data.Merge.ValueStringPointer()
+func update(ctx context.Context, client *graphql.Client, data *TeamWorkflowResourceModel) error {
+	teamKey := data.Key.ValueString()
 
-	return updateTeamWorkflow(ctx, *client, data.Key.ValueString(), draft, start, review, merge)
+	existing, err := getTeamWorkflow(ctx, *client, teamKey)
+
+	if err != nil {
+		return fmt.Errorf("unable to get team workflow: %w", err)
+	}
+
+	teamId := existing.Team.Id
+
+	err = updateEvent(ctx, client, existing.Team, teamId, GitAutomationStatesDraft, data.Draft.ValueStringPointer())
+
+	if err != nil {
+		return fmt.Errorf("unable to update team workflow: %w", err)
+	}
+
+	err = updateEvent(ctx, client, existing.Team, teamId, GitAutomationStatesStart, data.Start.ValueStringPointer())
+
+	if err != nil {
+		return fmt.Errorf("unable to update team workflow: %w", err)
+	}
+
+	err = updateEvent(ctx, client, existing.Team, teamId, GitAutomationStatesReview, data.Review.ValueStringPointer())
+
+	if err != nil {
+		return fmt.Errorf("unable to update team workflow: %w", err)
+	}
+
+	err = updateEvent(ctx, client, existing.Team, teamId, GitAutomationStatesMerge, data.Merge.ValueStringPointer())
+
+	if err != nil {
+		return fmt.Errorf("unable to update team workflow: %w", err)
+	}
+
+	existing, err = getTeamWorkflow(ctx, *client, teamKey)
+
+	if err != nil {
+		return fmt.Errorf("unable to get team workflow: %w", err)
+	}
+
+	read(data, existing.Team)
+
+	return nil
 }
 
-func read(data *TeamWorkflowResourceModel, response *updateTeamWorkflowResponse) {
-	team := response.TeamUpdate.Team
+func updateEvent(ctx context.Context, client *graphql.Client, existing getTeamWorkflowTeam, teamId string, event GitAutomationStates, stateId *string) error {
+	var foundState *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState
 
+	for _, n := range existing.GitAutomationStates.Nodes {
+		if n.Event == event && n.TargetBranch == nil {
+			foundState = &n
+			break
+		}
+	}
+
+	var err error
+
+	if foundState != nil {
+		if stateId == nil {
+			_, err = deleteGitAutomationState(ctx, *client, foundState.Id)
+		} else {
+			input := GitAutomationStateUpdateInput{
+				Event:          event,
+				StateId:        stateId,
+				TargetBranchId: nil,
+			}
+
+			_, err = updateGitAutomationState(ctx, *client, foundState.Id, input)
+		}
+	} else if stateId != nil {
+		input := GitAutomationStateCreateInput{
+			Event:          event,
+			TeamId:         teamId,
+			StateId:        stateId,
+			TargetBranchId: nil,
+		}
+
+		_, err = createGitAutomationState(ctx, *client, input)
+	}
+
+	return err
+}
+
+func read(data *TeamWorkflowResourceModel, team getTeamWorkflowTeam) {
 	data.Id = types.StringValue(team.Id)
 	data.Key = types.StringValue(team.Key)
 
-	if team.DraftWorkflowState != nil {
-		data.Draft = types.StringValue(team.DraftWorkflowState.Id)
-	}
+	for _, n := range team.GitAutomationStates.Nodes {
+		if n.State == nil {
+			continue
+		}
 
-	if team.StartWorkflowState != nil {
-		data.Start = types.StringValue(team.StartWorkflowState.Id)
-	}
+		if n.TargetBranch != nil {
+			// We only care about the target branch, so we skip the rest of the fields
+			continue
+		}
 
-	if team.ReviewWorkflowState != nil {
-		data.Review = types.StringValue(team.ReviewWorkflowState.Id)
-	}
-
-	if team.MergeWorkflowState != nil {
-		data.Merge = types.StringValue(team.MergeWorkflowState.Id)
+		switch n.Event {
+		case GitAutomationStatesDraft:
+			data.Draft = types.StringValue(n.State.Id)
+		case GitAutomationStatesStart:
+			data.Start = types.StringValue(n.State.Id)
+		case GitAutomationStatesReview:
+			data.Review = types.StringValue(n.State.Id)
+		case GitAutomationStatesMerge:
+			data.Merge = types.StringValue(n.State.Id)
+		}
 	}
 }
