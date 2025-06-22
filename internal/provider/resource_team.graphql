@@ -13,8 +13,11 @@ fragment Team on Team {
   timezone
   groupIssueHistory
   setIssueSortOrderOnStateChange
+  aiThreadSummariesEnabled
   autoArchivePeriod
   autoClosePeriod
+  autoCloseParentIssues
+  autoCloseChildIssues
   triageEnabled
   requirePriorityToLeaveTriage
   cyclesEnabled
@@ -29,7 +32,6 @@ fragment Team on Team {
   issueEstimationAllowZero
   issueEstimationExtended
   defaultIssueEstimate
-  aiThreadSummariesEnabled
 }
 
 query getTeam($key: String!) {

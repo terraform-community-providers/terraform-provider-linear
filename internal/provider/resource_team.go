@@ -114,6 +114,8 @@ type TeamResourceModel struct {
 	EnableThreadSummaries      types.Bool    `tfsdk:"enable_thread_summaries"`
 	AutoArchivePeriod          types.Float64 `tfsdk:"auto_archive_period"`
 	AutoClosePeriod            types.Float64 `tfsdk:"auto_close_period"`
+	AutoCloseParentIssues      types.Bool    `tfsdk:"auto_close_parent_issues"`
+	AutoCloseChildIssues       types.Bool    `tfsdk:"auto_close_child_issues"`
 	Triage                     types.Object  `tfsdk:"triage"`
 	Cycles                     types.Object  `tfsdk:"cycles"`
 	Estimation                 types.Object  `tfsdk:"estimation"`
@@ -230,6 +232,18 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Validators: []validator.Float64{
 					float64validator.OneOf([]float64{0, 1, 3, 6, 9, 12}...),
 				},
+			},
+			"auto_close_parent_issues": schema.BoolAttribute{
+				MarkdownDescription: "Whether to automatically close parent issues when all their child issues are closed. **Default** `false`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
+			"auto_close_child_issues": schema.BoolAttribute{
+				MarkdownDescription: "Whether to automatically close child issues when their parent issue is closed. **Default** `false`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
 			},
 			"triage": schema.SingleNestedAttribute{
 				MarkdownDescription: "Triage settings of the team.",
@@ -849,6 +863,8 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
 	data.EnableThreadSummaries = types.BoolValue(team.AiThreadSummariesEnabled)
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
+	data.AutoCloseParentIssues = types.BoolValue(team.AutoCloseParentIssues)
+	data.AutoCloseChildIssues = types.BoolValue(team.AutoCloseChildIssues)
 
 	if team.AutoClosePeriod != nil {
 		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)
@@ -1004,6 +1020,8 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 		SetIssueSortOrderOnStateChange: setIssueSortOrderOnStateChange,
 		AiThreadSummariesEnabled:       data.EnableThreadSummaries.ValueBool(),
 		AutoArchivePeriod:              data.AutoArchivePeriod.ValueFloat64(),
+		AutoCloseParentIssues:          data.AutoCloseParentIssues.ValueBool(),
+		AutoCloseChildIssues:           data.AutoCloseChildIssues.ValueBool(),
 	}
 
 	if data.Key.ValueString() != state.Key.ValueString() {
@@ -1087,6 +1105,8 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 	data.EnableIssueDefaultToBottom = types.BoolValue(team.SetIssueSortOrderOnStateChange == "last")
 	data.EnableThreadSummaries = types.BoolValue(team.AiThreadSummariesEnabled)
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
+	data.AutoCloseParentIssues = types.BoolValue(team.AutoCloseParentIssues)
+	data.AutoCloseChildIssues = types.BoolValue(team.AutoCloseChildIssues)
 
 	if team.AutoClosePeriod != nil {
 		data.AutoClosePeriod = types.Float64Value(*team.AutoClosePeriod)

@@ -497,10 +497,16 @@ type Team struct {
 	GroupIssueHistory bool `json:"groupIssueHistory"`
 	// Where to move issues when changing state.
 	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
+	// Whether to enable resolved thread AI summaries.
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 	// Period after which automatically closed and completed issues are automatically archived in months.
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 	// Period after which issues are automatically closed in months. Null/undefined means disabled.
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
+	// Whether parent issues should automatically close when all child issues are closed
+	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
+	// Whether child issues should automatically close when their parent issue is closed
+	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
 	// Whether triage mode is enabled for the team or not.
 	TriageEnabled bool `json:"triageEnabled"`
 	// Whether an issue needs to have a priority set before leaving triage.
@@ -529,8 +535,6 @@ type Team struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 	// What to use as a default estimate for unestimated issues.
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
-	// Whether to enable resolved thread AI summaries.
-	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 }
 
 // GetId returns Team.Id, and is useful for accessing the field via an interface.
@@ -563,11 +567,20 @@ func (v *Team) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
 // GetSetIssueSortOrderOnStateChange returns Team.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
 func (v *Team) GetSetIssueSortOrderOnStateChange() string { return v.SetIssueSortOrderOnStateChange }
 
+// GetAiThreadSummariesEnabled returns Team.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *Team) GetAiThreadSummariesEnabled() bool { return v.AiThreadSummariesEnabled }
+
 // GetAutoArchivePeriod returns Team.AutoArchivePeriod, and is useful for accessing the field via an interface.
 func (v *Team) GetAutoArchivePeriod() float64 { return v.AutoArchivePeriod }
 
 // GetAutoClosePeriod returns Team.AutoClosePeriod, and is useful for accessing the field via an interface.
 func (v *Team) GetAutoClosePeriod() *float64 { return v.AutoClosePeriod }
+
+// GetAutoCloseParentIssues returns Team.AutoCloseParentIssues, and is useful for accessing the field via an interface.
+func (v *Team) GetAutoCloseParentIssues() bool { return v.AutoCloseParentIssues }
+
+// GetAutoCloseChildIssues returns Team.AutoCloseChildIssues, and is useful for accessing the field via an interface.
+func (v *Team) GetAutoCloseChildIssues() bool { return v.AutoCloseChildIssues }
 
 // GetTriageEnabled returns Team.TriageEnabled, and is useful for accessing the field via an interface.
 func (v *Team) GetTriageEnabled() bool { return v.TriageEnabled }
@@ -610,9 +623,6 @@ func (v *Team) GetIssueEstimationExtended() bool { return v.IssueEstimationExten
 
 // GetDefaultIssueEstimate returns Team.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *Team) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
-
-// GetAiThreadSummariesEnabled returns Team.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
-func (v *Team) GetAiThreadSummariesEnabled() bool { return v.AiThreadSummariesEnabled }
 
 type TeamCreateInput struct {
 	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
@@ -1671,6 +1681,11 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetSetIssueSortOrderOnStateChange(
 	return v.Team.SetIssueSortOrderOnStateChange
 }
 
+// GetAiThreadSummariesEnabled returns createTeamTeamCreateTeamPayloadTeam.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetAiThreadSummariesEnabled() bool {
+	return v.Team.AiThreadSummariesEnabled
+}
+
 // GetAutoArchivePeriod returns createTeamTeamCreateTeamPayloadTeam.AutoArchivePeriod, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetAutoArchivePeriod() float64 {
 	return v.Team.AutoArchivePeriod
@@ -1679,6 +1694,16 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetAutoArchivePeriod() float64 {
 // GetAutoClosePeriod returns createTeamTeamCreateTeamPayloadTeam.AutoClosePeriod, and is useful for accessing the field via an interface.
 func (v *createTeamTeamCreateTeamPayloadTeam) GetAutoClosePeriod() *float64 {
 	return v.Team.AutoClosePeriod
+}
+
+// GetAutoCloseParentIssues returns createTeamTeamCreateTeamPayloadTeam.AutoCloseParentIssues, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetAutoCloseParentIssues() bool {
+	return v.Team.AutoCloseParentIssues
+}
+
+// GetAutoCloseChildIssues returns createTeamTeamCreateTeamPayloadTeam.AutoCloseChildIssues, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetAutoCloseChildIssues() bool {
+	return v.Team.AutoCloseChildIssues
 }
 
 // GetTriageEnabled returns createTeamTeamCreateTeamPayloadTeam.TriageEnabled, and is useful for accessing the field via an interface.
@@ -1743,11 +1768,6 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetDefaultIssueEstimate() float64 
 	return v.Team.DefaultIssueEstimate
 }
 
-// GetAiThreadSummariesEnabled returns createTeamTeamCreateTeamPayloadTeam.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
-func (v *createTeamTeamCreateTeamPayloadTeam) GetAiThreadSummariesEnabled() bool {
-	return v.Team.AiThreadSummariesEnabled
-}
-
 func (v *createTeamTeamCreateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -1794,9 +1814,15 @@ type __premarshalcreateTeamTeamCreateTeamPayloadTeam struct {
 
 	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
+
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
+
+	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
+
+	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
 
 	TriageEnabled bool `json:"triageEnabled"`
 
@@ -1825,8 +1851,6 @@ type __premarshalcreateTeamTeamCreateTeamPayloadTeam struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
-
-	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 }
 
 func (v *createTeamTeamCreateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
@@ -1850,8 +1874,11 @@ func (v *createTeamTeamCreateTeamPayloadTeam) __premarshalJSON() (*__premarshalc
 	retval.Timezone = v.Team.Timezone
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
 	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
+	retval.AiThreadSummariesEnabled = v.Team.AiThreadSummariesEnabled
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
 	retval.AutoClosePeriod = v.Team.AutoClosePeriod
+	retval.AutoCloseParentIssues = v.Team.AutoCloseParentIssues
+	retval.AutoCloseChildIssues = v.Team.AutoCloseChildIssues
 	retval.TriageEnabled = v.Team.TriageEnabled
 	retval.RequirePriorityToLeaveTriage = v.Team.RequirePriorityToLeaveTriage
 	retval.CyclesEnabled = v.Team.CyclesEnabled
@@ -1866,7 +1893,6 @@ func (v *createTeamTeamCreateTeamPayloadTeam) __premarshalJSON() (*__premarshalc
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
-	retval.AiThreadSummariesEnabled = v.Team.AiThreadSummariesEnabled
 	return &retval, nil
 }
 
@@ -2358,11 +2384,20 @@ func (v *getTeamTeam) GetSetIssueSortOrderOnStateChange() string {
 	return v.Team.SetIssueSortOrderOnStateChange
 }
 
+// GetAiThreadSummariesEnabled returns getTeamTeam.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetAiThreadSummariesEnabled() bool { return v.Team.AiThreadSummariesEnabled }
+
 // GetAutoArchivePeriod returns getTeamTeam.AutoArchivePeriod, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetAutoArchivePeriod() float64 { return v.Team.AutoArchivePeriod }
 
 // GetAutoClosePeriod returns getTeamTeam.AutoClosePeriod, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetAutoClosePeriod() *float64 { return v.Team.AutoClosePeriod }
+
+// GetAutoCloseParentIssues returns getTeamTeam.AutoCloseParentIssues, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetAutoCloseParentIssues() bool { return v.Team.AutoCloseParentIssues }
+
+// GetAutoCloseChildIssues returns getTeamTeam.AutoCloseChildIssues, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetAutoCloseChildIssues() bool { return v.Team.AutoCloseChildIssues }
 
 // GetTriageEnabled returns getTeamTeam.TriageEnabled, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetTriageEnabled() bool { return v.Team.TriageEnabled }
@@ -2412,9 +2447,6 @@ func (v *getTeamTeam) GetIssueEstimationExtended() bool { return v.Team.IssueEst
 // GetDefaultIssueEstimate returns getTeamTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetDefaultIssueEstimate() float64 { return v.Team.DefaultIssueEstimate }
 
-// GetAiThreadSummariesEnabled returns getTeamTeam.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
-func (v *getTeamTeam) GetAiThreadSummariesEnabled() bool { return v.Team.AiThreadSummariesEnabled }
-
 func (v *getTeamTeam) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -2461,9 +2493,15 @@ type __premarshalgetTeamTeam struct {
 
 	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
+
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
+
+	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
+
+	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
 
 	TriageEnabled bool `json:"triageEnabled"`
 
@@ -2492,8 +2530,6 @@ type __premarshalgetTeamTeam struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
-
-	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 }
 
 func (v *getTeamTeam) MarshalJSON() ([]byte, error) {
@@ -2517,8 +2553,11 @@ func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
 	retval.Timezone = v.Team.Timezone
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
 	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
+	retval.AiThreadSummariesEnabled = v.Team.AiThreadSummariesEnabled
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
 	retval.AutoClosePeriod = v.Team.AutoClosePeriod
+	retval.AutoCloseParentIssues = v.Team.AutoCloseParentIssues
+	retval.AutoCloseChildIssues = v.Team.AutoCloseChildIssues
 	retval.TriageEnabled = v.Team.TriageEnabled
 	retval.RequirePriorityToLeaveTriage = v.Team.RequirePriorityToLeaveTriage
 	retval.CyclesEnabled = v.Team.CyclesEnabled
@@ -2533,7 +2572,6 @@ func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
-	retval.AiThreadSummariesEnabled = v.Team.AiThreadSummariesEnabled
 	return &retval, nil
 }
 
@@ -3175,6 +3213,11 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetSetIssueSortOrderOnStateChange(
 	return v.Team.SetIssueSortOrderOnStateChange
 }
 
+// GetAiThreadSummariesEnabled returns updateTeamTeamUpdateTeamPayloadTeam.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAiThreadSummariesEnabled() bool {
+	return v.Team.AiThreadSummariesEnabled
+}
+
 // GetAutoArchivePeriod returns updateTeamTeamUpdateTeamPayloadTeam.AutoArchivePeriod, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAutoArchivePeriod() float64 {
 	return v.Team.AutoArchivePeriod
@@ -3183,6 +3226,16 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAutoArchivePeriod() float64 {
 // GetAutoClosePeriod returns updateTeamTeamUpdateTeamPayloadTeam.AutoClosePeriod, and is useful for accessing the field via an interface.
 func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAutoClosePeriod() *float64 {
 	return v.Team.AutoClosePeriod
+}
+
+// GetAutoCloseParentIssues returns updateTeamTeamUpdateTeamPayloadTeam.AutoCloseParentIssues, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAutoCloseParentIssues() bool {
+	return v.Team.AutoCloseParentIssues
+}
+
+// GetAutoCloseChildIssues returns updateTeamTeamUpdateTeamPayloadTeam.AutoCloseChildIssues, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAutoCloseChildIssues() bool {
+	return v.Team.AutoCloseChildIssues
 }
 
 // GetTriageEnabled returns updateTeamTeamUpdateTeamPayloadTeam.TriageEnabled, and is useful for accessing the field via an interface.
@@ -3247,11 +3300,6 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetDefaultIssueEstimate() float64 
 	return v.Team.DefaultIssueEstimate
 }
 
-// GetAiThreadSummariesEnabled returns updateTeamTeamUpdateTeamPayloadTeam.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
-func (v *updateTeamTeamUpdateTeamPayloadTeam) GetAiThreadSummariesEnabled() bool {
-	return v.Team.AiThreadSummariesEnabled
-}
-
 func (v *updateTeamTeamUpdateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -3298,9 +3346,15 @@ type __premarshalupdateTeamTeamUpdateTeamPayloadTeam struct {
 
 	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
+
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
+
+	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
+
+	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
 
 	TriageEnabled bool `json:"triageEnabled"`
 
@@ -3329,8 +3383,6 @@ type __premarshalupdateTeamTeamUpdateTeamPayloadTeam struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
-
-	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 }
 
 func (v *updateTeamTeamUpdateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
@@ -3354,8 +3406,11 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalu
 	retval.Timezone = v.Team.Timezone
 	retval.GroupIssueHistory = v.Team.GroupIssueHistory
 	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
+	retval.AiThreadSummariesEnabled = v.Team.AiThreadSummariesEnabled
 	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
 	retval.AutoClosePeriod = v.Team.AutoClosePeriod
+	retval.AutoCloseParentIssues = v.Team.AutoCloseParentIssues
+	retval.AutoCloseChildIssues = v.Team.AutoCloseChildIssues
 	retval.TriageEnabled = v.Team.TriageEnabled
 	retval.RequirePriorityToLeaveTriage = v.Team.RequirePriorityToLeaveTriage
 	retval.CyclesEnabled = v.Team.CyclesEnabled
@@ -3370,7 +3425,6 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalu
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
-	retval.AiThreadSummariesEnabled = v.Team.AiThreadSummariesEnabled
 	return &retval, nil
 }
 
@@ -3716,8 +3770,11 @@ fragment Team on Team {
 	timezone
 	groupIssueHistory
 	setIssueSortOrderOnStateChange
+	aiThreadSummariesEnabled
 	autoArchivePeriod
 	autoClosePeriod
+	autoCloseParentIssues
+	autoCloseChildIssues
 	triageEnabled
 	requirePriorityToLeaveTriage
 	cyclesEnabled
@@ -3732,7 +3789,6 @@ fragment Team on Team {
 	issueEstimationAllowZero
 	issueEstimationExtended
 	defaultIssueEstimate
-	aiThreadSummariesEnabled
 }
 `,
 		Variables: &__createTeamInput{
@@ -4103,8 +4159,11 @@ fragment Team on Team {
 	timezone
 	groupIssueHistory
 	setIssueSortOrderOnStateChange
+	aiThreadSummariesEnabled
 	autoArchivePeriod
 	autoClosePeriod
+	autoCloseParentIssues
+	autoCloseChildIssues
 	triageEnabled
 	requirePriorityToLeaveTriage
 	cyclesEnabled
@@ -4119,7 +4178,6 @@ fragment Team on Team {
 	issueEstimationAllowZero
 	issueEstimationExtended
 	defaultIssueEstimate
-	aiThreadSummariesEnabled
 }
 `,
 		Variables: &__getTeamInput{
@@ -4451,8 +4509,11 @@ fragment Team on Team {
 	timezone
 	groupIssueHistory
 	setIssueSortOrderOnStateChange
+	aiThreadSummariesEnabled
 	autoArchivePeriod
 	autoClosePeriod
+	autoCloseParentIssues
+	autoCloseChildIssues
 	triageEnabled
 	requirePriorityToLeaveTriage
 	cyclesEnabled
@@ -4467,7 +4528,6 @@ fragment Team on Team {
 	issueEstimationAllowZero
 	issueEstimationExtended
 	defaultIssueEstimate
-	aiThreadSummariesEnabled
 }
 `,
 		Variables: &__updateTeamInput{

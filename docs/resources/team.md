@@ -30,6 +30,8 @@ resource "linear_team" "example" {
 ### Optional
 
 - `auto_archive_period` (Number) Period after which closed and completed issues are automatically archived, in months. **Default** `6`.
+- `auto_close_child_issues` (Boolean) Whether to automatically close child issues when their parent issue is closed. **Default** `false`.
+- `auto_close_parent_issues` (Boolean) Whether to automatically close parent issues when all their child issues are closed. **Default** `false`.
 - `auto_close_period` (Number) Period after which non-completed or non-canceled issues are automatically closed, in months. **Default** `6`. *Use `0` for turning this off.*
 - `backlog_workflow_state` (Attributes) Settings for the `backlog` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--backlog_workflow_state))
 - `canceled_workflow_state` (Attributes) Settings for the `canceled` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--canceled_workflow_state))
