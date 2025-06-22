@@ -248,6 +248,8 @@ type Organization struct {
 	FeedEnabled bool `json:"feedEnabled"`
 	// Default schedule for how often feed summaries are generated.
 	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
+	// Whether the organization is using Customers.
+	CustomersEnabled bool `json:"customersEnabled"`
 }
 
 // GetId returns Organization.Id, and is useful for accessing the field via an interface.
@@ -309,6 +311,9 @@ func (v *Organization) GetFeedEnabled() bool { return v.FeedEnabled }
 func (v *Organization) GetDefaultFeedSummarySchedule() FeedSummarySchedule {
 	return v.DefaultFeedSummarySchedule
 }
+
+// GetCustomersEnabled returns Organization.CustomersEnabled, and is useful for accessing the field via an interface.
+func (v *Organization) GetCustomersEnabled() bool { return v.CustomersEnabled }
 
 // [INTERNAL] Organization IP restriction configuration.
 type OrganizationIpRestrictionInput struct {
@@ -388,7 +393,7 @@ type OrganizationUpdateInput struct {
 	// [INTERNAL] Whether the organization is using customers.
 	CustomersEnabled bool `json:"customersEnabled"`
 	// [INTERNAL] Configuration settings for the Customers feature.
-	CustomersConfiguration map[string]interface{} `json:"customersConfiguration,omitempty"`
+	CustomersConfiguration *map[string]interface{} `json:"customersConfiguration,omitempty"`
 	// Whether the organization has enabled the feed feature.
 	FeedEnabled bool `json:"feedEnabled"`
 	// Default schedule for how often feed summaries are generated.
@@ -506,7 +511,7 @@ func (v *OrganizationUpdateInput) GetThemeSettings() map[string]interface{} { re
 func (v *OrganizationUpdateInput) GetCustomersEnabled() bool { return v.CustomersEnabled }
 
 // GetCustomersConfiguration returns OrganizationUpdateInput.CustomersConfiguration, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetCustomersConfiguration() map[string]interface{} {
+func (v *OrganizationUpdateInput) GetCustomersConfiguration() *map[string]interface{} {
 	return v.CustomersConfiguration
 }
 
@@ -3061,6 +3066,11 @@ func (v *getWorkspaceSettingsOrganization) GetDefaultFeedSummarySchedule() FeedS
 	return v.Organization.DefaultFeedSummarySchedule
 }
 
+// GetCustomersEnabled returns getWorkspaceSettingsOrganization.CustomersEnabled, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetCustomersEnabled() bool {
+	return v.Organization.CustomersEnabled
+}
+
 func (v *getWorkspaceSettingsOrganization) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -3118,6 +3128,8 @@ type __premarshalgetWorkspaceSettingsOrganization struct {
 	FeedEnabled bool `json:"feedEnabled"`
 
 	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
+
+	CustomersEnabled bool `json:"customersEnabled"`
 }
 
 func (v *getWorkspaceSettingsOrganization) MarshalJSON() ([]byte, error) {
@@ -3147,6 +3159,7 @@ func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetW
 	retval.InitiativeUpdateRemindersHour = v.Organization.InitiativeUpdateRemindersHour
 	retval.FeedEnabled = v.Organization.FeedEnabled
 	retval.DefaultFeedSummarySchedule = v.Organization.DefaultFeedSummarySchedule
+	retval.CustomersEnabled = v.Organization.CustomersEnabled
 	return &retval, nil
 }
 
@@ -3805,6 +3818,11 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	return v.Organization.DefaultFeedSummarySchedule
 }
 
+// GetCustomersEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.CustomersEnabled, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetCustomersEnabled() bool {
+	return v.Organization.CustomersEnabled
+}
+
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -3862,6 +3880,8 @@ type __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrg
 	FeedEnabled bool `json:"feedEnabled"`
 
 	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
+
+	CustomersEnabled bool `json:"customersEnabled"`
 }
 
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) MarshalJSON() ([]byte, error) {
@@ -3891,6 +3911,7 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	retval.InitiativeUpdateRemindersHour = v.Organization.InitiativeUpdateRemindersHour
 	retval.FeedEnabled = v.Organization.FeedEnabled
 	retval.DefaultFeedSummarySchedule = v.Organization.DefaultFeedSummarySchedule
+	retval.CustomersEnabled = v.Organization.CustomersEnabled
 	return &retval, nil
 }
 
@@ -4633,6 +4654,7 @@ fragment Organization on Organization {
 	initiativeUpdateRemindersHour
 	feedEnabled
 	defaultFeedSummarySchedule
+	customersEnabled
 }
 `,
 	}
@@ -4878,6 +4900,7 @@ fragment Organization on Organization {
 	initiativeUpdateRemindersHour
 	feedEnabled
 	defaultFeedSummarySchedule
+	customersEnabled
 }
 `,
 		Variables: &__updateWorkspaceSettingsInput{
