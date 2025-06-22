@@ -21,6 +21,7 @@ func TestAccTeamWorkflowResourceDefault(t *testing.T) {
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "draft"),
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "start"),
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "review"),
+					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "mergeable"),
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "merge"),
 				),
 			},
@@ -40,6 +41,7 @@ func TestAccTeamWorkflowResourceDefault(t *testing.T) {
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "draft"),
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "start"),
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "review"),
+					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "mergeable"),
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "merge"),
 				),
 			},
@@ -52,6 +54,7 @@ func TestAccTeamWorkflowResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "draft", "5dbca6c1-9ee2-4bf7-a275-8b69ae27ad14"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "start", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "review", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "mergeable", "53099a59-c811-4b9c-8016-5443ce513de4"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "merge", "66df5c88-cae8-416b-b4e9-85a42b159e18"),
 				),
 			},
@@ -81,6 +84,7 @@ func TestAccTeamWorkflowResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "draft", "5dbca6c1-9ee2-4bf7-a275-8b69ae27ad14"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "start", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "review", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "mergeable", "53099a59-c811-4b9c-8016-5443ce513de4"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "merge", "66df5c88-cae8-416b-b4e9-85a42b159e18"),
 				),
 			},
@@ -100,6 +104,7 @@ func TestAccTeamWorkflowResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "draft", "5dbca6c1-9ee2-4bf7-a275-8b69ae27ad14"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "start", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "review", "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "mergeable", "53099a59-c811-4b9c-8016-5443ce513de4"),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "merge", "66df5c88-cae8-416b-b4e9-85a42b159e18"),
 				),
 			},
@@ -112,6 +117,7 @@ func TestAccTeamWorkflowResourceNonDefault(t *testing.T) {
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "draft"),
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "start"),
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "review"),
+					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "mergeable"),
 					resource.TestCheckNoResourceAttr("linear_team_workflow.test", "merge"),
 				),
 			},
@@ -142,6 +148,7 @@ resource "linear_team_workflow" "test" {
   draft = "5dbca6c1-9ee2-4bf7-a275-8b69ae27ad14"
   start = "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"
   review = "9b6fdbd0-fd66-4ea2-a01d-a24ecf0c1191"
+  mergeable = "53099a59-c811-4b9c-8016-5443ce513de4"
   merge = "66df5c88-cae8-416b-b4e9-85a42b159e18"
 }
 `, key)
