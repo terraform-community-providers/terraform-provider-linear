@@ -29,6 +29,7 @@ resource "linear_team_workflow" "example" {
 
 ### Optional
 
+- `branch` (Attributes) Branch settings for this workflow state. (see [below for nested schema](#nestedatt--branch))
 - `draft` (String) Workflow state used when draft PRs are opened.
 - `merge` (String) Workflow state used when PRs are merged.
 - `mergeable` (String) Workflow state used when PRs become mergeable.
@@ -38,6 +39,21 @@ resource "linear_team_workflow" "example" {
 ### Read-Only
 
 - `id` (String) Identifier of the team.
+
+<a id="nestedatt--branch"></a>
+### Nested Schema for `branch`
+
+Required:
+
+- `pattern` (String) Branch pattern to match.
+
+Optional:
+
+- `is_regex` (Boolean) Whether the branch pattern is a regex. **Default** `false`.
+
+Read-Only:
+
+- `id` (String) Identifier of the branch pattern.
 
 ## Import
 
