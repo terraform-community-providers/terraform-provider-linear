@@ -14,7 +14,7 @@ Linear workspace settings.
 
 ```terraform
 resource "linear_workspace_settings" "example" {
-  enable_roadmap = true
+  enable_git_linkback_messages_public = true
 }
 ```
 
@@ -28,12 +28,23 @@ resource "linear_workspace_settings" "example" {
 - `allow_members_to_manage_labels` (Boolean) Allow members to manage labels in the workspace. **Default** `true`.
 - `enable_git_linkback_messages` (Boolean) Enable git linkbacks for private repositories. **Default** `true`.
 - `enable_git_linkback_messages_public` (Boolean) Enable git linkbacks for public repositories. **Default** `false`.
-- `enable_roadmap` (Boolean) Enable roadmap for the workspace. **Default** `false`.
+- `initiatives` (Attributes) Initiative settings for the workspace. (see [below for nested schema](#nestedatt--initiatives))
 - `projects` (Attributes) Project settings for the workspace. (see [below for nested schema](#nestedatt--projects))
 
 ### Read-Only
 
 - `id` (String) Identifier of the workspace.
+
+<a id="nestedatt--initiatives"></a>
+### Nested Schema for `initiatives`
+
+Optional:
+
+- `enabled` (Boolean) Enable roadmap for initiatives. **Default** `false`.
+- `update_reminder_day` (String) Day on which to prompt for initiative updates. **Default** `Friday`.
+- `update_reminder_frequency` (Number) Frequency in weeks to send initiative update reminders. **Default** `0`.
+- `update_reminder_hour` (Number) Hour of day (0-23) at which to prompt for initiative updates. **Default** `14`.
+
 
 <a id="nestedatt--projects"></a>
 ### Nested Schema for `projects`
