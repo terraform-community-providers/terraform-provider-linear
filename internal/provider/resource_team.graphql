@@ -29,6 +29,7 @@ fragment Team on Team {
   issueEstimationAllowZero
   issueEstimationExtended
   defaultIssueEstimate
+  aiThreadSummariesEnabled
 }
 
 query getTeam($key: String!) {

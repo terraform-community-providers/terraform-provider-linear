@@ -129,7 +129,7 @@ func (r *TeamWorkflowResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	err := update(ctx, r.client, data)
+	err := updateTeamWorkflow(ctx, r.client, data)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("%s", err))
@@ -171,7 +171,7 @@ func (r *TeamWorkflowResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
-	err := update(ctx, r.client, data)
+	err := updateTeamWorkflow(ctx, r.client, data)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("%s", err))
@@ -195,7 +195,7 @@ func (r *TeamWorkflowResource) Delete(ctx context.Context, req resource.DeleteRe
 
 	data.Key = state.Key
 
-	err := update(ctx, r.client, &data)
+	err := updateTeamWorkflow(ctx, r.client, &data)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete team workflow, got error: %s", err))
@@ -209,7 +209,7 @@ func (r *TeamWorkflowResource) ImportState(ctx context.Context, req resource.Imp
 	resource.ImportStatePassthroughID(ctx, path.Root("key"), req, resp)
 }
 
-func update(ctx context.Context, client *graphql.Client, data *TeamWorkflowResourceModel) error {
+func updateTeamWorkflow(ctx context.Context, client *graphql.Client, data *TeamWorkflowResourceModel) error {
 	teamKey := data.Key.ValueString()
 
 	existing, err := getTeamWorkflow(ctx, *client, teamKey)

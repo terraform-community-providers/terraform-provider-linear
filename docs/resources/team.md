@@ -39,6 +39,7 @@ resource "linear_team" "example" {
 - `description` (String) Description of the team.
 - `enable_issue_default_to_bottom` (Boolean) Enable moving issues to bottom of the column when changing state. **Default** `false`.
 - `enable_issue_history_grouping` (Boolean) Enable issue history grouping for the team. **Default** `true`.
+- `enable_thread_summaries` (Boolean) Enable resolved thread AI summaries for the team. **Default** `true`.
 - `estimation` (Attributes) Issue estimation settings of the team. (see [below for nested schema](#nestedatt--estimation))
 - `icon` (String) Icon of the team.
 - `private` (Boolean) Privacy of the team. **Default** `false`.
