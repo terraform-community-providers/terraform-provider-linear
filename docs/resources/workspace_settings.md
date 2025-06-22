@@ -29,6 +29,7 @@ resource "linear_workspace_settings" "example" {
 - `enable_git_linkback_messages` (Boolean) Enable git linkbacks for private repositories. **Default** `true`.
 - `enable_git_linkback_messages_public` (Boolean) Enable git linkbacks for public repositories. **Default** `false`.
 - `feed` (Attributes) Feed settings for the workspace. (see [below for nested schema](#nestedatt--feed))
+- `fiscal_year_start_month` (Number) Month at which the fiscal year starts. **Default** `0` representing January.
 - `initiatives` (Attributes) Initiative settings for the workspace. (see [below for nested schema](#nestedatt--initiatives))
 - `projects` (Attributes) Project settings for the workspace. (see [below for nested schema](#nestedatt--projects))
 

@@ -21,6 +21,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "0"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Friday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "14"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "0"),
@@ -48,6 +49,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "0"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Friday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "14"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "0"),
@@ -69,6 +71,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "7"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Wednesday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "9"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "2"),
@@ -106,6 +109,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "7"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Wednesday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "9"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "2"),
@@ -133,6 +137,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "7"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Wednesday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "9"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "2"),
@@ -154,6 +159,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "0"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_day", "Friday"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_hour", "14"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "projects.update_reminder_frequency", "0"),
@@ -191,6 +197,7 @@ resource "linear_workspace_settings" "test" {
 	allow_members_to_manage_labels = false
 	enable_git_linkback_messages = false
 	enable_git_linkback_messages_public = true
+	fiscal_year_start_month = 7
 
 	projects = {
 		update_reminder_day       = "Wednesday"

@@ -1,10 +1,11 @@
 fragment Organization on Organization {
   id
   allowMembersToInvite
-  gitLinkbackMessagesEnabled
-  gitPublicLinkbackMessagesEnabled
   restrictTeamCreationToAdmins
   restrictLabelManagementToAdmins
+  gitLinkbackMessagesEnabled
+  gitPublicLinkbackMessagesEnabled
+  fiscalYearStartMonth
   projectUpdateReminderFrequencyInWeeks
   projectUpdateRemindersDay
   projectUpdateRemindersHour
@@ -26,7 +27,6 @@ query getWorkspaceSettings {
 # @genqlient(for: "OrganizationUpdateInput.urlKey", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.logoUrl", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.gitBranchFormat", omitempty: true)
-# @genqlient(for: "OrganizationUpdateInput.fiscalYearStartMonth", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.workingDays", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.reducedPersonalInformation", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.oauthAppReview", omitempty: true)

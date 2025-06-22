@@ -220,14 +220,16 @@ type Organization struct {
 	Id string `json:"id"`
 	// Whether member users are allowed to send invites.
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
-	// Whether the Git integration linkback messages should be sent to private repositories.
-	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
-	// Whether the Git integration linkback messages should be sent to public repositories.
-	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
 	// Whether team creation is restricted to admins.
 	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
 	// Whether workspace label creation, update, and deletion is restricted to admins.
 	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+	// Whether the Git integration linkback messages should be sent to private repositories.
+	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
+	// Whether the Git integration linkback messages should be sent to public repositories.
+	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+	// The month at which the fiscal year starts. Defaults to January (0).
+	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
 	// The n-weekly frequency at which to prompt for project updates. When not set, reminders are off.
 	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
 	// The day at which to prompt for project updates.
@@ -254,6 +256,14 @@ func (v *Organization) GetId() string { return v.Id }
 // GetAllowMembersToInvite returns Organization.AllowMembersToInvite, and is useful for accessing the field via an interface.
 func (v *Organization) GetAllowMembersToInvite() bool { return v.AllowMembersToInvite }
 
+// GetRestrictTeamCreationToAdmins returns Organization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
+func (v *Organization) GetRestrictTeamCreationToAdmins() bool { return v.RestrictTeamCreationToAdmins }
+
+// GetRestrictLabelManagementToAdmins returns Organization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
+func (v *Organization) GetRestrictLabelManagementToAdmins() bool {
+	return v.RestrictLabelManagementToAdmins
+}
+
 // GetGitLinkbackMessagesEnabled returns Organization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *Organization) GetGitLinkbackMessagesEnabled() bool { return v.GitLinkbackMessagesEnabled }
 
@@ -262,13 +272,8 @@ func (v *Organization) GetGitPublicLinkbackMessagesEnabled() bool {
 	return v.GitPublicLinkbackMessagesEnabled
 }
 
-// GetRestrictTeamCreationToAdmins returns Organization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
-func (v *Organization) GetRestrictTeamCreationToAdmins() bool { return v.RestrictTeamCreationToAdmins }
-
-// GetRestrictLabelManagementToAdmins returns Organization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
-func (v *Organization) GetRestrictLabelManagementToAdmins() bool {
-	return v.RestrictLabelManagementToAdmins
-}
+// GetFiscalYearStartMonth returns Organization.FiscalYearStartMonth, and is useful for accessing the field via an interface.
+func (v *Organization) GetFiscalYearStartMonth() float64 { return v.FiscalYearStartMonth }
 
 // GetProjectUpdateReminderFrequencyInWeeks returns Organization.ProjectUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
 func (v *Organization) GetProjectUpdateReminderFrequencyInWeeks() float64 {
@@ -357,7 +362,7 @@ type OrganizationUpdateInput struct {
 	// [ALPHA] The hour at which initiative updates are sent.
 	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour"`
 	// The month at which the fiscal year starts.
-	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth,omitempty"`
+	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
 	// [Internal] The list of working days. Sunday is 0, Monday is 1, etc.
 	WorkingDays []float64 `json:"workingDays,omitempty"`
 	// Whether the organization has opted for reduced customer support attachment information.
@@ -2988,6 +2993,16 @@ func (v *getWorkspaceSettingsOrganization) GetAllowMembersToInvite() bool {
 	return v.Organization.AllowMembersToInvite
 }
 
+// GetRestrictTeamCreationToAdmins returns getWorkspaceSettingsOrganization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetRestrictTeamCreationToAdmins() bool {
+	return v.Organization.RestrictTeamCreationToAdmins
+}
+
+// GetRestrictLabelManagementToAdmins returns getWorkspaceSettingsOrganization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetRestrictLabelManagementToAdmins() bool {
+	return v.Organization.RestrictLabelManagementToAdmins
+}
+
 // GetGitLinkbackMessagesEnabled returns getWorkspaceSettingsOrganization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *getWorkspaceSettingsOrganization) GetGitLinkbackMessagesEnabled() bool {
 	return v.Organization.GitLinkbackMessagesEnabled
@@ -2998,14 +3013,9 @@ func (v *getWorkspaceSettingsOrganization) GetGitPublicLinkbackMessagesEnabled()
 	return v.Organization.GitPublicLinkbackMessagesEnabled
 }
 
-// GetRestrictTeamCreationToAdmins returns getWorkspaceSettingsOrganization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
-func (v *getWorkspaceSettingsOrganization) GetRestrictTeamCreationToAdmins() bool {
-	return v.Organization.RestrictTeamCreationToAdmins
-}
-
-// GetRestrictLabelManagementToAdmins returns getWorkspaceSettingsOrganization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
-func (v *getWorkspaceSettingsOrganization) GetRestrictLabelManagementToAdmins() bool {
-	return v.Organization.RestrictLabelManagementToAdmins
+// GetFiscalYearStartMonth returns getWorkspaceSettingsOrganization.FiscalYearStartMonth, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetFiscalYearStartMonth() float64 {
+	return v.Organization.FiscalYearStartMonth
 }
 
 // GetProjectUpdateReminderFrequencyInWeeks returns getWorkspaceSettingsOrganization.ProjectUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
@@ -3081,13 +3091,15 @@ type __premarshalgetWorkspaceSettingsOrganization struct {
 
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
 
+	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
+
+	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
 
-	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
-
-	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
 
 	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
 
@@ -3121,10 +3133,11 @@ func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetW
 
 	retval.Id = v.Organization.Id
 	retval.AllowMembersToInvite = v.Organization.AllowMembersToInvite
-	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
-	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
 	retval.RestrictTeamCreationToAdmins = v.Organization.RestrictTeamCreationToAdmins
 	retval.RestrictLabelManagementToAdmins = v.Organization.RestrictLabelManagementToAdmins
+	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
+	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
+	retval.FiscalYearStartMonth = v.Organization.FiscalYearStartMonth
 	retval.ProjectUpdateReminderFrequencyInWeeks = v.Organization.ProjectUpdateReminderFrequencyInWeeks
 	retval.ProjectUpdateRemindersDay = v.Organization.ProjectUpdateRemindersDay
 	retval.ProjectUpdateRemindersHour = v.Organization.ProjectUpdateRemindersHour
@@ -3722,6 +3735,16 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	return v.Organization.AllowMembersToInvite
 }
 
+// GetRestrictTeamCreationToAdmins returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRestrictTeamCreationToAdmins() bool {
+	return v.Organization.RestrictTeamCreationToAdmins
+}
+
+// GetRestrictLabelManagementToAdmins returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRestrictLabelManagementToAdmins() bool {
+	return v.Organization.RestrictLabelManagementToAdmins
+}
+
 // GetGitLinkbackMessagesEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetGitLinkbackMessagesEnabled() bool {
 	return v.Organization.GitLinkbackMessagesEnabled
@@ -3732,14 +3755,9 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	return v.Organization.GitPublicLinkbackMessagesEnabled
 }
 
-// GetRestrictTeamCreationToAdmins returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRestrictTeamCreationToAdmins() bool {
-	return v.Organization.RestrictTeamCreationToAdmins
-}
-
-// GetRestrictLabelManagementToAdmins returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRestrictLabelManagementToAdmins() bool {
-	return v.Organization.RestrictLabelManagementToAdmins
+// GetFiscalYearStartMonth returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.FiscalYearStartMonth, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetFiscalYearStartMonth() float64 {
+	return v.Organization.FiscalYearStartMonth
 }
 
 // GetProjectUpdateReminderFrequencyInWeeks returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.ProjectUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
@@ -3817,13 +3835,15 @@ type __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrg
 
 	AllowMembersToInvite bool `json:"allowMembersToInvite"`
 
+	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
+
+	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
 
-	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
-
-	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
 
 	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
 
@@ -3857,10 +3877,11 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 
 	retval.Id = v.Organization.Id
 	retval.AllowMembersToInvite = v.Organization.AllowMembersToInvite
-	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
-	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
 	retval.RestrictTeamCreationToAdmins = v.Organization.RestrictTeamCreationToAdmins
 	retval.RestrictLabelManagementToAdmins = v.Organization.RestrictLabelManagementToAdmins
+	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
+	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
+	retval.FiscalYearStartMonth = v.Organization.FiscalYearStartMonth
 	retval.ProjectUpdateReminderFrequencyInWeeks = v.Organization.ProjectUpdateReminderFrequencyInWeeks
 	retval.ProjectUpdateRemindersDay = v.Organization.ProjectUpdateRemindersDay
 	retval.ProjectUpdateRemindersHour = v.Organization.ProjectUpdateRemindersHour
@@ -4598,10 +4619,11 @@ query getWorkspaceSettings {
 fragment Organization on Organization {
 	id
 	allowMembersToInvite
-	gitLinkbackMessagesEnabled
-	gitPublicLinkbackMessagesEnabled
 	restrictTeamCreationToAdmins
 	restrictLabelManagementToAdmins
+	gitLinkbackMessagesEnabled
+	gitPublicLinkbackMessagesEnabled
+	fiscalYearStartMonth
 	projectUpdateReminderFrequencyInWeeks
 	projectUpdateRemindersDay
 	projectUpdateRemindersHour
@@ -4842,10 +4864,11 @@ mutation updateWorkspaceSettings ($input: OrganizationUpdateInput!) {
 fragment Organization on Organization {
 	id
 	allowMembersToInvite
-	gitLinkbackMessagesEnabled
-	gitPublicLinkbackMessagesEnabled
 	restrictTeamCreationToAdmins
 	restrictLabelManagementToAdmins
+	gitLinkbackMessagesEnabled
+	gitPublicLinkbackMessagesEnabled
+	fiscalYearStartMonth
 	projectUpdateReminderFrequencyInWeeks
 	projectUpdateRemindersDay
 	projectUpdateRemindersHour
