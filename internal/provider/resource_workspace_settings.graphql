@@ -9,6 +9,9 @@ fragment Organization on Organization {
   projectUpdateReminderFrequencyInWeeks
   projectUpdateRemindersDay
   projectUpdateRemindersHour
+  initiativeUpdateReminderFrequencyInWeeks
+  initiativeUpdateRemindersDay
+  initiativeUpdateRemindersHour
 }
 
 query getWorkspaceSettings {
@@ -21,9 +24,6 @@ query getWorkspaceSettings {
 # @genqlient(for: "OrganizationUpdateInput.urlKey", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.logoUrl", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.gitBranchFormat", omitempty: true)
-# @genqlient(for: "OrganizationUpdateInput.initiativeUpdateReminderFrequencyInWeeks", omitempty: true)
-# @genqlient(for: "OrganizationUpdateInput.initiativeUpdateRemindersDay", omitempty: true)
-# @genqlient(for: "OrganizationUpdateInput.initiativeUpdateRemindersHour", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.fiscalYearStartMonth", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.workingDays", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.reducedPersonalInformation", omitempty: true)

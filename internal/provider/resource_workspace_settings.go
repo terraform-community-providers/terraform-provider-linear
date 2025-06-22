@@ -34,13 +34,27 @@ type WorkspaceSettingsResource struct {
 	client *graphql.Client
 }
 
-type WorkspaceSettingsResourceProjectModel struct {
+type WorkspaceSettingsResourceProjectsModel struct {
 	UpdateReminderDay       types.String `tfsdk:"update_reminder_day"`
 	UpdateReminderHour      types.Int64  `tfsdk:"update_reminder_hour"`
 	UpdateReminderFrequency types.Int64  `tfsdk:"update_reminder_frequency"`
 }
 
-var projectAttrTypes = map[string]attr.Type{
+var projectsAttrTypes = map[string]attr.Type{
+	"update_reminder_day":       types.StringType,
+	"update_reminder_hour":      types.Int64Type,
+	"update_reminder_frequency": types.Int64Type,
+}
+
+type WorkspaceSettingsResourceInitiativesModel struct {
+	Enabled                 types.Bool   `tfsdk:"enabled"`
+	UpdateReminderDay       types.String `tfsdk:"update_reminder_day"`
+	UpdateReminderHour      types.Int64  `tfsdk:"update_reminder_hour"`
+	UpdateReminderFrequency types.Int64  `tfsdk:"update_reminder_frequency"`
+}
+
+var initiativesAttrTypes = map[string]attr.Type{
+	"enabled":                   types.BoolType,
 	"update_reminder_day":       types.StringType,
 	"update_reminder_hour":      types.Int64Type,
 	"update_reminder_frequency": types.Int64Type,
@@ -51,10 +65,10 @@ type WorkspaceSettingsResourceModel struct {
 	AllowMembersToInvite            types.Bool   `tfsdk:"allow_members_to_invite"`
 	AllowMembersToCreateTeams       types.Bool   `tfsdk:"allow_members_to_create_teams"`
 	AllowMembersToManageLabels      types.Bool   `tfsdk:"allow_members_to_manage_labels"`
-	EnableRoadmap                   types.Bool   `tfsdk:"enable_roadmap"`
 	EnableGitLinkbackMessages       types.Bool   `tfsdk:"enable_git_linkback_messages"`
 	EnableGitLinkbackMessagesPublic types.Bool   `tfsdk:"enable_git_linkback_messages_public"`
 	Projects                        types.Object `tfsdk:"projects"`
+	Initiatives                     types.Object `tfsdk:"initiatives"`
 }
 
 func (r *WorkspaceSettingsResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -90,12 +104,6 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 				Computed:            true,
 				Default:             booldefault.StaticBool(true),
 			},
-			"enable_roadmap": schema.BoolAttribute{
-				MarkdownDescription: "Enable roadmap for the workspace. **Default** `false`.",
-				Optional:            true,
-				Computed:            true,
-				Default:             booldefault.StaticBool(false),
-			},
 			"enable_git_linkback_messages": schema.BoolAttribute{
 				MarkdownDescription: "Enable git linkbacks for private repositories. **Default** `true`.",
 				Optional:            true,
@@ -114,7 +122,7 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 				Computed:            true,
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
-						projectAttrTypes,
+						projectsAttrTypes,
 						map[string]attr.Value{
 							"update_reminder_day":       types.StringValue("Friday"),
 							"update_reminder_hour":      types.Int64Value(14),
@@ -152,6 +160,57 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 					},
 				},
 			},
+			"initiatives": schema.SingleNestedAttribute{
+				MarkdownDescription: "Initiative settings for the workspace.",
+				Optional:            true,
+				Computed:            true,
+				Default: objectdefault.StaticValue(
+					types.ObjectValueMust(
+						initiativesAttrTypes,
+						map[string]attr.Value{
+							"enabled":                   types.BoolValue(false),
+							"update_reminder_day":       types.StringValue("Friday"),
+							"update_reminder_hour":      types.Int64Value(14),
+							"update_reminder_frequency": types.Int64Value(0),
+						},
+					),
+				),
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						MarkdownDescription: "Enable roadmap for initiatives. **Default** `false`.",
+						Optional:            true,
+						Computed:            true,
+						Default:             booldefault.StaticBool(false),
+					},
+					"update_reminder_day": schema.StringAttribute{
+						MarkdownDescription: "Day on which to prompt for initiative updates. **Default** `Friday`.",
+						Optional:            true,
+						Computed:            true,
+						Default:             stringdefault.StaticString("Friday"),
+						Validators: []validator.String{
+							stringvalidator.OneOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"),
+						},
+					},
+					"update_reminder_hour": schema.Int64Attribute{
+						MarkdownDescription: "Hour of day (0-23) at which to prompt for initiative updates. **Default** `14`.",
+						Optional:            true,
+						Computed:            true,
+						Default:             int64default.StaticInt64(2),
+						Validators: []validator.Int64{
+							int64validator.Between(0, 23),
+						},
+					},
+					"update_reminder_frequency": schema.Int64Attribute{
+						MarkdownDescription: "Frequency in weeks to send initiative update reminders. **Default** `0`.",
+						Optional:            true,
+						Computed:            true,
+						Default:             int64default.StaticInt64(0),
+						Validators: []validator.Int64{
+							int64validator.AtLeast(0),
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -178,7 +237,8 @@ func (r *WorkspaceSettingsResource) Configure(ctx context.Context, req resource.
 
 func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data *WorkspaceSettingsResourceModel
-	var projectsData *WorkspaceSettingsResourceProjectModel
+	var projectsData *WorkspaceSettingsResourceProjectsModel
+	var initiativesData *WorkspaceSettingsResourceInitiativesModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
@@ -186,24 +246,27 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	input := OrganizationUpdateInput{
-		AllowMembersToInvite:             data.AllowMembersToInvite.ValueBool(),
-		RestrictTeamCreationToAdmins:     !data.AllowMembersToCreateTeams.ValueBool(),
-		RestrictLabelManagementToAdmins:  !data.AllowMembersToManageLabels.ValueBool(),
-		RoadmapEnabled:                   data.EnableRoadmap.ValueBool(),
-		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.ValueBool(),
-		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.ValueBool(),
-	}
-
 	resp.Diagnostics.Append(data.Projects.As(ctx, &projectsData, basetypes.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Initiatives.As(ctx, &initiativesData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	input.ProjectUpdateReminderFrequencyInWeeks = float64(projectsData.UpdateReminderFrequency.ValueInt64())
-	input.ProjectUpdateRemindersDay = Day(projectsData.UpdateReminderDay.ValueString())
-	input.ProjectUpdateRemindersHour = float64(projectsData.UpdateReminderHour.ValueInt64())
+	input := OrganizationUpdateInput{
+		AllowMembersToInvite:                     data.AllowMembersToInvite.ValueBool(),
+		RestrictTeamCreationToAdmins:             !data.AllowMembersToCreateTeams.ValueBool(),
+		RestrictLabelManagementToAdmins:          !data.AllowMembersToManageLabels.ValueBool(),
+		RoadmapEnabled:                           initiativesData.Enabled.ValueBool(),
+		GitLinkbackMessagesEnabled:               data.EnableGitLinkbackMessages.ValueBool(),
+		GitPublicLinkbackMessagesEnabled:         data.EnableGitLinkbackMessagesPublic.ValueBool(),
+		ProjectUpdateReminderFrequencyInWeeks:    float64(projectsData.UpdateReminderFrequency.ValueInt64()),
+		ProjectUpdateRemindersDay:                Day(projectsData.UpdateReminderDay.ValueString()),
+		ProjectUpdateRemindersHour:               float64(projectsData.UpdateReminderHour.ValueInt64()),
+		InitiativeUpdateReminderFrequencyInWeeks: float64(initiativesData.UpdateReminderFrequency.ValueInt64()),
+		InitiativeUpdateRemindersDay:             Day(initiativesData.UpdateReminderDay.ValueString()),
+		InitiativeUpdateRemindersHour:            float64(initiativesData.UpdateReminderHour.ValueInt64()),
+	}
 
 	response, err := updateWorkspaceSettings(ctx, *r.client, input)
 
@@ -218,16 +281,25 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 	data.AllowMembersToInvite = types.BoolValue(organization.AllowMembersToInvite)
 	data.AllowMembersToCreateTeams = types.BoolValue(!organization.RestrictTeamCreationToAdmins)
 	data.AllowMembersToManageLabels = types.BoolValue(!organization.RestrictLabelManagementToAdmins)
-	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
 
 	data.Projects = types.ObjectValueMust(
-		projectAttrTypes,
+		projectsAttrTypes,
 		map[string]attr.Value{
 			"update_reminder_frequency": types.Int64Value(int64(organization.ProjectUpdateReminderFrequencyInWeeks)),
 			"update_reminder_day":       types.StringValue(string(organization.ProjectUpdateRemindersDay)),
 			"update_reminder_hour":      types.Int64Value(int64(organization.ProjectUpdateRemindersHour)),
+		},
+	)
+
+	data.Initiatives = types.ObjectValueMust(
+		initiativesAttrTypes,
+		map[string]attr.Value{
+			"enabled":                   types.BoolValue(organization.RoadmapEnabled),
+			"update_reminder_frequency": types.Int64Value(int64(organization.InitiativeUpdateReminderFrequencyInWeeks)),
+			"update_reminder_day":       types.StringValue(string(organization.InitiativeUpdateRemindersDay)),
+			"update_reminder_hour":      types.Int64Value(int64(organization.InitiativeUpdateRemindersHour)),
 		},
 	)
 
@@ -256,16 +328,25 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 	data.AllowMembersToInvite = types.BoolValue(organization.AllowMembersToInvite)
 	data.AllowMembersToCreateTeams = types.BoolValue(!organization.RestrictTeamCreationToAdmins)
 	data.AllowMembersToManageLabels = types.BoolValue(!organization.RestrictLabelManagementToAdmins)
-	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
 
 	data.Projects = types.ObjectValueMust(
-		projectAttrTypes,
+		projectsAttrTypes,
 		map[string]attr.Value{
 			"update_reminder_frequency": types.Int64Value(int64(organization.ProjectUpdateReminderFrequencyInWeeks)),
 			"update_reminder_day":       types.StringValue(string(organization.ProjectUpdateRemindersDay)),
 			"update_reminder_hour":      types.Int64Value(int64(organization.ProjectUpdateRemindersHour)),
+		},
+	)
+
+	data.Initiatives = types.ObjectValueMust(
+		initiativesAttrTypes,
+		map[string]attr.Value{
+			"enabled":                   types.BoolValue(organization.RoadmapEnabled),
+			"update_reminder_frequency": types.Int64Value(int64(organization.InitiativeUpdateReminderFrequencyInWeeks)),
+			"update_reminder_day":       types.StringValue(string(organization.InitiativeUpdateRemindersDay)),
+			"update_reminder_hour":      types.Int64Value(int64(organization.InitiativeUpdateRemindersHour)),
 		},
 	)
 
@@ -274,7 +355,8 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 
 func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data *WorkspaceSettingsResourceModel
-	var projectsData *WorkspaceSettingsResourceProjectModel
+	var projectsData *WorkspaceSettingsResourceProjectsModel
+	var initiativesData *WorkspaceSettingsResourceInitiativesModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
@@ -282,24 +364,27 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 		return
 	}
 
-	input := OrganizationUpdateInput{
-		AllowMembersToInvite:             data.AllowMembersToInvite.ValueBool(),
-		RestrictTeamCreationToAdmins:     !data.AllowMembersToCreateTeams.ValueBool(),
-		RestrictLabelManagementToAdmins:  !data.AllowMembersToManageLabels.ValueBool(),
-		RoadmapEnabled:                   data.EnableRoadmap.ValueBool(),
-		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.ValueBool(),
-		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.ValueBool(),
-	}
-
 	resp.Diagnostics.Append(data.Projects.As(ctx, &projectsData, basetypes.ObjectAsOptions{})...)
+	resp.Diagnostics.Append(data.Initiatives.As(ctx, &initiativesData, basetypes.ObjectAsOptions{})...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	input.ProjectUpdateReminderFrequencyInWeeks = float64(projectsData.UpdateReminderFrequency.ValueInt64())
-	input.ProjectUpdateRemindersDay = Day(projectsData.UpdateReminderDay.ValueString())
-	input.ProjectUpdateRemindersHour = float64(projectsData.UpdateReminderHour.ValueInt64())
+	input := OrganizationUpdateInput{
+		AllowMembersToInvite:                     data.AllowMembersToInvite.ValueBool(),
+		RestrictTeamCreationToAdmins:             !data.AllowMembersToCreateTeams.ValueBool(),
+		RestrictLabelManagementToAdmins:          !data.AllowMembersToManageLabels.ValueBool(),
+		RoadmapEnabled:                           initiativesData.Enabled.ValueBool(),
+		GitLinkbackMessagesEnabled:               data.EnableGitLinkbackMessages.ValueBool(),
+		GitPublicLinkbackMessagesEnabled:         data.EnableGitLinkbackMessagesPublic.ValueBool(),
+		ProjectUpdateReminderFrequencyInWeeks:    float64(projectsData.UpdateReminderFrequency.ValueInt64()),
+		ProjectUpdateRemindersDay:                Day(projectsData.UpdateReminderDay.ValueString()),
+		ProjectUpdateRemindersHour:               float64(projectsData.UpdateReminderHour.ValueInt64()),
+		InitiativeUpdateReminderFrequencyInWeeks: float64(initiativesData.UpdateReminderFrequency.ValueInt64()),
+		InitiativeUpdateRemindersDay:             Day(initiativesData.UpdateReminderDay.ValueString()),
+		InitiativeUpdateRemindersHour:            float64(initiativesData.UpdateReminderHour.ValueInt64()),
+	}
 
 	response, err := updateWorkspaceSettings(ctx, *r.client, input)
 
@@ -316,16 +401,25 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 	data.AllowMembersToInvite = types.BoolValue(organization.AllowMembersToInvite)
 	data.AllowMembersToCreateTeams = types.BoolValue(!organization.RestrictTeamCreationToAdmins)
 	data.AllowMembersToManageLabels = types.BoolValue(!organization.RestrictLabelManagementToAdmins)
-	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
 
 	data.Projects = types.ObjectValueMust(
-		projectAttrTypes,
+		projectsAttrTypes,
 		map[string]attr.Value{
 			"update_reminder_frequency": types.Int64Value(int64(organization.ProjectUpdateReminderFrequencyInWeeks)),
 			"update_reminder_day":       types.StringValue(string(organization.ProjectUpdateRemindersDay)),
 			"update_reminder_hour":      types.Int64Value(int64(organization.ProjectUpdateRemindersHour)),
+		},
+	)
+
+	data.Initiatives = types.ObjectValueMust(
+		initiativesAttrTypes,
+		map[string]attr.Value{
+			"enabled":                   types.BoolValue(organization.RoadmapEnabled),
+			"update_reminder_frequency": types.Int64Value(int64(organization.InitiativeUpdateReminderFrequencyInWeeks)),
+			"update_reminder_day":       types.StringValue(string(organization.InitiativeUpdateRemindersDay)),
+			"update_reminder_hour":      types.Int64Value(int64(organization.InitiativeUpdateRemindersHour)),
 		},
 	)
 
@@ -342,15 +436,18 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	input := OrganizationUpdateInput{
-		AllowMembersToInvite:                  true,
-		RestrictTeamCreationToAdmins:          false,
-		RestrictLabelManagementToAdmins:       false,
-		RoadmapEnabled:                        false,
-		GitLinkbackMessagesEnabled:            true,
-		GitPublicLinkbackMessagesEnabled:      false,
-		ProjectUpdateReminderFrequencyInWeeks: 0,
-		ProjectUpdateRemindersDay:             Day("Friday"),
-		ProjectUpdateRemindersHour:            14,
+		AllowMembersToInvite:                     true,
+		RestrictTeamCreationToAdmins:             false,
+		RestrictLabelManagementToAdmins:          false,
+		GitLinkbackMessagesEnabled:               true,
+		GitPublicLinkbackMessagesEnabled:         false,
+		ProjectUpdateReminderFrequencyInWeeks:    0,
+		ProjectUpdateRemindersDay:                Day("Friday"),
+		ProjectUpdateRemindersHour:               14,
+		RoadmapEnabled:                           false,
+		InitiativeUpdateReminderFrequencyInWeeks: 0,
+		InitiativeUpdateRemindersDay:             Day("Friday"),
+		InitiativeUpdateRemindersHour:            14,
 	}
 
 	_, err := updateWorkspaceSettings(ctx, *r.client, input)

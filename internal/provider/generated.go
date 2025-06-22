@@ -236,6 +236,12 @@ type Organization struct {
 	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
 	// The hour at which to prompt for project updates.
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
+	// The n-weekly frequency at which to prompt for initiative updates. When not set, reminders are off.
+	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks"`
+	// The day at which to prompt for initiative updates.
+	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay"`
+	// The hour at which to prompt for initiative updates.
+	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour"`
 }
 
 // GetId returns Organization.Id, and is useful for accessing the field via an interface.
@@ -273,6 +279,19 @@ func (v *Organization) GetProjectUpdateRemindersDay() Day { return v.ProjectUpda
 
 // GetProjectUpdateRemindersHour returns Organization.ProjectUpdateRemindersHour, and is useful for accessing the field via an interface.
 func (v *Organization) GetProjectUpdateRemindersHour() float64 { return v.ProjectUpdateRemindersHour }
+
+// GetInitiativeUpdateReminderFrequencyInWeeks returns Organization.InitiativeUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
+func (v *Organization) GetInitiativeUpdateReminderFrequencyInWeeks() float64 {
+	return v.InitiativeUpdateReminderFrequencyInWeeks
+}
+
+// GetInitiativeUpdateRemindersDay returns Organization.InitiativeUpdateRemindersDay, and is useful for accessing the field via an interface.
+func (v *Organization) GetInitiativeUpdateRemindersDay() Day { return v.InitiativeUpdateRemindersDay }
+
+// GetInitiativeUpdateRemindersHour returns Organization.InitiativeUpdateRemindersHour, and is useful for accessing the field via an interface.
+func (v *Organization) GetInitiativeUpdateRemindersHour() float64 {
+	return v.InitiativeUpdateRemindersHour
+}
 
 // [INTERNAL] Organization IP restriction configuration.
 type OrganizationIpRestrictionInput struct {
@@ -320,11 +339,11 @@ type OrganizationUpdateInput struct {
 	// The hour at which project updates are sent.
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
 	// [ALPHA] The n-weekly frequency at which to prompt for initiative updates.
-	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks,omitempty"`
+	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks"`
 	// [ALPHA] The day at which initiative updates are sent.
-	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay,omitempty"`
+	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay"`
 	// [ALPHA] The hour at which initiative updates are sent.
-	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour,omitempty"`
+	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour"`
 	// The month at which the fiscal year starts.
 	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth,omitempty"`
 	// [Internal] The list of working days. Sunday is 0, Monday is 1, etc.
@@ -2997,6 +3016,21 @@ func (v *getWorkspaceSettingsOrganization) GetProjectUpdateRemindersHour() float
 	return v.Organization.ProjectUpdateRemindersHour
 }
 
+// GetInitiativeUpdateReminderFrequencyInWeeks returns getWorkspaceSettingsOrganization.InitiativeUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetInitiativeUpdateReminderFrequencyInWeeks() float64 {
+	return v.Organization.InitiativeUpdateReminderFrequencyInWeeks
+}
+
+// GetInitiativeUpdateRemindersDay returns getWorkspaceSettingsOrganization.InitiativeUpdateRemindersDay, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetInitiativeUpdateRemindersDay() Day {
+	return v.Organization.InitiativeUpdateRemindersDay
+}
+
+// GetInitiativeUpdateRemindersHour returns getWorkspaceSettingsOrganization.InitiativeUpdateRemindersHour, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetInitiativeUpdateRemindersHour() float64 {
+	return v.Organization.InitiativeUpdateRemindersHour
+}
+
 func (v *getWorkspaceSettingsOrganization) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -3042,6 +3076,12 @@ type __premarshalgetWorkspaceSettingsOrganization struct {
 	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
 
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
+
+	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks"`
+
+	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay"`
+
+	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour"`
 }
 
 func (v *getWorkspaceSettingsOrganization) MarshalJSON() ([]byte, error) {
@@ -3065,6 +3105,9 @@ func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetW
 	retval.ProjectUpdateReminderFrequencyInWeeks = v.Organization.ProjectUpdateReminderFrequencyInWeeks
 	retval.ProjectUpdateRemindersDay = v.Organization.ProjectUpdateRemindersDay
 	retval.ProjectUpdateRemindersHour = v.Organization.ProjectUpdateRemindersHour
+	retval.InitiativeUpdateReminderFrequencyInWeeks = v.Organization.InitiativeUpdateReminderFrequencyInWeeks
+	retval.InitiativeUpdateRemindersDay = v.Organization.InitiativeUpdateRemindersDay
+	retval.InitiativeUpdateRemindersHour = v.Organization.InitiativeUpdateRemindersHour
 	return &retval, nil
 }
 
@@ -3693,6 +3736,21 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	return v.Organization.ProjectUpdateRemindersHour
 }
 
+// GetInitiativeUpdateReminderFrequencyInWeeks returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.InitiativeUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetInitiativeUpdateReminderFrequencyInWeeks() float64 {
+	return v.Organization.InitiativeUpdateReminderFrequencyInWeeks
+}
+
+// GetInitiativeUpdateRemindersDay returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.InitiativeUpdateRemindersDay, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetInitiativeUpdateRemindersDay() Day {
+	return v.Organization.InitiativeUpdateRemindersDay
+}
+
+// GetInitiativeUpdateRemindersHour returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.InitiativeUpdateRemindersHour, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetInitiativeUpdateRemindersHour() float64 {
+	return v.Organization.InitiativeUpdateRemindersHour
+}
+
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -3738,6 +3796,12 @@ type __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrg
 	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
 
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
+
+	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks"`
+
+	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay"`
+
+	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour"`
 }
 
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) MarshalJSON() ([]byte, error) {
@@ -3761,6 +3825,9 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	retval.ProjectUpdateReminderFrequencyInWeeks = v.Organization.ProjectUpdateReminderFrequencyInWeeks
 	retval.ProjectUpdateRemindersDay = v.Organization.ProjectUpdateRemindersDay
 	retval.ProjectUpdateRemindersHour = v.Organization.ProjectUpdateRemindersHour
+	retval.InitiativeUpdateReminderFrequencyInWeeks = v.Organization.InitiativeUpdateReminderFrequencyInWeeks
+	retval.InitiativeUpdateRemindersDay = v.Organization.InitiativeUpdateRemindersDay
+	retval.InitiativeUpdateRemindersHour = v.Organization.InitiativeUpdateRemindersHour
 	return &retval, nil
 }
 
@@ -4497,6 +4564,9 @@ fragment Organization on Organization {
 	projectUpdateReminderFrequencyInWeeks
 	projectUpdateRemindersDay
 	projectUpdateRemindersHour
+	initiativeUpdateReminderFrequencyInWeeks
+	initiativeUpdateRemindersDay
+	initiativeUpdateRemindersHour
 }
 `,
 	}
@@ -4736,6 +4806,9 @@ fragment Organization on Organization {
 	projectUpdateReminderFrequencyInWeeks
 	projectUpdateRemindersDay
 	projectUpdateRemindersHour
+	initiativeUpdateReminderFrequencyInWeeks
+	initiativeUpdateRemindersDay
+	initiativeUpdateRemindersHour
 }
 `,
 		Variables: &__updateWorkspaceSettingsInput{
