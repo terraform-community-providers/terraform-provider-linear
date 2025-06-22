@@ -230,6 +230,12 @@ type Organization struct {
 	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
 	// Whether workspace label creation, update, and deletion is restricted to admins.
 	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+	// The n-weekly frequency at which to prompt for project updates. When not set, reminders are off.
+	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
+	// The day at which to prompt for project updates.
+	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
+	// The hour at which to prompt for project updates.
+	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
 }
 
 // GetId returns Organization.Id, and is useful for accessing the field via an interface.
@@ -256,6 +262,17 @@ func (v *Organization) GetRestrictTeamCreationToAdmins() bool { return v.Restric
 func (v *Organization) GetRestrictLabelManagementToAdmins() bool {
 	return v.RestrictLabelManagementToAdmins
 }
+
+// GetProjectUpdateReminderFrequencyInWeeks returns Organization.ProjectUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
+func (v *Organization) GetProjectUpdateReminderFrequencyInWeeks() float64 {
+	return v.ProjectUpdateReminderFrequencyInWeeks
+}
+
+// GetProjectUpdateRemindersDay returns Organization.ProjectUpdateRemindersDay, and is useful for accessing the field via an interface.
+func (v *Organization) GetProjectUpdateRemindersDay() Day { return v.ProjectUpdateRemindersDay }
+
+// GetProjectUpdateRemindersHour returns Organization.ProjectUpdateRemindersHour, and is useful for accessing the field via an interface.
+func (v *Organization) GetProjectUpdateRemindersHour() float64 { return v.ProjectUpdateRemindersHour }
 
 // [INTERNAL] Organization IP restriction configuration.
 type OrganizationIpRestrictionInput struct {
@@ -297,11 +314,11 @@ type OrganizationUpdateInput struct {
 	// Whether the organization is using roadmap.
 	RoadmapEnabled bool `json:"roadmapEnabled"`
 	// The n-weekly frequency at which to prompt for project updates.
-	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks,omitempty"`
+	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
 	// The day at which project updates are sent.
-	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay,omitempty"`
+	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
 	// The hour at which project updates are sent.
-	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour,omitempty"`
+	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
 	// [ALPHA] The n-weekly frequency at which to prompt for initiative updates.
 	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks,omitempty"`
 	// [ALPHA] The day at which initiative updates are sent.
@@ -2965,6 +2982,21 @@ func (v *getWorkspaceSettingsOrganization) GetRestrictLabelManagementToAdmins() 
 	return v.Organization.RestrictLabelManagementToAdmins
 }
 
+// GetProjectUpdateReminderFrequencyInWeeks returns getWorkspaceSettingsOrganization.ProjectUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetProjectUpdateReminderFrequencyInWeeks() float64 {
+	return v.Organization.ProjectUpdateReminderFrequencyInWeeks
+}
+
+// GetProjectUpdateRemindersDay returns getWorkspaceSettingsOrganization.ProjectUpdateRemindersDay, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetProjectUpdateRemindersDay() Day {
+	return v.Organization.ProjectUpdateRemindersDay
+}
+
+// GetProjectUpdateRemindersHour returns getWorkspaceSettingsOrganization.ProjectUpdateRemindersHour, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetProjectUpdateRemindersHour() float64 {
+	return v.Organization.ProjectUpdateRemindersHour
+}
+
 func (v *getWorkspaceSettingsOrganization) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -3004,6 +3036,12 @@ type __premarshalgetWorkspaceSettingsOrganization struct {
 	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
 
 	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+
+	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
+
+	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
+
+	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
 }
 
 func (v *getWorkspaceSettingsOrganization) MarshalJSON() ([]byte, error) {
@@ -3024,6 +3062,9 @@ func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetW
 	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
 	retval.RestrictTeamCreationToAdmins = v.Organization.RestrictTeamCreationToAdmins
 	retval.RestrictLabelManagementToAdmins = v.Organization.RestrictLabelManagementToAdmins
+	retval.ProjectUpdateReminderFrequencyInWeeks = v.Organization.ProjectUpdateReminderFrequencyInWeeks
+	retval.ProjectUpdateRemindersDay = v.Organization.ProjectUpdateRemindersDay
+	retval.ProjectUpdateRemindersHour = v.Organization.ProjectUpdateRemindersHour
 	return &retval, nil
 }
 
@@ -3637,6 +3678,21 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	return v.Organization.RestrictLabelManagementToAdmins
 }
 
+// GetProjectUpdateReminderFrequencyInWeeks returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.ProjectUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetProjectUpdateReminderFrequencyInWeeks() float64 {
+	return v.Organization.ProjectUpdateReminderFrequencyInWeeks
+}
+
+// GetProjectUpdateRemindersDay returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.ProjectUpdateRemindersDay, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetProjectUpdateRemindersDay() Day {
+	return v.Organization.ProjectUpdateRemindersDay
+}
+
+// GetProjectUpdateRemindersHour returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.ProjectUpdateRemindersHour, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetProjectUpdateRemindersHour() float64 {
+	return v.Organization.ProjectUpdateRemindersHour
+}
+
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -3676,6 +3732,12 @@ type __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrg
 	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
 
 	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+
+	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
+
+	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
+
+	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
 }
 
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) MarshalJSON() ([]byte, error) {
@@ -3696,6 +3758,9 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
 	retval.RestrictTeamCreationToAdmins = v.Organization.RestrictTeamCreationToAdmins
 	retval.RestrictLabelManagementToAdmins = v.Organization.RestrictLabelManagementToAdmins
+	retval.ProjectUpdateReminderFrequencyInWeeks = v.Organization.ProjectUpdateReminderFrequencyInWeeks
+	retval.ProjectUpdateRemindersDay = v.Organization.ProjectUpdateRemindersDay
+	retval.ProjectUpdateRemindersHour = v.Organization.ProjectUpdateRemindersHour
 	return &retval, nil
 }
 
@@ -4429,6 +4494,9 @@ fragment Organization on Organization {
 	gitPublicLinkbackMessagesEnabled
 	restrictTeamCreationToAdmins
 	restrictLabelManagementToAdmins
+	projectUpdateReminderFrequencyInWeeks
+	projectUpdateRemindersDay
+	projectUpdateRemindersHour
 }
 `,
 	}
@@ -4665,6 +4733,9 @@ fragment Organization on Organization {
 	gitPublicLinkbackMessagesEnabled
 	restrictTeamCreationToAdmins
 	restrictLabelManagementToAdmins
+	projectUpdateReminderFrequencyInWeeks
+	projectUpdateRemindersDay
+	projectUpdateRemindersHour
 }
 `,
 		Variables: &__updateWorkspaceSettingsInput{

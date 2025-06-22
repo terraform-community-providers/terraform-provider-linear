@@ -29,10 +29,20 @@ resource "linear_workspace_settings" "example" {
 - `enable_git_linkback_messages` (Boolean) Enable git linkbacks for private repositories. **Default** `true`.
 - `enable_git_linkback_messages_public` (Boolean) Enable git linkbacks for public repositories. **Default** `false`.
 - `enable_roadmap` (Boolean) Enable roadmap for the workspace. **Default** `false`.
+- `projects` (Attributes) Project settings for the workspace. (see [below for nested schema](#nestedatt--projects))
 
 ### Read-Only
 
 - `id` (String) Identifier of the workspace.
+
+<a id="nestedatt--projects"></a>
+### Nested Schema for `projects`
+
+Optional:
+
+- `update_reminder_day` (String) Day on which to prompt for project updates. **Default** `Friday`.
+- `update_reminder_frequency` (Number) Frequency in weeks to send project update reminders. **Default** `0`.
+- `update_reminder_hour` (Number) Hour of day (0-23) at which to prompt for project updates. **Default** `14`.
 
 ## Import
 
