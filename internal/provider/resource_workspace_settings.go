@@ -29,6 +29,8 @@ type WorkspaceSettingsResource struct {
 type WorkspaceSettingsResourceModel struct {
 	Id                              types.String `tfsdk:"id"`
 	AllowMembersToInvite            types.Bool   `tfsdk:"allow_members_to_invite"`
+	AllowMembersToCreateTeams       types.Bool   `tfsdk:"allow_members_to_create_teams"`
+	AllowMembersToManageLabels      types.Bool   `tfsdk:"allow_members_to_manage_labels"`
 	EnableRoadmap                   types.Bool   `tfsdk:"enable_roadmap"`
 	EnableGitLinkbackMessages       types.Bool   `tfsdk:"enable_git_linkback_messages"`
 	EnableGitLinkbackMessagesPublic types.Bool   `tfsdk:"enable_git_linkback_messages_public"`
@@ -51,6 +53,18 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 			},
 			"allow_members_to_invite": schema.BoolAttribute{
 				MarkdownDescription: "Allow members to invite new members to the workspace. **Default** `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+			},
+			"allow_members_to_create_teams": schema.BoolAttribute{
+				MarkdownDescription: "Allow members to create new teams in the workspace. **Default** `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+			},
+			"allow_members_to_manage_labels": schema.BoolAttribute{
+				MarkdownDescription: "Allow members to manage labels in the workspace. **Default** `true`.",
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(true),
@@ -108,6 +122,8 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 
 	input := OrganizationUpdateInput{
 		AllowMembersToInvite:             data.AllowMembersToInvite.ValueBool(),
+		RestrictTeamCreationToAdmins:     !data.AllowMembersToCreateTeams.ValueBool(),
+		RestrictLabelManagementToAdmins:  !data.AllowMembersToManageLabels.ValueBool(),
 		RoadmapEnabled:                   data.EnableRoadmap.ValueBool(),
 		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.ValueBool(),
 		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.ValueBool(),
@@ -124,6 +140,8 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 
 	data.Id = types.StringValue(organization.Id)
 	data.AllowMembersToInvite = types.BoolValue(organization.AllowMembersToInvite)
+	data.AllowMembersToCreateTeams = types.BoolValue(!organization.RestrictTeamCreationToAdmins)
+	data.AllowMembersToManageLabels = types.BoolValue(!organization.RestrictLabelManagementToAdmins)
 	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
@@ -151,6 +169,8 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 
 	data.Id = types.StringValue(organization.Id)
 	data.AllowMembersToInvite = types.BoolValue(organization.AllowMembersToInvite)
+	data.AllowMembersToCreateTeams = types.BoolValue(!organization.RestrictTeamCreationToAdmins)
+	data.AllowMembersToManageLabels = types.BoolValue(!organization.RestrictLabelManagementToAdmins)
 	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
@@ -169,6 +189,8 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 
 	input := OrganizationUpdateInput{
 		AllowMembersToInvite:             data.AllowMembersToInvite.ValueBool(),
+		RestrictTeamCreationToAdmins:     !data.AllowMembersToCreateTeams.ValueBool(),
+		RestrictLabelManagementToAdmins:  !data.AllowMembersToManageLabels.ValueBool(),
 		RoadmapEnabled:                   data.EnableRoadmap.ValueBool(),
 		GitLinkbackMessagesEnabled:       data.EnableGitLinkbackMessages.ValueBool(),
 		GitPublicLinkbackMessagesEnabled: data.EnableGitLinkbackMessagesPublic.ValueBool(),
@@ -187,6 +209,8 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 
 	data.Id = types.StringValue(organization.Id)
 	data.AllowMembersToInvite = types.BoolValue(organization.AllowMembersToInvite)
+	data.AllowMembersToCreateTeams = types.BoolValue(!organization.RestrictTeamCreationToAdmins)
+	data.AllowMembersToManageLabels = types.BoolValue(!organization.RestrictLabelManagementToAdmins)
 	data.EnableRoadmap = types.BoolValue(organization.RoadmapEnabled)
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
@@ -205,6 +229,8 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 
 	input := OrganizationUpdateInput{
 		AllowMembersToInvite:             true,
+		RestrictTeamCreationToAdmins:     false,
+		RestrictLabelManagementToAdmins:  false,
 		RoadmapEnabled:                   false,
 		GitLinkbackMessagesEnabled:       true,
 		GitPublicLinkbackMessagesEnabled: false,

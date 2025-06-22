@@ -226,6 +226,10 @@ type Organization struct {
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 	// Whether the Git integration linkback messages should be sent to public repositories.
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+	// Whether team creation is restricted to admins.
+	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
+	// Whether workspace label creation, update, and deletion is restricted to admins.
+	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
 }
 
 // GetId returns Organization.Id, and is useful for accessing the field via an interface.
@@ -243,6 +247,14 @@ func (v *Organization) GetGitLinkbackMessagesEnabled() bool { return v.GitLinkba
 // GetGitPublicLinkbackMessagesEnabled returns Organization.GitPublicLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *Organization) GetGitPublicLinkbackMessagesEnabled() bool {
 	return v.GitPublicLinkbackMessagesEnabled
+}
+
+// GetRestrictTeamCreationToAdmins returns Organization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
+func (v *Organization) GetRestrictTeamCreationToAdmins() bool { return v.RestrictTeamCreationToAdmins }
+
+// GetRestrictLabelManagementToAdmins returns Organization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
+func (v *Organization) GetRestrictLabelManagementToAdmins() bool {
+	return v.RestrictLabelManagementToAdmins
 }
 
 // [INTERNAL] Organization IP restriction configuration.
@@ -2943,6 +2955,16 @@ func (v *getWorkspaceSettingsOrganization) GetGitPublicLinkbackMessagesEnabled()
 	return v.Organization.GitPublicLinkbackMessagesEnabled
 }
 
+// GetRestrictTeamCreationToAdmins returns getWorkspaceSettingsOrganization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetRestrictTeamCreationToAdmins() bool {
+	return v.Organization.RestrictTeamCreationToAdmins
+}
+
+// GetRestrictLabelManagementToAdmins returns getWorkspaceSettingsOrganization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetRestrictLabelManagementToAdmins() bool {
+	return v.Organization.RestrictLabelManagementToAdmins
+}
+
 func (v *getWorkspaceSettingsOrganization) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -2978,6 +3000,10 @@ type __premarshalgetWorkspaceSettingsOrganization struct {
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+
+	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
+
+	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
 }
 
 func (v *getWorkspaceSettingsOrganization) MarshalJSON() ([]byte, error) {
@@ -2996,6 +3022,8 @@ func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetW
 	retval.RoadmapEnabled = v.Organization.RoadmapEnabled
 	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
 	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
+	retval.RestrictTeamCreationToAdmins = v.Organization.RestrictTeamCreationToAdmins
+	retval.RestrictLabelManagementToAdmins = v.Organization.RestrictLabelManagementToAdmins
 	return &retval, nil
 }
 
@@ -3599,6 +3627,16 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	return v.Organization.GitPublicLinkbackMessagesEnabled
 }
 
+// GetRestrictTeamCreationToAdmins returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRestrictTeamCreationToAdmins() bool {
+	return v.Organization.RestrictTeamCreationToAdmins
+}
+
+// GetRestrictLabelManagementToAdmins returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRestrictLabelManagementToAdmins() bool {
+	return v.Organization.RestrictLabelManagementToAdmins
+}
+
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -3634,6 +3672,10 @@ type __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrg
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
+
+	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
+
+	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
 }
 
 func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) MarshalJSON() ([]byte, error) {
@@ -3652,6 +3694,8 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	retval.RoadmapEnabled = v.Organization.RoadmapEnabled
 	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
 	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
+	retval.RestrictTeamCreationToAdmins = v.Organization.RestrictTeamCreationToAdmins
+	retval.RestrictLabelManagementToAdmins = v.Organization.RestrictLabelManagementToAdmins
 	return &retval, nil
 }
 
@@ -4383,6 +4427,8 @@ fragment Organization on Organization {
 	roadmapEnabled
 	gitLinkbackMessagesEnabled
 	gitPublicLinkbackMessagesEnabled
+	restrictTeamCreationToAdmins
+	restrictLabelManagementToAdmins
 }
 `,
 	}
@@ -4617,6 +4663,8 @@ fragment Organization on Organization {
 	roadmapEnabled
 	gitLinkbackMessagesEnabled
 	gitPublicLinkbackMessagesEnabled
+	restrictTeamCreationToAdmins
+	restrictLabelManagementToAdmins
 }
 `,
 		Variables: &__updateWorkspaceSettingsInput{
