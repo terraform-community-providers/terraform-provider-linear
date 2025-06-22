@@ -5,6 +5,7 @@
 
 ### Enhancements
 * Added `triage.require_priority` to `linear_team`
+* Added `mergeable` to `linear_team_workflow`
 
 ### Bug Fixes
 * Fix issue with creating/updating team when cycles are enabled

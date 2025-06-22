@@ -29,12 +29,13 @@ type TeamWorkflowResource struct {
 }
 
 type TeamWorkflowResourceModel struct {
-	Id     types.String `tfsdk:"id"`
-	Key    types.String `tfsdk:"key"`
-	Draft  types.String `tfsdk:"draft"`
-	Start  types.String `tfsdk:"start"`
-	Review types.String `tfsdk:"review"`
-	Merge  types.String `tfsdk:"merge"`
+	Id        types.String `tfsdk:"id"`
+	Key       types.String `tfsdk:"key"`
+	Draft     types.String `tfsdk:"draft"`
+	Start     types.String `tfsdk:"start"`
+	Review    types.String `tfsdk:"review"`
+	Mergeable types.String `tfsdk:"mergeable"`
+	Merge     types.String `tfsdk:"merge"`
 }
 
 func (r *TeamWorkflowResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -76,6 +77,13 @@ func (r *TeamWorkflowResource) Schema(ctx context.Context, req resource.SchemaRe
 			},
 			"review": schema.StringAttribute{
 				MarkdownDescription: "Workflow state used when reviews are requested on PRs.",
+				Optional:            true,
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
+				},
+			},
+			"mergeable": schema.StringAttribute{
+				MarkdownDescription: "Workflow state used when PRs become mergeable.",
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
@@ -230,6 +238,12 @@ func update(ctx context.Context, client *graphql.Client, data *TeamWorkflowResou
 		return fmt.Errorf("unable to update team workflow: %w", err)
 	}
 
+	err = updateEvent(ctx, client, existing.Team, teamId, GitAutomationStatesMergeable, data.Mergeable.ValueStringPointer())
+
+	if err != nil {
+		return fmt.Errorf("unable to update team workflow: %w", err)
+	}
+
 	err = updateEvent(ctx, client, existing.Team, teamId, GitAutomationStatesMerge, data.Merge.ValueStringPointer())
 
 	if err != nil {
@@ -306,6 +320,8 @@ func read(data *TeamWorkflowResourceModel, team getTeamWorkflowTeam) {
 			data.Start = types.StringValue(n.State.Id)
 		case GitAutomationStatesReview:
 			data.Review = types.StringValue(n.State.Id)
+		case GitAutomationStatesMergeable:
+			data.Mergeable = types.StringValue(n.State.Id)
 		case GitAutomationStatesMerge:
 			data.Merge = types.StringValue(n.State.Id)
 		}

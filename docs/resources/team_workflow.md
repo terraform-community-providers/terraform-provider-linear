@@ -31,6 +31,7 @@ resource "linear_team_workflow" "example" {
 
 - `draft` (String) Workflow state used when draft PRs are opened.
 - `merge` (String) Workflow state used when PRs are merged.
+- `mergeable` (String) Workflow state used when PRs become mergeable.
 - `review` (String) Workflow state used when reviews are requested on PRs.
 - `start` (String) Workflow state used when PRs are opened.
 
