@@ -44,6 +44,7 @@ resource "linear_team" "example" {
 - `enable_thread_summaries` (Boolean) Enable resolved thread AI summaries for the team. **Default** `true`.
 - `estimation` (Attributes) Issue estimation settings of the team. (see [below for nested schema](#nestedatt--estimation))
 - `icon` (String) Icon of the team.
+- `parent_id` (String) Identifier of the parent team.
 - `private` (Boolean) Privacy of the team. **Default** `false`.
 - `started_workflow_state` (Attributes) Settings for the `started` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--started_workflow_state))
 - `timezone` (String) Timezone of the team. **Default** `Etc/GMT`.

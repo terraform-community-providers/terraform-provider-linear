@@ -2,6 +2,7 @@
 # @genqlient(for: "Team.icon", pointer: true)
 # @genqlient(for: "Team.color", pointer: true)
 # @genqlient(for: "Team.autoClosePeriod", pointer: true)
+# @genqlient(for: "Team.parent", pointer: true)
 fragment Team on Team {
   id
   name
@@ -10,6 +11,9 @@ fragment Team on Team {
   description
   icon
   color
+  parent {
+    id
+  }
   timezone
   groupIssueHistory
   setIssueSortOrderOnStateChange
@@ -45,7 +49,7 @@ query getTeam($key: String!) {
 # @genqlient(for: "TeamCreateInput.icon", omitempty: true, pointer: true)
 # @genqlient(for: "TeamCreateInput.color", omitempty: true, pointer: true)
 # @genqlient(for: "TeamCreateInput.autoClosePeriod", pointer: true)
-# @genqlient(for: "TeamCreateInput.parentId", omitempty: true, pointer: true)
+# @genqlient(for: "TeamCreateInput.parentId", pointer: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForMembersId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForNonMembersId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultProjectTemplateId", omitempty: true)
@@ -69,7 +73,7 @@ mutation createTeam(
 # @genqlient(for: "TeamUpdateInput.color", omitempty: true, pointer: true)
 # @genqlient(for: "TeamUpdateInput.autoClosePeriod", pointer: true)
 # @genqlient(for: "TeamUpdateInput.defaultIssueStateId", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.parentId", omitempty: true, pointer: true)
+# @genqlient(for: "TeamUpdateInput.parentId", pointer: true)
 # @genqlient(for: "TeamUpdateInput.cycleEnabledStartDate", omitempty: true, pointer: true)
 # @genqlient(for: "TeamUpdateInput.defaultTemplateForMembersId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.defaultTemplateForNonMembersId", omitempty: true)

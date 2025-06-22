@@ -5,6 +5,7 @@
 * Move `enable_roadmap` to `initiatives.enabled` in `linear_workspace_settings`
 
 ### Enhancements
+* Added `parent_id` to `linear_team` inorder to create sub-teams
 * Added `enable_thread_summaries`, `auto_close_parent_issues`, `auto_close_child_issues` & `triage.require_priority` to `linear_team`
 * Added `mergeable` to `linear_team_workflow`
 * Added `branch` nested block to `linear_team_workflow`
