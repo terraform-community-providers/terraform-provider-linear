@@ -1,0 +1,52 @@
+# @genqlient(for: "Template.description", pointer: true)
+# @genqlient(for: "Template.team", pointer: true)
+fragment Template on Template {
+  id
+  name
+  description
+  type
+  team {
+    id
+  }
+  templateData
+}
+  
+query getTemplate($id: String!) {
+  template(id: $id) {
+    ...Template
+  }
+}
+
+# @genqlient(for: "TemplateCreateInput.id", omitempty: true, pointer: true)
+# @genqlient(for: "TemplateCreateInput.description", pointer: true)
+# @genqlient(for: "TemplateCreateInput.teamId", pointer: true)
+# @genqlient(for: "TemplateCreateInput.sortOrder", omitempty: true, pointer: true)
+mutation templateCreate(
+  $input: TemplateCreateInput!
+) {
+  templateCreate(input: $input) {
+    template {
+      ...Template
+    }
+  }
+}
+
+# @genqlient(for: "TemplateUpdateInput.description", pointer: true)
+# @genqlient(for: "TemplateUpdateInput.teamId", pointer: true)
+# @genqlient(for: "TemplateUpdateInput.sortOrder", omitempty: true, pointer: true)
+mutation templateUpdate(
+  $input: TemplateUpdateInput!,
+  $id: String!
+) {
+  templateUpdate(input: $input, id: $id) {
+    template {
+      ...Template
+    }
+  }
+}
+
+mutation templateDelete($id: String!) {
+  templateDelete(id: $id) {
+    success
+  }
+}
