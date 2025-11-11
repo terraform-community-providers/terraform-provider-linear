@@ -81,6 +81,8 @@ mutation createTeam(
 # @genqlient(for: "TeamUpdateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.autoCloseStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.productIntelligenceScope", omitempty: true)
+# @genqlient(for: "TeamUpdateInput.joinByDefault", pointer: true, omitempty: true)
+# @genqlient(for: "TeamUpdateInput.scimManaged", pointer: true, omitempty: true)
 mutation updateTeam(
   $input: TeamUpdateInput!,
   $id: String!
