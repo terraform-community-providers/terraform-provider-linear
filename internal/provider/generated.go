@@ -1013,9 +1013,9 @@ type TeamUpdateInput struct {
 	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
 	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
 	// Whether new users should join this team by default. Mutation restricted to workspace admins!
-	JoinByDefault bool `json:"joinByDefault"`
+	JoinByDefault *bool `json:"joinByDefault,omitempty"`
 	// Whether the team is managed by SCIM integration. Mutation restricted to workspace admins and only unsetting is allowed!
-	ScimManaged bool `json:"scimManaged"`
+	ScimManaged *bool `json:"scimManaged,omitempty"`
 	// The parent team ID.
 	ParentId *string `json:"parentId"`
 	// [Internal] Whether the team should inherit workflow statuses from its parent.
@@ -1156,10 +1156,10 @@ func (v *TeamUpdateInput) GetMarkedAsDuplicateWorkflowStateId() string {
 }
 
 // GetJoinByDefault returns TeamUpdateInput.JoinByDefault, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetJoinByDefault() bool { return v.JoinByDefault }
+func (v *TeamUpdateInput) GetJoinByDefault() *bool { return v.JoinByDefault }
 
 // GetScimManaged returns TeamUpdateInput.ScimManaged, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetScimManaged() bool { return v.ScimManaged }
+func (v *TeamUpdateInput) GetScimManaged() *bool { return v.ScimManaged }
 
 // GetParentId returns TeamUpdateInput.ParentId, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetParentId() *string { return v.ParentId }
