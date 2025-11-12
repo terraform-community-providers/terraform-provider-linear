@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.2
+## 0.3.3
 
 ### Enhancements
 * Allow `linear_team` to be updated by non-admins
