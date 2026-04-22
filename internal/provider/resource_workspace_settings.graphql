@@ -1,8 +1,6 @@
 fragment Organization on Organization {
   id
-  allowMembersToInvite
-  restrictTeamCreationToAdmins
-  restrictLabelManagementToAdmins
+  securitySettings
   gitLinkbackMessagesEnabled
   gitPublicLinkbackMessagesEnabled
   fiscalYearStartMonth
@@ -33,11 +31,39 @@ query getWorkspaceSettings {
 # @genqlient(for: "OrganizationUpdateInput.oauthAppReview", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.allowedAuthServices", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.slaEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.restrictAgentInvocationToMembers", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.ipRestrictions", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.allowedFileUploadContentTypes", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.themeSettings", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.customersConfiguration", omitempty: true, pointer: true)
+# @genqlient(for: "OrganizationUpdateInput.codeIntelligenceEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.codeIntelligenceRepository", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.hideNonPrimaryOrganizations", omitempty: true)
 # @genqlient(for: "OrganizationUpdateInput.aiAddonEnabled", omitempty: true)
-# @genqlient(for: "OrganizationUpdateInput.personalApiKeysEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.agentAutomationEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.generatedUpdatesEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.aiTelemetryEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.aiDiscussionSummariesEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.aiThreadSummariesEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.hipaaComplianceEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.authSettings", pointer: true, omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.aiProviderConfiguration", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.slackProjectChannelIntegrationId", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.slackProjectChannelPrefix", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.slackProjectChannelsEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.slackAutoCreateProjectChannel", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.linearAgentEnabled", omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.linearAgentSettings", pointer: true,, omitempty: true)
+# @genqlient(for: "OrganizationUpdateInput.codingAgentEnabled", omitempty: true)
+# @genqlient(for: "OrganizationSecuritySettingsInput.personalApiKeysRole", omitempty: true)
+# @genqlient(for: "OrganizationSecuritySettingsInput.invitationsRole", omitempty: true)
+# @genqlient(for: "OrganizationSecuritySettingsInput.teamCreationRole", omitempty: true)
+# @genqlient(for: "OrganizationSecuritySettingsInput.labelManagementRole", omitempty: true)
+# @genqlient(for: "OrganizationSecuritySettingsInput.apiSettingsRole", omitempty: true)
+# @genqlient(for: "OrganizationSecuritySettingsInput.templateManagementRole", omitempty: true)
+# @genqlient(for: "OrganizationSecuritySettingsInput.importRole", omitempty: true)
+# @genqlient(for: "OrganizationSecuritySettingsInput.agentGuidanceRole", omitempty: true)
+# @genqlient(for: "OrganizationSecuritySettingsInput.integrationCreationRole", omitempty: true)
 mutation updateWorkspaceSettings(
   $input: OrganizationUpdateInput!,
 ) {

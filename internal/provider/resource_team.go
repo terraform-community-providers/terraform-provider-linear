@@ -840,6 +840,8 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	data.CompletedWorkflowState = *completed
 	data.CanceledWorkflowState = *canceled
 
+	// TODO:(PR) Member management setting vs allMembersCanJoin vs private/public team
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -1021,6 +1023,7 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 
 	var setIssueSortOrderOnStateChange string
 
+	// TODO: Support `noAction` here
 	if data.EnableIssueDefaultToBottom.ValueBool() {
 		setIssueSortOrderOnStateChange = "last"
 	} else {

@@ -119,6 +119,7 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
+	// TODO:(PR) Add icon & color support for template
 	input := TemplateCreateInput{
 		Name:         data.Name.ValueString(),
 		Description:  data.Description.ValueStringPointer(),

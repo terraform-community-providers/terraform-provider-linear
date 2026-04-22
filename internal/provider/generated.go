@@ -32,6 +32,7 @@ const (
 	FeedSummaryScheduleNever  FeedSummarySchedule = "never"
 )
 
+// Input for creating a new Git automation rule.
 type GitAutomationStateCreateInput struct {
 	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
 	Id *string `json:"id,omitempty"`
@@ -60,6 +61,7 @@ func (v *GitAutomationStateCreateInput) GetTargetBranchId() *string { return v.T
 // GetEvent returns GitAutomationStateCreateInput.Event, and is useful for accessing the field via an interface.
 func (v *GitAutomationStateCreateInput) GetEvent() GitAutomationStates { return v.Event }
 
+// Input for updating an existing Git automation rule.
 type GitAutomationStateUpdateInput struct {
 	// The associated workflow state.
 	StateId *string `json:"stateId"`
@@ -78,7 +80,8 @@ func (v *GitAutomationStateUpdateInput) GetTargetBranchId() *string { return v.T
 // GetEvent returns GitAutomationStateUpdateInput.Event, and is useful for accessing the field via an interface.
 func (v *GitAutomationStateUpdateInput) GetEvent() GitAutomationStates { return v.Event }
 
-// The various states of a pull/merge request.
+// The Git events that can trigger an automation rule. Each value corresponds to a
+// pull/merge request lifecycle event (e.g., branch created, PR opened for review, PR merged).
 type GitAutomationStates string
 
 const (
@@ -89,6 +92,7 @@ const (
 	GitAutomationStatesMerge     GitAutomationStates = "merge"
 )
 
+// Input for creating a new Git target branch definition.
 type GitAutomationTargetBranchCreateInput struct {
 	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
 	Id *string `json:"id,omitempty"`
@@ -115,7 +119,11 @@ func (v *GitAutomationTargetBranchCreateInput) GetIsRegex() bool { return v.IsRe
 // IssueLabel includes the GraphQL fields of IssueLabel requested by the fragment IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues.
+// Labels that can be associated with issues. Labels help categorize and filter
+// issues across a workspace. They can be workspace-level (shared across all teams)
+// or team-scoped. Labels have a color for visual identification and can be
+// organized hierarchically into groups, where a parent label acts as a group
+// containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type IssueLabel struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -123,11 +131,12 @@ type IssueLabel struct {
 	Name string `json:"name"`
 	// The label's description.
 	Description *string `json:"description"`
-	// The label's color as a HEX string.
+	// The label's color as a HEX string (e.g., '#EB5757'). Used for visual identification of the label in the UI.
 	Color *string `json:"color"`
 	// The parent label.
 	Parent *IssueLabelParentIssueLabel `json:"parent"`
-	// The team that the label is associated with. If null, the label is associated with the global workspace.
+	// The team that the label is scoped to. If null, the label is a workspace-level
+	// label available to all teams in the workspace.
 	Team *IssueLabelTeam `json:"team"`
 }
 
@@ -149,6 +158,8 @@ func (v *IssueLabel) GetParent() *IssueLabelParentIssueLabel { return v.Parent }
 // GetTeam returns IssueLabel.Team, and is useful for accessing the field via an interface.
 func (v *IssueLabel) GetTeam() *IssueLabelTeam { return v.Team }
 
+// Input for creating a new label. A name is required. If no team is specified, the
+// label is created as a workspace-level label available to all teams.
 type IssueLabelCreateInput struct {
 	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
 	Id string `json:"id,omitempty"`
@@ -164,6 +175,8 @@ type IssueLabelCreateInput struct {
 	TeamId *string `json:"teamId"`
 	// Whether the label is a group.
 	IsGroup bool `json:"isGroup"`
+	// The time at which the label was retired. Set to null to restore a retired label.
+	RetiredAt time.Time `json:"retiredAt"`
 }
 
 // GetId returns IssueLabelCreateInput.Id, and is useful for accessing the field via an interface.
@@ -187,10 +200,17 @@ func (v *IssueLabelCreateInput) GetTeamId() *string { return v.TeamId }
 // GetIsGroup returns IssueLabelCreateInput.IsGroup, and is useful for accessing the field via an interface.
 func (v *IssueLabelCreateInput) GetIsGroup() bool { return v.IsGroup }
 
+// GetRetiredAt returns IssueLabelCreateInput.RetiredAt, and is useful for accessing the field via an interface.
+func (v *IssueLabelCreateInput) GetRetiredAt() time.Time { return v.RetiredAt }
+
 // IssueLabelParentIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues.
+// Labels that can be associated with issues. Labels help categorize and filter
+// issues across a workspace. They can be workspace-level (shared across all teams)
+// or team-scoped. Labels have a color for visual identification and can be
+// organized hierarchically into groups, where a parent label acts as a group
+// containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type IssueLabelParentIssueLabel struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -202,7 +222,10 @@ func (v *IssueLabelParentIssueLabel) GetId() string { return v.Id }
 // IssueLabelTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type IssueLabelTeam struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -211,6 +234,7 @@ type IssueLabelTeam struct {
 // GetId returns IssueLabelTeam.Id, and is useful for accessing the field via an interface.
 func (v *IssueLabelTeam) GetId() string { return v.Id }
 
+// Input for updating an existing label. All fields are optional; only provided fields will be updated.
 type IssueLabelUpdateInput struct {
 	// The name of the label.
 	Name string `json:"name,omitempty"`
@@ -220,6 +244,10 @@ type IssueLabelUpdateInput struct {
 	ParentId *string `json:"parentId"`
 	// The color of the label.
 	Color *string `json:"color,omitempty"`
+	// Whether the label is a group.
+	IsGroup bool `json:"isGroup"`
+	// The time at which the label was retired. Set to null to restore a retired label.
+	RetiredAt time.Time `json:"retiredAt"`
 }
 
 // GetName returns IssueLabelUpdateInput.Name, and is useful for accessing the field via an interface.
@@ -234,60 +262,60 @@ func (v *IssueLabelUpdateInput) GetParentId() *string { return v.ParentId }
 // GetColor returns IssueLabelUpdateInput.Color, and is useful for accessing the field via an interface.
 func (v *IssueLabelUpdateInput) GetColor() *string { return v.Color }
 
+// GetIsGroup returns IssueLabelUpdateInput.IsGroup, and is useful for accessing the field via an interface.
+func (v *IssueLabelUpdateInput) GetIsGroup() bool { return v.IsGroup }
+
+// GetRetiredAt returns IssueLabelUpdateInput.RetiredAt, and is useful for accessing the field via an interface.
+func (v *IssueLabelUpdateInput) GetRetiredAt() time.Time { return v.RetiredAt }
+
 // Organization includes the GraphQL fields of Organization requested by the fragment Organization.
 // The GraphQL type's documentation follows.
 //
-// An organization. Organizations are root-level objects that contain user accounts and teams.
+// A workspace (referred to as Organization in the API). Workspaces are the
+// root-level container for all teams, users, projects, issues, and settings. Every
+// user belongs to at least one workspace, and all data is scoped within a
+// workspace boundary.
 type Organization struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// Whether member users are allowed to send invites.
-	AllowMembersToInvite bool `json:"allowMembersToInvite"`
-	// Whether team creation is restricted to admins.
-	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
-	// Whether workspace label creation, update, and deletion is restricted to admins.
-	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
-	// Whether the Git integration linkback messages should be sent to private repositories.
+	// Security settings for the workspace, including role-based restrictions for
+	// invitations, team creation, label management, and other sensitive operations.
+	SecuritySettings map[string]interface{} `json:"securitySettings"`
+	// Whether the Git integration linkback messages should be posted as comments on pull requests in private repositories.
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
-	// Whether the Git integration linkback messages should be sent to public repositories.
+	// Whether the Git integration linkback messages should be posted as comments on pull requests in public repositories.
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
-	// The month at which the fiscal year starts. Defaults to January (0).
+	// The zero-indexed month at which the fiscal year starts (0 = January, 11 = December). Defaults to 0 (January).
 	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
-	// The n-weekly frequency at which to prompt for project updates. When not set, reminders are off.
+	// The frequency in weeks at which to prompt for project updates. When null,
+	// project update reminders are disabled. Valid values range from 0 to 8.
 	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
-	// The day at which to prompt for project updates.
+	// The day of the week on which project update reminders are sent.
 	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
-	// The hour at which to prompt for project updates.
+	// The hour of the day (0-23) at which project update reminders are sent.
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
-	// Whether the organization is using a roadmap.
+	// Whether the roadmap feature is enabled for the workspace.
 	RoadmapEnabled bool `json:"roadmapEnabled"`
-	// The n-weekly frequency at which to prompt for initiative updates. When not set, reminders are off.
+	// The frequency in weeks at which to prompt for initiative updates. When null,
+	// initiative update reminders are disabled. Valid values range from 0 to 8.
 	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks"`
-	// The day at which to prompt for initiative updates.
+	// The day of the week on which initiative update reminders are sent.
 	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay"`
-	// The hour at which to prompt for initiative updates.
+	// The hour of the day (0-23) at which initiative update reminders are sent.
 	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour"`
-	// Whether the organization has enabled the feed feature.
+	// Whether the activity feed feature is enabled for the workspace.
 	FeedEnabled bool `json:"feedEnabled"`
 	// Default schedule for how often feed summaries are generated.
 	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
-	// Whether the organization is using Customers.
+	// Whether the Customers feature is enabled and accessible for the workspace based on the current plan.
 	CustomersEnabled bool `json:"customersEnabled"`
 }
 
 // GetId returns Organization.Id, and is useful for accessing the field via an interface.
 func (v *Organization) GetId() string { return v.Id }
 
-// GetAllowMembersToInvite returns Organization.AllowMembersToInvite, and is useful for accessing the field via an interface.
-func (v *Organization) GetAllowMembersToInvite() bool { return v.AllowMembersToInvite }
-
-// GetRestrictTeamCreationToAdmins returns Organization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
-func (v *Organization) GetRestrictTeamCreationToAdmins() bool { return v.RestrictTeamCreationToAdmins }
-
-// GetRestrictLabelManagementToAdmins returns Organization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
-func (v *Organization) GetRestrictLabelManagementToAdmins() bool {
-	return v.RestrictLabelManagementToAdmins
-}
+// GetSecuritySettings returns Organization.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *Organization) GetSecuritySettings() map[string]interface{} { return v.SecuritySettings }
 
 // GetGitLinkbackMessagesEnabled returns Organization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *Organization) GetGitLinkbackMessagesEnabled() bool { return v.GitLinkbackMessagesEnabled }
@@ -338,6 +366,38 @@ func (v *Organization) GetDefaultFeedSummarySchedule() FeedSummarySchedule {
 // GetCustomersEnabled returns Organization.CustomersEnabled, and is useful for accessing the field via an interface.
 func (v *Organization) GetCustomersEnabled() bool { return v.CustomersEnabled }
 
+// Input for updating workspace authentication settings.
+type OrganizationAuthSettingsInput struct {
+	// Allowed authentication providers, empty array means all are allowed.
+	AllowedAuthServices []string `json:"allowedAuthServices"`
+	// [Internal] The minimum role required for the auth service bypass exemption.
+	AllowedAuthServiceBypassRole string `json:"allowedAuthServiceBypassRole"`
+	// Whether to hide non-primary workspaces during signup for users with matching email domains.
+	HideNonPrimaryOrganizations bool `json:"hideNonPrimaryOrganizations"`
+	// Whether to disable admin/owner auth service bypass.
+	DisableAuthServiceBypass bool `json:"disableAuthServiceBypass"`
+}
+
+// GetAllowedAuthServices returns OrganizationAuthSettingsInput.AllowedAuthServices, and is useful for accessing the field via an interface.
+func (v *OrganizationAuthSettingsInput) GetAllowedAuthServices() []string {
+	return v.AllowedAuthServices
+}
+
+// GetAllowedAuthServiceBypassRole returns OrganizationAuthSettingsInput.AllowedAuthServiceBypassRole, and is useful for accessing the field via an interface.
+func (v *OrganizationAuthSettingsInput) GetAllowedAuthServiceBypassRole() string {
+	return v.AllowedAuthServiceBypassRole
+}
+
+// GetHideNonPrimaryOrganizations returns OrganizationAuthSettingsInput.HideNonPrimaryOrganizations, and is useful for accessing the field via an interface.
+func (v *OrganizationAuthSettingsInput) GetHideNonPrimaryOrganizations() bool {
+	return v.HideNonPrimaryOrganizations
+}
+
+// GetDisableAuthServiceBypass returns OrganizationAuthSettingsInput.DisableAuthServiceBypass, and is useful for accessing the field via an interface.
+func (v *OrganizationAuthSettingsInput) GetDisableAuthServiceBypass() bool {
+	return v.DisableAuthServiceBypass
+}
+
 // [INTERNAL] Organization IP restriction configuration.
 type OrganizationIpRestrictionInput struct {
 	// IP range in CIDR format.
@@ -362,12 +422,117 @@ func (v *OrganizationIpRestrictionInput) GetDescription() string { return v.Desc
 // GetEnabled returns OrganizationIpRestrictionInput.Enabled, and is useful for accessing the field via an interface.
 func (v *OrganizationIpRestrictionInput) GetEnabled() bool { return v.Enabled }
 
+// [Internal] An MCP server URL entry for the Linear Agent allowlist.
+type OrganizationLinearAgentMcpServerAllowlistEntryInput struct {
+	// [Internal] The MCP server URL that Linear Agent is allowed to use.
+	Url string `json:"url"`
+	// [Internal] Slug of the built-in MCP integration this entry was added from, if any.
+	KnownIntegrationKey string `json:"knownIntegrationKey"`
+}
+
+// GetUrl returns OrganizationLinearAgentMcpServerAllowlistEntryInput.Url, and is useful for accessing the field via an interface.
+func (v *OrganizationLinearAgentMcpServerAllowlistEntryInput) GetUrl() string { return v.Url }
+
+// GetKnownIntegrationKey returns OrganizationLinearAgentMcpServerAllowlistEntryInput.KnownIntegrationKey, and is useful for accessing the field via an interface.
+func (v *OrganizationLinearAgentMcpServerAllowlistEntryInput) GetKnownIntegrationKey() string {
+	return v.KnownIntegrationKey
+}
+
+// [Internal] Input for updating Linear Agent settings for the workspace.
+type OrganizationLinearAgentSettingsInput struct {
+	// [Internal] Whether the workspace has enabled web search for Linear Agent.
+	WebSearchEnabled bool `json:"webSearchEnabled"`
+	// [Internal] Whether the workspace has enabled MCP servers for Linear Agent.
+	McpServersEnabled bool `json:"mcpServersEnabled"`
+	// [Internal] The MCP server allowlist for Linear Agent. When unset, all MCP servers are allowed.
+	McpServersAllowlist []OrganizationLinearAgentMcpServerAllowlistEntryInput `json:"mcpServersAllowlist"`
+}
+
+// GetWebSearchEnabled returns OrganizationLinearAgentSettingsInput.WebSearchEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationLinearAgentSettingsInput) GetWebSearchEnabled() bool { return v.WebSearchEnabled }
+
+// GetMcpServersEnabled returns OrganizationLinearAgentSettingsInput.McpServersEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationLinearAgentSettingsInput) GetMcpServersEnabled() bool {
+	return v.McpServersEnabled
+}
+
+// GetMcpServersAllowlist returns OrganizationLinearAgentSettingsInput.McpServersAllowlist, and is useful for accessing the field via an interface.
+func (v *OrganizationLinearAgentSettingsInput) GetMcpServersAllowlist() []OrganizationLinearAgentMcpServerAllowlistEntryInput {
+	return v.McpServersAllowlist
+}
+
+// Input for updating workspace security settings such as role-based access controls.
+type OrganizationSecuritySettingsInput struct {
+	// The minimum role required to create personal API keys.
+	PersonalApiKeysRole UserRoleType `json:"personalApiKeysRole,omitempty"`
+	// The minimum role required to invite users.
+	InvitationsRole UserRoleType `json:"invitationsRole,omitempty"`
+	// The minimum role required to create teams.
+	TeamCreationRole UserRoleType `json:"teamCreationRole,omitempty"`
+	// The minimum role required to manage workspace labels.
+	LabelManagementRole UserRoleType `json:"labelManagementRole,omitempty"`
+	// The minimum role required to manage API settings.
+	ApiSettingsRole UserRoleType `json:"apiSettingsRole,omitempty"`
+	// The minimum role required to manage workspace templates.
+	TemplateManagementRole UserRoleType `json:"templateManagementRole,omitempty"`
+	// The minimum role required to import data.
+	ImportRole UserRoleType `json:"importRole,omitempty"`
+	// The minimum role required to manage agent guidance prompts and settings.
+	AgentGuidanceRole UserRoleType `json:"agentGuidanceRole,omitempty"`
+	// The minimum role required to install and connect new integrations.
+	IntegrationCreationRole UserRoleType `json:"integrationCreationRole,omitempty"`
+}
+
+// GetPersonalApiKeysRole returns OrganizationSecuritySettingsInput.PersonalApiKeysRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetPersonalApiKeysRole() UserRoleType {
+	return v.PersonalApiKeysRole
+}
+
+// GetInvitationsRole returns OrganizationSecuritySettingsInput.InvitationsRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetInvitationsRole() UserRoleType {
+	return v.InvitationsRole
+}
+
+// GetTeamCreationRole returns OrganizationSecuritySettingsInput.TeamCreationRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetTeamCreationRole() UserRoleType {
+	return v.TeamCreationRole
+}
+
+// GetLabelManagementRole returns OrganizationSecuritySettingsInput.LabelManagementRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetLabelManagementRole() UserRoleType {
+	return v.LabelManagementRole
+}
+
+// GetApiSettingsRole returns OrganizationSecuritySettingsInput.ApiSettingsRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetApiSettingsRole() UserRoleType {
+	return v.ApiSettingsRole
+}
+
+// GetTemplateManagementRole returns OrganizationSecuritySettingsInput.TemplateManagementRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetTemplateManagementRole() UserRoleType {
+	return v.TemplateManagementRole
+}
+
+// GetImportRole returns OrganizationSecuritySettingsInput.ImportRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetImportRole() UserRoleType { return v.ImportRole }
+
+// GetAgentGuidanceRole returns OrganizationSecuritySettingsInput.AgentGuidanceRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetAgentGuidanceRole() UserRoleType {
+	return v.AgentGuidanceRole
+}
+
+// GetIntegrationCreationRole returns OrganizationSecuritySettingsInput.IntegrationCreationRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetIntegrationCreationRole() UserRoleType {
+	return v.IntegrationCreationRole
+}
+
+// Input for updating the workspace.
 type OrganizationUpdateInput struct {
-	// The name of the organization.
+	// The name of the workspace.
 	Name string `json:"name,omitempty"`
-	// The logo of the organization.
+	// The logo URL of the workspace.
 	LogoUrl string `json:"logoUrl,omitempty"`
-	// The URL key of the organization.
+	// The URL key of the workspace.
 	UrlKey string `json:"urlKey,omitempty"`
 	// How git branches are formatted. If null, default formatting will be used.
 	GitBranchFormat string `json:"gitBranchFormat,omitempty"`
@@ -375,7 +540,9 @@ type OrganizationUpdateInput struct {
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 	// Whether the Git integration linkback messages should be sent for public repositories.
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
-	// Whether the organization is using roadmap.
+	// Whether issue descriptions should be included in Git integration linkback messages.
+	GitLinkbackDescriptionsEnabled bool `json:"gitLinkbackDescriptionsEnabled"`
+	// Whether the workspace is using roadmap.
 	RoadmapEnabled bool `json:"roadmapEnabled"`
 	// The n-weekly frequency at which to prompt for project updates.
 	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
@@ -393,40 +560,70 @@ type OrganizationUpdateInput struct {
 	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
 	// [Internal] The list of working days. Sunday is 0, Monday is 1, etc.
 	WorkingDays []float64 `json:"workingDays,omitempty"`
-	// Whether the organization has opted for reduced customer support attachment information.
+	// Whether the workspace has opted for reduced customer support attachment information.
 	ReducedPersonalInformation bool `json:"reducedPersonalInformation,omitempty"`
-	// Whether the organization has opted for having to approve all OAuth applications for install.
+	// Whether the workspace has opted for having to approve all OAuth applications for install.
 	OauthAppReview bool `json:"oauthAppReview,omitempty"`
 	// List of services that are allowed to be used for login.
 	AllowedAuthServices []string `json:"allowedAuthServices,omitempty"`
-	// Internal. Whether SLAs have been enabled for the organization.
+	// Internal. Whether SLAs have been enabled for the workspace.
 	SlaEnabled bool `json:"slaEnabled,omitempty"`
-	// Whether member users are allowed to send invites.
-	AllowMembersToInvite bool `json:"allowMembersToInvite"`
-	// Whether team creation is restricted to admins.
-	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
-	// Whether label creation is restricted to admins.
-	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
 	// Whether agent invocation is restricted to full workspace members.
-	RestrictAgentInvocationToMembers bool `json:"restrictAgentInvocationToMembers"`
+	RestrictAgentInvocationToMembers bool `json:"restrictAgentInvocationToMembers,omitempty"`
 	// IP restriction configurations controlling allowed access the workspace.
 	IpRestrictions []OrganizationIpRestrictionInput `json:"ipRestrictions,omitempty"`
-	// [ALPHA] Theme settings for the organization.
+	// Allowed file upload content types.
+	AllowedFileUploadContentTypes []string `json:"allowedFileUploadContentTypes,omitempty"`
+	// [ALPHA] Theme settings for the workspace.
 	ThemeSettings map[string]interface{} `json:"themeSettings,omitempty"`
-	// [INTERNAL] Whether the organization is using customers.
+	// [INTERNAL] Whether the workspace is using customers.
 	CustomersEnabled bool `json:"customersEnabled"`
 	// [INTERNAL] Configuration settings for the Customers feature.
 	CustomersConfiguration *map[string]interface{} `json:"customersConfiguration,omitempty"`
-	// Whether the organization has enabled the feed feature.
+	// [INTERNAL] Whether code intelligence is enabled for the workspace.
+	CodeIntelligenceEnabled bool `json:"codeIntelligenceEnabled,omitempty"`
+	// [INTERNAL] GitHub repository in owner/repo format for code intelligence.
+	CodeIntelligenceRepository string `json:"codeIntelligenceRepository,omitempty"`
+	// Whether the workspace has enabled the feed feature.
 	FeedEnabled bool `json:"feedEnabled"`
+	// Whether to hide other workspaces for new users signing up with email domains claimed by this organization.
+	HideNonPrimaryOrganizations bool `json:"hideNonPrimaryOrganizations,omitempty"`
 	// Default schedule for how often feed summaries are generated.
 	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
-	// [INTERNAL] Whether the organization has enabled the AI add-on.
+	// [INTERNAL] Whether the workspace has enabled the AI add-on.
 	AiAddonEnabled bool `json:"aiAddonEnabled,omitempty"`
-	// [INTERNAL] Whether the organization has opted in to AI telemetry.
-	AiTelemetryEnabled bool `json:"aiTelemetryEnabled"`
-	// [INTERNAL] Whether the organization has enabled the member API keys.
-	PersonalApiKeysEnabled bool `json:"personalApiKeysEnabled,omitempty"`
+	// [INTERNAL] Whether the workspace has enabled agent automation.
+	AgentAutomationEnabled bool `json:"agentAutomationEnabled,omitempty"`
+	// [INTERNAL] Whether the workspace has enabled generated updates.
+	GeneratedUpdatesEnabled bool `json:"generatedUpdatesEnabled,omitempty"`
+	// [INTERNAL] Whether the workspace has opted in to AI telemetry.
+	AiTelemetryEnabled bool `json:"aiTelemetryEnabled,omitempty"`
+	// Whether the workspace has enabled AI discussion summaries for issues.
+	AiDiscussionSummariesEnabled bool `json:"aiDiscussionSummariesEnabled,omitempty"`
+	// Whether the workspace has enabled resolved thread AI summaries.
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled,omitempty"`
+	// Whether HIPAA compliance is enabled for the workspace.
+	HipaaComplianceEnabled bool `json:"hipaaComplianceEnabled,omitempty"`
+	// The security settings for the workspace.
+	SecuritySettings OrganizationSecuritySettingsInput `json:"securitySettings"`
+	// The authentication settings for the workspace.
+	AuthSettings *OrganizationAuthSettingsInput `json:"authSettings,omitempty"`
+	// [INTERNAL] Configure per-modality AI host providers and model families.
+	AiProviderConfiguration map[string]interface{} `json:"aiProviderConfiguration,omitempty"`
+	// The ID of the Slack integration to use for auto-creating project channels.
+	SlackProjectChannelIntegrationId string `json:"slackProjectChannelIntegrationId,omitempty"`
+	// The prefix to use for auto-created Slack project channels (p-, proj-, or project-).
+	SlackProjectChannelPrefix string `json:"slackProjectChannelPrefix,omitempty"`
+	// [Internal] Whether the Slack project channels feature is enabled for the workspace.
+	SlackProjectChannelsEnabled bool `json:"slackProjectChannelsEnabled,omitempty"`
+	// [Internal] Whether to automatically create a Slack channel when a new project is created.
+	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel,omitempty"`
+	// [Internal] Whether the workspace has enabled Linear Agent.
+	LinearAgentEnabled bool `json:"linearAgentEnabled,omitempty"`
+	// [Internal] Settings for Linear Agent features.
+	LinearAgentSettings *OrganizationLinearAgentSettingsInput `json:"linearAgentSettings,omitempty"`
+	// [INTERNAL] Whether the workspace has enabled the Coding Agent.
+	CodingAgentEnabled bool `json:"codingAgentEnabled,omitempty"`
 }
 
 // GetName returns OrganizationUpdateInput.Name, and is useful for accessing the field via an interface.
@@ -449,6 +646,11 @@ func (v *OrganizationUpdateInput) GetGitLinkbackMessagesEnabled() bool {
 // GetGitPublicLinkbackMessagesEnabled returns OrganizationUpdateInput.GitPublicLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetGitPublicLinkbackMessagesEnabled() bool {
 	return v.GitPublicLinkbackMessagesEnabled
+}
+
+// GetGitLinkbackDescriptionsEnabled returns OrganizationUpdateInput.GitLinkbackDescriptionsEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetGitLinkbackDescriptionsEnabled() bool {
+	return v.GitLinkbackDescriptionsEnabled
 }
 
 // GetRoadmapEnabled returns OrganizationUpdateInput.RoadmapEnabled, and is useful for accessing the field via an interface.
@@ -504,19 +706,6 @@ func (v *OrganizationUpdateInput) GetAllowedAuthServices() []string { return v.A
 // GetSlaEnabled returns OrganizationUpdateInput.SlaEnabled, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetSlaEnabled() bool { return v.SlaEnabled }
 
-// GetAllowMembersToInvite returns OrganizationUpdateInput.AllowMembersToInvite, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetAllowMembersToInvite() bool { return v.AllowMembersToInvite }
-
-// GetRestrictTeamCreationToAdmins returns OrganizationUpdateInput.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetRestrictTeamCreationToAdmins() bool {
-	return v.RestrictTeamCreationToAdmins
-}
-
-// GetRestrictLabelManagementToAdmins returns OrganizationUpdateInput.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetRestrictLabelManagementToAdmins() bool {
-	return v.RestrictLabelManagementToAdmins
-}
-
 // GetRestrictAgentInvocationToMembers returns OrganizationUpdateInput.RestrictAgentInvocationToMembers, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetRestrictAgentInvocationToMembers() bool {
 	return v.RestrictAgentInvocationToMembers
@@ -525,6 +714,11 @@ func (v *OrganizationUpdateInput) GetRestrictAgentInvocationToMembers() bool {
 // GetIpRestrictions returns OrganizationUpdateInput.IpRestrictions, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetIpRestrictions() []OrganizationIpRestrictionInput {
 	return v.IpRestrictions
+}
+
+// GetAllowedFileUploadContentTypes returns OrganizationUpdateInput.AllowedFileUploadContentTypes, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAllowedFileUploadContentTypes() []string {
+	return v.AllowedFileUploadContentTypes
 }
 
 // GetThemeSettings returns OrganizationUpdateInput.ThemeSettings, and is useful for accessing the field via an interface.
@@ -538,8 +732,21 @@ func (v *OrganizationUpdateInput) GetCustomersConfiguration() *map[string]interf
 	return v.CustomersConfiguration
 }
 
+// GetCodeIntelligenceEnabled returns OrganizationUpdateInput.CodeIntelligenceEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCodeIntelligenceEnabled() bool { return v.CodeIntelligenceEnabled }
+
+// GetCodeIntelligenceRepository returns OrganizationUpdateInput.CodeIntelligenceRepository, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCodeIntelligenceRepository() string {
+	return v.CodeIntelligenceRepository
+}
+
 // GetFeedEnabled returns OrganizationUpdateInput.FeedEnabled, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetFeedEnabled() bool { return v.FeedEnabled }
+
+// GetHideNonPrimaryOrganizations returns OrganizationUpdateInput.HideNonPrimaryOrganizations, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetHideNonPrimaryOrganizations() bool {
+	return v.HideNonPrimaryOrganizations
+}
 
 // GetDefaultFeedSummarySchedule returns OrganizationUpdateInput.DefaultFeedSummarySchedule, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetDefaultFeedSummarySchedule() FeedSummarySchedule {
@@ -549,11 +756,73 @@ func (v *OrganizationUpdateInput) GetDefaultFeedSummarySchedule() FeedSummarySch
 // GetAiAddonEnabled returns OrganizationUpdateInput.AiAddonEnabled, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetAiAddonEnabled() bool { return v.AiAddonEnabled }
 
+// GetAgentAutomationEnabled returns OrganizationUpdateInput.AgentAutomationEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAgentAutomationEnabled() bool { return v.AgentAutomationEnabled }
+
+// GetGeneratedUpdatesEnabled returns OrganizationUpdateInput.GeneratedUpdatesEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetGeneratedUpdatesEnabled() bool { return v.GeneratedUpdatesEnabled }
+
 // GetAiTelemetryEnabled returns OrganizationUpdateInput.AiTelemetryEnabled, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetAiTelemetryEnabled() bool { return v.AiTelemetryEnabled }
 
-// GetPersonalApiKeysEnabled returns OrganizationUpdateInput.PersonalApiKeysEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetPersonalApiKeysEnabled() bool { return v.PersonalApiKeysEnabled }
+// GetAiDiscussionSummariesEnabled returns OrganizationUpdateInput.AiDiscussionSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAiDiscussionSummariesEnabled() bool {
+	return v.AiDiscussionSummariesEnabled
+}
+
+// GetAiThreadSummariesEnabled returns OrganizationUpdateInput.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAiThreadSummariesEnabled() bool {
+	return v.AiThreadSummariesEnabled
+}
+
+// GetHipaaComplianceEnabled returns OrganizationUpdateInput.HipaaComplianceEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetHipaaComplianceEnabled() bool { return v.HipaaComplianceEnabled }
+
+// GetSecuritySettings returns OrganizationUpdateInput.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetSecuritySettings() OrganizationSecuritySettingsInput {
+	return v.SecuritySettings
+}
+
+// GetAuthSettings returns OrganizationUpdateInput.AuthSettings, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAuthSettings() *OrganizationAuthSettingsInput {
+	return v.AuthSettings
+}
+
+// GetAiProviderConfiguration returns OrganizationUpdateInput.AiProviderConfiguration, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAiProviderConfiguration() map[string]interface{} {
+	return v.AiProviderConfiguration
+}
+
+// GetSlackProjectChannelIntegrationId returns OrganizationUpdateInput.SlackProjectChannelIntegrationId, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetSlackProjectChannelIntegrationId() string {
+	return v.SlackProjectChannelIntegrationId
+}
+
+// GetSlackProjectChannelPrefix returns OrganizationUpdateInput.SlackProjectChannelPrefix, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetSlackProjectChannelPrefix() string {
+	return v.SlackProjectChannelPrefix
+}
+
+// GetSlackProjectChannelsEnabled returns OrganizationUpdateInput.SlackProjectChannelsEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetSlackProjectChannelsEnabled() bool {
+	return v.SlackProjectChannelsEnabled
+}
+
+// GetSlackAutoCreateProjectChannel returns OrganizationUpdateInput.SlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetSlackAutoCreateProjectChannel() bool {
+	return v.SlackAutoCreateProjectChannel
+}
+
+// GetLinearAgentEnabled returns OrganizationUpdateInput.LinearAgentEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetLinearAgentEnabled() bool { return v.LinearAgentEnabled }
+
+// GetLinearAgentSettings returns OrganizationUpdateInput.LinearAgentSettings, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetLinearAgentSettings() *OrganizationLinearAgentSettingsInput {
+	return v.LinearAgentSettings
+}
+
+// GetCodingAgentEnabled returns OrganizationUpdateInput.CodingAgentEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCodingAgentEnabled() bool { return v.CodingAgentEnabled }
 
 // [Internal] The scope of product intelligence suggestion data for a team.
 type ProductIntelligenceScope string
@@ -568,15 +837,18 @@ const (
 // Team includes the GraphQL fields of Team requested by the fragment Team.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type Team struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
 	// The team's name.
 	Name string `json:"name"`
-	// The team's unique key. The key is used in URLs.
+	// The team's unique key, used as a prefix in issue identifiers (e.g., 'ENG' in 'ENG-123') and in URLs.
 	Key string `json:"key"`
-	// Whether the team is private or not.
+	// Whether the team is private. Private teams are only visible to their members and require an explicit invitation to join.
 	Private bool `json:"private"`
 	// The team's description.
 	Description *string `json:"description"`
@@ -584,7 +856,7 @@ type Team struct {
 	Icon *string `json:"icon"`
 	// The team's color.
 	Color *string `json:"color"`
-	// [Internal] The team's parent team.
+	// The team's parent team.
 	Parent *TeamParentTeam `json:"parent"`
 	// The timezone of the team. Defaults to "America/Los_Angeles"
 	Timezone string `json:"timezone"`
@@ -594,7 +866,7 @@ type Team struct {
 	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 	// Whether to enable resolved thread AI summaries.
 	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
-	// Period after which automatically closed and completed issues are automatically archived in months.
+	// Period after which automatically closed, completed, and duplicate issues are automatically archived in months.
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 	// Period after which issues are automatically closed in months. Null/undefined means disabled.
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
@@ -602,15 +874,17 @@ type Team struct {
 	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
 	// Whether child issues should automatically close when their parent issue is closed
 	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
-	// Whether triage mode is enabled for the team or not.
+	// Whether triage mode is enabled for the team. When enabled, issues created by
+	// non-members or integrations are routed to a triage state for review before
+	// entering the normal workflow.
 	TriageEnabled bool `json:"triageEnabled"`
 	// Whether an issue needs to have a priority set before leaving triage.
 	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
-	// Whether the team uses cycles.
+	// Whether the team uses cycles for sprint-style issue management.
 	CyclesEnabled bool `json:"cyclesEnabled"`
-	// The day of the week that a new cycle starts.
+	// The day of the week that a new cycle starts (0 = Sunday, 1 = Monday, ..., 6 = Saturday).
 	CycleStartDay float64 `json:"cycleStartDay"`
-	// The duration of a cycle in weeks.
+	// The duration of each cycle in weeks.
 	CycleDuration float64 `json:"cycleDuration"`
 	// The cooldown time after each cycle in weeks.
 	CycleCooldownTime float64 `json:"cycleCooldownTime"`
@@ -785,7 +1059,8 @@ type TeamCreateInput struct {
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
 	// The canceled workflow state which auto closed issues will be set to.
 	AutoCloseStateId string `json:"autoCloseStateId,omitempty"`
-	// Period after which closed and completed issues are automatically archived, in months. 0 means disabled.
+	// Period after which closed (completed, canceled, or duplicate) issues are
+	// automatically archived, in months. 0 means disabled.
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
 	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
@@ -795,6 +1070,13 @@ type TeamCreateInput struct {
 	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope"`
 	// [Internal] The scope of product intelligence suggestion data for the team.
 	ProductIntelligenceScope ProductIntelligenceScope `json:"productIntelligenceScope,omitempty"`
+	// Whether issue sharing is enabled for this team.
+	IssueSharingEnabled bool `json:"issueSharingEnabled"`
+	// [Internal] Whether the team should inherit its Slack auto-create project
+	// channel setting from its parent. Only applies to sub-teams.
+	InheritSlackAutoCreateProjectChannel bool `json:"inheritSlackAutoCreateProjectChannel"`
+	// [Internal] Whether to automatically create a Slack channel when a new project is created in this team.
+	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel"`
 }
 
 // GetId returns TeamCreateInput.Id, and is useful for accessing the field via an interface.
@@ -921,10 +1203,26 @@ func (v *TeamCreateInput) GetProductIntelligenceScope() ProductIntelligenceScope
 	return v.ProductIntelligenceScope
 }
 
+// GetIssueSharingEnabled returns TeamCreateInput.IssueSharingEnabled, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetIssueSharingEnabled() bool { return v.IssueSharingEnabled }
+
+// GetInheritSlackAutoCreateProjectChannel returns TeamCreateInput.InheritSlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetInheritSlackAutoCreateProjectChannel() bool {
+	return v.InheritSlackAutoCreateProjectChannel
+}
+
+// GetSlackAutoCreateProjectChannel returns TeamCreateInput.SlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetSlackAutoCreateProjectChannel() bool {
+	return v.SlackAutoCreateProjectChannel
+}
+
 // TeamParentTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type TeamParentTeam struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -932,6 +1230,50 @@ type TeamParentTeam struct {
 
 // GetId returns TeamParentTeam.Id, and is useful for accessing the field via an interface.
 func (v *TeamParentTeam) GetId() string { return v.Id }
+
+// [Internal] How to handle sub-teams when retiring a parent team.
+type TeamRetirementSubTeamHandling string
+
+const (
+	TeamRetirementSubTeamHandlingUnnest TeamRetirementSubTeamHandling = "unnest"
+	TeamRetirementSubTeamHandlingRetire TeamRetirementSubTeamHandling = "retire"
+)
+
+// All possible roles within a team in terms of access to team settings and operations.
+type TeamRoleType string
+
+const (
+	TeamRoleTypeOwner  TeamRoleType = "owner"
+	TeamRoleTypeMember TeamRoleType = "member"
+)
+
+type TeamSecuritySettingsInput struct {
+	// The minimum team role required to share issues with non-team-members.
+	IssueSharing TeamRoleType `json:"issueSharing"`
+	// The minimum team role required to manage labels in the team.
+	LabelManagement TeamRoleType `json:"labelManagement"`
+	// The minimum team role required to manage full workspace members (non-guests) in the team.
+	MemberManagement TeamRoleType `json:"memberManagement"`
+	// The minimum team role required to manage team settings.
+	TeamManagement TeamRoleType `json:"teamManagement"`
+	// The minimum team role required to manage templates in the team.
+	TemplateManagement TeamRoleType `json:"templateManagement"`
+}
+
+// GetIssueSharing returns TeamSecuritySettingsInput.IssueSharing, and is useful for accessing the field via an interface.
+func (v *TeamSecuritySettingsInput) GetIssueSharing() TeamRoleType { return v.IssueSharing }
+
+// GetLabelManagement returns TeamSecuritySettingsInput.LabelManagement, and is useful for accessing the field via an interface.
+func (v *TeamSecuritySettingsInput) GetLabelManagement() TeamRoleType { return v.LabelManagement }
+
+// GetMemberManagement returns TeamSecuritySettingsInput.MemberManagement, and is useful for accessing the field via an interface.
+func (v *TeamSecuritySettingsInput) GetMemberManagement() TeamRoleType { return v.MemberManagement }
+
+// GetTeamManagement returns TeamSecuritySettingsInput.TeamManagement, and is useful for accessing the field via an interface.
+func (v *TeamSecuritySettingsInput) GetTeamManagement() TeamRoleType { return v.TeamManagement }
+
+// GetTemplateManagement returns TeamSecuritySettingsInput.TemplateManagement, and is useful for accessing the field via an interface.
+func (v *TeamSecuritySettingsInput) GetTemplateManagement() TeamRoleType { return v.TemplateManagement }
 
 type TeamUpdateInput struct {
 	// The name of the team.
@@ -958,14 +1300,14 @@ type TeamUpdateInput struct {
 	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
 	// Only allow issues with cycles in Active Issues.
 	CycleLockToActive bool `json:"cycleLockToActive"`
-	// The date to begin cycles on.
+	// The time at which to begin cycles.
 	CycleEnabledStartDate *time.Time `json:"cycleEnabledStartDate,omitempty"`
 	// How many upcoming cycles to create.
 	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
 	// The timezone of the team.
 	Timezone string `json:"timezone"`
 	// Whether the team should inherit estimation settings from its parent. Only applies to sub-teams.
-	InheritIssueEstimation bool `json:"inheritIssueEstimation"`
+	InheritIssueEstimation bool `json:"inheritIssueEstimation,omitempty"`
 	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
 	IssueEstimationType string `json:"issueEstimationType"`
 	// Whether to allow zeros in issues estimates.
@@ -977,15 +1319,17 @@ type TeamUpdateInput struct {
 	// What to use as an default estimate for unestimated issues.
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
 	// Whether to send new issue notifications to Slack.
-	SlackNewIssue bool `json:"slackNewIssue"`
+	SlackNewIssue bool `json:"slackNewIssue,omitempty"`
 	// Whether to send new issue comment notifications to Slack.
-	SlackIssueComments bool `json:"slackIssueComments"`
+	SlackIssueComments bool `json:"slackIssueComments,omitempty"`
 	// Whether to send issue status update notifications to Slack.
-	SlackIssueStatuses bool `json:"slackIssueStatuses"`
+	SlackIssueStatuses bool `json:"slackIssueStatuses,omitempty"`
 	// Whether to group recent issue history entries.
 	GroupIssueHistory bool `json:"groupIssueHistory"`
 	// Whether to enable resolved thread AI summaries.
 	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
+	// Whether to enable AI discussion summaries for issues.
+	AiDiscussionSummariesEnabled bool `json:"aiDiscussionSummariesEnabled,omitempty"`
 	// The identifier of the default template for members of this team.
 	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId,omitempty"`
 	// The identifier of the default template for non-members of this team.
@@ -1004,26 +1348,42 @@ type TeamUpdateInput struct {
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
 	// The canceled workflow state which auto closed issues will be set to.
 	AutoCloseStateId string `json:"autoCloseStateId,omitempty"`
-	// [INTERNAL] Whether to automatically close a parent issue in this team if all its sub-issues are closed.
+	// Whether to automatically close a parent issue in this team if all its sub-issues are closed.
 	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
-	// [INTERNAL] Whether to automatically close all sub-issues when a parent issue in this team is closed.
+	// Whether to automatically close all sub-issues when a parent issue in this team is closed.
 	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
-	// Period after which closed and completed issues are automatically archived, in months.
+	// Period after which closed (completed, canceled, or duplicate) issues are automatically archived, in months.
 	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
 	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
-	// Whether new users should join this team by default. Mutation restricted to workspace admins!
-	JoinByDefault *bool `json:"joinByDefault,omitempty"`
-	// Whether the team is managed by SCIM integration. Mutation restricted to workspace admins and only unsetting is allowed!
-	ScimManaged *bool `json:"scimManaged,omitempty"`
+	// Whether new users should join this team by default. Mutation restricted to workspace admins or owners!
+	JoinByDefault bool `json:"joinByDefault,omitempty"`
+	// Whether the team is managed by SCIM integration. Mutation restricted to
+	// workspace admins or owners and only unsetting is allowed!
+	ScimManaged bool `json:"scimManaged,omitempty"`
 	// The parent team ID.
-	ParentId *string `json:"parentId,omitempty"`
+	ParentId *string `json:"parentId"`
 	// [Internal] Whether the team should inherit workflow statuses from its parent.
-	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
+	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses,omitempty"`
 	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.
-	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope"`
+	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope,omitempty"`
 	// [Internal] The scope of product intelligence suggestion data for the team.
 	ProductIntelligenceScope ProductIntelligenceScope `json:"productIntelligenceScope,omitempty"`
+	// Whether issue sharing is enabled for this team.
+	IssueSharingEnabled bool `json:"issueSharingEnabled,omitempty"`
+	// [Internal] Whether the team should inherit its Slack auto-create project
+	// channel setting from its parent. Only applies to sub-teams.
+	InheritSlackAutoCreateProjectChannel bool `json:"inheritSlackAutoCreateProjectChannel,omitempty"`
+	// [Internal] Whether to automatically create a Slack channel when a new project is created in this team.
+	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel,omitempty"`
+	// The security settings for the team.
+	SecuritySettings *TeamSecuritySettingsInput `json:"securitySettings,omitempty"`
+	// Whether all members in the workspace can join the team. Only used for public teams.
+	AllMembersCanJoin bool `json:"allMembersCanJoin,omitempty"`
+	// When the team was retired.
+	RetiredAt *time.Time `json:"retiredAt,omitempty"`
+	// [Internal] How to handle sub-teams when retiring. Required if the team has active sub-teams.
+	HandleSubTeamsOnRetirement TeamRetirementSubTeamHandling `json:"handleSubTeamsOnRetirement,omitempty"`
 }
 
 // GetName returns TeamUpdateInput.Name, and is useful for accessing the field via an interface.
@@ -1108,6 +1468,11 @@ func (v *TeamUpdateInput) GetGroupIssueHistory() bool { return v.GroupIssueHisto
 // GetAiThreadSummariesEnabled returns TeamUpdateInput.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetAiThreadSummariesEnabled() bool { return v.AiThreadSummariesEnabled }
 
+// GetAiDiscussionSummariesEnabled returns TeamUpdateInput.AiDiscussionSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAiDiscussionSummariesEnabled() bool {
+	return v.AiDiscussionSummariesEnabled
+}
+
 // GetDefaultTemplateForMembersId returns TeamUpdateInput.DefaultTemplateForMembersId, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetDefaultTemplateForMembersId() string {
 	return v.DefaultTemplateForMembersId
@@ -1156,10 +1521,10 @@ func (v *TeamUpdateInput) GetMarkedAsDuplicateWorkflowStateId() string {
 }
 
 // GetJoinByDefault returns TeamUpdateInput.JoinByDefault, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetJoinByDefault() *bool { return v.JoinByDefault }
+func (v *TeamUpdateInput) GetJoinByDefault() bool { return v.JoinByDefault }
 
 // GetScimManaged returns TeamUpdateInput.ScimManaged, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetScimManaged() *bool { return v.ScimManaged }
+func (v *TeamUpdateInput) GetScimManaged() bool { return v.ScimManaged }
 
 // GetParentId returns TeamUpdateInput.ParentId, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetParentId() *string { return v.ParentId }
@@ -1177,14 +1542,44 @@ func (v *TeamUpdateInput) GetProductIntelligenceScope() ProductIntelligenceScope
 	return v.ProductIntelligenceScope
 }
 
+// GetIssueSharingEnabled returns TeamUpdateInput.IssueSharingEnabled, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIssueSharingEnabled() bool { return v.IssueSharingEnabled }
+
+// GetInheritSlackAutoCreateProjectChannel returns TeamUpdateInput.InheritSlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetInheritSlackAutoCreateProjectChannel() bool {
+	return v.InheritSlackAutoCreateProjectChannel
+}
+
+// GetSlackAutoCreateProjectChannel returns TeamUpdateInput.SlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSlackAutoCreateProjectChannel() bool {
+	return v.SlackAutoCreateProjectChannel
+}
+
+// GetSecuritySettings returns TeamUpdateInput.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSecuritySettings() *TeamSecuritySettingsInput { return v.SecuritySettings }
+
+// GetAllMembersCanJoin returns TeamUpdateInput.AllMembersCanJoin, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAllMembersCanJoin() bool { return v.AllMembersCanJoin }
+
+// GetRetiredAt returns TeamUpdateInput.RetiredAt, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetRetiredAt() *time.Time { return v.RetiredAt }
+
+// GetHandleSubTeamsOnRetirement returns TeamUpdateInput.HandleSubTeamsOnRetirement, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetHandleSubTeamsOnRetirement() TeamRetirementSubTeamHandling {
+	return v.HandleSubTeamsOnRetirement
+}
+
 // TeamWorkflow includes the GraphQL fields of Team requested by the fragment TeamWorkflow.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type TeamWorkflow struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The team's unique key. The key is used in URLs.
+	// The team's unique key, used as a prefix in issue identifiers (e.g., 'ENG' in 'ENG-123') and in URLs.
 	Key string `json:"key"`
 	// The Git automation states for the team.
 	GitAutomationStates TeamWorkflowGitAutomationStatesGitAutomationStateConnection `json:"gitAutomationStates"`
@@ -1214,15 +1609,24 @@ func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnection) GetNodes()
 // TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState includes the requested fields of the GraphQL type GitAutomationState.
 // The GraphQL type's documentation follows.
 //
-// A trigger that updates the issue status according to Git automations.
+// A Git automation rule that automatically transitions issues to a specified
+// workflow state when a Git event occurs (e.g., when a PR is opened, move the
+// linked issue to 'In Review'). Each rule is scoped to a team and optionally to a
+// specific target branch. When no target branch is specified, the rule acts as the
+// default for all branches. Target-branch-specific rules override the defaults.
 type TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The associated workflow state.
+	// The workflow state that linked issues will be transitioned to when the Git
+	// event fires. Null if this rule is configured to take no action, overriding any
+	// default rule for the same event.
 	State *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState `json:"state"`
-	// The event that triggers the automation.
+	// The Git event that triggers this automation rule (e.g., branch created, PR opened for review, or PR merged).
 	Event GitAutomationStates `json:"event"`
-	// The target branch associated to this automation state.
+	// The target branch that this automation rule applies to. When set, this rule
+	// only fires for pull requests targeting the specified branch pattern,
+	// overriding any default rule for the same event. Null if this is a default rule
+	// that applies to all branches.
 	TargetBranch *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch `json:"targetBranch"`
 }
 
@@ -1249,7 +1653,13 @@ func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAuto
 // TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team workflow.
+// A state in a team's workflow, representing an issue status such as Triage,
+// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
+// set of workflow states that define the progression of issues through the team's
+// process. Workflow states have a type that categorizes them (triage, backlog,
+// unstarted, started, completed, canceled), a position that determines their
+// display order, and a color for visual identification. States can be inherited
+// from parent teams to sub-teams.
 type TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -1263,13 +1673,20 @@ func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAuto
 // TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch includes the requested fields of the GraphQL type GitAutomationTargetBranch.
 // The GraphQL type's documentation follows.
 //
-// A Git target branch for which there are automations (GitAutomationState).
+// A target branch definition used by Git automation rules to scope automations to
+// specific branches. The branch can be specified as an exact name (e.g., 'main')
+// or as a regular expression pattern (e.g., 'release/.*'). Each target branch
+// belongs to a team and can have multiple automation rules associated with it,
+// which override the team's default automation rules when a PR targets a matching branch.
 type TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The target branch pattern.
+	// The branch name or pattern to match against pull request target branches.
+	// Interpreted as a literal branch name unless isRegex is true, in which case it
+	// is treated as a regular expression.
 	BranchPattern string `json:"branchPattern"`
-	// Whether the branch pattern is a regular expression.
+	// Whether the branch pattern should be interpreted as a regular expression. When
+	// false, the pattern is matched as an exact branch name.
 	IsRegex bool `json:"isRegex"`
 }
 
@@ -1291,19 +1708,28 @@ func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAuto
 // Template includes the GraphQL fields of Template requested by the fragment Template.
 // The GraphQL type's documentation follows.
 //
-// A template object used for creating entities faster.
+// A reusable template for creating issues, projects, or documents. Templates store
+// pre-filled field values and content as JSON data. They can be scoped to a
+// specific team or shared across the entire workspace. Team-scoped templates may
+// be inherited from parent teams.
 type Template struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
 	// The name of the template.
 	Name string `json:"name"`
-	// Template description.
+	// A description of what the template is used for.
 	Description *string `json:"description"`
-	// The entity type this template is for.
+	// The icon of the template, either a decorative icon type or an emoji string. Null if no icon has been set.
+	Icon *string `json:"icon"`
+	// The hex color of the template icon. Null if no custom color has been set.
+	Color *string `json:"color"`
+	// The entity type this template is for, such as 'issue', 'project', or 'document'.
 	Type string `json:"type"`
 	// The team that the template is associated with. If null, the template is global to the workspace.
 	Team *TemplateTeam `json:"team"`
-	// Template data.
+	// The template data as a JSON-encoded string containing the pre-filled
+	// attributes for the entity type (e.g., issue fields, project configuration, or
+	// document content).
 	TemplateData string `json:"templateData"`
 }
 
@@ -1316,6 +1742,12 @@ func (v *Template) GetName() string { return v.Name }
 // GetDescription returns Template.Description, and is useful for accessing the field via an interface.
 func (v *Template) GetDescription() *string { return v.Description }
 
+// GetIcon returns Template.Icon, and is useful for accessing the field via an interface.
+func (v *Template) GetIcon() *string { return v.Icon }
+
+// GetColor returns Template.Color, and is useful for accessing the field via an interface.
+func (v *Template) GetColor() *string { return v.Color }
+
 // GetType returns Template.Type, and is useful for accessing the field via an interface.
 func (v *Template) GetType() string { return v.Type }
 
@@ -1325,10 +1757,12 @@ func (v *Template) GetTeam() *TemplateTeam { return v.Team }
 // GetTemplateData returns Template.TemplateData, and is useful for accessing the field via an interface.
 func (v *Template) GetTemplateData() string { return v.TemplateData }
 
+// Input for creating a new template. A name, type, and template data are required.
+// If no team is specified, the template is shared across the workspace.
 type TemplateCreateInput struct {
 	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
 	Id *string `json:"id,omitempty"`
-	// The template type, e.g. 'issue'.
+	// The template type, e.g. 'issue', 'project', or 'document'.
 	Type string `json:"type"`
 	// The identifier or key of the team associated with the template. If not given,
 	// the template will be shared across all teams.
@@ -1337,9 +1771,14 @@ type TemplateCreateInput struct {
 	Name string `json:"name"`
 	// The template description.
 	Description *string `json:"description"`
-	// The template data as JSON encoded attributes of the type of entity, such as an issue.
+	// The icon of the template.
+	Icon *string `json:"icon,omitempty"`
+	// The color of the template icon.
+	Color *string `json:"color,omitempty"`
+	// The template data as JSON-encoded attributes of the target entity type, such
+	// as pre-filled issue fields, project configuration, or document content.
 	TemplateData string `json:"templateData"`
-	// The position of the template in the templates list.
+	// The sort position of the template in the templates list.
 	SortOrder *float64 `json:"sortOrder,omitempty"`
 }
 
@@ -1358,6 +1797,12 @@ func (v *TemplateCreateInput) GetName() string { return v.Name }
 // GetDescription returns TemplateCreateInput.Description, and is useful for accessing the field via an interface.
 func (v *TemplateCreateInput) GetDescription() *string { return v.Description }
 
+// GetIcon returns TemplateCreateInput.Icon, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetIcon() *string { return v.Icon }
+
+// GetColor returns TemplateCreateInput.Color, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetColor() *string { return v.Color }
+
 // GetTemplateData returns TemplateCreateInput.TemplateData, and is useful for accessing the field via an interface.
 func (v *TemplateCreateInput) GetTemplateData() string { return v.TemplateData }
 
@@ -1367,7 +1812,10 @@ func (v *TemplateCreateInput) GetSortOrder() *float64 { return v.SortOrder }
 // TemplateTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type TemplateTeam struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -1376,15 +1824,21 @@ type TemplateTeam struct {
 // GetId returns TemplateTeam.Id, and is useful for accessing the field via an interface.
 func (v *TemplateTeam) GetId() string { return v.Id }
 
+// Input for updating an existing template. All fields are optional; only provided fields will be updated.
 type TemplateUpdateInput struct {
 	// The template name.
 	Name string `json:"name"`
 	// The template description.
 	Description *string `json:"description"`
+	// The icon of the template.
+	Icon *string `json:"icon,omitempty"`
+	// The color of the template icon.
+	Color *string `json:"color,omitempty"`
 	// The identifier or key of the team associated with the template. If set to
 	// null, the template will be shared across all teams.
 	TeamId *string `json:"teamId"`
-	// The template data as JSON encoded attributes of the type of entity, such as an issue.
+	// The template data as JSON-encoded attributes of the target entity type, such
+	// as pre-filled issue fields, project configuration, or document content.
 	TemplateData string `json:"templateData"`
 	// The position of the template in the templates list.
 	SortOrder *float64 `json:"sortOrder,omitempty"`
@@ -1396,6 +1850,12 @@ func (v *TemplateUpdateInput) GetName() string { return v.Name }
 // GetDescription returns TemplateUpdateInput.Description, and is useful for accessing the field via an interface.
 func (v *TemplateUpdateInput) GetDescription() *string { return v.Description }
 
+// GetIcon returns TemplateUpdateInput.Icon, and is useful for accessing the field via an interface.
+func (v *TemplateUpdateInput) GetIcon() *string { return v.Icon }
+
+// GetColor returns TemplateUpdateInput.Color, and is useful for accessing the field via an interface.
+func (v *TemplateUpdateInput) GetColor() *string { return v.Color }
+
 // GetTeamId returns TemplateUpdateInput.TeamId, and is useful for accessing the field via an interface.
 func (v *TemplateUpdateInput) GetTeamId() *string { return v.TeamId }
 
@@ -1405,24 +1865,42 @@ func (v *TemplateUpdateInput) GetTemplateData() string { return v.TemplateData }
 // GetSortOrder returns TemplateUpdateInput.SortOrder, and is useful for accessing the field via an interface.
 func (v *TemplateUpdateInput) GetSortOrder() *float64 { return v.SortOrder }
 
+// The different permission roles available to users in a workspace.
+type UserRoleType string
+
+const (
+	UserRoleTypeOwner UserRoleType = "owner"
+	UserRoleTypeAdmin UserRoleType = "admin"
+	UserRoleTypeGuest UserRoleType = "guest"
+	UserRoleTypeUser  UserRoleType = "user"
+	UserRoleTypeApp   UserRoleType = "app"
+)
+
 // WorkflowState includes the GraphQL fields of WorkflowState requested by the fragment WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team workflow.
+// A state in a team's workflow, representing an issue status such as Triage,
+// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
+// set of workflow states that define the progression of issues through the team's
+// process. Workflow states have a type that categorizes them (triage, backlog,
+// unstarted, started, completed, canceled), a position that determines their
+// display order, and a color for visual identification. States can be inherited
+// from parent teams to sub-teams.
 type WorkflowState struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The state's name.
+	// The state's human-readable name (e.g., 'In Progress', 'Done', 'Backlog').
 	Name string `json:"name"`
 	// The state's UI color as a HEX string.
 	Color string `json:"color"`
 	// Description of the state.
 	Description *string `json:"description"`
-	// The type of the state. One of "triage", "backlog", "unstarted", "started", "completed", "canceled".
+	// The type of the state. One of "triage", "backlog", "unstarted", "started", "completed", "canceled", "duplicate".
 	Type string `json:"type"`
-	// The position of the state in the team flow.
+	// The position of the state in the team's workflow. States are displayed in
+	// ascending order of position within their type group.
 	Position float64 `json:"position"`
-	// The team to which this state belongs to.
+	// The team that this workflow state belongs to. Each team has its own set of workflow states.
 	Team WorkflowStateTeam `json:"team"`
 }
 
@@ -1447,10 +1925,13 @@ func (v *WorkflowState) GetPosition() float64 { return v.Position }
 // GetTeam returns WorkflowState.Team, and is useful for accessing the field via an interface.
 func (v *WorkflowState) GetTeam() WorkflowStateTeam { return v.Team }
 
+// Input for creating a new workflow state (issue status) in a team. The name, type, color, and team are required.
 type WorkflowStateCreateInput struct {
 	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
 	Id string `json:"id,omitempty"`
-	// The workflow type.
+	// The workflow state type, which categorizes the state. Valid values: backlog,
+	// unstarted, started, completed, canceled. The type determines how the state is
+	// treated in workflow progression and reporting.
 	Type string `json:"type"`
 	// The name of the state.
 	Name string `json:"name"`
@@ -1488,7 +1969,10 @@ func (v *WorkflowStateCreateInput) GetTeamId() string { return v.TeamId }
 // WorkflowStateTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type WorkflowStateTeam struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -1497,6 +1981,8 @@ type WorkflowStateTeam struct {
 // GetId returns WorkflowStateTeam.Id, and is useful for accessing the field via an interface.
 func (v *WorkflowStateTeam) GetId() string { return v.Id }
 
+// Input for updating an existing workflow state. All fields are optional; only
+// provided fields will be updated. The state type cannot be changed after creation.
 type WorkflowStateUpdateInput struct {
 	// The name of the state.
 	Name string `json:"name,omitempty"`
@@ -1767,6 +2253,9 @@ type __updateWorkspaceSettingsInput struct {
 func (v *__updateWorkspaceSettingsInput) GetInput() OrganizationUpdateInput { return v.Input }
 
 // createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload includes the requested fields of the GraphQL type GitAutomationStatePayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a git automation state mutation.
 type createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload struct {
 	// Whether the operation was successful.
 	Success bool `json:"success"`
@@ -1779,7 +2268,7 @@ func (v *createGitAutomationStateGitAutomationStateCreateGitAutomationStatePaylo
 
 // createGitAutomationStateResponse is returned by createGitAutomationState on success.
 type createGitAutomationStateResponse struct {
-	// Creates a new automation state.
+	// Creates a new Git automation rule that maps a Git event to a workflow state transition for a team.
 	GitAutomationStateCreate createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload `json:"gitAutomationStateCreate"`
 }
 
@@ -1789,6 +2278,9 @@ func (v *createGitAutomationStateResponse) GetGitAutomationStateCreate() createG
 }
 
 // createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload includes the requested fields of the GraphQL type GitAutomationTargetBranchPayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a git automation target branch mutation.
 type createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload struct {
 	// The Git target branch automation that was created or updated.
 	TargetBranch createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch `json:"targetBranch"`
@@ -1809,13 +2301,20 @@ func (v *createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutoma
 // createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch includes the requested fields of the GraphQL type GitAutomationTargetBranch.
 // The GraphQL type's documentation follows.
 //
-// A Git target branch for which there are automations (GitAutomationState).
+// A target branch definition used by Git automation rules to scope automations to
+// specific branches. The branch can be specified as an exact name (e.g., 'main')
+// or as a regular expression pattern (e.g., 'release/.*'). Each target branch
+// belongs to a team and can have multiple automation rules associated with it,
+// which override the team's default automation rules when a PR targets a matching branch.
 type createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The target branch pattern.
+	// The branch name or pattern to match against pull request target branches.
+	// Interpreted as a literal branch name unless isRegex is true, in which case it
+	// is treated as a regular expression.
 	BranchPattern string `json:"branchPattern"`
-	// Whether the branch pattern is a regular expression.
+	// Whether the branch pattern should be interpreted as a regular expression. When
+	// false, the pattern is matched as an exact branch name.
 	IsRegex bool `json:"isRegex"`
 }
 
@@ -1836,7 +2335,8 @@ func (v *createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutoma
 
 // createGitAutomationTargetBranchResponse is returned by createGitAutomationTargetBranch on success.
 type createGitAutomationTargetBranchResponse struct {
-	// Creates a Git target branch automation.
+	// Creates a new Git target branch definition that scopes automation rules to
+	// pull requests targeting a specific branch pattern.
 	GitAutomationTargetBranchCreate createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload `json:"gitAutomationTargetBranchCreate"`
 }
 
@@ -1846,6 +2346,9 @@ func (v *createGitAutomationTargetBranchResponse) GetGitAutomationTargetBranchCr
 }
 
 // createLabelIssueLabelCreateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a label mutation, containing the created or updated label and a success indicator.
 type createLabelIssueLabelCreateIssueLabelPayload struct {
 	// The label that was created or updated.
 	IssueLabel createLabelIssueLabelCreateIssueLabelPayloadIssueLabel `json:"issueLabel"`
@@ -1859,7 +2362,11 @@ func (v *createLabelIssueLabelCreateIssueLabelPayload) GetIssueLabel() createLab
 // createLabelIssueLabelCreateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues.
+// Labels that can be associated with issues. Labels help categorize and filter
+// issues across a workspace. They can be workspace-level (shared across all teams)
+// or team-scoped. Labels have a color for visual identification and can be
+// organized hierarchically into groups, where a parent label acts as a group
+// containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type createLabelIssueLabelCreateIssueLabelPayloadIssueLabel struct {
 	IssueLabel `json:"-"`
 }
@@ -1966,7 +2473,9 @@ func (v *createLabelResponse) GetIssueLabelCreate() createLabelIssueLabelCreateI
 
 // createTeamResponse is returned by createTeam on success.
 type createTeamResponse struct {
-	// Creates a new team. The user who creates the team will automatically be added as a member to the newly created team.
+	// Creates a new team. The user who creates the team will automatically be added
+	// as a member and owner of the newly created team. Default workflow states,
+	// labels, and other team resources are created alongside the team.
 	TeamCreate createTeamTeamCreateTeamPayload `json:"teamCreate"`
 }
 
@@ -1974,6 +2483,9 @@ type createTeamResponse struct {
 func (v *createTeamResponse) GetTeamCreate() createTeamTeamCreateTeamPayload { return v.TeamCreate }
 
 // createTeamTeamCreateTeamPayload includes the requested fields of the GraphQL type TeamPayload.
+// The GraphQL type's documentation follows.
+//
+// Team operation response.
 type createTeamTeamCreateTeamPayload struct {
 	// The team that was created or updated.
 	Team createTeamTeamCreateTeamPayloadTeam `json:"team"`
@@ -1987,7 +2499,10 @@ func (v *createTeamTeamCreateTeamPayload) GetTeam() createTeamTeamCreateTeamPayl
 // createTeamTeamCreateTeamPayloadTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type createTeamTeamCreateTeamPayloadTeam struct {
 	Team `json:"-"`
 }
@@ -2259,6 +2774,9 @@ func (v *createWorkflowStateResponse) GetWorkflowStateCreate() createWorkflowSta
 }
 
 // createWorkflowStateWorkflowStateCreateWorkflowStatePayload includes the requested fields of the GraphQL type WorkflowStatePayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a workflow state mutation, containing the created or updated state and a success indicator.
 type createWorkflowStateWorkflowStateCreateWorkflowStatePayload struct {
 	// The state that was created or updated.
 	WorkflowState createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState `json:"workflowState"`
@@ -2272,7 +2790,13 @@ func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayload) GetWorkflow
 // createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team workflow.
+// A state in a team's workflow, representing an issue status such as Triage,
+// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
+// set of workflow states that define the progression of issues through the team's
+// process. Workflow states have a type that categorizes them (triage, backlog,
+// unstarted, started, completed, canceled), a position that determines their
+// display order, and a color for visual identification. States can be inherited
+// from parent teams to sub-teams.
 type createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState struct {
 	WorkflowState `json:"-"`
 }
@@ -2390,7 +2914,7 @@ func (v *deleteGitAutomationStateGitAutomationStateDeleteDeletePayload) GetSucce
 
 // deleteGitAutomationStateResponse is returned by deleteGitAutomationState on success.
 type deleteGitAutomationStateResponse struct {
-	// Archives an automation state.
+	// Deletes a Git automation rule.
 	GitAutomationStateDelete deleteGitAutomationStateGitAutomationStateDeleteDeletePayload `json:"gitAutomationStateDelete"`
 }
 
@@ -2415,7 +2939,7 @@ func (v *deleteGitAutomationTargetBranchGitAutomationTargetBranchDeleteDeletePay
 
 // deleteGitAutomationTargetBranchResponse is returned by deleteGitAutomationTargetBranch on success.
 type deleteGitAutomationTargetBranchResponse struct {
-	// Archives a Git target branch automation.
+	// Deletes a Git target branch definition and its associated automation rules.
 	GitAutomationTargetBranchDelete deleteGitAutomationTargetBranchGitAutomationTargetBranchDeleteDeletePayload `json:"gitAutomationTargetBranchDelete"`
 }
 
@@ -2449,7 +2973,7 @@ func (v *deleteLabelResponse) GetIssueLabelDelete() deleteLabelIssueLabelDeleteD
 
 // deleteTeamResponse is returned by deleteTeam on success.
 type deleteTeamResponse struct {
-	// Deletes a team.
+	// Archives a team and schedules its data for deletion. Requires team owner or workspace admin permissions.
 	TeamDelete deleteTeamTeamDeleteDeletePayload `json:"teamDelete"`
 }
 
@@ -2506,7 +3030,11 @@ func (v *findTeamLabelIssueLabelsIssueLabelConnection) GetNodes() []findTeamLabe
 // findTeamLabelIssueLabelsIssueLabelConnectionNodesIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues.
+// Labels that can be associated with issues. Labels help categorize and filter
+// issues across a workspace. They can be workspace-level (shared across all teams)
+// or team-scoped. Labels have a color for visual identification and can be
+// organized hierarchically into groups, where a parent label acts as a group
+// containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type findTeamLabelIssueLabelsIssueLabelConnectionNodesIssueLabel struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -2517,7 +3045,8 @@ func (v *findTeamLabelIssueLabelsIssueLabelConnectionNodesIssueLabel) GetId() st
 
 // findTeamLabelResponse is returned by findTeamLabel on success.
 type findTeamLabelResponse struct {
-	// All issue labels.
+	// All issue labels. Returns a paginated list of labels visible to the
+	// authenticated user, including both workspace-level and team-scoped labels.
 	IssueLabels findTeamLabelIssueLabelsIssueLabelConnection `json:"issueLabels"`
 }
 
@@ -2528,7 +3057,8 @@ func (v *findTeamLabelResponse) GetIssueLabels() findTeamLabelIssueLabelsIssueLa
 
 // findWorkflowStateResponse is returned by findWorkflowState on success.
 type findWorkflowStateResponse struct {
-	// All issue workflow states.
+	// All issue workflow states (issue statuses). Returns a paginated list of
+	// workflow states visible to the authenticated user, across all teams they have access to.
 	WorkflowStates findWorkflowStateWorkflowStatesWorkflowStateConnection `json:"workflowStates"`
 }
 
@@ -2550,7 +3080,13 @@ func (v *findWorkflowStateWorkflowStatesWorkflowStateConnection) GetNodes() []fi
 // findWorkflowStateWorkflowStatesWorkflowStateConnectionNodesWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team workflow.
+// A state in a team's workflow, representing an issue status such as Triage,
+// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
+// set of workflow states that define the progression of issues through the team's
+// process. Workflow states have a type that categorizes them (triage, backlog,
+// unstarted, started, completed, canceled), a position that determines their
+// display order, and a color for visual identification. States can be inherited
+// from parent teams to sub-teams.
 type findWorkflowStateWorkflowStatesWorkflowStateConnectionNodesWorkflowState struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -2574,11 +3110,16 @@ func (v *findWorkspaceLabelIssueLabelsIssueLabelConnection) GetNodes() []findWor
 // findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues.
+// Labels that can be associated with issues. Labels help categorize and filter
+// issues across a workspace. They can be workspace-level (shared across all teams)
+// or team-scoped. Labels have a color for visual identification and can be
+// organized hierarchically into groups, where a parent label acts as a group
+// containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The team that the label is associated with. If null, the label is associated with the global workspace.
+	// The team that the label is scoped to. If null, the label is a workspace-level
+	// label available to all teams in the workspace.
 	Team findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam `json:"team"`
 }
 
@@ -2595,7 +3136,10 @@ func (v *findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel) GetTe
 // findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -2608,7 +3152,8 @@ func (v *findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam) G
 
 // findWorkspaceLabelResponse is returned by findWorkspaceLabel on success.
 type findWorkspaceLabelResponse struct {
-	// All issue labels.
+	// All issue labels. Returns a paginated list of labels visible to the
+	// authenticated user, including both workspace-level and team-scoped labels.
 	IssueLabels findWorkspaceLabelIssueLabelsIssueLabelConnection `json:"issueLabels"`
 }
 
@@ -2620,7 +3165,11 @@ func (v *findWorkspaceLabelResponse) GetIssueLabels() findWorkspaceLabelIssueLab
 // getLabelIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues.
+// Labels that can be associated with issues. Labels help categorize and filter
+// issues across a workspace. They can be workspace-level (shared across all teams)
+// or team-scoped. Labels have a color for visual identification and can be
+// organized hierarchically into groups, where a parent label acts as a group
+// containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type getLabelIssueLabel struct {
 	IssueLabel `json:"-"`
 }
@@ -2704,7 +3253,7 @@ func (v *getLabelIssueLabel) __premarshalJSON() (*__premarshalgetLabelIssueLabel
 
 // getLabelResponse is returned by getLabel on success.
 type getLabelResponse struct {
-	// One specific label.
+	// One specific label, looked up by its unique identifier.
 	IssueLabel getLabelIssueLabel `json:"issueLabel"`
 }
 
@@ -2713,7 +3262,7 @@ func (v *getLabelResponse) GetIssueLabel() getLabelIssueLabel { return v.IssueLa
 
 // getTeamResponse is returned by getTeam on success.
 type getTeamResponse struct {
-	// One specific team.
+	// Fetches a specific team by its ID.
 	Team getTeamTeam `json:"team"`
 }
 
@@ -2723,7 +3272,10 @@ func (v *getTeamResponse) GetTeam() getTeamTeam { return v.Team }
 // getTeamTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type getTeamTeam struct {
 	Team `json:"-"`
 }
@@ -2959,7 +3511,7 @@ func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
 
 // getTeamWorkflowResponse is returned by getTeamWorkflow on success.
 type getTeamWorkflowResponse struct {
-	// One specific team.
+	// Fetches a specific team by its ID.
 	Team getTeamWorkflowTeam `json:"team"`
 }
 
@@ -2968,7 +3520,8 @@ func (v *getTeamWorkflowResponse) GetTeam() getTeamWorkflowTeam { return v.Team 
 
 // getTeamWorkflowStatesResponse is returned by getTeamWorkflowStates on success.
 type getTeamWorkflowStatesResponse struct {
-	// All issue workflow states.
+	// All issue workflow states (issue statuses). Returns a paginated list of
+	// workflow states visible to the authenticated user, across all teams they have access to.
 	WorkflowStates getTeamWorkflowStatesWorkflowStatesWorkflowStateConnection `json:"workflowStates"`
 }
 
@@ -2990,7 +3543,13 @@ func (v *getTeamWorkflowStatesWorkflowStatesWorkflowStateConnection) GetNodes() 
 // getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team workflow.
+// A state in a team's workflow, representing an issue status such as Triage,
+// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
+// set of workflow states that define the progression of issues through the team's
+// process. Workflow states have a type that categorizes them (triage, backlog,
+// unstarted, started, completed, canceled), a position that determines their
+// display order, and a color for visual identification. States can be inherited
+// from parent teams to sub-teams.
 type getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState struct {
 	WorkflowState `json:"-"`
 }
@@ -3095,7 +3654,10 @@ func (v *getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflow
 // getTeamWorkflowTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type getTeamWorkflowTeam struct {
 	TeamWorkflow `json:"-"`
 }
@@ -3173,7 +3735,10 @@ func (v *getTemplateResponse) GetTemplate() getTemplateTemplate { return v.Templ
 // getTemplateTemplate includes the requested fields of the GraphQL type Template.
 // The GraphQL type's documentation follows.
 //
-// A template object used for creating entities faster.
+// A reusable template for creating issues, projects, or documents. Templates store
+// pre-filled field values and content as JSON data. They can be scoped to a
+// specific team or shared across the entire workspace. Team-scoped templates may
+// be inherited from parent teams.
 type getTemplateTemplate struct {
 	Template `json:"-"`
 }
@@ -3186,6 +3751,12 @@ func (v *getTemplateTemplate) GetName() string { return v.Template.Name }
 
 // GetDescription returns getTemplateTemplate.Description, and is useful for accessing the field via an interface.
 func (v *getTemplateTemplate) GetDescription() *string { return v.Template.Description }
+
+// GetIcon returns getTemplateTemplate.Icon, and is useful for accessing the field via an interface.
+func (v *getTemplateTemplate) GetIcon() *string { return v.Template.Icon }
+
+// GetColor returns getTemplateTemplate.Color, and is useful for accessing the field via an interface.
+func (v *getTemplateTemplate) GetColor() *string { return v.Template.Color }
 
 // GetType returns getTemplateTemplate.Type, and is useful for accessing the field via an interface.
 func (v *getTemplateTemplate) GetType() string { return v.Template.Type }
@@ -3228,6 +3799,10 @@ type __premarshalgetTemplateTemplate struct {
 
 	Description *string `json:"description"`
 
+	Icon *string `json:"icon"`
+
+	Color *string `json:"color"`
+
 	Type string `json:"type"`
 
 	Team *TemplateTeam `json:"team"`
@@ -3249,6 +3824,8 @@ func (v *getTemplateTemplate) __premarshalJSON() (*__premarshalgetTemplateTempla
 	retval.Id = v.Template.Id
 	retval.Name = v.Template.Name
 	retval.Description = v.Template.Description
+	retval.Icon = v.Template.Icon
+	retval.Color = v.Template.Color
 	retval.Type = v.Template.Type
 	retval.Team = v.Template.Team
 	retval.TemplateData = v.Template.TemplateData
@@ -3257,7 +3834,7 @@ func (v *getTemplateTemplate) __premarshalJSON() (*__premarshalgetTemplateTempla
 
 // getWorkflowStateResponse is returned by getWorkflowState on success.
 type getWorkflowStateResponse struct {
-	// One specific state.
+	// One specific workflow state (issue status), looked up by its unique identifier.
 	WorkflowState getWorkflowStateWorkflowState `json:"workflowState"`
 }
 
@@ -3269,7 +3846,13 @@ func (v *getWorkflowStateResponse) GetWorkflowState() getWorkflowStateWorkflowSt
 // getWorkflowStateWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team workflow.
+// A state in a team's workflow, representing an issue status such as Triage,
+// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
+// set of workflow states that define the progression of issues through the team's
+// process. Workflow states have a type that categorizes them (triage, backlog,
+// unstarted, started, completed, canceled), a position that determines their
+// display order, and a color for visual identification. States can be inherited
+// from parent teams to sub-teams.
 type getWorkflowStateWorkflowState struct {
 	WorkflowState `json:"-"`
 }
@@ -3360,13 +3943,16 @@ func (v *getWorkflowStateWorkflowState) __premarshalJSON() (*__premarshalgetWork
 // getWorkspaceOrganization includes the requested fields of the GraphQL type Organization.
 // The GraphQL type's documentation follows.
 //
-// An organization. Organizations are root-level objects that contain user accounts and teams.
+// A workspace (referred to as Organization in the API). Workspaces are the
+// root-level container for all teams, users, projects, issues, and settings. Every
+// user belongs to at least one workspace, and all data is scoped within a
+// workspace boundary.
 type getWorkspaceOrganization struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The organization's unique URL key.
+	// The workspace's unique URL key, used in URLs to identify the workspace.
 	UrlKey string `json:"urlKey"`
-	// The organization's name.
+	// The workspace's name.
 	Name string `json:"name"`
 }
 
@@ -3381,7 +3967,7 @@ func (v *getWorkspaceOrganization) GetName() string { return v.Name }
 
 // getWorkspaceResponse is returned by getWorkspace on success.
 type getWorkspaceResponse struct {
-	// The user's organization.
+	// The authenticated user's workspace.
 	Organization getWorkspaceOrganization `json:"organization"`
 }
 
@@ -3391,7 +3977,10 @@ func (v *getWorkspaceResponse) GetOrganization() getWorkspaceOrganization { retu
 // getWorkspaceSettingsOrganization includes the requested fields of the GraphQL type Organization.
 // The GraphQL type's documentation follows.
 //
-// An organization. Organizations are root-level objects that contain user accounts and teams.
+// A workspace (referred to as Organization in the API). Workspaces are the
+// root-level container for all teams, users, projects, issues, and settings. Every
+// user belongs to at least one workspace, and all data is scoped within a
+// workspace boundary.
 type getWorkspaceSettingsOrganization struct {
 	Organization `json:"-"`
 }
@@ -3399,19 +3988,9 @@ type getWorkspaceSettingsOrganization struct {
 // GetId returns getWorkspaceSettingsOrganization.Id, and is useful for accessing the field via an interface.
 func (v *getWorkspaceSettingsOrganization) GetId() string { return v.Organization.Id }
 
-// GetAllowMembersToInvite returns getWorkspaceSettingsOrganization.AllowMembersToInvite, and is useful for accessing the field via an interface.
-func (v *getWorkspaceSettingsOrganization) GetAllowMembersToInvite() bool {
-	return v.Organization.AllowMembersToInvite
-}
-
-// GetRestrictTeamCreationToAdmins returns getWorkspaceSettingsOrganization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
-func (v *getWorkspaceSettingsOrganization) GetRestrictTeamCreationToAdmins() bool {
-	return v.Organization.RestrictTeamCreationToAdmins
-}
-
-// GetRestrictLabelManagementToAdmins returns getWorkspaceSettingsOrganization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
-func (v *getWorkspaceSettingsOrganization) GetRestrictLabelManagementToAdmins() bool {
-	return v.Organization.RestrictLabelManagementToAdmins
+// GetSecuritySettings returns getWorkspaceSettingsOrganization.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *getWorkspaceSettingsOrganization) GetSecuritySettings() map[string]interface{} {
+	return v.Organization.SecuritySettings
 }
 
 // GetGitLinkbackMessagesEnabled returns getWorkspaceSettingsOrganization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
@@ -3505,11 +4084,7 @@ func (v *getWorkspaceSettingsOrganization) UnmarshalJSON(b []byte) error {
 type __premarshalgetWorkspaceSettingsOrganization struct {
 	Id string `json:"id"`
 
-	AllowMembersToInvite bool `json:"allowMembersToInvite"`
-
-	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
-
-	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+	SecuritySettings map[string]interface{} `json:"securitySettings"`
 
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 
@@ -3550,9 +4125,7 @@ func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetW
 	var retval __premarshalgetWorkspaceSettingsOrganization
 
 	retval.Id = v.Organization.Id
-	retval.AllowMembersToInvite = v.Organization.AllowMembersToInvite
-	retval.RestrictTeamCreationToAdmins = v.Organization.RestrictTeamCreationToAdmins
-	retval.RestrictLabelManagementToAdmins = v.Organization.RestrictLabelManagementToAdmins
+	retval.SecuritySettings = v.Organization.SecuritySettings
 	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
 	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
 	retval.FiscalYearStartMonth = v.Organization.FiscalYearStartMonth
@@ -3571,7 +4144,7 @@ func (v *getWorkspaceSettingsOrganization) __premarshalJSON() (*__premarshalgetW
 
 // getWorkspaceSettingsResponse is returned by getWorkspaceSettings on success.
 type getWorkspaceSettingsResponse struct {
-	// The user's organization.
+	// The authenticated user's workspace.
 	Organization getWorkspaceSettingsOrganization `json:"organization"`
 }
 
@@ -3592,6 +4165,9 @@ func (v *templateCreateResponse) GetTemplateCreate() templateCreateTemplateCreat
 }
 
 // templateCreateTemplateCreateTemplatePayload includes the requested fields of the GraphQL type TemplatePayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a template mutation.
 type templateCreateTemplateCreateTemplatePayload struct {
 	// The template that was created or updated.
 	Template templateCreateTemplateCreateTemplatePayloadTemplate `json:"template"`
@@ -3605,7 +4181,10 @@ func (v *templateCreateTemplateCreateTemplatePayload) GetTemplate() templateCrea
 // templateCreateTemplateCreateTemplatePayloadTemplate includes the requested fields of the GraphQL type Template.
 // The GraphQL type's documentation follows.
 //
-// A template object used for creating entities faster.
+// A reusable template for creating issues, projects, or documents. Templates store
+// pre-filled field values and content as JSON data. They can be scoped to a
+// specific team or shared across the entire workspace. Team-scoped templates may
+// be inherited from parent teams.
 type templateCreateTemplateCreateTemplatePayloadTemplate struct {
 	Template `json:"-"`
 }
@@ -3621,6 +4200,16 @@ func (v *templateCreateTemplateCreateTemplatePayloadTemplate) GetName() string {
 // GetDescription returns templateCreateTemplateCreateTemplatePayloadTemplate.Description, and is useful for accessing the field via an interface.
 func (v *templateCreateTemplateCreateTemplatePayloadTemplate) GetDescription() *string {
 	return v.Template.Description
+}
+
+// GetIcon returns templateCreateTemplateCreateTemplatePayloadTemplate.Icon, and is useful for accessing the field via an interface.
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) GetIcon() *string {
+	return v.Template.Icon
+}
+
+// GetColor returns templateCreateTemplateCreateTemplatePayloadTemplate.Color, and is useful for accessing the field via an interface.
+func (v *templateCreateTemplateCreateTemplatePayloadTemplate) GetColor() *string {
+	return v.Template.Color
 }
 
 // GetType returns templateCreateTemplateCreateTemplatePayloadTemplate.Type, and is useful for accessing the field via an interface.
@@ -3670,6 +4259,10 @@ type __premarshaltemplateCreateTemplateCreateTemplatePayloadTemplate struct {
 
 	Description *string `json:"description"`
 
+	Icon *string `json:"icon"`
+
+	Color *string `json:"color"`
+
 	Type string `json:"type"`
 
 	Team *TemplateTeam `json:"team"`
@@ -3691,6 +4284,8 @@ func (v *templateCreateTemplateCreateTemplatePayloadTemplate) __premarshalJSON()
 	retval.Id = v.Template.Id
 	retval.Name = v.Template.Name
 	retval.Description = v.Template.Description
+	retval.Icon = v.Template.Icon
+	retval.Color = v.Template.Color
 	retval.Type = v.Template.Type
 	retval.Team = v.Template.Team
 	retval.TemplateData = v.Template.TemplateData
@@ -3732,6 +4327,9 @@ func (v *templateUpdateResponse) GetTemplateUpdate() templateUpdateTemplateUpdat
 }
 
 // templateUpdateTemplateUpdateTemplatePayload includes the requested fields of the GraphQL type TemplatePayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a template mutation.
 type templateUpdateTemplateUpdateTemplatePayload struct {
 	// The template that was created or updated.
 	Template templateUpdateTemplateUpdateTemplatePayloadTemplate `json:"template"`
@@ -3745,7 +4343,10 @@ func (v *templateUpdateTemplateUpdateTemplatePayload) GetTemplate() templateUpda
 // templateUpdateTemplateUpdateTemplatePayloadTemplate includes the requested fields of the GraphQL type Template.
 // The GraphQL type's documentation follows.
 //
-// A template object used for creating entities faster.
+// A reusable template for creating issues, projects, or documents. Templates store
+// pre-filled field values and content as JSON data. They can be scoped to a
+// specific team or shared across the entire workspace. Team-scoped templates may
+// be inherited from parent teams.
 type templateUpdateTemplateUpdateTemplatePayloadTemplate struct {
 	Template `json:"-"`
 }
@@ -3761,6 +4362,16 @@ func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) GetName() string {
 // GetDescription returns templateUpdateTemplateUpdateTemplatePayloadTemplate.Description, and is useful for accessing the field via an interface.
 func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) GetDescription() *string {
 	return v.Template.Description
+}
+
+// GetIcon returns templateUpdateTemplateUpdateTemplatePayloadTemplate.Icon, and is useful for accessing the field via an interface.
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) GetIcon() *string {
+	return v.Template.Icon
+}
+
+// GetColor returns templateUpdateTemplateUpdateTemplatePayloadTemplate.Color, and is useful for accessing the field via an interface.
+func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) GetColor() *string {
+	return v.Template.Color
 }
 
 // GetType returns templateUpdateTemplateUpdateTemplatePayloadTemplate.Type, and is useful for accessing the field via an interface.
@@ -3810,6 +4421,10 @@ type __premarshaltemplateUpdateTemplateUpdateTemplatePayloadTemplate struct {
 
 	Description *string `json:"description"`
 
+	Icon *string `json:"icon"`
+
+	Color *string `json:"color"`
+
 	Type string `json:"type"`
 
 	Team *TemplateTeam `json:"team"`
@@ -3831,6 +4446,8 @@ func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) __premarshalJSON()
 	retval.Id = v.Template.Id
 	retval.Name = v.Template.Name
 	retval.Description = v.Template.Description
+	retval.Icon = v.Template.Icon
+	retval.Color = v.Template.Color
 	retval.Type = v.Template.Type
 	retval.Team = v.Template.Team
 	retval.TemplateData = v.Template.TemplateData
@@ -3838,6 +4455,9 @@ func (v *templateUpdateTemplateUpdateTemplatePayloadTemplate) __premarshalJSON()
 }
 
 // updateGitAutomationStateGitAutomationStateUpdateGitAutomationStatePayload includes the requested fields of the GraphQL type GitAutomationStatePayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a git automation state mutation.
 type updateGitAutomationStateGitAutomationStateUpdateGitAutomationStatePayload struct {
 	// Whether the operation was successful.
 	Success bool `json:"success"`
@@ -3850,7 +4470,7 @@ func (v *updateGitAutomationStateGitAutomationStateUpdateGitAutomationStatePaylo
 
 // updateGitAutomationStateResponse is returned by updateGitAutomationState on success.
 type updateGitAutomationStateResponse struct {
-	// Updates an existing state.
+	// Updates an existing Git automation rule, including its workflow state, target branch, and triggering event.
 	GitAutomationStateUpdate updateGitAutomationStateGitAutomationStateUpdateGitAutomationStatePayload `json:"gitAutomationStateUpdate"`
 }
 
@@ -3860,6 +4480,9 @@ func (v *updateGitAutomationStateResponse) GetGitAutomationStateUpdate() updateG
 }
 
 // updateLabelIssueLabelUpdateIssueLabelPayload includes the requested fields of the GraphQL type IssueLabelPayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a label mutation, containing the created or updated label and a success indicator.
 type updateLabelIssueLabelUpdateIssueLabelPayload struct {
 	// The label that was created or updated.
 	IssueLabel updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel `json:"issueLabel"`
@@ -3873,7 +4496,11 @@ func (v *updateLabelIssueLabelUpdateIssueLabelPayload) GetIssueLabel() updateLab
 // updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues.
+// Labels that can be associated with issues. Labels help categorize and filter
+// issues across a workspace. They can be workspace-level (shared across all teams)
+// or team-scoped. Labels have a color for visual identification and can be
+// organized hierarchically into groups, where a parent label acts as a group
+// containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel struct {
 	IssueLabel `json:"-"`
 }
@@ -3969,7 +4596,7 @@ func (v *updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel) __premarshalJSO
 
 // updateLabelResponse is returned by updateLabel on success.
 type updateLabelResponse struct {
-	// Updates an label.
+	// Updates a label.
 	IssueLabelUpdate updateLabelIssueLabelUpdateIssueLabelPayload `json:"issueLabelUpdate"`
 }
 
@@ -3980,7 +4607,8 @@ func (v *updateLabelResponse) GetIssueLabelUpdate() updateLabelIssueLabelUpdateI
 
 // updateTeamResponse is returned by updateTeam on success.
 type updateTeamResponse struct {
-	// Updates a team.
+	// Updates a team's settings, properties, or configuration. Requires team owner
+	// or workspace admin permissions for most changes.
 	TeamUpdate updateTeamTeamUpdateTeamPayload `json:"teamUpdate"`
 }
 
@@ -3988,6 +4616,9 @@ type updateTeamResponse struct {
 func (v *updateTeamResponse) GetTeamUpdate() updateTeamTeamUpdateTeamPayload { return v.TeamUpdate }
 
 // updateTeamTeamUpdateTeamPayload includes the requested fields of the GraphQL type TeamPayload.
+// The GraphQL type's documentation follows.
+//
+// Team operation response.
 type updateTeamTeamUpdateTeamPayload struct {
 	// The team that was created or updated.
 	Team updateTeamTeamUpdateTeamPayloadTeam `json:"team"`
@@ -4001,7 +4632,10 @@ func (v *updateTeamTeamUpdateTeamPayload) GetTeam() updateTeamTeamUpdateTeamPayl
 // updateTeamTeamUpdateTeamPayloadTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// An organizational unit that contains issues.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
 type updateTeamTeamUpdateTeamPayloadTeam struct {
 	Team `json:"-"`
 }
@@ -4273,6 +4907,9 @@ func (v *updateWorkflowStateResponse) GetWorkflowStateUpdate() updateWorkflowSta
 }
 
 // updateWorkflowStateWorkflowStateUpdateWorkflowStatePayload includes the requested fields of the GraphQL type WorkflowStatePayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a workflow state mutation, containing the created or updated state and a success indicator.
 type updateWorkflowStateWorkflowStateUpdateWorkflowStatePayload struct {
 	// The state that was created or updated.
 	WorkflowState updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState `json:"workflowState"`
@@ -4286,7 +4923,13 @@ func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayload) GetWorkflow
 // updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team workflow.
+// A state in a team's workflow, representing an issue status such as Triage,
+// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
+// set of workflow states that define the progression of issues through the team's
+// process. Workflow states have a type that categorizes them (triage, backlog,
+// unstarted, started, completed, canceled), a position that determines their
+// display order, and a color for visual identification. States can be inherited
+// from parent teams to sub-teams.
 type updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState struct {
 	WorkflowState `json:"-"`
 }
@@ -4389,8 +5032,11 @@ func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState
 }
 
 // updateWorkspaceSettingsOrganizationUpdateOrganizationPayload includes the requested fields of the GraphQL type OrganizationPayload.
+// The GraphQL type's documentation follows.
+//
+// Workspace update operation response.
 type updateWorkspaceSettingsOrganizationUpdateOrganizationPayload struct {
-	// The organization that was created or updated.
+	// The workspace that was created or updated.
 	Organization updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization `json:"organization"`
 }
 
@@ -4402,7 +5048,10 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayload) GetOrgani
 // updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization includes the requested fields of the GraphQL type Organization.
 // The GraphQL type's documentation follows.
 //
-// An organization. Organizations are root-level objects that contain user accounts and teams.
+// A workspace (referred to as Organization in the API). Workspaces are the
+// root-level container for all teams, users, projects, issues, and settings. Every
+// user belongs to at least one workspace, and all data is scoped within a
+// workspace boundary.
 type updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization struct {
 	Organization `json:"-"`
 }
@@ -4412,19 +5061,9 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	return v.Organization.Id
 }
 
-// GetAllowMembersToInvite returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.AllowMembersToInvite, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetAllowMembersToInvite() bool {
-	return v.Organization.AllowMembersToInvite
-}
-
-// GetRestrictTeamCreationToAdmins returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RestrictTeamCreationToAdmins, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRestrictTeamCreationToAdmins() bool {
-	return v.Organization.RestrictTeamCreationToAdmins
-}
-
-// GetRestrictLabelManagementToAdmins returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.RestrictLabelManagementToAdmins, and is useful for accessing the field via an interface.
-func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetRestrictLabelManagementToAdmins() bool {
-	return v.Organization.RestrictLabelManagementToAdmins
+// GetSecuritySettings returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization) GetSecuritySettings() map[string]interface{} {
+	return v.Organization.SecuritySettings
 }
 
 // GetGitLinkbackMessagesEnabled returns updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
@@ -4520,11 +5159,7 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 type __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization struct {
 	Id string `json:"id"`
 
-	AllowMembersToInvite bool `json:"allowMembersToInvite"`
-
-	RestrictTeamCreationToAdmins bool `json:"restrictTeamCreationToAdmins"`
-
-	RestrictLabelManagementToAdmins bool `json:"restrictLabelManagementToAdmins"`
+	SecuritySettings map[string]interface{} `json:"securitySettings"`
 
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 
@@ -4565,9 +5200,7 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 	var retval __premarshalupdateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization
 
 	retval.Id = v.Organization.Id
-	retval.AllowMembersToInvite = v.Organization.AllowMembersToInvite
-	retval.RestrictTeamCreationToAdmins = v.Organization.RestrictTeamCreationToAdmins
-	retval.RestrictLabelManagementToAdmins = v.Organization.RestrictLabelManagementToAdmins
+	retval.SecuritySettings = v.Organization.SecuritySettings
 	retval.GitLinkbackMessagesEnabled = v.Organization.GitLinkbackMessagesEnabled
 	retval.GitPublicLinkbackMessagesEnabled = v.Organization.GitPublicLinkbackMessagesEnabled
 	retval.FiscalYearStartMonth = v.Organization.FiscalYearStartMonth
@@ -4586,7 +5219,8 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 
 // updateWorkspaceSettingsResponse is returned by updateWorkspaceSettings on success.
 type updateWorkspaceSettingsResponse struct {
-	// Updates the user's organization.
+	// Updates the user's workspace settings. Different settings require different
+	// permission levels; most require the workspaceSettings admin permission.
 	OrganizationUpdate updateWorkspaceSettingsOrganizationUpdateOrganizationPayload `json:"organizationUpdate"`
 }
 
@@ -5314,6 +5948,8 @@ fragment Template on Template {
 	id
 	name
 	description
+	icon
+	color
 	type
 	team {
 		id
@@ -5426,9 +6062,7 @@ query getWorkspaceSettings {
 }
 fragment Organization on Organization {
 	id
-	allowMembersToInvite
-	restrictTeamCreationToAdmins
-	restrictLabelManagementToAdmins
+	securitySettings
 	gitLinkbackMessagesEnabled
 	gitPublicLinkbackMessagesEnabled
 	fiscalYearStartMonth
@@ -5478,6 +6112,8 @@ fragment Template on Template {
 	id
 	name
 	description
+	icon
+	color
 	type
 	team {
 		id
@@ -5555,6 +6191,8 @@ fragment Template on Template {
 	id
 	name
 	description
+	icon
+	color
 	type
 	team {
 		id
@@ -5797,9 +6435,7 @@ mutation updateWorkspaceSettings ($input: OrganizationUpdateInput!) {
 }
 fragment Organization on Organization {
 	id
-	allowMembersToInvite
-	restrictTeamCreationToAdmins
-	restrictLabelManagementToAdmins
+	securitySettings
 	gitLinkbackMessagesEnabled
 	gitPublicLinkbackMessagesEnabled
 	fiscalYearStartMonth

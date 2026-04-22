@@ -1,9 +1,13 @@
 # @genqlient(for: "Template.description", pointer: true)
+# @genqlient(for: "Template.icon", pointer: true)
+# @genqlient(for: "Template.color", pointer: true)
 # @genqlient(for: "Template.team", pointer: true)
 fragment Template on Template {
   id
   name
   description
+  icon
+  color
   type
   team {
     id
@@ -19,6 +23,8 @@ query getTemplate($id: String!) {
 
 # @genqlient(for: "TemplateCreateInput.id", omitempty: true, pointer: true)
 # @genqlient(for: "TemplateCreateInput.description", pointer: true)
+# @genqlient(for: "TemplateCreateInput.icon", omitempty: true, pointer: true)
+# @genqlient(for: "TemplateCreateInput.color", omitempty: true, pointer: true)
 # @genqlient(for: "TemplateCreateInput.teamId", pointer: true)
 # @genqlient(for: "TemplateCreateInput.sortOrder", omitempty: true, pointer: true)
 mutation templateCreate(
@@ -32,6 +38,8 @@ mutation templateCreate(
 }
 
 # @genqlient(for: "TemplateUpdateInput.description", pointer: true)
+# @genqlient(for: "TemplateUpdateInput.icon", omitempty: true, pointer: true)
+# @genqlient(for: "TemplateUpdateInput.color", omitempty: true, pointer: true)
 # @genqlient(for: "TemplateUpdateInput.teamId", pointer: true)
 # @genqlient(for: "TemplateUpdateInput.sortOrder", omitempty: true, pointer: true)
 mutation templateUpdate(

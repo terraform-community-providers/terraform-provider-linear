@@ -170,7 +170,7 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.upcoming", "4"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.auto_add_started", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.auto_add_completed", "false"),
-					resource.TestCheckResourceAttr("linear_team.test", "cycles.need_for_active", "true"),
+					resource.TestCheckResourceAttr("linear_team.test", "cycles.need_for_active", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.type", "linear"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.extended", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.allow_zero", "true"),
@@ -248,7 +248,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.upcoming", "4"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.auto_add_started", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.auto_add_completed", "false"),
-					resource.TestCheckResourceAttr("linear_team.test", "cycles.need_for_active", "true"),
+					resource.TestCheckResourceAttr("linear_team.test", "cycles.need_for_active", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.type", "linear"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.extended", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.allow_zero", "true"),
@@ -316,7 +316,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.upcoming", "4"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.auto_add_started", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "cycles.auto_add_completed", "false"),
-					resource.TestCheckResourceAttr("linear_team.test", "cycles.need_for_active", "true"),
+					resource.TestCheckResourceAttr("linear_team.test", "cycles.need_for_active", "false"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.type", "linear"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.extended", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "estimation.allow_zero", "true"),
@@ -462,7 +462,7 @@ resource "linear_team" "test" {
     upcoming = 4
     auto_add_started = false
     auto_add_completed = false
-    need_for_active = true
+    # need_for_active = true
   }
 
   estimation = {
