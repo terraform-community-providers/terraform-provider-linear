@@ -36,6 +36,7 @@ fragment Team on Team {
   issueEstimationAllowZero
   issueEstimationExtended
   defaultIssueEstimate
+  securitySettings
 }
 
 query getTeam($key: String!) {
@@ -50,12 +51,17 @@ query getTeam($key: String!) {
 # @genqlient(for: "TeamCreateInput.color", omitempty: true, pointer: true)
 # @genqlient(for: "TeamCreateInput.autoClosePeriod", pointer: true)
 # @genqlient(for: "TeamCreateInput.parentId", pointer: true, omitempty: true)
+# @genqlient(for: "TeamCreateInput.inheritIssueEstimation", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForMembersId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultTemplateForNonMembersId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.defaultProjectTemplateId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.autoCloseStateId", omitempty: true)
 # @genqlient(for: "TeamCreateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
+# @genqlient(for: "TeamCreateInput.inheritProductIntelligenceScope", omitempty: true)
 # @genqlient(for: "TeamCreateInput.productIntelligenceScope", omitempty: true)
+# @genqlient(for: "TeamCreateInput.issueSharingEnabled", omitempty: true)
+# @genqlient(for: "TeamCreateInput.inheritSlackAutoCreateProjectChannel", omitempty: true)
+# @genqlient(for: "TeamCreateInput.slackAutoCreateProjectChannel", omitempty: true)
 mutation createTeam(
   $input: TeamCreateInput!
 ) {
@@ -87,16 +93,19 @@ mutation createTeam(
 # @genqlient(for: "TeamUpdateInput.markedAsDuplicateWorkflowStateId", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.joinByDefault", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.scimManaged", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.inheritWorkflowStatuses", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.inheritProductIntelligenceScope", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.productIntelligenceScope", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.issueSharingEnabled", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.inheritSlackAutoCreateProjectChannel", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.slackAutoCreateProjectChannel", omitempty: true)
-# @genqlient(for: "TeamUpdateInput.securitySettings", pointer: true, omitempty: true)
 # @genqlient(for: "TeamUpdateInput.allMembersCanJoin", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.retiredAt", pointer: true, omitempty: true)
 # @genqlient(for: "TeamUpdateInput.handleSubTeamsOnRetirement", omitempty: true)
+# @genqlient(for: "TeamSecuritySettingsInput.issueSharing", omitempty: true)
+# @genqlient(for: "TeamSecuritySettingsInput.labelManagement", omitempty: true)
+# @genqlient(for: "TeamSecuritySettingsInput.memberManagement", omitempty: true)
+# @genqlient(for: "TeamSecuritySettingsInput.teamManagement", omitempty: true)
+# @genqlient(for: "TeamSecuritySettingsInput.templateManagement", omitempty: true)
 mutation updateTeam(
   $input: TeamUpdateInput!,
   $id: String!

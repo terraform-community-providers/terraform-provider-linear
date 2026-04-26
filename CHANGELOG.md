@@ -1,8 +1,14 @@
 # Changelog
 
+## 0.3.4
+
 ### Enhancements
 * Added `allow_members_to_manage_templates` to `linear_workspace_settings`
 * Added `icon` and `color` to `linear_template`
+* Added `allow_members_to_manage_team` to `linear_team`
+* Added `allow_members_to_manage_members` to `linear_team`
+* Added `allow_members_to_manage_labels` to `linear_team`
+* Added `allow_members_to_manage_templates` to `linear_team`
 
 ## 0.3.3
 

@@ -101,30 +101,34 @@ var workflowStateAttrTypes = map[string]attr.Type{
 }
 
 type TeamResourceModel struct {
-	Id                         types.String  `tfsdk:"id"`
-	Key                        types.String  `tfsdk:"key"`
-	Name                       types.String  `tfsdk:"name"`
-	Private                    types.Bool    `tfsdk:"private"`
-	ParentId                   types.String  `tfsdk:"parent_id"`
-	Description                types.String  `tfsdk:"description"`
-	Icon                       types.String  `tfsdk:"icon"`
-	Color                      types.String  `tfsdk:"color"`
-	Timezone                   types.String  `tfsdk:"timezone"`
-	EnableIssueHistoryGrouping types.Bool    `tfsdk:"enable_issue_history_grouping"`
-	EnableIssueDefaultToBottom types.Bool    `tfsdk:"enable_issue_default_to_bottom"`
-	EnableThreadSummaries      types.Bool    `tfsdk:"enable_thread_summaries"`
-	AutoArchivePeriod          types.Float64 `tfsdk:"auto_archive_period"`
-	AutoClosePeriod            types.Float64 `tfsdk:"auto_close_period"`
-	AutoCloseParentIssues      types.Bool    `tfsdk:"auto_close_parent_issues"`
-	AutoCloseChildIssues       types.Bool    `tfsdk:"auto_close_child_issues"`
-	Triage                     types.Object  `tfsdk:"triage"`
-	Cycles                     types.Object  `tfsdk:"cycles"`
-	Estimation                 types.Object  `tfsdk:"estimation"`
-	BacklogWorkflowState       types.Object  `tfsdk:"backlog_workflow_state"`
-	UnstartedWorkflowState     types.Object  `tfsdk:"unstarted_workflow_state"`
-	StartedWorkflowState       types.Object  `tfsdk:"started_workflow_state"`
-	CompletedWorkflowState     types.Object  `tfsdk:"completed_workflow_state"`
-	CanceledWorkflowState      types.Object  `tfsdk:"canceled_workflow_state"`
+	Id                            types.String  `tfsdk:"id"`
+	Key                           types.String  `tfsdk:"key"`
+	Name                          types.String  `tfsdk:"name"`
+	Private                       types.Bool    `tfsdk:"private"`
+	ParentId                      types.String  `tfsdk:"parent_id"`
+	Description                   types.String  `tfsdk:"description"`
+	Icon                          types.String  `tfsdk:"icon"`
+	Color                         types.String  `tfsdk:"color"`
+	Timezone                      types.String  `tfsdk:"timezone"`
+	EnableIssueHistoryGrouping    types.Bool    `tfsdk:"enable_issue_history_grouping"`
+	EnableIssueDefaultToBottom    types.Bool    `tfsdk:"enable_issue_default_to_bottom"`
+	EnableThreadSummaries         types.Bool    `tfsdk:"enable_thread_summaries"`
+	AutoArchivePeriod             types.Float64 `tfsdk:"auto_archive_period"`
+	AutoClosePeriod               types.Float64 `tfsdk:"auto_close_period"`
+	AutoCloseParentIssues         types.Bool    `tfsdk:"auto_close_parent_issues"`
+	AutoCloseChildIssues          types.Bool    `tfsdk:"auto_close_child_issues"`
+	AllowMembersToManageTeam      types.Bool    `tfsdk:"allow_members_to_manage_team"`
+	AllowMembersToManageMembers   types.Bool    `tfsdk:"allow_members_to_manage_members"`
+	AllowMembersToManageLabels    types.Bool    `tfsdk:"allow_members_to_manage_labels"`
+	AllowMembersToManageTemplates types.Bool    `tfsdk:"allow_members_to_manage_templates"`
+	Triage                        types.Object  `tfsdk:"triage"`
+	Cycles                        types.Object  `tfsdk:"cycles"`
+	Estimation                    types.Object  `tfsdk:"estimation"`
+	BacklogWorkflowState          types.Object  `tfsdk:"backlog_workflow_state"`
+	UnstartedWorkflowState        types.Object  `tfsdk:"unstarted_workflow_state"`
+	StartedWorkflowState          types.Object  `tfsdk:"started_workflow_state"`
+	CompletedWorkflowState        types.Object  `tfsdk:"completed_workflow_state"`
+	CanceledWorkflowState         types.Object  `tfsdk:"canceled_workflow_state"`
 }
 
 func (r *TeamResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -252,6 +256,30 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
+			},
+			"allow_members_to_manage_team": schema.BoolAttribute{
+				MarkdownDescription: "Allow members to manage the team. **Default** `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+			},
+			"allow_members_to_manage_members": schema.BoolAttribute{
+				MarkdownDescription: "Allow members to manage members of the team. **Default** `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+			},
+			"allow_members_to_manage_labels": schema.BoolAttribute{
+				MarkdownDescription: "Allow members to manage labels in the team. **Default** `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+			},
+			"allow_members_to_manage_templates": schema.BoolAttribute{
+				MarkdownDescription: "Allow members to manage templates in the team. **Default** `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
 			},
 			"triage": schema.SingleNestedAttribute{
 				MarkdownDescription: "Triage settings of the team.",
@@ -840,8 +868,6 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	data.CompletedWorkflowState = *completed
 	data.CanceledWorkflowState = *canceled
 
-	// TODO:(PR) Member management setting vs allMembersCanJoin vs private/public team
-
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -876,6 +902,10 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
 	data.AutoCloseParentIssues = types.BoolValue(team.AutoCloseParentIssues)
 	data.AutoCloseChildIssues = types.BoolValue(team.AutoCloseChildIssues)
+	data.AllowMembersToManageTeam = types.BoolValue(fromTeamRoleType(team.SecuritySettings, "teamManagement"))
+	data.AllowMembersToManageMembers = types.BoolValue(fromTeamRoleType(team.SecuritySettings, "memberManagement"))
+	data.AllowMembersToManageLabels = types.BoolValue(fromTeamRoleType(team.SecuritySettings, "labelManagement"))
+	data.AllowMembersToManageTemplates = types.BoolValue(fromTeamRoleType(team.SecuritySettings, "templateManagement"))
 
 	if team.Parent != nil {
 		data.ParentId = types.StringValue(team.Parent.Id)
@@ -1031,6 +1061,12 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 	}
 
 	input := TeamUpdateInput{
+		SecuritySettings: TeamSecuritySettingsInput{
+			TeamManagement:     toTeamRoleType(data.AllowMembersToManageTeam.ValueBool()),
+			MemberManagement:   toTeamRoleType(data.AllowMembersToManageMembers.ValueBool()),
+			LabelManagement:    toTeamRoleType(data.AllowMembersToManageLabels.ValueBool()),
+			TemplateManagement: toTeamRoleType(data.AllowMembersToManageTemplates.ValueBool()),
+		},
 		Private:                        data.Private.ValueBool(),
 		ParentId:                       data.ParentId.ValueStringPointer(),
 		Description:                    data.Description.ValueStringPointer(),
@@ -1126,6 +1162,10 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 	data.AutoArchivePeriod = types.Float64Value(team.AutoArchivePeriod)
 	data.AutoCloseParentIssues = types.BoolValue(team.AutoCloseParentIssues)
 	data.AutoCloseChildIssues = types.BoolValue(team.AutoCloseChildIssues)
+	data.AllowMembersToManageTeam = types.BoolValue(fromTeamRoleType(team.SecuritySettings, "teamManagement"))
+	data.AllowMembersToManageMembers = types.BoolValue(fromTeamRoleType(team.SecuritySettings, "memberManagement"))
+	data.AllowMembersToManageLabels = types.BoolValue(fromTeamRoleType(team.SecuritySettings, "labelManagement"))
+	data.AllowMembersToManageTemplates = types.BoolValue(fromTeamRoleType(team.SecuritySettings, "templateManagement"))
 
 	if team.Parent != nil {
 		data.ParentId = types.StringValue(team.Parent.Id)
@@ -1273,4 +1313,28 @@ func updateTeamWorkflowStateInUpdate(ctx context.Context, r *TeamResource, data 
 	ret := updateWorkflowStateToObject(workflowStateResponse.WorkflowStateUpdate.WorkflowState)
 
 	return &ret
+}
+
+func toTeamRoleType(allow bool) TeamRoleType {
+	if allow {
+		return TeamRoleTypeMember
+	}
+
+	return TeamRoleTypeOwner
+}
+
+func fromTeamRoleType(settings map[string]interface{}, key string) bool {
+	value, ok := settings[key]
+
+	if !ok {
+		return true
+	}
+
+	s, ok := value.(string)
+
+	if !ok {
+		return true
+	}
+
+	return s == string(TeamRoleTypeMember)
 }

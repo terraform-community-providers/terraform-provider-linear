@@ -29,6 +29,10 @@ resource "linear_team" "example" {
 
 ### Optional
 
+- `allow_members_to_manage_labels` (Boolean) Allow members to manage labels in the team. **Default** `true`.
+- `allow_members_to_manage_members` (Boolean) Allow members to manage members of the team. **Default** `true`.
+- `allow_members_to_manage_team` (Boolean) Allow members to manage the team. **Default** `true`.
+- `allow_members_to_manage_templates` (Boolean) Allow members to manage templates in the team. **Default** `true`.
 - `auto_archive_period` (Number) Period after which closed and completed issues are automatically archived, in months. **Default** `6`.
 - `auto_close_child_issues` (Boolean) Whether to automatically close child issues when their parent issue is closed. **Default** `false`.
 - `auto_close_parent_issues` (Boolean) Whether to automatically close parent issues when all their child issues are closed. **Default** `false`.

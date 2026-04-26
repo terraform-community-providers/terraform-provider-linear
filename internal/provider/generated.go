@@ -904,6 +904,9 @@ type Team struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 	// What to use as a default estimate for unestimated issues.
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+	// Security settings for the team, including role-based restrictions for issue
+	// sharing, label management, member management, and template management.
+	SecuritySettings map[string]interface{} `json:"securitySettings"`
 }
 
 // GetId returns Team.Id, and is useful for accessing the field via an interface.
@@ -996,6 +999,9 @@ func (v *Team) GetIssueEstimationExtended() bool { return v.IssueEstimationExten
 // GetDefaultIssueEstimate returns Team.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *Team) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
 
+// GetSecuritySettings returns Team.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *Team) GetSecuritySettings() map[string]interface{} { return v.SecuritySettings }
+
 type TeamCreateInput struct {
 	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
 	Id string `json:"id,omitempty"`
@@ -1032,7 +1038,7 @@ type TeamCreateInput struct {
 	// The timezone of the team.
 	Timezone string `json:"timezone"`
 	// Whether the team should inherit estimation settings from its parent. Only applies to sub-teams.
-	InheritIssueEstimation bool `json:"inheritIssueEstimation"`
+	InheritIssueEstimation bool `json:"inheritIssueEstimation,omitempty"`
 	// [Internal] Whether the team should inherit workflow statuses from its parent.
 	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
 	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
@@ -1067,16 +1073,16 @@ type TeamCreateInput struct {
 	// The parent team ID.
 	ParentId *string `json:"parentId,omitempty"`
 	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.
-	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope"`
+	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope,omitempty"`
 	// [Internal] The scope of product intelligence suggestion data for the team.
 	ProductIntelligenceScope ProductIntelligenceScope `json:"productIntelligenceScope,omitempty"`
 	// Whether issue sharing is enabled for this team.
-	IssueSharingEnabled bool `json:"issueSharingEnabled"`
+	IssueSharingEnabled bool `json:"issueSharingEnabled,omitempty"`
 	// [Internal] Whether the team should inherit its Slack auto-create project
 	// channel setting from its parent. Only applies to sub-teams.
-	InheritSlackAutoCreateProjectChannel bool `json:"inheritSlackAutoCreateProjectChannel"`
+	InheritSlackAutoCreateProjectChannel bool `json:"inheritSlackAutoCreateProjectChannel,omitempty"`
 	// [Internal] Whether to automatically create a Slack channel when a new project is created in this team.
-	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel"`
+	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel,omitempty"`
 }
 
 // GetId returns TeamCreateInput.Id, and is useful for accessing the field via an interface.
@@ -1249,15 +1255,15 @@ const (
 
 type TeamSecuritySettingsInput struct {
 	// The minimum team role required to share issues with non-team-members.
-	IssueSharing TeamRoleType `json:"issueSharing"`
+	IssueSharing TeamRoleType `json:"issueSharing,omitempty"`
 	// The minimum team role required to manage labels in the team.
-	LabelManagement TeamRoleType `json:"labelManagement"`
+	LabelManagement TeamRoleType `json:"labelManagement,omitempty"`
 	// The minimum team role required to manage full workspace members (non-guests) in the team.
-	MemberManagement TeamRoleType `json:"memberManagement"`
+	MemberManagement TeamRoleType `json:"memberManagement,omitempty"`
 	// The minimum team role required to manage team settings.
-	TeamManagement TeamRoleType `json:"teamManagement"`
+	TeamManagement TeamRoleType `json:"teamManagement,omitempty"`
 	// The minimum team role required to manage templates in the team.
-	TemplateManagement TeamRoleType `json:"templateManagement"`
+	TemplateManagement TeamRoleType `json:"templateManagement,omitempty"`
 }
 
 // GetIssueSharing returns TeamSecuritySettingsInput.IssueSharing, and is useful for accessing the field via an interface.
@@ -1364,7 +1370,7 @@ type TeamUpdateInput struct {
 	// The parent team ID.
 	ParentId *string `json:"parentId"`
 	// [Internal] Whether the team should inherit workflow statuses from its parent.
-	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses,omitempty"`
+	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
 	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.
 	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope,omitempty"`
 	// [Internal] The scope of product intelligence suggestion data for the team.
@@ -1377,7 +1383,7 @@ type TeamUpdateInput struct {
 	// [Internal] Whether to automatically create a Slack channel when a new project is created in this team.
 	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel,omitempty"`
 	// The security settings for the team.
-	SecuritySettings *TeamSecuritySettingsInput `json:"securitySettings,omitempty"`
+	SecuritySettings TeamSecuritySettingsInput `json:"securitySettings"`
 	// Whether all members in the workspace can join the team. Only used for public teams.
 	AllMembersCanJoin bool `json:"allMembersCanJoin,omitempty"`
 	// When the team was retired.
@@ -1556,7 +1562,7 @@ func (v *TeamUpdateInput) GetSlackAutoCreateProjectChannel() bool {
 }
 
 // GetSecuritySettings returns TeamUpdateInput.SecuritySettings, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetSecuritySettings() *TeamSecuritySettingsInput { return v.SecuritySettings }
+func (v *TeamUpdateInput) GetSecuritySettings() TeamSecuritySettingsInput { return v.SecuritySettings }
 
 // GetAllMembersCanJoin returns TeamUpdateInput.AllMembersCanJoin, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetAllMembersCanJoin() bool { return v.AllMembersCanJoin }
@@ -2631,6 +2637,11 @@ func (v *createTeamTeamCreateTeamPayloadTeam) GetDefaultIssueEstimate() float64 
 	return v.Team.DefaultIssueEstimate
 }
 
+// GetSecuritySettings returns createTeamTeamCreateTeamPayloadTeam.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *createTeamTeamCreateTeamPayloadTeam) GetSecuritySettings() map[string]interface{} {
+	return v.Team.SecuritySettings
+}
+
 func (v *createTeamTeamCreateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -2716,6 +2727,8 @@ type __premarshalcreateTeamTeamCreateTeamPayloadTeam struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+
+	SecuritySettings map[string]interface{} `json:"securitySettings"`
 }
 
 func (v *createTeamTeamCreateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
@@ -2759,6 +2772,7 @@ func (v *createTeamTeamCreateTeamPayloadTeam) __premarshalJSON() (*__premarshalc
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	retval.SecuritySettings = v.Team.SecuritySettings
 	return &retval, nil
 }
 
@@ -3378,6 +3392,9 @@ func (v *getTeamTeam) GetIssueEstimationExtended() bool { return v.Team.IssueEst
 // GetDefaultIssueEstimate returns getTeamTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *getTeamTeam) GetDefaultIssueEstimate() float64 { return v.Team.DefaultIssueEstimate }
 
+// GetSecuritySettings returns getTeamTeam.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *getTeamTeam) GetSecuritySettings() map[string]interface{} { return v.Team.SecuritySettings }
+
 func (v *getTeamTeam) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -3463,6 +3480,8 @@ type __premarshalgetTeamTeam struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+
+	SecuritySettings map[string]interface{} `json:"securitySettings"`
 }
 
 func (v *getTeamTeam) MarshalJSON() ([]byte, error) {
@@ -3506,6 +3525,7 @@ func (v *getTeamTeam) __premarshalJSON() (*__premarshalgetTeamTeam, error) {
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	retval.SecuritySettings = v.Team.SecuritySettings
 	return &retval, nil
 }
 
@@ -4764,6 +4784,11 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) GetDefaultIssueEstimate() float64 
 	return v.Team.DefaultIssueEstimate
 }
 
+// GetSecuritySettings returns updateTeamTeamUpdateTeamPayloadTeam.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *updateTeamTeamUpdateTeamPayloadTeam) GetSecuritySettings() map[string]interface{} {
+	return v.Team.SecuritySettings
+}
+
 func (v *updateTeamTeamUpdateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
 
 	if string(b) == "null" {
@@ -4849,6 +4874,8 @@ type __premarshalupdateTeamTeamUpdateTeamPayloadTeam struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+
+	SecuritySettings map[string]interface{} `json:"securitySettings"`
 }
 
 func (v *updateTeamTeamUpdateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
@@ -4892,6 +4919,7 @@ func (v *updateTeamTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalu
 	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
 	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
 	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	retval.SecuritySettings = v.Team.SecuritySettings
 	return &retval, nil
 }
 
@@ -5392,6 +5420,7 @@ fragment Team on Team {
 	issueEstimationAllowZero
 	issueEstimationExtended
 	defaultIssueEstimate
+	securitySettings
 }
 `,
 		Variables: &__createTeamInput{
@@ -5816,6 +5845,7 @@ fragment Team on Team {
 	issueEstimationAllowZero
 	issueEstimationExtended
 	defaultIssueEstimate
+	securitySettings
 }
 `,
 		Variables: &__getTeamInput{
@@ -6350,6 +6380,7 @@ fragment Team on Team {
 	issueEstimationAllowZero
 	issueEstimationExtended
 	defaultIssueEstimate
+	securitySettings
 }
 `,
 		Variables: &__updateTeamInput{
