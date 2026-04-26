@@ -26,6 +26,7 @@ resource "linear_workspace_settings" "example" {
 - `allow_members_to_create_teams` (Boolean) Allow members to create new teams in the workspace. **Default** `true`.
 - `allow_members_to_invite` (Boolean) Allow members to invite new members to the workspace. **Default** `true`.
 - `allow_members_to_manage_labels` (Boolean) Allow members to manage labels in the workspace. **Default** `true`.
+- `allow_members_to_manage_templates` (Boolean) Allow members to manage templates in the workspace. **Default** `true`.
 - `customers` (Attributes) Customer Requests settings for the workspace. (see [below for nested schema](#nestedatt--customers))
 - `enable_git_linkback_messages` (Boolean) Enable git linkbacks for private repositories. **Default** `true`.
 - `enable_git_linkback_messages_public` (Boolean) Enable git linkbacks for public repositories. **Default** `false`.

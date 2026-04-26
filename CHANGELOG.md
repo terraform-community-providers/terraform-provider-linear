@@ -1,5 +1,8 @@
 # Changelog
 
+### Enhancements
+* Added `allow_members_to_manage_templates` to `linear_workspace_settings`
+
 ## 0.3.3
 
 ### Enhancements

@@ -83,6 +83,7 @@ type WorkspaceSettingsResourceModel struct {
 	AllowMembersToInvite            types.Bool   `tfsdk:"allow_members_to_invite"`
 	AllowMembersToCreateTeams       types.Bool   `tfsdk:"allow_members_to_create_teams"`
 	AllowMembersToManageLabels      types.Bool   `tfsdk:"allow_members_to_manage_labels"`
+	AllowMembersToManageTemplates   types.Bool   `tfsdk:"allow_members_to_manage_templates"`
 	EnableGitLinkbackMessages       types.Bool   `tfsdk:"enable_git_linkback_messages"`
 	EnableGitLinkbackMessagesPublic types.Bool   `tfsdk:"enable_git_linkback_messages_public"`
 	FiscalYearStartMonth            types.Int64  `tfsdk:"fiscal_year_start_month"`
@@ -125,13 +126,12 @@ func (r *WorkspaceSettingsResource) Schema(ctx context.Context, req resource.Sch
 				Computed:            true,
 				Default:             booldefault.StaticBool(true),
 			},
-			// TODO:(PR) Add support for this
-			// "allow_members_to_manage_templates": schema.BoolAttribute{
-			// 	MarkdownDescription: "Allow members to manage templates in the workspace. **Default** `true`.",
-			// 	Optional:            true,
-			// 	Computed:            true,
-			// 	Default:             booldefault.StaticBool(true),
-			// },
+			"allow_members_to_manage_templates": schema.BoolAttribute{
+				MarkdownDescription: "Allow members to manage templates in the workspace. **Default** `true`.",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(true),
+			},
 			"enable_git_linkback_messages": schema.BoolAttribute{
 				MarkdownDescription: "Enable git linkbacks for private repositories. **Default** `true`.",
 				Optional:            true,
@@ -348,9 +348,10 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 
 	input := OrganizationUpdateInput{
 		SecuritySettings: OrganizationSecuritySettingsInput{
-			InvitationsRole:     toUserRoleType(data.AllowMembersToInvite.ValueBool()),
-			TeamCreationRole:    toUserRoleType(data.AllowMembersToCreateTeams.ValueBool()),
-			LabelManagementRole: toUserRoleType(data.AllowMembersToManageLabels.ValueBool()),
+			InvitationsRole:        toUserRoleType(data.AllowMembersToInvite.ValueBool()),
+			TeamCreationRole:       toUserRoleType(data.AllowMembersToCreateTeams.ValueBool()),
+			LabelManagementRole:    toUserRoleType(data.AllowMembersToManageLabels.ValueBool()),
+			TemplateManagementRole: toUserRoleType(data.AllowMembersToManageTemplates.ValueBool()),
 		},
 		RoadmapEnabled:                           initiativesData.Enabled.ValueBool(),
 		GitLinkbackMessagesEnabled:               data.EnableGitLinkbackMessages.ValueBool(),
@@ -380,6 +381,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 	data.AllowMembersToInvite = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "invitationsRole"))
 	data.AllowMembersToCreateTeams = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "teamCreationRole"))
 	data.AllowMembersToManageLabels = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "labelManagementRole"))
+	data.AllowMembersToManageTemplates = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "templateManagementRole"))
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
 	data.FiscalYearStartMonth = types.Int64Value(int64(organization.FiscalYearStartMonth))
@@ -443,6 +445,7 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 	data.AllowMembersToInvite = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "invitationsRole"))
 	data.AllowMembersToCreateTeams = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "teamCreationRole"))
 	data.AllowMembersToManageLabels = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "labelManagementRole"))
+	data.AllowMembersToManageTemplates = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "templateManagementRole"))
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
 	data.FiscalYearStartMonth = types.Int64Value(int64(organization.FiscalYearStartMonth))
@@ -508,9 +511,10 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 
 	input := OrganizationUpdateInput{
 		SecuritySettings: OrganizationSecuritySettingsInput{
-			InvitationsRole:     toUserRoleType(data.AllowMembersToInvite.ValueBool()),
-			TeamCreationRole:    toUserRoleType(data.AllowMembersToCreateTeams.ValueBool()),
-			LabelManagementRole: toUserRoleType(data.AllowMembersToManageLabels.ValueBool()),
+			InvitationsRole:        toUserRoleType(data.AllowMembersToInvite.ValueBool()),
+			TeamCreationRole:       toUserRoleType(data.AllowMembersToCreateTeams.ValueBool()),
+			LabelManagementRole:    toUserRoleType(data.AllowMembersToManageLabels.ValueBool()),
+			TemplateManagementRole: toUserRoleType(data.AllowMembersToManageTemplates.ValueBool()),
 		},
 		RoadmapEnabled:                           initiativesData.Enabled.ValueBool(),
 		GitLinkbackMessagesEnabled:               data.EnableGitLinkbackMessages.ValueBool(),
@@ -542,6 +546,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 	data.AllowMembersToInvite = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "invitationsRole"))
 	data.AllowMembersToCreateTeams = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "teamCreationRole"))
 	data.AllowMembersToManageLabels = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "labelManagementRole"))
+	data.AllowMembersToManageTemplates = types.BoolValue(fromUserRoleType(organization.SecuritySettings, "templateManagementRole"))
 	data.EnableGitLinkbackMessages = types.BoolValue(organization.GitLinkbackMessagesEnabled)
 	data.EnableGitLinkbackMessagesPublic = types.BoolValue(organization.GitPublicLinkbackMessagesEnabled)
 	data.FiscalYearStartMonth = types.Int64Value(int64(organization.FiscalYearStartMonth))
@@ -594,9 +599,10 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 
 	input := OrganizationUpdateInput{
 		SecuritySettings: OrganizationSecuritySettingsInput{
-			InvitationsRole:     toUserRoleType(true),
-			TeamCreationRole:    toUserRoleType(true),
-			LabelManagementRole: toUserRoleType(true),
+			InvitationsRole:        toUserRoleType(true),
+			TeamCreationRole:       toUserRoleType(true),
+			LabelManagementRole:    toUserRoleType(true),
+			TemplateManagementRole: toUserRoleType(true),
 		},
 		GitLinkbackMessagesEnabled:               true,
 		GitPublicLinkbackMessagesEnabled:         false,

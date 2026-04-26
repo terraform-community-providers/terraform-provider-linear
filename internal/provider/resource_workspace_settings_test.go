@@ -19,6 +19,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_invite", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_create_teams", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_templates", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "0"),
@@ -48,6 +49,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_invite", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_create_teams", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_templates", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "0"),
@@ -71,6 +73,7 @@ func TestAccWorkspaceSettingsResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_invite", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_create_teams", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_templates", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "7"),
@@ -110,6 +113,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_invite", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_create_teams", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_templates", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "7"),
@@ -139,6 +143,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_invite", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_create_teams", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "false"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_templates", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "7"),
@@ -162,6 +167,7 @@ func TestAccWorkspaceSettingsResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_invite", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_create_teams", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_labels", "true"),
+					resource.TestCheckResourceAttr("linear_workspace_settings.test", "allow_members_to_manage_templates", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages", "true"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "enable_git_linkback_messages_public", "false"),
 					resource.TestCheckResourceAttr("linear_workspace_settings.test", "fiscal_year_start_month", "0"),
@@ -201,6 +207,7 @@ resource "linear_workspace_settings" "test" {
 	allow_members_to_invite = false
 	allow_members_to_create_teams = false
 	allow_members_to_manage_labels = false
+	allow_members_to_manage_templates = false
 	enable_git_linkback_messages = false
 	enable_git_linkback_messages_public = true
 	fiscal_year_start_month = 7
