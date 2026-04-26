@@ -20,6 +20,8 @@ func TestAccTemplateResourceDefault(t *testing.T) {
 					resource.TestMatchResourceAttr("linear_template.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_template.test", "name", "Tech Debt"),
 					resource.TestCheckNoResourceAttr("linear_template.test", "description"),
+					resource.TestCheckNoResourceAttr("linear_template.test", "icon"),
+					resource.TestCheckNoResourceAttr("linear_template.test", "color"),
 					resource.TestCheckResourceAttr("linear_template.test", "type", "issue"),
 					resource.TestCheckNoResourceAttr("linear_template.test", "team_id"),
 					resource.TestCheckResourceAttr("linear_template.test", "data", "{\"title\":\"\"}"),
@@ -39,6 +41,8 @@ func TestAccTemplateResourceDefault(t *testing.T) {
 					resource.TestMatchResourceAttr("linear_template.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_template.test", "name", "Tech Debt"),
 					resource.TestCheckNoResourceAttr("linear_template.test", "description"),
+					resource.TestCheckNoResourceAttr("linear_template.test", "icon"),
+					resource.TestCheckNoResourceAttr("linear_template.test", "color"),
 					resource.TestCheckResourceAttr("linear_template.test", "type", "issue"),
 					resource.TestCheckNoResourceAttr("linear_template.test", "team_id"),
 					resource.TestCheckResourceAttr("linear_template.test", "data", "{\"title\":\"\"}"),
@@ -51,6 +55,8 @@ func TestAccTemplateResourceDefault(t *testing.T) {
 					resource.TestMatchResourceAttr("linear_template.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_template.test", "name", "Easy Tech Debt"),
 					resource.TestCheckResourceAttr("linear_template.test", "description", "Tech debt that is easy to fix"),
+					resource.TestCheckResourceAttr("linear_template.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_template.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_template.test", "type", "issue"),
 					resource.TestCheckResourceAttr("linear_template.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 					resource.TestCheckResourceAttr("linear_template.test", "data", "{\"labelIds\":[\"53c7964a-5bd4-4679-8cca-a5b78498b2b3\"],\"priority\":0,\"title\":\"\"}"),
@@ -80,6 +86,8 @@ func TestAccTemplateResourceNonDefault(t *testing.T) {
 					resource.TestMatchResourceAttr("linear_template.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_template.test", "name", "Easy Tech Debt"),
 					resource.TestCheckResourceAttr("linear_template.test", "description", "Tech debt that is easy to fix"),
+					resource.TestCheckResourceAttr("linear_template.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_template.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_template.test", "type", "issue"),
 					resource.TestCheckResourceAttr("linear_template.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 					resource.TestCheckResourceAttr("linear_template.test", "data", "{\"labelIds\":[\"53c7964a-5bd4-4679-8cca-a5b78498b2b3\"],\"priority\":0,\"title\":\"\"}"),
@@ -99,6 +107,8 @@ func TestAccTemplateResourceNonDefault(t *testing.T) {
 					resource.TestMatchResourceAttr("linear_template.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_template.test", "name", "Easy Tech Debt"),
 					resource.TestCheckResourceAttr("linear_template.test", "description", "Tech debt that is easy to fix"),
+					resource.TestCheckResourceAttr("linear_template.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_template.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_template.test", "type", "issue"),
 					resource.TestCheckResourceAttr("linear_template.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 					resource.TestCheckResourceAttr("linear_template.test", "data", "{\"labelIds\":[\"53c7964a-5bd4-4679-8cca-a5b78498b2b3\"],\"priority\":0,\"title\":\"\"}"),
@@ -111,6 +121,8 @@ func TestAccTemplateResourceNonDefault(t *testing.T) {
 					resource.TestMatchResourceAttr("linear_template.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_template.test", "name", "Tech Debt"),
 					resource.TestCheckNoResourceAttr("linear_template.test", "description"),
+					resource.TestCheckResourceAttr("linear_template.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_template.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_template.test", "type", "issue"),
 					resource.TestCheckNoResourceAttr("linear_template.test", "team_id"),
 					resource.TestCheckResourceAttr("linear_template.test", "data", "{\"title\":\"\"}"),
@@ -145,6 +157,8 @@ func testAccTemplateResourceConfigNonDefault(name string) string {
 resource "linear_template" "test" {
   name = "%s"
   description = "Tech debt that is easy to fix"
+  icon = "Image"
+  color = "#00ff00"
   type = "issue"
   team_id = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
   data = jsonencode({

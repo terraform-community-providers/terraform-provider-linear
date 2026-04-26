@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -32,6 +33,8 @@ type TemplateResourceModel struct {
 	Id          types.String `tfsdk:"id"`
 	Name        types.String `tfsdk:"name"`
 	Description types.String `tfsdk:"description"`
+	Icon        types.String `tfsdk:"icon"`
+	Color       types.String `tfsdk:"color"`
 	Type        types.String `tfsdk:"type"`
 	TeamId      types.String `tfsdk:"team_id"`
 	Data        types.String `tfsdk:"data"`
@@ -62,6 +65,28 @@ func (r *TemplateResource) Schema(ctx context.Context, req resource.SchemaReques
 			"description": schema.StringAttribute{
 				MarkdownDescription: "Description of the template.",
 				Optional:            true,
+			},
+			"icon": schema.StringAttribute{
+				MarkdownDescription: "Icon of the template.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(regexp.MustCompile("^[a-zA-Z]+$"), "must only contain letters"),
+				},
+			},
+			"color": schema.StringAttribute{
+				MarkdownDescription: "Color of the template.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(colorRegex(), "must be a hex color"),
+				},
 			},
 			"type": schema.StringAttribute{
 				MarkdownDescription: "Type of the template. **Default** `issue`.",
@@ -119,13 +144,22 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	// TODO:(PR) Add icon & color support for template
 	input := TemplateCreateInput{
 		Name:         data.Name.ValueString(),
 		Description:  data.Description.ValueStringPointer(),
 		Type:         data.Type.ValueString(),
 		TeamId:       data.TeamId.ValueStringPointer(),
 		TemplateData: data.Data.ValueString(),
+	}
+
+	if !data.Icon.IsUnknown() {
+		value := data.Icon.ValueString()
+		input.Icon = &value
+	}
+
+	if !data.Color.IsUnknown() {
+		value := data.Color.ValueString()
+		input.Color = &value
 	}
 
 	response, err := templateCreate(ctx, *r.client, input)
@@ -142,6 +176,8 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 	data.Id = types.StringValue(template.Id)
 	data.Name = types.StringValue(template.Name)
 	data.Description = types.StringPointerValue(template.Description)
+	data.Icon = types.StringPointerValue(template.Icon)
+	data.Color = types.StringPointerValue(template.Color)
 	data.Type = types.StringValue(template.Type)
 	data.Data = types.StringValue(template.TemplateData)
 
@@ -176,6 +212,8 @@ func (r *TemplateResource) Read(ctx context.Context, req resource.ReadRequest, r
 	data.Id = types.StringValue(template.Id)
 	data.Name = types.StringValue(template.Name)
 	data.Description = types.StringPointerValue(template.Description)
+	data.Icon = types.StringPointerValue(template.Icon)
+	data.Color = types.StringPointerValue(template.Color)
 	data.Type = types.StringValue(template.Type)
 	data.Data = types.StringValue(template.TemplateData)
 
@@ -204,6 +242,16 @@ func (r *TemplateResource) Update(ctx context.Context, req resource.UpdateReques
 		TemplateData: data.Data.ValueString(),
 	}
 
+	if !data.Icon.IsUnknown() {
+		value := data.Icon.ValueString()
+		input.Icon = &value
+	}
+
+	if !data.Color.IsUnknown() {
+		value := data.Color.ValueString()
+		input.Color = &value
+	}
+
 	response, err := templateUpdate(ctx, *r.client, input, data.Id.ValueString())
 
 	if err != nil {
@@ -218,6 +266,8 @@ func (r *TemplateResource) Update(ctx context.Context, req resource.UpdateReques
 	data.Id = types.StringValue(template.Id)
 	data.Name = types.StringValue(template.Name)
 	data.Description = types.StringPointerValue(template.Description)
+	data.Icon = types.StringPointerValue(template.Icon)
+	data.Color = types.StringPointerValue(template.Color)
 	data.Type = types.StringValue(template.Type)
 	data.Data = types.StringValue(template.TemplateData)
 

@@ -2,6 +2,7 @@
 
 ### Enhancements
 * Added `allow_members_to_manage_templates` to `linear_workspace_settings`
+* Added `icon` and `color` to `linear_template`
 
 ## 0.3.3
 

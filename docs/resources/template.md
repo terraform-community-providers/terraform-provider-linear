@@ -33,7 +33,9 @@ resource "linear_template" "example" {
 
 ### Optional
 
+- `color` (String) Color of the template.
 - `description` (String) Description of the template.
+- `icon` (String) Icon of the template.
 - `team_id` (String) Identifier of the team. If not provided, creates a workspace-level template.
 - `type` (String) Type of the template. **Default** `issue`.
 
