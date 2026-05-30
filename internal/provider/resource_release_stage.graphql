@@ -1,0 +1,50 @@
+fragment ReleaseStageFields on ReleaseStage {
+  id
+  name
+  type
+  color
+  position
+  frozen
+  pipeline {
+    id
+  }
+}
+
+query getReleaseStage($id: String!) {
+  releaseStage(id: $id) {
+    ...ReleaseStageFields
+  }
+}
+
+# @genqlient(for: "ReleaseStageCreateInput.id", omitempty: true)
+# @genqlient(for: "ReleaseStageCreateInput.frozen", omitempty: true)
+mutation createReleaseStage(
+  $input: ReleaseStageCreateInput!
+) {
+  releaseStageCreate(input: $input) {
+    releaseStage {
+      ...ReleaseStageFields
+    }
+  }
+}
+
+# @genqlient(for: "ReleaseStageUpdateInput.name", omitempty: true)
+# @genqlient(for: "ReleaseStageUpdateInput.color", omitempty: true)
+# @genqlient(for: "ReleaseStageUpdateInput.position", omitempty: true)
+# @genqlient(for: "ReleaseStageUpdateInput.frozen", omitempty: true)
+mutation updateReleaseStage(
+  $input: ReleaseStageUpdateInput!,
+  $id: String!
+) {
+  releaseStageUpdate(input: $input, id: $id) {
+    releaseStage {
+      ...ReleaseStageFields
+    }
+  }
+}
+
+mutation deleteReleaseStage($id: String!) {
+  releaseStageArchive(id: $id) {
+    success
+  }
+}

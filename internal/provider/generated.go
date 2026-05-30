@@ -14,13 +14,13 @@ import (
 type Day string
 
 const (
-	DaySunday    Day = "Sunday"
+	DayFriday    Day = "Friday"
 	DayMonday    Day = "Monday"
+	DaySaturday  Day = "Saturday"
+	DaySunday    Day = "Sunday"
+	DayThursday  Day = "Thursday"
 	DayTuesday   Day = "Tuesday"
 	DayWednesday Day = "Wednesday"
-	DayThursday  Day = "Thursday"
-	DayFriday    Day = "Friday"
-	DaySaturday  Day = "Saturday"
 )
 
 // Cadence to generate feed summary
@@ -28,29 +28,29 @@ type FeedSummarySchedule string
 
 const (
 	FeedSummaryScheduleDaily  FeedSummarySchedule = "daily"
-	FeedSummaryScheduleWeekly FeedSummarySchedule = "weekly"
 	FeedSummaryScheduleNever  FeedSummarySchedule = "never"
+	FeedSummaryScheduleWeekly FeedSummarySchedule = "weekly"
 )
 
 // Input for creating a new Git automation rule.
 type GitAutomationStateCreateInput struct {
+	// The event that triggers the automation.
+	Event GitAutomationStates `json:"event"`
 	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
 	Id *string `json:"id,omitempty"`
-	// The team associated with the automation state.
-	TeamId string `json:"teamId"`
 	// The associated workflow state. If null, will override default behaviour and take no action.
 	StateId *string `json:"stateId"`
 	// The associated target branch. If null, all branches are targeted.
 	TargetBranchId *string `json:"targetBranchId"`
-	// The event that triggers the automation.
-	Event GitAutomationStates `json:"event"`
+	// The team associated with the automation state.
+	TeamId string `json:"teamId"`
 }
+
+// GetEvent returns GitAutomationStateCreateInput.Event, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateCreateInput) GetEvent() GitAutomationStates { return v.Event }
 
 // GetId returns GitAutomationStateCreateInput.Id, and is useful for accessing the field via an interface.
 func (v *GitAutomationStateCreateInput) GetId() *string { return v.Id }
-
-// GetTeamId returns GitAutomationStateCreateInput.TeamId, and is useful for accessing the field via an interface.
-func (v *GitAutomationStateCreateInput) GetTeamId() string { return v.TeamId }
 
 // GetStateId returns GitAutomationStateCreateInput.StateId, and is useful for accessing the field via an interface.
 func (v *GitAutomationStateCreateInput) GetStateId() *string { return v.StateId }
@@ -58,18 +58,21 @@ func (v *GitAutomationStateCreateInput) GetStateId() *string { return v.StateId 
 // GetTargetBranchId returns GitAutomationStateCreateInput.TargetBranchId, and is useful for accessing the field via an interface.
 func (v *GitAutomationStateCreateInput) GetTargetBranchId() *string { return v.TargetBranchId }
 
-// GetEvent returns GitAutomationStateCreateInput.Event, and is useful for accessing the field via an interface.
-func (v *GitAutomationStateCreateInput) GetEvent() GitAutomationStates { return v.Event }
+// GetTeamId returns GitAutomationStateCreateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateCreateInput) GetTeamId() string { return v.TeamId }
 
 // Input for updating an existing Git automation rule.
 type GitAutomationStateUpdateInput struct {
+	// The event that triggers the automation.
+	Event GitAutomationStates `json:"event"`
 	// The associated workflow state.
 	StateId *string `json:"stateId"`
 	// The associated target branch. If null, all branches are targeted.
 	TargetBranchId *string `json:"targetBranchId"`
-	// The event that triggers the automation.
-	Event GitAutomationStates `json:"event"`
 }
+
+// GetEvent returns GitAutomationStateUpdateInput.Event, and is useful for accessing the field via an interface.
+func (v *GitAutomationStateUpdateInput) GetEvent() GitAutomationStates { return v.Event }
 
 // GetStateId returns GitAutomationStateUpdateInput.StateId, and is useful for accessing the field via an interface.
 func (v *GitAutomationStateUpdateInput) GetStateId() *string { return v.StateId }
@@ -77,53 +80,45 @@ func (v *GitAutomationStateUpdateInput) GetStateId() *string { return v.StateId 
 // GetTargetBranchId returns GitAutomationStateUpdateInput.TargetBranchId, and is useful for accessing the field via an interface.
 func (v *GitAutomationStateUpdateInput) GetTargetBranchId() *string { return v.TargetBranchId }
 
-// GetEvent returns GitAutomationStateUpdateInput.Event, and is useful for accessing the field via an interface.
-func (v *GitAutomationStateUpdateInput) GetEvent() GitAutomationStates { return v.Event }
-
-// The Git events that can trigger an automation rule. Each value corresponds to a
-// pull/merge request lifecycle event (e.g., branch created, PR opened for review, PR merged).
+// The Git events that can trigger an automation rule. Each value corresponds to a pull/merge request lifecycle event (e.g., branch created, PR opened for review, PR merged).
 type GitAutomationStates string
 
 const (
 	GitAutomationStatesDraft     GitAutomationStates = "draft"
-	GitAutomationStatesStart     GitAutomationStates = "start"
-	GitAutomationStatesReview    GitAutomationStates = "review"
-	GitAutomationStatesMergeable GitAutomationStates = "mergeable"
 	GitAutomationStatesMerge     GitAutomationStates = "merge"
+	GitAutomationStatesMergeable GitAutomationStates = "mergeable"
+	GitAutomationStatesReview    GitAutomationStates = "review"
+	GitAutomationStatesStart     GitAutomationStates = "start"
 )
 
 // Input for creating a new Git target branch definition.
 type GitAutomationTargetBranchCreateInput struct {
-	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
-	Id *string `json:"id,omitempty"`
-	// The team associated with the Git target branch automation.
-	TeamId string `json:"teamId"`
 	// The target branch pattern.
 	BranchPattern string `json:"branchPattern"`
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id *string `json:"id,omitempty"`
 	// Whether the branch pattern is a regular expression.
 	IsRegex bool `json:"isRegex"`
+	// The team associated with the Git target branch automation.
+	TeamId string `json:"teamId"`
 }
-
-// GetId returns GitAutomationTargetBranchCreateInput.Id, and is useful for accessing the field via an interface.
-func (v *GitAutomationTargetBranchCreateInput) GetId() *string { return v.Id }
-
-// GetTeamId returns GitAutomationTargetBranchCreateInput.TeamId, and is useful for accessing the field via an interface.
-func (v *GitAutomationTargetBranchCreateInput) GetTeamId() string { return v.TeamId }
 
 // GetBranchPattern returns GitAutomationTargetBranchCreateInput.BranchPattern, and is useful for accessing the field via an interface.
 func (v *GitAutomationTargetBranchCreateInput) GetBranchPattern() string { return v.BranchPattern }
 
+// GetId returns GitAutomationTargetBranchCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *GitAutomationTargetBranchCreateInput) GetId() *string { return v.Id }
+
 // GetIsRegex returns GitAutomationTargetBranchCreateInput.IsRegex, and is useful for accessing the field via an interface.
 func (v *GitAutomationTargetBranchCreateInput) GetIsRegex() bool { return v.IsRegex }
+
+// GetTeamId returns GitAutomationTargetBranchCreateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *GitAutomationTargetBranchCreateInput) GetTeamId() string { return v.TeamId }
 
 // IssueLabel includes the GraphQL fields of IssueLabel requested by the fragment IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues. Labels help categorize and filter
-// issues across a workspace. They can be workspace-level (shared across all teams)
-// or team-scoped. Labels have a color for visual identification and can be
-// organized hierarchically into groups, where a parent label acts as a group
-// containing child labels. Labels may also be inherited from parent teams to sub-teams.
+// Labels that can be associated with issues. Labels help categorize and filter issues across a workspace. They can be workspace-level (shared across all teams) or team-scoped. Labels have a color for visual identification and can be organized hierarchically into groups, where a parent label acts as a group containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type IssueLabel struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -133,14 +128,11 @@ type IssueLabel struct {
 	Description *string `json:"description"`
 	// The label's color as a HEX string (e.g., '#EB5757'). Used for visual identification of the label in the UI.
 	Color *string `json:"color"`
-	// Whether the label is a group. When true, this label acts as a container for
-	// child labels and cannot be directly applied to issues or projects. When false,
-	// the label can be directly applied.
+	// Whether the label is a group. When true, this label acts as a container for child labels and cannot be directly applied to issues or projects. When false, the label can be directly applied.
 	IsGroup bool `json:"isGroup"`
 	// The parent label.
 	Parent *IssueLabelParentIssueLabel `json:"parent"`
-	// The team that the label is scoped to. If null, the label is a workspace-level
-	// label available to all teams in the workspace.
+	// The team that the label is scoped to. If null, the label is a workspace-level label available to all teams in the workspace.
 	Team *IssueLabelTeam `json:"team"`
 }
 
@@ -165,59 +157,54 @@ func (v *IssueLabel) GetParent() *IssueLabelParentIssueLabel { return v.Parent }
 // GetTeam returns IssueLabel.Team, and is useful for accessing the field via an interface.
 func (v *IssueLabel) GetTeam() *IssueLabelTeam { return v.Team }
 
-// Input for creating a new label. A name is required. If no team is specified, the
-// label is created as a workspace-level label available to all teams.
+// Input for creating a new label. A name is required. If no team is specified, the label is created as a workspace-level label available to all teams.
 type IssueLabelCreateInput struct {
-	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
-	Id string `json:"id,omitempty"`
-	// The name of the label.
-	Name string `json:"name"`
-	// The description of the label.
-	Description *string `json:"description"`
 	// The color of the label.
 	Color *string `json:"color,omitempty"`
-	// The identifier of the parent label.
-	ParentId *string `json:"parentId"`
-	// The team associated with the label. If not given, the label will be associated with the entire workspace.
-	TeamId *string `json:"teamId"`
+	// The description of the label.
+	Description *string `json:"description"`
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id string `json:"id,omitempty"`
 	// Whether the label is a group.
 	IsGroup bool `json:"isGroup"`
+	// The name of the label.
+	Name string `json:"name"`
+	// The identifier of the parent label.
+	ParentId *string `json:"parentId"`
 	// The time at which the label was retired. Set to null to restore a retired label.
 	RetiredAt *time.Time `json:"retiredAt"`
+	// The team associated with the label. If not given, the label will be associated with the entire workspace.
+	TeamId *string `json:"teamId"`
 }
-
-// GetId returns IssueLabelCreateInput.Id, and is useful for accessing the field via an interface.
-func (v *IssueLabelCreateInput) GetId() string { return v.Id }
-
-// GetName returns IssueLabelCreateInput.Name, and is useful for accessing the field via an interface.
-func (v *IssueLabelCreateInput) GetName() string { return v.Name }
-
-// GetDescription returns IssueLabelCreateInput.Description, and is useful for accessing the field via an interface.
-func (v *IssueLabelCreateInput) GetDescription() *string { return v.Description }
 
 // GetColor returns IssueLabelCreateInput.Color, and is useful for accessing the field via an interface.
 func (v *IssueLabelCreateInput) GetColor() *string { return v.Color }
 
-// GetParentId returns IssueLabelCreateInput.ParentId, and is useful for accessing the field via an interface.
-func (v *IssueLabelCreateInput) GetParentId() *string { return v.ParentId }
+// GetDescription returns IssueLabelCreateInput.Description, and is useful for accessing the field via an interface.
+func (v *IssueLabelCreateInput) GetDescription() *string { return v.Description }
 
-// GetTeamId returns IssueLabelCreateInput.TeamId, and is useful for accessing the field via an interface.
-func (v *IssueLabelCreateInput) GetTeamId() *string { return v.TeamId }
+// GetId returns IssueLabelCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *IssueLabelCreateInput) GetId() string { return v.Id }
 
 // GetIsGroup returns IssueLabelCreateInput.IsGroup, and is useful for accessing the field via an interface.
 func (v *IssueLabelCreateInput) GetIsGroup() bool { return v.IsGroup }
 
+// GetName returns IssueLabelCreateInput.Name, and is useful for accessing the field via an interface.
+func (v *IssueLabelCreateInput) GetName() string { return v.Name }
+
+// GetParentId returns IssueLabelCreateInput.ParentId, and is useful for accessing the field via an interface.
+func (v *IssueLabelCreateInput) GetParentId() *string { return v.ParentId }
+
 // GetRetiredAt returns IssueLabelCreateInput.RetiredAt, and is useful for accessing the field via an interface.
 func (v *IssueLabelCreateInput) GetRetiredAt() *time.Time { return v.RetiredAt }
+
+// GetTeamId returns IssueLabelCreateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *IssueLabelCreateInput) GetTeamId() *string { return v.TeamId }
 
 // IssueLabelParentIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues. Labels help categorize and filter
-// issues across a workspace. They can be workspace-level (shared across all teams)
-// or team-scoped. Labels have a color for visual identification and can be
-// organized hierarchically into groups, where a parent label acts as a group
-// containing child labels. Labels may also be inherited from parent teams to sub-teams.
+// Labels that can be associated with issues. Labels help categorize and filter issues across a workspace. They can be workspace-level (shared across all teams) or team-scoped. Labels have a color for visual identification and can be organized hierarchically into groups, where a parent label acts as a group containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type IssueLabelParentIssueLabel struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -229,10 +216,7 @@ func (v *IssueLabelParentIssueLabel) GetId() string { return v.Id }
 // IssueLabelTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type IssueLabelTeam struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -243,34 +227,34 @@ func (v *IssueLabelTeam) GetId() string { return v.Id }
 
 // Input for updating an existing label. All fields are optional; only provided fields will be updated.
 type IssueLabelUpdateInput struct {
-	// The name of the label.
-	Name string `json:"name,omitempty"`
-	// The description of the label.
-	Description *string `json:"description"`
-	// The identifier of the parent label.
-	ParentId *string `json:"parentId"`
 	// The color of the label.
 	Color *string `json:"color,omitempty"`
+	// The description of the label.
+	Description *string `json:"description"`
 	// Whether the label is a group.
 	IsGroup bool `json:"isGroup"`
+	// The name of the label.
+	Name string `json:"name,omitempty"`
+	// The identifier of the parent label.
+	ParentId *string `json:"parentId"`
 	// The time at which the label was retired. Set to null to restore a retired label.
 	RetiredAt *time.Time `json:"retiredAt"`
 }
 
-// GetName returns IssueLabelUpdateInput.Name, and is useful for accessing the field via an interface.
-func (v *IssueLabelUpdateInput) GetName() string { return v.Name }
+// GetColor returns IssueLabelUpdateInput.Color, and is useful for accessing the field via an interface.
+func (v *IssueLabelUpdateInput) GetColor() *string { return v.Color }
 
 // GetDescription returns IssueLabelUpdateInput.Description, and is useful for accessing the field via an interface.
 func (v *IssueLabelUpdateInput) GetDescription() *string { return v.Description }
 
-// GetParentId returns IssueLabelUpdateInput.ParentId, and is useful for accessing the field via an interface.
-func (v *IssueLabelUpdateInput) GetParentId() *string { return v.ParentId }
-
-// GetColor returns IssueLabelUpdateInput.Color, and is useful for accessing the field via an interface.
-func (v *IssueLabelUpdateInput) GetColor() *string { return v.Color }
-
 // GetIsGroup returns IssueLabelUpdateInput.IsGroup, and is useful for accessing the field via an interface.
 func (v *IssueLabelUpdateInput) GetIsGroup() bool { return v.IsGroup }
+
+// GetName returns IssueLabelUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *IssueLabelUpdateInput) GetName() string { return v.Name }
+
+// GetParentId returns IssueLabelUpdateInput.ParentId, and is useful for accessing the field via an interface.
+func (v *IssueLabelUpdateInput) GetParentId() *string { return v.ParentId }
 
 // GetRetiredAt returns IssueLabelUpdateInput.RetiredAt, and is useful for accessing the field via an interface.
 func (v *IssueLabelUpdateInput) GetRetiredAt() *time.Time { return v.RetiredAt }
@@ -278,15 +262,11 @@ func (v *IssueLabelUpdateInput) GetRetiredAt() *time.Time { return v.RetiredAt }
 // Organization includes the GraphQL fields of Organization requested by the fragment Organization.
 // The GraphQL type's documentation follows.
 //
-// A workspace (referred to as Organization in the API). Workspaces are the
-// root-level container for all teams, users, projects, issues, and settings. Every
-// user belongs to at least one workspace, and all data is scoped within a
-// workspace boundary.
+// A workspace (referred to as Organization in the API). Workspaces are the root-level container for all teams, users, projects, issues, and settings. Every user belongs to at least one workspace, and all data is scoped within a workspace boundary.
 type Organization struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// Security settings for the workspace, including role-based restrictions for
-	// invitations, team creation, label management, and other sensitive operations.
+	// Security settings for the workspace, including role-based restrictions for invitations, team creation, label management, and other sensitive operations.
 	SecuritySettings map[string]interface{} `json:"securitySettings"`
 	// Whether the Git integration linkback messages should be posted as comments on pull requests in private repositories.
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
@@ -294,8 +274,7 @@ type Organization struct {
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
 	// The zero-indexed month at which the fiscal year starts (0 = January, 11 = December). Defaults to 0 (January).
 	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
-	// The frequency in weeks at which to prompt for project updates. When null,
-	// project update reminders are disabled. Valid values range from 0 to 8.
+	// The frequency in weeks at which to prompt for project updates. When null, project update reminders are disabled. Valid values range from 0 to 8.
 	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
 	// The day of the week on which project update reminders are sent.
 	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
@@ -303,8 +282,7 @@ type Organization struct {
 	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
 	// Whether the roadmap feature is enabled for the workspace.
 	RoadmapEnabled bool `json:"roadmapEnabled"`
-	// The frequency in weeks at which to prompt for initiative updates. When null,
-	// initiative update reminders are disabled. Valid values range from 0 to 8.
+	// The frequency in weeks at which to prompt for initiative updates. When null, initiative update reminders are disabled. Valid values range from 0 to 8.
 	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks"`
 	// The day of the week on which initiative update reminders are sent.
 	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay"`
@@ -375,19 +353,14 @@ func (v *Organization) GetCustomersEnabled() bool { return v.CustomersEnabled }
 
 // Input for updating workspace authentication settings.
 type OrganizationAuthSettingsInput struct {
-	// Allowed authentication providers, empty array means all are allowed.
-	AllowedAuthServices []string `json:"allowedAuthServices"`
 	// [Internal] The minimum role required for the auth service bypass exemption.
 	AllowedAuthServiceBypassRole string `json:"allowedAuthServiceBypassRole"`
-	// Whether to hide non-primary workspaces during signup for users with matching email domains.
-	HideNonPrimaryOrganizations bool `json:"hideNonPrimaryOrganizations"`
+	// Allowed authentication providers, empty array means all are allowed.
+	AllowedAuthServices []string `json:"allowedAuthServices"`
 	// Whether to disable admin/owner auth service bypass.
 	DisableAuthServiceBypass bool `json:"disableAuthServiceBypass"`
-}
-
-// GetAllowedAuthServices returns OrganizationAuthSettingsInput.AllowedAuthServices, and is useful for accessing the field via an interface.
-func (v *OrganizationAuthSettingsInput) GetAllowedAuthServices() []string {
-	return v.AllowedAuthServices
+	// Whether to hide non-primary workspaces during signup for users with matching email domains.
+	HideNonPrimaryOrganizations bool `json:"hideNonPrimaryOrganizations"`
 }
 
 // GetAllowedAuthServiceBypassRole returns OrganizationAuthSettingsInput.AllowedAuthServiceBypassRole, and is useful for accessing the field via an interface.
@@ -395,9 +368,9 @@ func (v *OrganizationAuthSettingsInput) GetAllowedAuthServiceBypassRole() string
 	return v.AllowedAuthServiceBypassRole
 }
 
-// GetHideNonPrimaryOrganizations returns OrganizationAuthSettingsInput.HideNonPrimaryOrganizations, and is useful for accessing the field via an interface.
-func (v *OrganizationAuthSettingsInput) GetHideNonPrimaryOrganizations() bool {
-	return v.HideNonPrimaryOrganizations
+// GetAllowedAuthServices returns OrganizationAuthSettingsInput.AllowedAuthServices, and is useful for accessing the field via an interface.
+func (v *OrganizationAuthSettingsInput) GetAllowedAuthServices() []string {
+	return v.AllowedAuthServices
 }
 
 // GetDisableAuthServiceBypass returns OrganizationAuthSettingsInput.DisableAuthServiceBypass, and is useful for accessing the field via an interface.
@@ -405,23 +378,31 @@ func (v *OrganizationAuthSettingsInput) GetDisableAuthServiceBypass() bool {
 	return v.DisableAuthServiceBypass
 }
 
+// GetHideNonPrimaryOrganizations returns OrganizationAuthSettingsInput.HideNonPrimaryOrganizations, and is useful for accessing the field via an interface.
+func (v *OrganizationAuthSettingsInput) GetHideNonPrimaryOrganizations() bool {
+	return v.HideNonPrimaryOrganizations
+}
+
+// [Internal] Input for updating Coding Agent settings for the workspace.
+type OrganizationCodingAgentSettingsInput struct {
+	// [Internal] The model preference used for Coding Agent sessions.
+	Model string `json:"model"`
+}
+
+// GetModel returns OrganizationCodingAgentSettingsInput.Model, and is useful for accessing the field via an interface.
+func (v *OrganizationCodingAgentSettingsInput) GetModel() string { return v.Model }
+
 // [INTERNAL] Organization IP restriction configuration.
 type OrganizationIpRestrictionInput struct {
-	// IP range in CIDR format.
-	Range string `json:"range"`
-	// Restriction type.
-	Type string `json:"type"`
 	// Optional restriction description.
 	Description string `json:"description"`
 	// Whether the restriction is enabled.
 	Enabled bool `json:"enabled"`
+	// IP range in CIDR format.
+	Range string `json:"range"`
+	// Restriction type.
+	Type string `json:"type"`
 }
-
-// GetRange returns OrganizationIpRestrictionInput.Range, and is useful for accessing the field via an interface.
-func (v *OrganizationIpRestrictionInput) GetRange() string { return v.Range }
-
-// GetType returns OrganizationIpRestrictionInput.Type, and is useful for accessing the field via an interface.
-func (v *OrganizationIpRestrictionInput) GetType() string { return v.Type }
 
 // GetDescription returns OrganizationIpRestrictionInput.Description, and is useful for accessing the field via an interface.
 func (v *OrganizationIpRestrictionInput) GetDescription() string { return v.Description }
@@ -429,38 +410,36 @@ func (v *OrganizationIpRestrictionInput) GetDescription() string { return v.Desc
 // GetEnabled returns OrganizationIpRestrictionInput.Enabled, and is useful for accessing the field via an interface.
 func (v *OrganizationIpRestrictionInput) GetEnabled() bool { return v.Enabled }
 
+// GetRange returns OrganizationIpRestrictionInput.Range, and is useful for accessing the field via an interface.
+func (v *OrganizationIpRestrictionInput) GetRange() string { return v.Range }
+
+// GetType returns OrganizationIpRestrictionInput.Type, and is useful for accessing the field via an interface.
+func (v *OrganizationIpRestrictionInput) GetType() string { return v.Type }
+
 // [Internal] An MCP server URL entry for the Linear Agent allowlist.
 type OrganizationLinearAgentMcpServerAllowlistEntryInput struct {
-	// [Internal] The MCP server URL that Linear Agent is allowed to use.
-	Url string `json:"url"`
 	// [Internal] Slug of the built-in MCP integration this entry was added from, if any.
 	KnownIntegrationKey string `json:"knownIntegrationKey"`
+	// [Internal] The MCP server URL that Linear Agent is allowed to use.
+	Url string `json:"url"`
 }
-
-// GetUrl returns OrganizationLinearAgentMcpServerAllowlistEntryInput.Url, and is useful for accessing the field via an interface.
-func (v *OrganizationLinearAgentMcpServerAllowlistEntryInput) GetUrl() string { return v.Url }
 
 // GetKnownIntegrationKey returns OrganizationLinearAgentMcpServerAllowlistEntryInput.KnownIntegrationKey, and is useful for accessing the field via an interface.
 func (v *OrganizationLinearAgentMcpServerAllowlistEntryInput) GetKnownIntegrationKey() string {
 	return v.KnownIntegrationKey
 }
 
+// GetUrl returns OrganizationLinearAgentMcpServerAllowlistEntryInput.Url, and is useful for accessing the field via an interface.
+func (v *OrganizationLinearAgentMcpServerAllowlistEntryInput) GetUrl() string { return v.Url }
+
 // [Internal] Input for updating Linear Agent settings for the workspace.
 type OrganizationLinearAgentSettingsInput struct {
-	// [Internal] Whether the workspace has enabled web search for Linear Agent.
-	WebSearchEnabled bool `json:"webSearchEnabled"`
-	// [Internal] Whether the workspace has enabled MCP servers for Linear Agent.
-	McpServersEnabled bool `json:"mcpServersEnabled"`
 	// [Internal] The MCP server allowlist for Linear Agent. When unset, all MCP servers are allowed.
 	McpServersAllowlist []OrganizationLinearAgentMcpServerAllowlistEntryInput `json:"mcpServersAllowlist"`
-}
-
-// GetWebSearchEnabled returns OrganizationLinearAgentSettingsInput.WebSearchEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationLinearAgentSettingsInput) GetWebSearchEnabled() bool { return v.WebSearchEnabled }
-
-// GetMcpServersEnabled returns OrganizationLinearAgentSettingsInput.McpServersEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationLinearAgentSettingsInput) GetMcpServersEnabled() bool {
-	return v.McpServersEnabled
+	// [Internal] Whether the workspace has enabled MCP servers for Linear Agent.
+	McpServersEnabled bool `json:"mcpServersEnabled"`
+	// [Internal] Whether the workspace has enabled web search for Linear Agent.
+	WebSearchEnabled bool `json:"webSearchEnabled"`
 }
 
 // GetMcpServersAllowlist returns OrganizationLinearAgentSettingsInput.McpServersAllowlist, and is useful for accessing the field via an interface.
@@ -468,46 +447,39 @@ func (v *OrganizationLinearAgentSettingsInput) GetMcpServersAllowlist() []Organi
 	return v.McpServersAllowlist
 }
 
+// GetMcpServersEnabled returns OrganizationLinearAgentSettingsInput.McpServersEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationLinearAgentSettingsInput) GetMcpServersEnabled() bool {
+	return v.McpServersEnabled
+}
+
+// GetWebSearchEnabled returns OrganizationLinearAgentSettingsInput.WebSearchEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationLinearAgentSettingsInput) GetWebSearchEnabled() bool { return v.WebSearchEnabled }
+
 // Input for updating workspace security settings such as role-based access controls.
 type OrganizationSecuritySettingsInput struct {
-	// The minimum role required to create personal API keys.
-	PersonalApiKeysRole UserRoleType `json:"personalApiKeysRole,omitempty"`
-	// The minimum role required to invite users.
-	InvitationsRole UserRoleType `json:"invitationsRole,omitempty"`
-	// The minimum role required to create teams.
-	TeamCreationRole UserRoleType `json:"teamCreationRole,omitempty"`
-	// The minimum role required to manage workspace labels.
-	LabelManagementRole UserRoleType `json:"labelManagementRole,omitempty"`
-	// The minimum role required to manage API settings.
-	ApiSettingsRole UserRoleType `json:"apiSettingsRole,omitempty"`
-	// The minimum role required to manage workspace templates.
-	TemplateManagementRole UserRoleType `json:"templateManagementRole,omitempty"`
-	// The minimum role required to import data.
-	ImportRole UserRoleType `json:"importRole,omitempty"`
 	// The minimum role required to manage agent guidance prompts and settings.
 	AgentGuidanceRole UserRoleType `json:"agentGuidanceRole,omitempty"`
+	// The minimum role required to manage API settings.
+	ApiSettingsRole UserRoleType `json:"apiSettingsRole,omitempty"`
+	// The minimum role required to import data.
+	ImportRole UserRoleType `json:"importRole,omitempty"`
 	// The minimum role required to install and connect new integrations.
 	IntegrationCreationRole UserRoleType `json:"integrationCreationRole,omitempty"`
+	// The minimum role required to invite users.
+	InvitationsRole UserRoleType `json:"invitationsRole,omitempty"`
+	// The minimum role required to manage workspace labels.
+	LabelManagementRole UserRoleType `json:"labelManagementRole,omitempty"`
+	// The minimum role required to create personal API keys.
+	PersonalApiKeysRole UserRoleType `json:"personalApiKeysRole,omitempty"`
+	// The minimum role required to create teams.
+	TeamCreationRole UserRoleType `json:"teamCreationRole,omitempty"`
+	// The minimum role required to manage workspace templates.
+	TemplateManagementRole UserRoleType `json:"templateManagementRole,omitempty"`
 }
 
-// GetPersonalApiKeysRole returns OrganizationSecuritySettingsInput.PersonalApiKeysRole, and is useful for accessing the field via an interface.
-func (v *OrganizationSecuritySettingsInput) GetPersonalApiKeysRole() UserRoleType {
-	return v.PersonalApiKeysRole
-}
-
-// GetInvitationsRole returns OrganizationSecuritySettingsInput.InvitationsRole, and is useful for accessing the field via an interface.
-func (v *OrganizationSecuritySettingsInput) GetInvitationsRole() UserRoleType {
-	return v.InvitationsRole
-}
-
-// GetTeamCreationRole returns OrganizationSecuritySettingsInput.TeamCreationRole, and is useful for accessing the field via an interface.
-func (v *OrganizationSecuritySettingsInput) GetTeamCreationRole() UserRoleType {
-	return v.TeamCreationRole
-}
-
-// GetLabelManagementRole returns OrganizationSecuritySettingsInput.LabelManagementRole, and is useful for accessing the field via an interface.
-func (v *OrganizationSecuritySettingsInput) GetLabelManagementRole() UserRoleType {
-	return v.LabelManagementRole
+// GetAgentGuidanceRole returns OrganizationSecuritySettingsInput.AgentGuidanceRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetAgentGuidanceRole() UserRoleType {
+	return v.AgentGuidanceRole
 }
 
 // GetApiSettingsRole returns OrganizationSecuritySettingsInput.ApiSettingsRole, and is useful for accessing the field via an interface.
@@ -515,135 +487,223 @@ func (v *OrganizationSecuritySettingsInput) GetApiSettingsRole() UserRoleType {
 	return v.ApiSettingsRole
 }
 
-// GetTemplateManagementRole returns OrganizationSecuritySettingsInput.TemplateManagementRole, and is useful for accessing the field via an interface.
-func (v *OrganizationSecuritySettingsInput) GetTemplateManagementRole() UserRoleType {
-	return v.TemplateManagementRole
-}
-
 // GetImportRole returns OrganizationSecuritySettingsInput.ImportRole, and is useful for accessing the field via an interface.
 func (v *OrganizationSecuritySettingsInput) GetImportRole() UserRoleType { return v.ImportRole }
-
-// GetAgentGuidanceRole returns OrganizationSecuritySettingsInput.AgentGuidanceRole, and is useful for accessing the field via an interface.
-func (v *OrganizationSecuritySettingsInput) GetAgentGuidanceRole() UserRoleType {
-	return v.AgentGuidanceRole
-}
 
 // GetIntegrationCreationRole returns OrganizationSecuritySettingsInput.IntegrationCreationRole, and is useful for accessing the field via an interface.
 func (v *OrganizationSecuritySettingsInput) GetIntegrationCreationRole() UserRoleType {
 	return v.IntegrationCreationRole
 }
 
+// GetInvitationsRole returns OrganizationSecuritySettingsInput.InvitationsRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetInvitationsRole() UserRoleType {
+	return v.InvitationsRole
+}
+
+// GetLabelManagementRole returns OrganizationSecuritySettingsInput.LabelManagementRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetLabelManagementRole() UserRoleType {
+	return v.LabelManagementRole
+}
+
+// GetPersonalApiKeysRole returns OrganizationSecuritySettingsInput.PersonalApiKeysRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetPersonalApiKeysRole() UserRoleType {
+	return v.PersonalApiKeysRole
+}
+
+// GetTeamCreationRole returns OrganizationSecuritySettingsInput.TeamCreationRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetTeamCreationRole() UserRoleType {
+	return v.TeamCreationRole
+}
+
+// GetTemplateManagementRole returns OrganizationSecuritySettingsInput.TemplateManagementRole, and is useful for accessing the field via an interface.
+func (v *OrganizationSecuritySettingsInput) GetTemplateManagementRole() UserRoleType {
+	return v.TemplateManagementRole
+}
+
 // Input for updating the workspace.
 type OrganizationUpdateInput struct {
-	// The name of the workspace.
-	Name string `json:"name,omitempty"`
-	// The logo URL of the workspace.
-	LogoUrl string `json:"logoUrl,omitempty"`
-	// The URL key of the workspace.
-	UrlKey string `json:"urlKey,omitempty"`
+	// [INTERNAL] Whether the workspace has enabled agent automation.
+	AgentAutomationEnabled bool `json:"agentAutomationEnabled,omitempty"`
+	// [INTERNAL] Whether the workspace has enabled the AI add-on.
+	AiAddonEnabled bool `json:"aiAddonEnabled,omitempty"`
+	// Whether the workspace has enabled AI discussion summaries for issues.
+	AiDiscussionSummariesEnabled bool `json:"aiDiscussionSummariesEnabled,omitempty"`
+	// [INTERNAL] Configure per-modality AI host providers and model families.
+	AiProviderConfiguration map[string]interface{} `json:"aiProviderConfiguration,omitempty"`
+	// [INTERNAL] Whether the workspace has opted in to AI telemetry.
+	AiTelemetryEnabled bool `json:"aiTelemetryEnabled,omitempty"`
+	// Whether the workspace has enabled resolved thread AI summaries.
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled,omitempty"`
+	// List of services that are allowed to be used for login.
+	AllowedAuthServices []string `json:"allowedAuthServices,omitempty"`
+	// Allowed file upload content types.
+	AllowedFileUploadContentTypes []string `json:"allowedFileUploadContentTypes,omitempty"`
+	// The authentication settings for the workspace.
+	AuthSettings *OrganizationAuthSettingsInput `json:"authSettings,omitempty"`
+	// [INTERNAL] Whether code intelligence is enabled for the workspace.
+	CodeIntelligenceEnabled bool `json:"codeIntelligenceEnabled,omitempty"`
+	// [INTERNAL] GitHub repository in owner/repo format for code intelligence.
+	CodeIntelligenceRepository string `json:"codeIntelligenceRepository,omitempty"`
+	// [INTERNAL] Whether the workspace has enabled the Coding Agent.
+	CodingAgentEnabled bool `json:"codingAgentEnabled,omitempty"`
+	// [Internal] Settings for Coding Agent features.
+	CodingAgentSettings OrganizationCodingAgentSettingsInput `json:"codingAgentSettings"`
+	// [INTERNAL] Configuration settings for the Customers feature.
+	CustomersConfiguration *map[string]interface{} `json:"customersConfiguration,omitempty"`
+	// [INTERNAL] Whether the workspace is using customers.
+	CustomersEnabled bool `json:"customersEnabled"`
+	// Default schedule for how often feed summaries are generated.
+	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
+	// Whether the workspace has enabled the feed feature.
+	FeedEnabled bool `json:"feedEnabled"`
+	// The month at which the fiscal year starts.
+	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
+	// [INTERNAL] Whether the workspace has enabled generated updates.
+	GeneratedUpdatesEnabled bool `json:"generatedUpdatesEnabled,omitempty"`
 	// How git branches are formatted. If null, default formatting will be used.
 	GitBranchFormat string `json:"gitBranchFormat,omitempty"`
+	// Whether issue descriptions should be included in Git integration linkback messages.
+	GitLinkbackDescriptionsEnabled bool `json:"gitLinkbackDescriptionsEnabled"`
 	// Whether the Git integration linkback messages should be sent for private repositories.
 	GitLinkbackMessagesEnabled bool `json:"gitLinkbackMessagesEnabled"`
 	// Whether the Git integration linkback messages should be sent for public repositories.
 	GitPublicLinkbackMessagesEnabled bool `json:"gitPublicLinkbackMessagesEnabled"`
-	// Whether issue descriptions should be included in Git integration linkback messages.
-	GitLinkbackDescriptionsEnabled bool `json:"gitLinkbackDescriptionsEnabled"`
-	// Whether the workspace is using roadmap.
-	RoadmapEnabled bool `json:"roadmapEnabled"`
-	// The n-weekly frequency at which to prompt for project updates.
-	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
-	// The day at which project updates are sent.
-	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
-	// The hour at which project updates are sent.
-	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
+	// Whether to hide other workspaces for new users signing up with email domains claimed by this organization.
+	HideNonPrimaryOrganizations bool `json:"hideNonPrimaryOrganizations,omitempty"`
+	// Whether HIPAA compliance is enabled for the workspace.
+	HipaaComplianceEnabled bool `json:"hipaaComplianceEnabled,omitempty"`
 	// [ALPHA] The n-weekly frequency at which to prompt for initiative updates.
 	InitiativeUpdateReminderFrequencyInWeeks float64 `json:"initiativeUpdateReminderFrequencyInWeeks"`
 	// [ALPHA] The day at which initiative updates are sent.
 	InitiativeUpdateRemindersDay Day `json:"initiativeUpdateRemindersDay"`
 	// [ALPHA] The hour at which initiative updates are sent.
 	InitiativeUpdateRemindersHour float64 `json:"initiativeUpdateRemindersHour"`
-	// The month at which the fiscal year starts.
-	FiscalYearStartMonth float64 `json:"fiscalYearStartMonth"`
-	// [Internal] The list of working days. Sunday is 0, Monday is 1, etc.
-	WorkingDays []float64 `json:"workingDays,omitempty"`
-	// Whether the workspace has opted for reduced customer support attachment information.
-	ReducedPersonalInformation bool `json:"reducedPersonalInformation,omitempty"`
-	// Whether the workspace has opted for having to approve all OAuth applications for install.
-	OauthAppReview bool `json:"oauthAppReview,omitempty"`
-	// List of services that are allowed to be used for login.
-	AllowedAuthServices []string `json:"allowedAuthServices,omitempty"`
-	// Internal. Whether SLAs have been enabled for the workspace.
-	SlaEnabled bool `json:"slaEnabled,omitempty"`
-	// Whether agent invocation is restricted to full workspace members.
-	RestrictAgentInvocationToMembers bool `json:"restrictAgentInvocationToMembers,omitempty"`
 	// IP restriction configurations controlling allowed access the workspace.
 	IpRestrictions []OrganizationIpRestrictionInput `json:"ipRestrictions,omitempty"`
-	// Allowed file upload content types.
-	AllowedFileUploadContentTypes []string `json:"allowedFileUploadContentTypes,omitempty"`
-	// [ALPHA] Theme settings for the workspace.
-	ThemeSettings map[string]interface{} `json:"themeSettings,omitempty"`
-	// [INTERNAL] Whether the workspace is using customers.
-	CustomersEnabled bool `json:"customersEnabled"`
-	// [INTERNAL] Configuration settings for the Customers feature.
-	CustomersConfiguration *map[string]interface{} `json:"customersConfiguration,omitempty"`
-	// [INTERNAL] Whether code intelligence is enabled for the workspace.
-	CodeIntelligenceEnabled bool `json:"codeIntelligenceEnabled,omitempty"`
-	// [INTERNAL] GitHub repository in owner/repo format for code intelligence.
-	CodeIntelligenceRepository string `json:"codeIntelligenceRepository,omitempty"`
-	// Whether the workspace has enabled the feed feature.
-	FeedEnabled bool `json:"feedEnabled"`
-	// Whether to hide other workspaces for new users signing up with email domains claimed by this organization.
-	HideNonPrimaryOrganizations bool `json:"hideNonPrimaryOrganizations,omitempty"`
-	// Default schedule for how often feed summaries are generated.
-	DefaultFeedSummarySchedule FeedSummarySchedule `json:"defaultFeedSummarySchedule"`
-	// [INTERNAL] Whether the workspace has enabled the AI add-on.
-	AiAddonEnabled bool `json:"aiAddonEnabled,omitempty"`
-	// [INTERNAL] Whether the workspace has enabled agent automation.
-	AgentAutomationEnabled bool `json:"agentAutomationEnabled,omitempty"`
-	// [INTERNAL] Whether the workspace has enabled generated updates.
-	GeneratedUpdatesEnabled bool `json:"generatedUpdatesEnabled,omitempty"`
-	// [INTERNAL] Whether the workspace has opted in to AI telemetry.
-	AiTelemetryEnabled bool `json:"aiTelemetryEnabled,omitempty"`
-	// Whether the workspace has enabled AI discussion summaries for issues.
-	AiDiscussionSummariesEnabled bool `json:"aiDiscussionSummariesEnabled,omitempty"`
-	// Whether the workspace has enabled resolved thread AI summaries.
-	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled,omitempty"`
-	// Whether HIPAA compliance is enabled for the workspace.
-	HipaaComplianceEnabled bool `json:"hipaaComplianceEnabled,omitempty"`
+	// [Internal] Whether the workspace has enabled Linear Agent.
+	LinearAgentEnabled bool `json:"linearAgentEnabled,omitempty"`
+	// [Internal] Settings for Linear Agent features.
+	LinearAgentSettings *OrganizationLinearAgentSettingsInput `json:"linearAgentSettings,omitempty"`
+	// The logo URL of the workspace.
+	LogoUrl string `json:"logoUrl,omitempty"`
+	// The name of the workspace.
+	Name string `json:"name,omitempty"`
+	// Whether the workspace has opted for having to approve all OAuth applications for install.
+	OauthAppReview bool `json:"oauthAppReview,omitempty"`
+	// The n-weekly frequency at which to prompt for project updates.
+	ProjectUpdateReminderFrequencyInWeeks float64 `json:"projectUpdateReminderFrequencyInWeeks"`
+	// The day at which project updates are sent.
+	ProjectUpdateRemindersDay Day `json:"projectUpdateRemindersDay"`
+	// The hour at which project updates are sent.
+	ProjectUpdateRemindersHour float64 `json:"projectUpdateRemindersHour"`
+	// Whether the workspace has opted for reduced customer support attachment information.
+	ReducedPersonalInformation bool `json:"reducedPersonalInformation,omitempty"`
+	// Whether agent invocation is restricted to full workspace members.
+	RestrictAgentInvocationToMembers bool `json:"restrictAgentInvocationToMembers,omitempty"`
+	// Whether the workspace is using roadmap.
+	RoadmapEnabled bool `json:"roadmapEnabled"`
 	// The security settings for the workspace.
 	SecuritySettings OrganizationSecuritySettingsInput `json:"securitySettings"`
-	// The authentication settings for the workspace.
-	AuthSettings *OrganizationAuthSettingsInput `json:"authSettings,omitempty"`
-	// [INTERNAL] Configure per-modality AI host providers and model families.
-	AiProviderConfiguration map[string]interface{} `json:"aiProviderConfiguration,omitempty"`
+	// Internal. Whether SLAs have been enabled for the workspace.
+	SlaEnabled bool `json:"slaEnabled,omitempty"`
+	// [Internal] Whether to automatically create a Slack channel when a new project is created.
+	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel,omitempty"`
 	// The ID of the Slack integration to use for auto-creating project channels.
 	SlackProjectChannelIntegrationId string `json:"slackProjectChannelIntegrationId,omitempty"`
 	// The prefix to use for auto-created Slack project channels (p-, proj-, or project-).
 	SlackProjectChannelPrefix string `json:"slackProjectChannelPrefix,omitempty"`
 	// [Internal] Whether the Slack project channels feature is enabled for the workspace.
 	SlackProjectChannelsEnabled bool `json:"slackProjectChannelsEnabled,omitempty"`
-	// [Internal] Whether to automatically create a Slack channel when a new project is created.
-	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel,omitempty"`
-	// [Internal] Whether the workspace has enabled Linear Agent.
-	LinearAgentEnabled bool `json:"linearAgentEnabled,omitempty"`
-	// [Internal] Settings for Linear Agent features.
-	LinearAgentSettings *OrganizationLinearAgentSettingsInput `json:"linearAgentSettings,omitempty"`
-	// [INTERNAL] Whether the workspace has enabled the Coding Agent.
-	CodingAgentEnabled bool `json:"codingAgentEnabled,omitempty"`
+	// [ALPHA] Theme settings for the workspace.
+	ThemeSettings map[string]interface{} `json:"themeSettings,omitempty"`
+	// The URL key of the workspace.
+	UrlKey string `json:"urlKey,omitempty"`
+	// [Internal] The list of working days. Sunday is 0, Monday is 1, etc.
+	WorkingDays []float64 `json:"workingDays,omitempty"`
 }
 
-// GetName returns OrganizationUpdateInput.Name, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetName() string { return v.Name }
+// GetAgentAutomationEnabled returns OrganizationUpdateInput.AgentAutomationEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAgentAutomationEnabled() bool { return v.AgentAutomationEnabled }
 
-// GetLogoUrl returns OrganizationUpdateInput.LogoUrl, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetLogoUrl() string { return v.LogoUrl }
+// GetAiAddonEnabled returns OrganizationUpdateInput.AiAddonEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAiAddonEnabled() bool { return v.AiAddonEnabled }
 
-// GetUrlKey returns OrganizationUpdateInput.UrlKey, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetUrlKey() string { return v.UrlKey }
+// GetAiDiscussionSummariesEnabled returns OrganizationUpdateInput.AiDiscussionSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAiDiscussionSummariesEnabled() bool {
+	return v.AiDiscussionSummariesEnabled
+}
+
+// GetAiProviderConfiguration returns OrganizationUpdateInput.AiProviderConfiguration, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAiProviderConfiguration() map[string]interface{} {
+	return v.AiProviderConfiguration
+}
+
+// GetAiTelemetryEnabled returns OrganizationUpdateInput.AiTelemetryEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAiTelemetryEnabled() bool { return v.AiTelemetryEnabled }
+
+// GetAiThreadSummariesEnabled returns OrganizationUpdateInput.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAiThreadSummariesEnabled() bool {
+	return v.AiThreadSummariesEnabled
+}
+
+// GetAllowedAuthServices returns OrganizationUpdateInput.AllowedAuthServices, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAllowedAuthServices() []string { return v.AllowedAuthServices }
+
+// GetAllowedFileUploadContentTypes returns OrganizationUpdateInput.AllowedFileUploadContentTypes, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAllowedFileUploadContentTypes() []string {
+	return v.AllowedFileUploadContentTypes
+}
+
+// GetAuthSettings returns OrganizationUpdateInput.AuthSettings, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetAuthSettings() *OrganizationAuthSettingsInput {
+	return v.AuthSettings
+}
+
+// GetCodeIntelligenceEnabled returns OrganizationUpdateInput.CodeIntelligenceEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCodeIntelligenceEnabled() bool { return v.CodeIntelligenceEnabled }
+
+// GetCodeIntelligenceRepository returns OrganizationUpdateInput.CodeIntelligenceRepository, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCodeIntelligenceRepository() string {
+	return v.CodeIntelligenceRepository
+}
+
+// GetCodingAgentEnabled returns OrganizationUpdateInput.CodingAgentEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCodingAgentEnabled() bool { return v.CodingAgentEnabled }
+
+// GetCodingAgentSettings returns OrganizationUpdateInput.CodingAgentSettings, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCodingAgentSettings() OrganizationCodingAgentSettingsInput {
+	return v.CodingAgentSettings
+}
+
+// GetCustomersConfiguration returns OrganizationUpdateInput.CustomersConfiguration, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCustomersConfiguration() *map[string]interface{} {
+	return v.CustomersConfiguration
+}
+
+// GetCustomersEnabled returns OrganizationUpdateInput.CustomersEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetCustomersEnabled() bool { return v.CustomersEnabled }
+
+// GetDefaultFeedSummarySchedule returns OrganizationUpdateInput.DefaultFeedSummarySchedule, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetDefaultFeedSummarySchedule() FeedSummarySchedule {
+	return v.DefaultFeedSummarySchedule
+}
+
+// GetFeedEnabled returns OrganizationUpdateInput.FeedEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetFeedEnabled() bool { return v.FeedEnabled }
+
+// GetFiscalYearStartMonth returns OrganizationUpdateInput.FiscalYearStartMonth, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetFiscalYearStartMonth() float64 { return v.FiscalYearStartMonth }
+
+// GetGeneratedUpdatesEnabled returns OrganizationUpdateInput.GeneratedUpdatesEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetGeneratedUpdatesEnabled() bool { return v.GeneratedUpdatesEnabled }
 
 // GetGitBranchFormat returns OrganizationUpdateInput.GitBranchFormat, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetGitBranchFormat() string { return v.GitBranchFormat }
+
+// GetGitLinkbackDescriptionsEnabled returns OrganizationUpdateInput.GitLinkbackDescriptionsEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetGitLinkbackDescriptionsEnabled() bool {
+	return v.GitLinkbackDescriptionsEnabled
+}
 
 // GetGitLinkbackMessagesEnabled returns OrganizationUpdateInput.GitLinkbackMessagesEnabled, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetGitLinkbackMessagesEnabled() bool {
@@ -655,28 +715,13 @@ func (v *OrganizationUpdateInput) GetGitPublicLinkbackMessagesEnabled() bool {
 	return v.GitPublicLinkbackMessagesEnabled
 }
 
-// GetGitLinkbackDescriptionsEnabled returns OrganizationUpdateInput.GitLinkbackDescriptionsEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetGitLinkbackDescriptionsEnabled() bool {
-	return v.GitLinkbackDescriptionsEnabled
+// GetHideNonPrimaryOrganizations returns OrganizationUpdateInput.HideNonPrimaryOrganizations, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetHideNonPrimaryOrganizations() bool {
+	return v.HideNonPrimaryOrganizations
 }
 
-// GetRoadmapEnabled returns OrganizationUpdateInput.RoadmapEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
-
-// GetProjectUpdateReminderFrequencyInWeeks returns OrganizationUpdateInput.ProjectUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetProjectUpdateReminderFrequencyInWeeks() float64 {
-	return v.ProjectUpdateReminderFrequencyInWeeks
-}
-
-// GetProjectUpdateRemindersDay returns OrganizationUpdateInput.ProjectUpdateRemindersDay, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetProjectUpdateRemindersDay() Day {
-	return v.ProjectUpdateRemindersDay
-}
-
-// GetProjectUpdateRemindersHour returns OrganizationUpdateInput.ProjectUpdateRemindersHour, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetProjectUpdateRemindersHour() float64 {
-	return v.ProjectUpdateRemindersHour
-}
+// GetHipaaComplianceEnabled returns OrganizationUpdateInput.HipaaComplianceEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetHipaaComplianceEnabled() bool { return v.HipaaComplianceEnabled }
 
 // GetInitiativeUpdateReminderFrequencyInWeeks returns OrganizationUpdateInput.InitiativeUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetInitiativeUpdateReminderFrequencyInWeeks() float64 {
@@ -693,111 +738,67 @@ func (v *OrganizationUpdateInput) GetInitiativeUpdateRemindersHour() float64 {
 	return v.InitiativeUpdateRemindersHour
 }
 
-// GetFiscalYearStartMonth returns OrganizationUpdateInput.FiscalYearStartMonth, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetFiscalYearStartMonth() float64 { return v.FiscalYearStartMonth }
+// GetIpRestrictions returns OrganizationUpdateInput.IpRestrictions, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetIpRestrictions() []OrganizationIpRestrictionInput {
+	return v.IpRestrictions
+}
 
-// GetWorkingDays returns OrganizationUpdateInput.WorkingDays, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetWorkingDays() []float64 { return v.WorkingDays }
+// GetLinearAgentEnabled returns OrganizationUpdateInput.LinearAgentEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetLinearAgentEnabled() bool { return v.LinearAgentEnabled }
+
+// GetLinearAgentSettings returns OrganizationUpdateInput.LinearAgentSettings, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetLinearAgentSettings() *OrganizationLinearAgentSettingsInput {
+	return v.LinearAgentSettings
+}
+
+// GetLogoUrl returns OrganizationUpdateInput.LogoUrl, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetLogoUrl() string { return v.LogoUrl }
+
+// GetName returns OrganizationUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetName() string { return v.Name }
+
+// GetOauthAppReview returns OrganizationUpdateInput.OauthAppReview, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetOauthAppReview() bool { return v.OauthAppReview }
+
+// GetProjectUpdateReminderFrequencyInWeeks returns OrganizationUpdateInput.ProjectUpdateReminderFrequencyInWeeks, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetProjectUpdateReminderFrequencyInWeeks() float64 {
+	return v.ProjectUpdateReminderFrequencyInWeeks
+}
+
+// GetProjectUpdateRemindersDay returns OrganizationUpdateInput.ProjectUpdateRemindersDay, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetProjectUpdateRemindersDay() Day {
+	return v.ProjectUpdateRemindersDay
+}
+
+// GetProjectUpdateRemindersHour returns OrganizationUpdateInput.ProjectUpdateRemindersHour, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetProjectUpdateRemindersHour() float64 {
+	return v.ProjectUpdateRemindersHour
+}
 
 // GetReducedPersonalInformation returns OrganizationUpdateInput.ReducedPersonalInformation, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetReducedPersonalInformation() bool {
 	return v.ReducedPersonalInformation
 }
 
-// GetOauthAppReview returns OrganizationUpdateInput.OauthAppReview, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetOauthAppReview() bool { return v.OauthAppReview }
-
-// GetAllowedAuthServices returns OrganizationUpdateInput.AllowedAuthServices, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetAllowedAuthServices() []string { return v.AllowedAuthServices }
-
-// GetSlaEnabled returns OrganizationUpdateInput.SlaEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetSlaEnabled() bool { return v.SlaEnabled }
-
 // GetRestrictAgentInvocationToMembers returns OrganizationUpdateInput.RestrictAgentInvocationToMembers, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetRestrictAgentInvocationToMembers() bool {
 	return v.RestrictAgentInvocationToMembers
 }
 
-// GetIpRestrictions returns OrganizationUpdateInput.IpRestrictions, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetIpRestrictions() []OrganizationIpRestrictionInput {
-	return v.IpRestrictions
-}
-
-// GetAllowedFileUploadContentTypes returns OrganizationUpdateInput.AllowedFileUploadContentTypes, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetAllowedFileUploadContentTypes() []string {
-	return v.AllowedFileUploadContentTypes
-}
-
-// GetThemeSettings returns OrganizationUpdateInput.ThemeSettings, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetThemeSettings() map[string]interface{} { return v.ThemeSettings }
-
-// GetCustomersEnabled returns OrganizationUpdateInput.CustomersEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetCustomersEnabled() bool { return v.CustomersEnabled }
-
-// GetCustomersConfiguration returns OrganizationUpdateInput.CustomersConfiguration, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetCustomersConfiguration() *map[string]interface{} {
-	return v.CustomersConfiguration
-}
-
-// GetCodeIntelligenceEnabled returns OrganizationUpdateInput.CodeIntelligenceEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetCodeIntelligenceEnabled() bool { return v.CodeIntelligenceEnabled }
-
-// GetCodeIntelligenceRepository returns OrganizationUpdateInput.CodeIntelligenceRepository, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetCodeIntelligenceRepository() string {
-	return v.CodeIntelligenceRepository
-}
-
-// GetFeedEnabled returns OrganizationUpdateInput.FeedEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetFeedEnabled() bool { return v.FeedEnabled }
-
-// GetHideNonPrimaryOrganizations returns OrganizationUpdateInput.HideNonPrimaryOrganizations, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetHideNonPrimaryOrganizations() bool {
-	return v.HideNonPrimaryOrganizations
-}
-
-// GetDefaultFeedSummarySchedule returns OrganizationUpdateInput.DefaultFeedSummarySchedule, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetDefaultFeedSummarySchedule() FeedSummarySchedule {
-	return v.DefaultFeedSummarySchedule
-}
-
-// GetAiAddonEnabled returns OrganizationUpdateInput.AiAddonEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetAiAddonEnabled() bool { return v.AiAddonEnabled }
-
-// GetAgentAutomationEnabled returns OrganizationUpdateInput.AgentAutomationEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetAgentAutomationEnabled() bool { return v.AgentAutomationEnabled }
-
-// GetGeneratedUpdatesEnabled returns OrganizationUpdateInput.GeneratedUpdatesEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetGeneratedUpdatesEnabled() bool { return v.GeneratedUpdatesEnabled }
-
-// GetAiTelemetryEnabled returns OrganizationUpdateInput.AiTelemetryEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetAiTelemetryEnabled() bool { return v.AiTelemetryEnabled }
-
-// GetAiDiscussionSummariesEnabled returns OrganizationUpdateInput.AiDiscussionSummariesEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetAiDiscussionSummariesEnabled() bool {
-	return v.AiDiscussionSummariesEnabled
-}
-
-// GetAiThreadSummariesEnabled returns OrganizationUpdateInput.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetAiThreadSummariesEnabled() bool {
-	return v.AiThreadSummariesEnabled
-}
-
-// GetHipaaComplianceEnabled returns OrganizationUpdateInput.HipaaComplianceEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetHipaaComplianceEnabled() bool { return v.HipaaComplianceEnabled }
+// GetRoadmapEnabled returns OrganizationUpdateInput.RoadmapEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetRoadmapEnabled() bool { return v.RoadmapEnabled }
 
 // GetSecuritySettings returns OrganizationUpdateInput.SecuritySettings, and is useful for accessing the field via an interface.
 func (v *OrganizationUpdateInput) GetSecuritySettings() OrganizationSecuritySettingsInput {
 	return v.SecuritySettings
 }
 
-// GetAuthSettings returns OrganizationUpdateInput.AuthSettings, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetAuthSettings() *OrganizationAuthSettingsInput {
-	return v.AuthSettings
-}
+// GetSlaEnabled returns OrganizationUpdateInput.SlaEnabled, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetSlaEnabled() bool { return v.SlaEnabled }
 
-// GetAiProviderConfiguration returns OrganizationUpdateInput.AiProviderConfiguration, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetAiProviderConfiguration() map[string]interface{} {
-	return v.AiProviderConfiguration
+// GetSlackAutoCreateProjectChannel returns OrganizationUpdateInput.SlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetSlackAutoCreateProjectChannel() bool {
+	return v.SlackAutoCreateProjectChannel
 }
 
 // GetSlackProjectChannelIntegrationId returns OrganizationUpdateInput.SlackProjectChannelIntegrationId, and is useful for accessing the field via an interface.
@@ -815,39 +816,362 @@ func (v *OrganizationUpdateInput) GetSlackProjectChannelsEnabled() bool {
 	return v.SlackProjectChannelsEnabled
 }
 
-// GetSlackAutoCreateProjectChannel returns OrganizationUpdateInput.SlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetSlackAutoCreateProjectChannel() bool {
-	return v.SlackAutoCreateProjectChannel
-}
+// GetThemeSettings returns OrganizationUpdateInput.ThemeSettings, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetThemeSettings() map[string]interface{} { return v.ThemeSettings }
 
-// GetLinearAgentEnabled returns OrganizationUpdateInput.LinearAgentEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetLinearAgentEnabled() bool { return v.LinearAgentEnabled }
+// GetUrlKey returns OrganizationUpdateInput.UrlKey, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetUrlKey() string { return v.UrlKey }
 
-// GetLinearAgentSettings returns OrganizationUpdateInput.LinearAgentSettings, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetLinearAgentSettings() *OrganizationLinearAgentSettingsInput {
-	return v.LinearAgentSettings
-}
-
-// GetCodingAgentEnabled returns OrganizationUpdateInput.CodingAgentEnabled, and is useful for accessing the field via an interface.
-func (v *OrganizationUpdateInput) GetCodingAgentEnabled() bool { return v.CodingAgentEnabled }
+// GetWorkingDays returns OrganizationUpdateInput.WorkingDays, and is useful for accessing the field via an interface.
+func (v *OrganizationUpdateInput) GetWorkingDays() []float64 { return v.WorkingDays }
 
 // [Internal] The scope of product intelligence suggestion data for a team.
 type ProductIntelligenceScope string
 
 const (
-	ProductIntelligenceScopeWorkspace     ProductIntelligenceScope = "workspace"
-	ProductIntelligenceScopeTeamhierarchy ProductIntelligenceScope = "teamHierarchy"
-	ProductIntelligenceScopeTeam          ProductIntelligenceScope = "team"
 	ProductIntelligenceScopeNone          ProductIntelligenceScope = "none"
+	ProductIntelligenceScopeTeam          ProductIntelligenceScope = "team"
+	ProductIntelligenceScopeTeamhierarchy ProductIntelligenceScope = "teamHierarchy"
+	ProductIntelligenceScopeWorkspace     ProductIntelligenceScope = "workspace"
 )
+
+// Input for creating a new release pipeline.
+type ReleasePipelineCreateInput struct {
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id string `json:"id,omitempty"`
+	// Glob patterns to include commits affecting matching file paths.
+	IncludePathPatterns []string `json:"includePathPatterns,omitempty"`
+	// Whether this pipeline targets a production environment. Default to true.
+	IsProduction bool `json:"isProduction"`
+	// The name of the pipeline.
+	Name string `json:"name"`
+	// The pipeline's unique slug identifier. If not provided, it will be auto-generated.
+	SlugId string `json:"slugId,omitempty"`
+	// The identifiers of the teams this pipeline is associated with.
+	TeamIds []string `json:"teamIds,omitempty"`
+	// The type of the pipeline.
+	Type ReleasePipelineType `json:"type,omitempty"`
+}
+
+// GetId returns ReleasePipelineCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineCreateInput) GetId() string { return v.Id }
+
+// GetIncludePathPatterns returns ReleasePipelineCreateInput.IncludePathPatterns, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineCreateInput) GetIncludePathPatterns() []string { return v.IncludePathPatterns }
+
+// GetIsProduction returns ReleasePipelineCreateInput.IsProduction, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineCreateInput) GetIsProduction() bool { return v.IsProduction }
+
+// GetName returns ReleasePipelineCreateInput.Name, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineCreateInput) GetName() string { return v.Name }
+
+// GetSlugId returns ReleasePipelineCreateInput.SlugId, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineCreateInput) GetSlugId() string { return v.SlugId }
+
+// GetTeamIds returns ReleasePipelineCreateInput.TeamIds, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineCreateInput) GetTeamIds() []string { return v.TeamIds }
+
+// GetType returns ReleasePipelineCreateInput.Type, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineCreateInput) GetType() ReleasePipelineType { return v.Type }
+
+// ReleasePipelineFields includes the GraphQL fields of ReleasePipeline requested by the fragment ReleasePipelineFields.
+// The GraphQL type's documentation follows.
+//
+// [Internal] A release pipeline that defines a release workflow with ordered stages. Pipelines can be continuous (each sync creates a completed release) or scheduled (issues accumulate in a started release that is explicitly completed). Pipelines are associated with teams and can filter commits by file path patterns.
+type ReleasePipelineFields struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The name of the pipeline.
+	Name string `json:"name"`
+	// The type of the pipeline, which determines how releases are created and managed. Continuous pipelines create a completed release per sync, while scheduled pipelines accumulate issues in a started release.
+	Type ReleasePipelineType `json:"type"`
+	// [ALPHA] Whether this pipeline targets a production environment. Defaults to true. Used to distinguish production pipelines from staging or development pipelines.
+	IsProduction bool `json:"isProduction"`
+	// Glob patterns to filter commits by file path. When non-empty, only commits that modify files matching at least one pattern will be included in release syncs. An empty array means all commits are included regardless of file paths.
+	IncludePathPatterns []string `json:"includePathPatterns"`
+	// The pipeline's unique slug identifier, used in URLs and for lookup by human-readable identifier instead of UUID.
+	SlugId string `json:"slugId"`
+	// [ALPHA] Teams associated with this pipeline.
+	Teams ReleasePipelineFieldsTeamsTeamConnection `json:"teams"`
+	// [ALPHA] Stages associated with this pipeline.
+	Stages ReleasePipelineFieldsStagesReleaseStageConnection `json:"stages"`
+}
+
+// GetId returns ReleasePipelineFields.Id, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFields) GetId() string { return v.Id }
+
+// GetName returns ReleasePipelineFields.Name, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFields) GetName() string { return v.Name }
+
+// GetType returns ReleasePipelineFields.Type, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFields) GetType() ReleasePipelineType { return v.Type }
+
+// GetIsProduction returns ReleasePipelineFields.IsProduction, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFields) GetIsProduction() bool { return v.IsProduction }
+
+// GetIncludePathPatterns returns ReleasePipelineFields.IncludePathPatterns, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFields) GetIncludePathPatterns() []string { return v.IncludePathPatterns }
+
+// GetSlugId returns ReleasePipelineFields.SlugId, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFields) GetSlugId() string { return v.SlugId }
+
+// GetTeams returns ReleasePipelineFields.Teams, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFields) GetTeams() ReleasePipelineFieldsTeamsTeamConnection { return v.Teams }
+
+// GetStages returns ReleasePipelineFields.Stages, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFields) GetStages() ReleasePipelineFieldsStagesReleaseStageConnection {
+	return v.Stages
+}
+
+// ReleasePipelineFieldsStagesReleaseStageConnection includes the requested fields of the GraphQL type ReleaseStageConnection.
+type ReleasePipelineFieldsStagesReleaseStageConnection struct {
+	Nodes []ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage `json:"nodes"`
+}
+
+// GetNodes returns ReleasePipelineFieldsStagesReleaseStageConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFieldsStagesReleaseStageConnection) GetNodes() []ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage {
+	return v.Nodes
+}
+
+// ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage includes the requested fields of the GraphQL type ReleaseStage.
+// The GraphQL type's documentation follows.
+//
+// [Internal] A stage within a release pipeline that represents a phase in the release lifecycle (e.g., Planned, In Progress, Completed, Canceled). Releases progress through stages as they move toward production. Started-type stages can be frozen to prevent new issues from being automatically synced into releases at that stage.
+type ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The name of the stage.
+	Name string `json:"name"`
+	// The lifecycle type of the stage (planned, started, completed, or canceled). The type determines what lifecycle timestamps are set on a release when it enters this stage.
+	Type ReleaseStageType `json:"type"`
+	// The display color of the stage as a HEX string (e.g., '#0f783c'), used for visual representation in the UI.
+	Color string `json:"color"`
+	// The position of the stage within its pipeline, used for ordering stages in the UI. Lower values appear first.
+	Position float64 `json:"position"`
+}
+
+// GetId returns ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage.Id, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage) GetId() string {
+	return v.Id
+}
+
+// GetName returns ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage.Name, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage) GetName() string {
+	return v.Name
+}
+
+// GetType returns ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage.Type, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage) GetType() ReleaseStageType {
+	return v.Type
+}
+
+// GetColor returns ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage.Color, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage) GetColor() string {
+	return v.Color
+}
+
+// GetPosition returns ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage.Position, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFieldsStagesReleaseStageConnectionNodesReleaseStage) GetPosition() float64 {
+	return v.Position
+}
+
+// ReleasePipelineFieldsTeamsTeamConnection includes the requested fields of the GraphQL type TeamConnection.
+type ReleasePipelineFieldsTeamsTeamConnection struct {
+	Nodes []ReleasePipelineFieldsTeamsTeamConnectionNodesTeam `json:"nodes"`
+}
+
+// GetNodes returns ReleasePipelineFieldsTeamsTeamConnection.Nodes, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFieldsTeamsTeamConnection) GetNodes() []ReleasePipelineFieldsTeamsTeamConnectionNodesTeam {
+	return v.Nodes
+}
+
+// ReleasePipelineFieldsTeamsTeamConnectionNodesTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
+type ReleasePipelineFieldsTeamsTeamConnectionNodesTeam struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns ReleasePipelineFieldsTeamsTeamConnectionNodesTeam.Id, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineFieldsTeamsTeamConnectionNodesTeam) GetId() string { return v.Id }
+
+// The type of a release pipeline, which determines how releases are created and managed. Continuous pipelines create a new completed release for each sync. Scheduled pipelines accumulate issues into a started release that is explicitly completed.
+type ReleasePipelineType string
+
+const (
+	ReleasePipelineTypeContinuous ReleasePipelineType = "continuous"
+	ReleasePipelineTypeScheduled  ReleasePipelineType = "scheduled"
+)
+
+// Input for updating an existing release pipeline.
+type ReleasePipelineUpdateInput struct {
+	// Glob patterns to include commits affecting matching file paths.
+	IncludePathPatterns []string `json:"includePathPatterns,omitempty"`
+	// Whether this pipeline targets a production environment. Default to true.
+	IsProduction bool `json:"isProduction"`
+	// The name of the pipeline.
+	Name string `json:"name,omitempty"`
+	// The pipeline's unique slug identifier.
+	SlugId string `json:"slugId,omitempty"`
+	// The identifiers of the teams this pipeline is associated with.
+	TeamIds []string `json:"teamIds,omitempty"`
+	// The type of the pipeline.
+	Type ReleasePipelineType `json:"type,omitempty"`
+}
+
+// GetIncludePathPatterns returns ReleasePipelineUpdateInput.IncludePathPatterns, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineUpdateInput) GetIncludePathPatterns() []string { return v.IncludePathPatterns }
+
+// GetIsProduction returns ReleasePipelineUpdateInput.IsProduction, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineUpdateInput) GetIsProduction() bool { return v.IsProduction }
+
+// GetName returns ReleasePipelineUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineUpdateInput) GetName() string { return v.Name }
+
+// GetSlugId returns ReleasePipelineUpdateInput.SlugId, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineUpdateInput) GetSlugId() string { return v.SlugId }
+
+// GetTeamIds returns ReleasePipelineUpdateInput.TeamIds, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineUpdateInput) GetTeamIds() []string { return v.TeamIds }
+
+// GetType returns ReleasePipelineUpdateInput.Type, and is useful for accessing the field via an interface.
+func (v *ReleasePipelineUpdateInput) GetType() ReleasePipelineType { return v.Type }
+
+// Input for creating a new release stage.
+type ReleaseStageCreateInput struct {
+	// The UI color of the stage as a HEX string.
+	Color string `json:"color"`
+	// Whether this stage is frozen. Only applicable to started stages.
+	Frozen bool `json:"frozen,omitempty"`
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id string `json:"id,omitempty"`
+	// The name of the stage.
+	Name string `json:"name"`
+	// The identifier of the pipeline this stage belongs to.
+	PipelineId string `json:"pipelineId"`
+	// The position of the stage.
+	Position float64 `json:"position"`
+	// The type of the stage.
+	Type ReleaseStageType `json:"type"`
+}
+
+// GetColor returns ReleaseStageCreateInput.Color, and is useful for accessing the field via an interface.
+func (v *ReleaseStageCreateInput) GetColor() string { return v.Color }
+
+// GetFrozen returns ReleaseStageCreateInput.Frozen, and is useful for accessing the field via an interface.
+func (v *ReleaseStageCreateInput) GetFrozen() bool { return v.Frozen }
+
+// GetId returns ReleaseStageCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *ReleaseStageCreateInput) GetId() string { return v.Id }
+
+// GetName returns ReleaseStageCreateInput.Name, and is useful for accessing the field via an interface.
+func (v *ReleaseStageCreateInput) GetName() string { return v.Name }
+
+// GetPipelineId returns ReleaseStageCreateInput.PipelineId, and is useful for accessing the field via an interface.
+func (v *ReleaseStageCreateInput) GetPipelineId() string { return v.PipelineId }
+
+// GetPosition returns ReleaseStageCreateInput.Position, and is useful for accessing the field via an interface.
+func (v *ReleaseStageCreateInput) GetPosition() float64 { return v.Position }
+
+// GetType returns ReleaseStageCreateInput.Type, and is useful for accessing the field via an interface.
+func (v *ReleaseStageCreateInput) GetType() ReleaseStageType { return v.Type }
+
+// ReleaseStageFields includes the GraphQL fields of ReleaseStage requested by the fragment ReleaseStageFields.
+// The GraphQL type's documentation follows.
+//
+// [Internal] A stage within a release pipeline that represents a phase in the release lifecycle (e.g., Planned, In Progress, Completed, Canceled). Releases progress through stages as they move toward production. Started-type stages can be frozen to prevent new issues from being automatically synced into releases at that stage.
+type ReleaseStageFields struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+	// The name of the stage.
+	Name string `json:"name"`
+	// The lifecycle type of the stage (planned, started, completed, or canceled). The type determines what lifecycle timestamps are set on a release when it enters this stage.
+	Type ReleaseStageType `json:"type"`
+	// The display color of the stage as a HEX string (e.g., '#0f783c'), used for visual representation in the UI.
+	Color string `json:"color"`
+	// The position of the stage within its pipeline, used for ordering stages in the UI. Lower values appear first.
+	Position float64 `json:"position"`
+	// Whether this stage is frozen. Only applicable to started-type stages. When a stage is frozen, automated release syncs will not target releases in this stage, and new issues will not be automatically added. At least one started stage in the pipeline must remain non-frozen.
+	Frozen bool `json:"frozen"`
+	// The release pipeline that this stage belongs to. A stage always belongs to exactly one pipeline.
+	Pipeline ReleaseStageFieldsPipelineReleasePipeline `json:"pipeline"`
+}
+
+// GetId returns ReleaseStageFields.Id, and is useful for accessing the field via an interface.
+func (v *ReleaseStageFields) GetId() string { return v.Id }
+
+// GetName returns ReleaseStageFields.Name, and is useful for accessing the field via an interface.
+func (v *ReleaseStageFields) GetName() string { return v.Name }
+
+// GetType returns ReleaseStageFields.Type, and is useful for accessing the field via an interface.
+func (v *ReleaseStageFields) GetType() ReleaseStageType { return v.Type }
+
+// GetColor returns ReleaseStageFields.Color, and is useful for accessing the field via an interface.
+func (v *ReleaseStageFields) GetColor() string { return v.Color }
+
+// GetPosition returns ReleaseStageFields.Position, and is useful for accessing the field via an interface.
+func (v *ReleaseStageFields) GetPosition() float64 { return v.Position }
+
+// GetFrozen returns ReleaseStageFields.Frozen, and is useful for accessing the field via an interface.
+func (v *ReleaseStageFields) GetFrozen() bool { return v.Frozen }
+
+// GetPipeline returns ReleaseStageFields.Pipeline, and is useful for accessing the field via an interface.
+func (v *ReleaseStageFields) GetPipeline() ReleaseStageFieldsPipelineReleasePipeline {
+	return v.Pipeline
+}
+
+// ReleaseStageFieldsPipelineReleasePipeline includes the requested fields of the GraphQL type ReleasePipeline.
+// The GraphQL type's documentation follows.
+//
+// [Internal] A release pipeline that defines a release workflow with ordered stages. Pipelines can be continuous (each sync creates a completed release) or scheduled (issues accumulate in a started release that is explicitly completed). Pipelines are associated with teams and can filter commits by file path patterns.
+type ReleaseStageFieldsPipelineReleasePipeline struct {
+	// The unique identifier of the entity.
+	Id string `json:"id"`
+}
+
+// GetId returns ReleaseStageFieldsPipelineReleasePipeline.Id, and is useful for accessing the field via an interface.
+func (v *ReleaseStageFieldsPipelineReleasePipeline) GetId() string { return v.Id }
+
+// The type of a release stage, which determines the release's lifecycle state. Types include planned, started, completed, and canceled. Each pipeline must have at least one stage of each type, though only started stages may have multiple instances.
+type ReleaseStageType string
+
+const (
+	ReleaseStageTypeCanceled  ReleaseStageType = "canceled"
+	ReleaseStageTypeCompleted ReleaseStageType = "completed"
+	ReleaseStageTypePlanned   ReleaseStageType = "planned"
+	ReleaseStageTypeStarted   ReleaseStageType = "started"
+)
+
+// Input for updating an existing release stage.
+type ReleaseStageUpdateInput struct {
+	// The UI color of the stage as a HEX string.
+	Color string `json:"color,omitempty"`
+	// Whether this stage is frozen. Only applicable to started stages.
+	Frozen bool `json:"frozen,omitempty"`
+	// The name of the stage.
+	Name string `json:"name,omitempty"`
+	// The position of the stage.
+	Position float64 `json:"position,omitempty"`
+}
+
+// GetColor returns ReleaseStageUpdateInput.Color, and is useful for accessing the field via an interface.
+func (v *ReleaseStageUpdateInput) GetColor() string { return v.Color }
+
+// GetFrozen returns ReleaseStageUpdateInput.Frozen, and is useful for accessing the field via an interface.
+func (v *ReleaseStageUpdateInput) GetFrozen() bool { return v.Frozen }
+
+// GetName returns ReleaseStageUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *ReleaseStageUpdateInput) GetName() string { return v.Name }
+
+// GetPosition returns ReleaseStageUpdateInput.Position, and is useful for accessing the field via an interface.
+func (v *ReleaseStageUpdateInput) GetPosition() float64 { return v.Position }
 
 // Team includes the GraphQL fields of Team requested by the fragment Team.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type Team struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -881,9 +1205,7 @@ type Team struct {
 	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
 	// Whether child issues should automatically close when their parent issue is closed
 	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
-	// Whether triage mode is enabled for the team. When enabled, issues created by
-	// non-members or integrations are routed to a triage state for review before
-	// entering the normal workflow.
+	// Whether triage mode is enabled for the team. When enabled, issues created by non-members or integrations are routed to a triage state for review before entering the normal workflow.
 	TriageEnabled bool `json:"triageEnabled"`
 	// Whether an issue needs to have a priority set before leaving triage.
 	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
@@ -911,8 +1233,7 @@ type Team struct {
 	IssueEstimationExtended bool `json:"issueEstimationExtended"`
 	// What to use as a default estimate for unestimated issues.
 	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
-	// Security settings for the team, including role-based restrictions for issue
-	// sharing, label management, member management, and template management.
+	// Security settings for the team, including role-based restrictions for issue sharing, label management, member management, and template management.
 	SecuritySettings map[string]interface{} `json:"securitySettings"`
 }
 
@@ -1010,168 +1331,126 @@ func (v *Team) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate
 func (v *Team) GetSecuritySettings() map[string]interface{} { return v.SecuritySettings }
 
 type TeamCreateInput struct {
-	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
-	Id string `json:"id,omitempty"`
-	// The name of the team.
-	Name string `json:"name"`
-	// The description of the team.
-	Description *string `json:"description"`
-	// The key of the team. If not given, the key will be generated based on the name of the team.
-	Key string `json:"key"`
-	// The icon of the team.
-	Icon *string `json:"icon,omitempty"`
-	// The color of the team.
-	Color *string `json:"color,omitempty"`
-	// Whether the team uses cycles.
-	CyclesEnabled bool `json:"cyclesEnabled"`
-	// The day of the week that a new cycle starts.
-	CycleStartDay float64 `json:"cycleStartDay"`
-	// The duration of each cycle in weeks.
-	CycleDuration int `json:"cycleDuration"`
-	// The cooldown time after each cycle in weeks.
-	CycleCooldownTime int `json:"cycleCooldownTime"`
-	// Auto assign started issues to current active cycle setting.
-	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
-	// Auto assign completed issues to current active cycle setting.
-	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
-	// Only allow issues issues with cycles in Active Issues.
-	CycleLockToActive bool `json:"cycleLockToActive"`
-	// How many upcoming cycles to create.
-	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
-	// Whether triage mode is enabled for the team.
-	TriageEnabled bool `json:"triageEnabled"`
-	// Whether an issue needs to have a priority set before leaving triage.
-	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
-	// The timezone of the team.
-	Timezone string `json:"timezone"`
-	// Whether the team should inherit estimation settings from its parent. Only applies to sub-teams.
-	InheritIssueEstimation bool `json:"inheritIssueEstimation,omitempty"`
-	// [Internal] Whether the team should inherit workflow statuses from its parent.
-	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
-	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
-	IssueEstimationType string `json:"issueEstimationType"`
-	// Whether to allow zeros in issues estimates.
-	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
-	// Whether to move issues to bottom of the column when changing state.
-	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
-	// Whether to add additional points to the estimate scale.
-	IssueEstimationExtended bool `json:"issueEstimationExtended"`
-	// What to use as an default estimate for unestimated issues.
-	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
-	// Whether to group recent issue history entries.
-	GroupIssueHistory bool `json:"groupIssueHistory"`
-	// The identifier of the default template for members of this team.
-	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId,omitempty"`
-	// The identifier of the default template for non-members of this team.
-	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId,omitempty"`
-	// The identifier of the default project template of this team.
-	DefaultProjectTemplateId string `json:"defaultProjectTemplateId,omitempty"`
-	// Internal. Whether the team is private or not.
-	Private bool `json:"private"`
+	// Period after which closed (completed, canceled, or duplicate) issues are automatically archived, in months. 0 means disabled.
+	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
 	// Period after which issues are automatically closed, in months.
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
 	// The canceled workflow state which auto closed issues will be set to.
 	AutoCloseStateId string `json:"autoCloseStateId,omitempty"`
-	// Period after which closed (completed, canceled, or duplicate) issues are
-	// automatically archived, in months. 0 means disabled.
-	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
-	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
-	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
-	// The parent team ID.
-	ParentId *string `json:"parentId,omitempty"`
+	// The color of the team.
+	Color *string `json:"color,omitempty"`
+	// The cooldown time after each cycle in weeks.
+	CycleCooldownTime int `json:"cycleCooldownTime"`
+	// The duration of each cycle in weeks.
+	CycleDuration int `json:"cycleDuration"`
+	// Auto assign completed issues to current active cycle setting.
+	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
+	// Auto assign started issues to current active cycle setting.
+	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
+	// Only allow issues issues with cycles in Active Issues.
+	CycleLockToActive bool `json:"cycleLockToActive"`
+	// The day of the week that a new cycle starts.
+	CycleStartDay float64 `json:"cycleStartDay"`
+	// Whether the team uses cycles.
+	CyclesEnabled bool `json:"cyclesEnabled"`
+	// What to use as an default estimate for unestimated issues.
+	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+	// The identifier of the default project template of this team.
+	DefaultProjectTemplateId string `json:"defaultProjectTemplateId,omitempty"`
+	// The identifier of the default template for members of this team.
+	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId,omitempty"`
+	// The identifier of the default template for non-members of this team.
+	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId,omitempty"`
+	// The description of the team.
+	Description *string `json:"description"`
+	// Whether to group recent issue history entries.
+	GroupIssueHistory bool `json:"groupIssueHistory"`
+	// The icon of the team.
+	Icon *string `json:"icon,omitempty"`
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id string `json:"id,omitempty"`
+	// Whether the team should inherit estimation settings from its parent. Only applies to sub-teams.
+	InheritIssueEstimation bool `json:"inheritIssueEstimation,omitempty"`
 	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.
 	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope,omitempty"`
-	// [Internal] The scope of product intelligence suggestion data for the team.
-	ProductIntelligenceScope ProductIntelligenceScope `json:"productIntelligenceScope,omitempty"`
+	// [Internal] Whether the team should inherit its Slack auto-create project channel setting from its parent. Only applies to sub-teams.
+	InheritSlackAutoCreateProjectChannel bool `json:"inheritSlackAutoCreateProjectChannel,omitempty"`
+	// [Internal] Whether the team should inherit workflow statuses from its parent.
+	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
+	// Whether to allow zeros in issues estimates.
+	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
+	// Whether to add additional points to the estimate scale.
+	IssueEstimationExtended bool `json:"issueEstimationExtended"`
+	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
+	IssueEstimationType string `json:"issueEstimationType"`
 	// Whether issue sharing is enabled for this team.
 	IssueSharingEnabled bool `json:"issueSharingEnabled,omitempty"`
-	// [Internal] Whether the team should inherit its Slack auto-create project
-	// channel setting from its parent. Only applies to sub-teams.
-	InheritSlackAutoCreateProjectChannel bool `json:"inheritSlackAutoCreateProjectChannel,omitempty"`
+	// The key of the team. If not given, the key will be generated based on the name of the team.
+	Key string `json:"key"`
+	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
+	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
+	// The name of the team.
+	Name string `json:"name"`
+	// The parent team ID.
+	ParentId *string `json:"parentId,omitempty"`
+	// Internal. Whether the team is private or not.
+	Private bool `json:"private"`
+	// [Internal] The scope of product intelligence suggestion data for the team.
+	ProductIntelligenceScope ProductIntelligenceScope `json:"productIntelligenceScope,omitempty"`
+	// Whether an issue needs to have a priority set before leaving triage.
+	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
+	// Whether to move issues to bottom of the column when changing state.
+	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
 	// [Internal] Whether to automatically create a Slack channel when a new project is created in this team.
 	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel,omitempty"`
+	// The timezone of the team.
+	Timezone string `json:"timezone"`
+	// Whether triage mode is enabled for the team.
+	TriageEnabled bool `json:"triageEnabled"`
+	// How many upcoming cycles to create.
+	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
 }
 
-// GetId returns TeamCreateInput.Id, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetId() string { return v.Id }
+// GetAutoArchivePeriod returns TeamCreateInput.AutoArchivePeriod, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetAutoArchivePeriod() float64 { return v.AutoArchivePeriod }
 
-// GetName returns TeamCreateInput.Name, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetName() string { return v.Name }
+// GetAutoClosePeriod returns TeamCreateInput.AutoClosePeriod, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetAutoClosePeriod() *float64 { return v.AutoClosePeriod }
 
-// GetDescription returns TeamCreateInput.Description, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetDescription() *string { return v.Description }
-
-// GetKey returns TeamCreateInput.Key, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetKey() string { return v.Key }
-
-// GetIcon returns TeamCreateInput.Icon, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetIcon() *string { return v.Icon }
+// GetAutoCloseStateId returns TeamCreateInput.AutoCloseStateId, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetAutoCloseStateId() string { return v.AutoCloseStateId }
 
 // GetColor returns TeamCreateInput.Color, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetColor() *string { return v.Color }
 
-// GetCyclesEnabled returns TeamCreateInput.CyclesEnabled, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetCyclesEnabled() bool { return v.CyclesEnabled }
-
-// GetCycleStartDay returns TeamCreateInput.CycleStartDay, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetCycleStartDay() float64 { return v.CycleStartDay }
-
-// GetCycleDuration returns TeamCreateInput.CycleDuration, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetCycleDuration() int { return v.CycleDuration }
-
 // GetCycleCooldownTime returns TeamCreateInput.CycleCooldownTime, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetCycleCooldownTime() int { return v.CycleCooldownTime }
 
-// GetCycleIssueAutoAssignStarted returns TeamCreateInput.CycleIssueAutoAssignStarted, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetCycleIssueAutoAssignStarted() bool { return v.CycleIssueAutoAssignStarted }
+// GetCycleDuration returns TeamCreateInput.CycleDuration, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetCycleDuration() int { return v.CycleDuration }
 
 // GetCycleIssueAutoAssignCompleted returns TeamCreateInput.CycleIssueAutoAssignCompleted, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetCycleIssueAutoAssignCompleted() bool {
 	return v.CycleIssueAutoAssignCompleted
 }
 
+// GetCycleIssueAutoAssignStarted returns TeamCreateInput.CycleIssueAutoAssignStarted, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetCycleIssueAutoAssignStarted() bool { return v.CycleIssueAutoAssignStarted }
+
 // GetCycleLockToActive returns TeamCreateInput.CycleLockToActive, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetCycleLockToActive() bool { return v.CycleLockToActive }
 
-// GetUpcomingCycleCount returns TeamCreateInput.UpcomingCycleCount, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetUpcomingCycleCount() float64 { return v.UpcomingCycleCount }
+// GetCycleStartDay returns TeamCreateInput.CycleStartDay, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetCycleStartDay() float64 { return v.CycleStartDay }
 
-// GetTriageEnabled returns TeamCreateInput.TriageEnabled, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetTriageEnabled() bool { return v.TriageEnabled }
-
-// GetRequirePriorityToLeaveTriage returns TeamCreateInput.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetRequirePriorityToLeaveTriage() bool {
-	return v.RequirePriorityToLeaveTriage
-}
-
-// GetTimezone returns TeamCreateInput.Timezone, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetTimezone() string { return v.Timezone }
-
-// GetInheritIssueEstimation returns TeamCreateInput.InheritIssueEstimation, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetInheritIssueEstimation() bool { return v.InheritIssueEstimation }
-
-// GetInheritWorkflowStatuses returns TeamCreateInput.InheritWorkflowStatuses, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetInheritWorkflowStatuses() bool { return v.InheritWorkflowStatuses }
-
-// GetIssueEstimationType returns TeamCreateInput.IssueEstimationType, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetIssueEstimationType() string { return v.IssueEstimationType }
-
-// GetIssueEstimationAllowZero returns TeamCreateInput.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetIssueEstimationAllowZero() bool { return v.IssueEstimationAllowZero }
-
-// GetSetIssueSortOrderOnStateChange returns TeamCreateInput.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetSetIssueSortOrderOnStateChange() string {
-	return v.SetIssueSortOrderOnStateChange
-}
-
-// GetIssueEstimationExtended returns TeamCreateInput.IssueEstimationExtended, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetIssueEstimationExtended() bool { return v.IssueEstimationExtended }
+// GetCyclesEnabled returns TeamCreateInput.CyclesEnabled, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetCyclesEnabled() bool { return v.CyclesEnabled }
 
 // GetDefaultIssueEstimate returns TeamCreateInput.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
 
-// GetGroupIssueHistory returns TeamCreateInput.GroupIssueHistory, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
+// GetDefaultProjectTemplateId returns TeamCreateInput.DefaultProjectTemplateId, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetDefaultProjectTemplateId() string { return v.DefaultProjectTemplateId }
 
 // GetDefaultTemplateForMembersId returns TeamCreateInput.DefaultTemplateForMembersId, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetDefaultTemplateForMembersId() string {
@@ -1183,45 +1462,76 @@ func (v *TeamCreateInput) GetDefaultTemplateForNonMembersId() string {
 	return v.DefaultTemplateForNonMembersId
 }
 
-// GetDefaultProjectTemplateId returns TeamCreateInput.DefaultProjectTemplateId, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetDefaultProjectTemplateId() string { return v.DefaultProjectTemplateId }
+// GetDescription returns TeamCreateInput.Description, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetDescription() *string { return v.Description }
 
-// GetPrivate returns TeamCreateInput.Private, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetPrivate() bool { return v.Private }
+// GetGroupIssueHistory returns TeamCreateInput.GroupIssueHistory, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
 
-// GetAutoClosePeriod returns TeamCreateInput.AutoClosePeriod, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetAutoClosePeriod() *float64 { return v.AutoClosePeriod }
+// GetIcon returns TeamCreateInput.Icon, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetIcon() *string { return v.Icon }
 
-// GetAutoCloseStateId returns TeamCreateInput.AutoCloseStateId, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetAutoCloseStateId() string { return v.AutoCloseStateId }
+// GetId returns TeamCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetId() string { return v.Id }
 
-// GetAutoArchivePeriod returns TeamCreateInput.AutoArchivePeriod, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetAutoArchivePeriod() float64 { return v.AutoArchivePeriod }
-
-// GetMarkedAsDuplicateWorkflowStateId returns TeamCreateInput.MarkedAsDuplicateWorkflowStateId, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetMarkedAsDuplicateWorkflowStateId() string {
-	return v.MarkedAsDuplicateWorkflowStateId
-}
-
-// GetParentId returns TeamCreateInput.ParentId, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetParentId() *string { return v.ParentId }
+// GetInheritIssueEstimation returns TeamCreateInput.InheritIssueEstimation, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetInheritIssueEstimation() bool { return v.InheritIssueEstimation }
 
 // GetInheritProductIntelligenceScope returns TeamCreateInput.InheritProductIntelligenceScope, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetInheritProductIntelligenceScope() bool {
 	return v.InheritProductIntelligenceScope
 }
 
+// GetInheritSlackAutoCreateProjectChannel returns TeamCreateInput.InheritSlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetInheritSlackAutoCreateProjectChannel() bool {
+	return v.InheritSlackAutoCreateProjectChannel
+}
+
+// GetInheritWorkflowStatuses returns TeamCreateInput.InheritWorkflowStatuses, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetInheritWorkflowStatuses() bool { return v.InheritWorkflowStatuses }
+
+// GetIssueEstimationAllowZero returns TeamCreateInput.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetIssueEstimationAllowZero() bool { return v.IssueEstimationAllowZero }
+
+// GetIssueEstimationExtended returns TeamCreateInput.IssueEstimationExtended, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetIssueEstimationExtended() bool { return v.IssueEstimationExtended }
+
+// GetIssueEstimationType returns TeamCreateInput.IssueEstimationType, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetIssueEstimationType() string { return v.IssueEstimationType }
+
+// GetIssueSharingEnabled returns TeamCreateInput.IssueSharingEnabled, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetIssueSharingEnabled() bool { return v.IssueSharingEnabled }
+
+// GetKey returns TeamCreateInput.Key, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetKey() string { return v.Key }
+
+// GetMarkedAsDuplicateWorkflowStateId returns TeamCreateInput.MarkedAsDuplicateWorkflowStateId, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetMarkedAsDuplicateWorkflowStateId() string {
+	return v.MarkedAsDuplicateWorkflowStateId
+}
+
+// GetName returns TeamCreateInput.Name, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetName() string { return v.Name }
+
+// GetParentId returns TeamCreateInput.ParentId, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetParentId() *string { return v.ParentId }
+
+// GetPrivate returns TeamCreateInput.Private, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetPrivate() bool { return v.Private }
+
 // GetProductIntelligenceScope returns TeamCreateInput.ProductIntelligenceScope, and is useful for accessing the field via an interface.
 func (v *TeamCreateInput) GetProductIntelligenceScope() ProductIntelligenceScope {
 	return v.ProductIntelligenceScope
 }
 
-// GetIssueSharingEnabled returns TeamCreateInput.IssueSharingEnabled, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetIssueSharingEnabled() bool { return v.IssueSharingEnabled }
+// GetRequirePriorityToLeaveTriage returns TeamCreateInput.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetRequirePriorityToLeaveTriage() bool {
+	return v.RequirePriorityToLeaveTriage
+}
 
-// GetInheritSlackAutoCreateProjectChannel returns TeamCreateInput.InheritSlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
-func (v *TeamCreateInput) GetInheritSlackAutoCreateProjectChannel() bool {
-	return v.InheritSlackAutoCreateProjectChannel
+// GetSetIssueSortOrderOnStateChange returns TeamCreateInput.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetSetIssueSortOrderOnStateChange() string {
+	return v.SetIssueSortOrderOnStateChange
 }
 
 // GetSlackAutoCreateProjectChannel returns TeamCreateInput.SlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
@@ -1229,13 +1539,19 @@ func (v *TeamCreateInput) GetSlackAutoCreateProjectChannel() bool {
 	return v.SlackAutoCreateProjectChannel
 }
 
+// GetTimezone returns TeamCreateInput.Timezone, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetTimezone() string { return v.Timezone }
+
+// GetTriageEnabled returns TeamCreateInput.TriageEnabled, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetTriageEnabled() bool { return v.TriageEnabled }
+
+// GetUpcomingCycleCount returns TeamCreateInput.UpcomingCycleCount, and is useful for accessing the field via an interface.
+func (v *TeamCreateInput) GetUpcomingCycleCount() float64 { return v.UpcomingCycleCount }
+
 // TeamParentTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type TeamParentTeam struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -1248,16 +1564,16 @@ func (v *TeamParentTeam) GetId() string { return v.Id }
 type TeamRetirementSubTeamHandling string
 
 const (
-	TeamRetirementSubTeamHandlingUnnest TeamRetirementSubTeamHandling = "unnest"
 	TeamRetirementSubTeamHandlingRetire TeamRetirementSubTeamHandling = "retire"
+	TeamRetirementSubTeamHandlingUnnest TeamRetirementSubTeamHandling = "unnest"
 )
 
 // All possible roles within a team in terms of access to team settings and operations.
 type TeamRoleType string
 
 const (
-	TeamRoleTypeOwner  TeamRoleType = "owner"
 	TeamRoleTypeMember TeamRoleType = "member"
+	TeamRoleTypeOwner  TeamRoleType = "owner"
 )
 
 type TeamSecuritySettingsInput struct {
@@ -1289,202 +1605,177 @@ func (v *TeamSecuritySettingsInput) GetTeamManagement() TeamRoleType { return v.
 func (v *TeamSecuritySettingsInput) GetTemplateManagement() TeamRoleType { return v.TemplateManagement }
 
 type TeamUpdateInput struct {
-	// The name of the team.
-	Name string `json:"name,omitempty"`
-	// The description of the team.
-	Description *string `json:"description"`
-	// The key of the team.
-	Key string `json:"key,omitempty"`
-	// The icon of the team.
-	Icon *string `json:"icon,omitempty"`
-	// The color of the team.
-	Color *string `json:"color,omitempty"`
-	// Whether the team uses cycles.
-	CyclesEnabled bool `json:"cyclesEnabled"`
-	// The day of the week that a new cycle starts.
-	CycleStartDay float64 `json:"cycleStartDay"`
-	// The duration of each cycle in weeks.
-	CycleDuration int `json:"cycleDuration"`
-	// The cooldown time after each cycle in weeks.
-	CycleCooldownTime int `json:"cycleCooldownTime"`
-	// Auto assign started issues to current active cycle setting.
-	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
-	// Auto assign completed issues to current active cycle setting.
-	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
-	// Only allow issues with cycles in Active Issues.
-	CycleLockToActive bool `json:"cycleLockToActive"`
-	// The time at which to begin cycles.
-	CycleEnabledStartDate *time.Time `json:"cycleEnabledStartDate,omitempty"`
-	// How many upcoming cycles to create.
-	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
-	// The timezone of the team.
-	Timezone string `json:"timezone"`
-	// Whether the team should inherit estimation settings from its parent. Only applies to sub-teams.
-	InheritIssueEstimation bool `json:"inheritIssueEstimation,omitempty"`
-	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
-	IssueEstimationType string `json:"issueEstimationType"`
-	// Whether to allow zeros in issues estimates.
-	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
-	// Whether to move issues to bottom of the column when changing state.
-	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
-	// Whether to add additional points to the estimate scale.
-	IssueEstimationExtended bool `json:"issueEstimationExtended"`
-	// What to use as an default estimate for unestimated issues.
-	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
-	// Whether to send new issue notifications to Slack.
-	SlackNewIssue bool `json:"slackNewIssue,omitempty"`
-	// Whether to send new issue comment notifications to Slack.
-	SlackIssueComments bool `json:"slackIssueComments,omitempty"`
-	// Whether to send issue status update notifications to Slack.
-	SlackIssueStatuses bool `json:"slackIssueStatuses,omitempty"`
-	// Whether to group recent issue history entries.
-	GroupIssueHistory bool `json:"groupIssueHistory"`
-	// Whether to enable resolved thread AI summaries.
-	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
 	// Whether to enable AI discussion summaries for issues.
 	AiDiscussionSummariesEnabled bool `json:"aiDiscussionSummariesEnabled,omitempty"`
-	// The identifier of the default template for members of this team.
-	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId,omitempty"`
-	// The identifier of the default template for non-members of this team.
-	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId,omitempty"`
-	// The identifier of the default project template of this team.
-	DefaultProjectTemplateId string `json:"defaultProjectTemplateId,omitempty"`
-	// Whether the team is private or not.
-	Private bool `json:"private"`
-	// Whether triage mode is enabled for the team.
-	TriageEnabled bool `json:"triageEnabled"`
-	// Whether an issue needs to have a priority set before leaving triage.
-	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
-	// Default status for newly created issues.
-	DefaultIssueStateId string `json:"defaultIssueStateId,omitempty"`
+	// Whether to enable resolved thread AI summaries.
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
+	// Whether all members in the workspace can join the team. Only used for public teams.
+	AllMembersCanJoin bool `json:"allMembersCanJoin,omitempty"`
+	// Period after which closed (completed, canceled, or duplicate) issues are automatically archived, in months.
+	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
+	// Whether to automatically close all sub-issues when a parent issue in this team is closed.
+	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
+	// Whether to automatically close a parent issue in this team if all its sub-issues are closed.
+	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
 	// Period after which issues are automatically closed, in months.
 	AutoClosePeriod *float64 `json:"autoClosePeriod"`
 	// The canceled workflow state which auto closed issues will be set to.
 	AutoCloseStateId string `json:"autoCloseStateId,omitempty"`
-	// Whether to automatically close a parent issue in this team if all its sub-issues are closed.
-	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
-	// Whether to automatically close all sub-issues when a parent issue in this team is closed.
-	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
-	// Period after which closed (completed, canceled, or duplicate) issues are automatically archived, in months.
-	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
-	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
-	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
-	// Whether new users should join this team by default. Mutation restricted to workspace admins or owners!
-	JoinByDefault bool `json:"joinByDefault,omitempty"`
-	// Whether the team is managed by SCIM integration. Mutation restricted to
-	// workspace admins or owners and only unsetting is allowed!
-	ScimManaged bool `json:"scimManaged,omitempty"`
-	// The parent team ID.
-	ParentId *string `json:"parentId"`
-	// [Internal] Whether the team should inherit workflow statuses from its parent.
-	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
-	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.
-	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope,omitempty"`
-	// [Internal] The scope of product intelligence suggestion data for the team.
-	ProductIntelligenceScope ProductIntelligenceScope `json:"productIntelligenceScope,omitempty"`
-	// Whether issue sharing is enabled for this team.
-	IssueSharingEnabled bool `json:"issueSharingEnabled,omitempty"`
-	// [Internal] Whether the team should inherit its Slack auto-create project
-	// channel setting from its parent. Only applies to sub-teams.
-	InheritSlackAutoCreateProjectChannel bool `json:"inheritSlackAutoCreateProjectChannel,omitempty"`
-	// [Internal] Whether to automatically create a Slack channel when a new project is created in this team.
-	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel,omitempty"`
-	// The security settings for the team.
-	SecuritySettings *TeamSecuritySettingsInput `json:"securitySettings,omitempty"`
-	// Whether all members in the workspace can join the team. Only used for public teams.
-	AllMembersCanJoin bool `json:"allMembersCanJoin,omitempty"`
-	// When the team was retired.
-	RetiredAt *time.Time `json:"retiredAt,omitempty"`
+	// The color of the team.
+	Color *string `json:"color,omitempty"`
+	// The cooldown time after each cycle in weeks.
+	CycleCooldownTime int `json:"cycleCooldownTime"`
+	// The duration of each cycle in weeks.
+	CycleDuration int `json:"cycleDuration"`
+	// The time at which to begin cycles.
+	CycleEnabledStartDate *time.Time `json:"cycleEnabledStartDate,omitempty"`
+	// Auto assign completed issues to current active cycle setting.
+	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
+	// Auto assign started issues to current active cycle setting.
+	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
+	// Only allow issues with cycles in Active Issues.
+	CycleLockToActive bool `json:"cycleLockToActive"`
+	// The day of the week that a new cycle starts.
+	CycleStartDay float64 `json:"cycleStartDay"`
+	// Whether the team uses cycles.
+	CyclesEnabled bool `json:"cyclesEnabled"`
+	// What to use as an default estimate for unestimated issues.
+	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+	// Default status for newly created issues.
+	DefaultIssueStateId string `json:"defaultIssueStateId,omitempty"`
+	// The identifier of the default project template of this team.
+	DefaultProjectTemplateId string `json:"defaultProjectTemplateId,omitempty"`
+	// The identifier of the default template for members of this team.
+	DefaultTemplateForMembersId string `json:"defaultTemplateForMembersId,omitempty"`
+	// The identifier of the default template for non-members of this team.
+	DefaultTemplateForNonMembersId string `json:"defaultTemplateForNonMembersId,omitempty"`
+	// The description of the team.
+	Description *string `json:"description"`
+	// Whether to group recent issue history entries.
+	GroupIssueHistory bool `json:"groupIssueHistory"`
 	// [Internal] How to handle sub-teams when retiring. Required if the team has active sub-teams.
 	HandleSubTeamsOnRetirement TeamRetirementSubTeamHandling `json:"handleSubTeamsOnRetirement,omitempty"`
+	// The icon of the team.
+	Icon *string `json:"icon,omitempty"`
+	// Whether the team should inherit estimation settings from its parent. Only applies to sub-teams.
+	InheritIssueEstimation bool `json:"inheritIssueEstimation,omitempty"`
+	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.
+	InheritProductIntelligenceScope bool `json:"inheritProductIntelligenceScope,omitempty"`
+	// [Internal] Whether the team should inherit its Slack auto-create project channel setting from its parent. Only applies to sub-teams.
+	InheritSlackAutoCreateProjectChannel bool `json:"inheritSlackAutoCreateProjectChannel,omitempty"`
+	// [Internal] Whether the team should inherit workflow statuses from its parent.
+	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
+	// Whether to allow zeros in issues estimates.
+	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
+	// Whether to add additional points to the estimate scale.
+	IssueEstimationExtended bool `json:"issueEstimationExtended"`
+	// The issue estimation type to use. Must be one of "notUsed", "exponential", "fibonacci", "linear", "tShirt".
+	IssueEstimationType string `json:"issueEstimationType"`
+	// Whether issue sharing is enabled for this team.
+	IssueSharingEnabled bool `json:"issueSharingEnabled,omitempty"`
+	// Whether new users should join this team by default. Mutation restricted to workspace admins or owners!
+	JoinByDefault bool `json:"joinByDefault,omitempty"`
+	// The key of the team.
+	Key string `json:"key,omitempty"`
+	// The workflow state into which issues are moved when they are marked as a duplicate of another issue.
+	MarkedAsDuplicateWorkflowStateId string `json:"markedAsDuplicateWorkflowStateId,omitempty"`
+	// The name of the team.
+	Name string `json:"name,omitempty"`
+	// The parent team ID.
+	ParentId *string `json:"parentId"`
+	// Whether the team is private or not.
+	Private bool `json:"private"`
+	// [Internal] The scope of product intelligence suggestion data for the team.
+	ProductIntelligenceScope ProductIntelligenceScope `json:"productIntelligenceScope,omitempty"`
+	// Whether an issue needs to have a priority set before leaving triage.
+	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
+	// When the team was retired.
+	RetiredAt *time.Time `json:"retiredAt,omitempty"`
+	// Whether the team is managed by SCIM integration. Mutation restricted to workspace admins or owners and only unsetting is allowed!
+	ScimManaged bool `json:"scimManaged,omitempty"`
+	// The security settings for the team.
+	SecuritySettings *TeamSecuritySettingsInput `json:"securitySettings,omitempty"`
+	// Whether to move issues to bottom of the column when changing state.
+	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
+	// [Internal] Whether to automatically create a Slack channel when a new project is created in this team.
+	SlackAutoCreateProjectChannel bool `json:"slackAutoCreateProjectChannel,omitempty"`
+	// Whether to send new issue comment notifications to Slack.
+	SlackIssueComments bool `json:"slackIssueComments,omitempty"`
+	// Whether to send issue status update notifications to Slack.
+	SlackIssueStatuses bool `json:"slackIssueStatuses,omitempty"`
+	// Whether to send new issue notifications to Slack.
+	SlackNewIssue bool `json:"slackNewIssue,omitempty"`
+	// The timezone of the team.
+	Timezone string `json:"timezone"`
+	// Whether triage mode is enabled for the team.
+	TriageEnabled bool `json:"triageEnabled"`
+	// How many upcoming cycles to create.
+	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
 }
 
-// GetName returns TeamUpdateInput.Name, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetName() string { return v.Name }
+// GetAiDiscussionSummariesEnabled returns TeamUpdateInput.AiDiscussionSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAiDiscussionSummariesEnabled() bool {
+	return v.AiDiscussionSummariesEnabled
+}
 
-// GetDescription returns TeamUpdateInput.Description, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetDescription() *string { return v.Description }
+// GetAiThreadSummariesEnabled returns TeamUpdateInput.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAiThreadSummariesEnabled() bool { return v.AiThreadSummariesEnabled }
 
-// GetKey returns TeamUpdateInput.Key, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetKey() string { return v.Key }
+// GetAllMembersCanJoin returns TeamUpdateInput.AllMembersCanJoin, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAllMembersCanJoin() bool { return v.AllMembersCanJoin }
 
-// GetIcon returns TeamUpdateInput.Icon, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetIcon() *string { return v.Icon }
+// GetAutoArchivePeriod returns TeamUpdateInput.AutoArchivePeriod, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAutoArchivePeriod() float64 { return v.AutoArchivePeriod }
+
+// GetAutoCloseChildIssues returns TeamUpdateInput.AutoCloseChildIssues, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAutoCloseChildIssues() bool { return v.AutoCloseChildIssues }
+
+// GetAutoCloseParentIssues returns TeamUpdateInput.AutoCloseParentIssues, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAutoCloseParentIssues() bool { return v.AutoCloseParentIssues }
+
+// GetAutoClosePeriod returns TeamUpdateInput.AutoClosePeriod, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAutoClosePeriod() *float64 { return v.AutoClosePeriod }
+
+// GetAutoCloseStateId returns TeamUpdateInput.AutoCloseStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetAutoCloseStateId() string { return v.AutoCloseStateId }
 
 // GetColor returns TeamUpdateInput.Color, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetColor() *string { return v.Color }
 
-// GetCyclesEnabled returns TeamUpdateInput.CyclesEnabled, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetCyclesEnabled() bool { return v.CyclesEnabled }
-
-// GetCycleStartDay returns TeamUpdateInput.CycleStartDay, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetCycleStartDay() float64 { return v.CycleStartDay }
+// GetCycleCooldownTime returns TeamUpdateInput.CycleCooldownTime, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleCooldownTime() int { return v.CycleCooldownTime }
 
 // GetCycleDuration returns TeamUpdateInput.CycleDuration, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetCycleDuration() int { return v.CycleDuration }
 
-// GetCycleCooldownTime returns TeamUpdateInput.CycleCooldownTime, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetCycleCooldownTime() int { return v.CycleCooldownTime }
-
-// GetCycleIssueAutoAssignStarted returns TeamUpdateInput.CycleIssueAutoAssignStarted, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetCycleIssueAutoAssignStarted() bool { return v.CycleIssueAutoAssignStarted }
+// GetCycleEnabledStartDate returns TeamUpdateInput.CycleEnabledStartDate, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleEnabledStartDate() *time.Time { return v.CycleEnabledStartDate }
 
 // GetCycleIssueAutoAssignCompleted returns TeamUpdateInput.CycleIssueAutoAssignCompleted, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetCycleIssueAutoAssignCompleted() bool {
 	return v.CycleIssueAutoAssignCompleted
 }
 
+// GetCycleIssueAutoAssignStarted returns TeamUpdateInput.CycleIssueAutoAssignStarted, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleIssueAutoAssignStarted() bool { return v.CycleIssueAutoAssignStarted }
+
 // GetCycleLockToActive returns TeamUpdateInput.CycleLockToActive, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetCycleLockToActive() bool { return v.CycleLockToActive }
 
-// GetCycleEnabledStartDate returns TeamUpdateInput.CycleEnabledStartDate, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetCycleEnabledStartDate() *time.Time { return v.CycleEnabledStartDate }
+// GetCycleStartDay returns TeamUpdateInput.CycleStartDay, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCycleStartDay() float64 { return v.CycleStartDay }
 
-// GetUpcomingCycleCount returns TeamUpdateInput.UpcomingCycleCount, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetUpcomingCycleCount() float64 { return v.UpcomingCycleCount }
-
-// GetTimezone returns TeamUpdateInput.Timezone, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetTimezone() string { return v.Timezone }
-
-// GetInheritIssueEstimation returns TeamUpdateInput.InheritIssueEstimation, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetInheritIssueEstimation() bool { return v.InheritIssueEstimation }
-
-// GetIssueEstimationType returns TeamUpdateInput.IssueEstimationType, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetIssueEstimationType() string { return v.IssueEstimationType }
-
-// GetIssueEstimationAllowZero returns TeamUpdateInput.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetIssueEstimationAllowZero() bool { return v.IssueEstimationAllowZero }
-
-// GetSetIssueSortOrderOnStateChange returns TeamUpdateInput.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetSetIssueSortOrderOnStateChange() string {
-	return v.SetIssueSortOrderOnStateChange
-}
-
-// GetIssueEstimationExtended returns TeamUpdateInput.IssueEstimationExtended, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetIssueEstimationExtended() bool { return v.IssueEstimationExtended }
+// GetCyclesEnabled returns TeamUpdateInput.CyclesEnabled, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetCyclesEnabled() bool { return v.CyclesEnabled }
 
 // GetDefaultIssueEstimate returns TeamUpdateInput.DefaultIssueEstimate, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetDefaultIssueEstimate() float64 { return v.DefaultIssueEstimate }
 
-// GetSlackNewIssue returns TeamUpdateInput.SlackNewIssue, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetSlackNewIssue() bool { return v.SlackNewIssue }
+// GetDefaultIssueStateId returns TeamUpdateInput.DefaultIssueStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetDefaultIssueStateId() string { return v.DefaultIssueStateId }
 
-// GetSlackIssueComments returns TeamUpdateInput.SlackIssueComments, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetSlackIssueComments() bool { return v.SlackIssueComments }
-
-// GetSlackIssueStatuses returns TeamUpdateInput.SlackIssueStatuses, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetSlackIssueStatuses() bool { return v.SlackIssueStatuses }
-
-// GetGroupIssueHistory returns TeamUpdateInput.GroupIssueHistory, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
-
-// GetAiThreadSummariesEnabled returns TeamUpdateInput.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetAiThreadSummariesEnabled() bool { return v.AiThreadSummariesEnabled }
-
-// GetAiDiscussionSummariesEnabled returns TeamUpdateInput.AiDiscussionSummariesEnabled, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetAiDiscussionSummariesEnabled() bool {
-	return v.AiDiscussionSummariesEnabled
-}
+// GetDefaultProjectTemplateId returns TeamUpdateInput.DefaultProjectTemplateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetDefaultProjectTemplateId() string { return v.DefaultProjectTemplateId }
 
 // GetDefaultTemplateForMembersId returns TeamUpdateInput.DefaultTemplateForMembersId, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetDefaultTemplateForMembersId() string {
@@ -1496,71 +1787,90 @@ func (v *TeamUpdateInput) GetDefaultTemplateForNonMembersId() string {
 	return v.DefaultTemplateForNonMembersId
 }
 
-// GetDefaultProjectTemplateId returns TeamUpdateInput.DefaultProjectTemplateId, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetDefaultProjectTemplateId() string { return v.DefaultProjectTemplateId }
+// GetDescription returns TeamUpdateInput.Description, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetDescription() *string { return v.Description }
 
-// GetPrivate returns TeamUpdateInput.Private, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetPrivate() bool { return v.Private }
+// GetGroupIssueHistory returns TeamUpdateInput.GroupIssueHistory, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetGroupIssueHistory() bool { return v.GroupIssueHistory }
 
-// GetTriageEnabled returns TeamUpdateInput.TriageEnabled, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetTriageEnabled() bool { return v.TriageEnabled }
-
-// GetRequirePriorityToLeaveTriage returns TeamUpdateInput.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetRequirePriorityToLeaveTriage() bool {
-	return v.RequirePriorityToLeaveTriage
+// GetHandleSubTeamsOnRetirement returns TeamUpdateInput.HandleSubTeamsOnRetirement, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetHandleSubTeamsOnRetirement() TeamRetirementSubTeamHandling {
+	return v.HandleSubTeamsOnRetirement
 }
 
-// GetDefaultIssueStateId returns TeamUpdateInput.DefaultIssueStateId, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetDefaultIssueStateId() string { return v.DefaultIssueStateId }
+// GetIcon returns TeamUpdateInput.Icon, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIcon() *string { return v.Icon }
 
-// GetAutoClosePeriod returns TeamUpdateInput.AutoClosePeriod, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetAutoClosePeriod() *float64 { return v.AutoClosePeriod }
-
-// GetAutoCloseStateId returns TeamUpdateInput.AutoCloseStateId, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetAutoCloseStateId() string { return v.AutoCloseStateId }
-
-// GetAutoCloseParentIssues returns TeamUpdateInput.AutoCloseParentIssues, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetAutoCloseParentIssues() bool { return v.AutoCloseParentIssues }
-
-// GetAutoCloseChildIssues returns TeamUpdateInput.AutoCloseChildIssues, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetAutoCloseChildIssues() bool { return v.AutoCloseChildIssues }
-
-// GetAutoArchivePeriod returns TeamUpdateInput.AutoArchivePeriod, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetAutoArchivePeriod() float64 { return v.AutoArchivePeriod }
-
-// GetMarkedAsDuplicateWorkflowStateId returns TeamUpdateInput.MarkedAsDuplicateWorkflowStateId, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetMarkedAsDuplicateWorkflowStateId() string {
-	return v.MarkedAsDuplicateWorkflowStateId
-}
-
-// GetJoinByDefault returns TeamUpdateInput.JoinByDefault, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetJoinByDefault() bool { return v.JoinByDefault }
-
-// GetScimManaged returns TeamUpdateInput.ScimManaged, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetScimManaged() bool { return v.ScimManaged }
-
-// GetParentId returns TeamUpdateInput.ParentId, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetParentId() *string { return v.ParentId }
-
-// GetInheritWorkflowStatuses returns TeamUpdateInput.InheritWorkflowStatuses, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetInheritWorkflowStatuses() bool { return v.InheritWorkflowStatuses }
+// GetInheritIssueEstimation returns TeamUpdateInput.InheritIssueEstimation, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetInheritIssueEstimation() bool { return v.InheritIssueEstimation }
 
 // GetInheritProductIntelligenceScope returns TeamUpdateInput.InheritProductIntelligenceScope, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetInheritProductIntelligenceScope() bool {
 	return v.InheritProductIntelligenceScope
 }
 
+// GetInheritSlackAutoCreateProjectChannel returns TeamUpdateInput.InheritSlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetInheritSlackAutoCreateProjectChannel() bool {
+	return v.InheritSlackAutoCreateProjectChannel
+}
+
+// GetInheritWorkflowStatuses returns TeamUpdateInput.InheritWorkflowStatuses, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetInheritWorkflowStatuses() bool { return v.InheritWorkflowStatuses }
+
+// GetIssueEstimationAllowZero returns TeamUpdateInput.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIssueEstimationAllowZero() bool { return v.IssueEstimationAllowZero }
+
+// GetIssueEstimationExtended returns TeamUpdateInput.IssueEstimationExtended, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIssueEstimationExtended() bool { return v.IssueEstimationExtended }
+
+// GetIssueEstimationType returns TeamUpdateInput.IssueEstimationType, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIssueEstimationType() string { return v.IssueEstimationType }
+
+// GetIssueSharingEnabled returns TeamUpdateInput.IssueSharingEnabled, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetIssueSharingEnabled() bool { return v.IssueSharingEnabled }
+
+// GetJoinByDefault returns TeamUpdateInput.JoinByDefault, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetJoinByDefault() bool { return v.JoinByDefault }
+
+// GetKey returns TeamUpdateInput.Key, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetKey() string { return v.Key }
+
+// GetMarkedAsDuplicateWorkflowStateId returns TeamUpdateInput.MarkedAsDuplicateWorkflowStateId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetMarkedAsDuplicateWorkflowStateId() string {
+	return v.MarkedAsDuplicateWorkflowStateId
+}
+
+// GetName returns TeamUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetName() string { return v.Name }
+
+// GetParentId returns TeamUpdateInput.ParentId, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetParentId() *string { return v.ParentId }
+
+// GetPrivate returns TeamUpdateInput.Private, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetPrivate() bool { return v.Private }
+
 // GetProductIntelligenceScope returns TeamUpdateInput.ProductIntelligenceScope, and is useful for accessing the field via an interface.
 func (v *TeamUpdateInput) GetProductIntelligenceScope() ProductIntelligenceScope {
 	return v.ProductIntelligenceScope
 }
 
-// GetIssueSharingEnabled returns TeamUpdateInput.IssueSharingEnabled, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetIssueSharingEnabled() bool { return v.IssueSharingEnabled }
+// GetRequirePriorityToLeaveTriage returns TeamUpdateInput.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetRequirePriorityToLeaveTriage() bool {
+	return v.RequirePriorityToLeaveTriage
+}
 
-// GetInheritSlackAutoCreateProjectChannel returns TeamUpdateInput.InheritSlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetInheritSlackAutoCreateProjectChannel() bool {
-	return v.InheritSlackAutoCreateProjectChannel
+// GetRetiredAt returns TeamUpdateInput.RetiredAt, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetRetiredAt() *time.Time { return v.RetiredAt }
+
+// GetScimManaged returns TeamUpdateInput.ScimManaged, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetScimManaged() bool { return v.ScimManaged }
+
+// GetSecuritySettings returns TeamUpdateInput.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSecuritySettings() *TeamSecuritySettingsInput { return v.SecuritySettings }
+
+// GetSetIssueSortOrderOnStateChange returns TeamUpdateInput.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSetIssueSortOrderOnStateChange() string {
+	return v.SetIssueSortOrderOnStateChange
 }
 
 // GetSlackAutoCreateProjectChannel returns TeamUpdateInput.SlackAutoCreateProjectChannel, and is useful for accessing the field via an interface.
@@ -1568,27 +1878,28 @@ func (v *TeamUpdateInput) GetSlackAutoCreateProjectChannel() bool {
 	return v.SlackAutoCreateProjectChannel
 }
 
-// GetSecuritySettings returns TeamUpdateInput.SecuritySettings, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetSecuritySettings() *TeamSecuritySettingsInput { return v.SecuritySettings }
+// GetSlackIssueComments returns TeamUpdateInput.SlackIssueComments, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSlackIssueComments() bool { return v.SlackIssueComments }
 
-// GetAllMembersCanJoin returns TeamUpdateInput.AllMembersCanJoin, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetAllMembersCanJoin() bool { return v.AllMembersCanJoin }
+// GetSlackIssueStatuses returns TeamUpdateInput.SlackIssueStatuses, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSlackIssueStatuses() bool { return v.SlackIssueStatuses }
 
-// GetRetiredAt returns TeamUpdateInput.RetiredAt, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetRetiredAt() *time.Time { return v.RetiredAt }
+// GetSlackNewIssue returns TeamUpdateInput.SlackNewIssue, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetSlackNewIssue() bool { return v.SlackNewIssue }
 
-// GetHandleSubTeamsOnRetirement returns TeamUpdateInput.HandleSubTeamsOnRetirement, and is useful for accessing the field via an interface.
-func (v *TeamUpdateInput) GetHandleSubTeamsOnRetirement() TeamRetirementSubTeamHandling {
-	return v.HandleSubTeamsOnRetirement
-}
+// GetTimezone returns TeamUpdateInput.Timezone, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetTimezone() string { return v.Timezone }
+
+// GetTriageEnabled returns TeamUpdateInput.TriageEnabled, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetTriageEnabled() bool { return v.TriageEnabled }
+
+// GetUpcomingCycleCount returns TeamUpdateInput.UpcomingCycleCount, and is useful for accessing the field via an interface.
+func (v *TeamUpdateInput) GetUpcomingCycleCount() float64 { return v.UpcomingCycleCount }
 
 // TeamWorkflow includes the GraphQL fields of Team requested by the fragment TeamWorkflow.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type TeamWorkflow struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -1622,24 +1933,15 @@ func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnection) GetNodes()
 // TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState includes the requested fields of the GraphQL type GitAutomationState.
 // The GraphQL type's documentation follows.
 //
-// A Git automation rule that automatically transitions issues to a specified
-// workflow state when a Git event occurs (e.g., when a PR is opened, move the
-// linked issue to 'In Review'). Each rule is scoped to a team and optionally to a
-// specific target branch. When no target branch is specified, the rule acts as the
-// default for all branches. Target-branch-specific rules override the defaults.
+// A Git automation rule that automatically transitions issues to a specified workflow state when a Git event occurs (e.g., when a PR is opened, move the linked issue to 'In Review'). Each rule is scoped to a team and optionally to a specific target branch. When no target branch is specified, the rule acts as the default for all branches. Target-branch-specific rules override the defaults.
 type TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationState struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The workflow state that linked issues will be transitioned to when the Git
-	// event fires. Null if this rule is configured to take no action, overriding any
-	// default rule for the same event.
+	// The workflow state that linked issues will be transitioned to when the Git event fires. Null if this rule is configured to take no action, overriding any default rule for the same event.
 	State *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState `json:"state"`
 	// The Git event that triggers this automation rule (e.g., branch created, PR opened for review, or PR merged).
 	Event GitAutomationStates `json:"event"`
-	// The target branch that this automation rule applies to. When set, this rule
-	// only fires for pull requests targeting the specified branch pattern,
-	// overriding any default rule for the same event. Null if this is a default rule
-	// that applies to all branches.
+	// The target branch that this automation rule applies to. When set, this rule only fires for pull requests targeting the specified branch pattern, overriding any default rule for the same event. Null if this is a default rule that applies to all branches.
 	TargetBranch *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch `json:"targetBranch"`
 }
 
@@ -1666,13 +1968,7 @@ func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAuto
 // TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team's workflow, representing an issue status such as Triage,
-// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
-// set of workflow states that define the progression of issues through the team's
-// process. Workflow states have a type that categorizes them (triage, backlog,
-// unstarted, started, completed, canceled), a position that determines their
-// display order, and a color for visual identification. States can be inherited
-// from parent teams to sub-teams.
+// A state in a team's workflow, representing an issue status such as Triage, Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own set of workflow states that define the progression of issues through the team's process. Workflow states have a type that categorizes them (triage, backlog, unstarted, started, completed, canceled), a position that determines their display order, and a color for visual identification. States can be inherited from parent teams to sub-teams.
 type TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateStateWorkflowState struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -1686,20 +1982,13 @@ func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAuto
 // TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch includes the requested fields of the GraphQL type GitAutomationTargetBranch.
 // The GraphQL type's documentation follows.
 //
-// A target branch definition used by Git automation rules to scope automations to
-// specific branches. The branch can be specified as an exact name (e.g., 'main')
-// or as a regular expression pattern (e.g., 'release/.*'). Each target branch
-// belongs to a team and can have multiple automation rules associated with it,
-// which override the team's default automation rules when a PR targets a matching branch.
+// A target branch definition used by Git automation rules to scope automations to specific branches. The branch can be specified as an exact name (e.g., 'main') or as a regular expression pattern (e.g., 'release/.*'). Each target branch belongs to a team and can have multiple automation rules associated with it, which override the team's default automation rules when a PR targets a matching branch.
 type TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAutomationStateTargetBranchGitAutomationTargetBranch struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The branch name or pattern to match against pull request target branches.
-	// Interpreted as a literal branch name unless isRegex is true, in which case it
-	// is treated as a regular expression.
+	// The branch name or pattern to match against pull request target branches. Interpreted as a literal branch name unless isRegex is true, in which case it is treated as a regular expression.
 	BranchPattern string `json:"branchPattern"`
-	// Whether the branch pattern should be interpreted as a regular expression. When
-	// false, the pattern is matched as an exact branch name.
+	// Whether the branch pattern should be interpreted as a regular expression. When false, the pattern is matched as an exact branch name.
 	IsRegex bool `json:"isRegex"`
 }
 
@@ -1721,10 +2010,7 @@ func (v *TeamWorkflowGitAutomationStatesGitAutomationStateConnectionNodesGitAuto
 // Template includes the GraphQL fields of Template requested by the fragment Template.
 // The GraphQL type's documentation follows.
 //
-// A reusable template for creating issues, projects, or documents. Templates store
-// pre-filled field values and content as JSON data. They can be scoped to a
-// specific team or shared across the entire workspace. Team-scoped templates may
-// be inherited from parent teams.
+// A reusable template for creating issues, projects, or documents. Templates store pre-filled field values and content as JSON data. They can be scoped to a specific team or shared across the entire workspace. Team-scoped templates may be inherited from parent teams.
 type Template struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -1740,9 +2026,7 @@ type Template struct {
 	Type string `json:"type"`
 	// The team that the template is associated with. If null, the template is global to the workspace.
 	Team *TemplateTeam `json:"team"`
-	// The template data as a JSON-encoded string containing the pre-filled
-	// attributes for the entity type (e.g., issue fields, project configuration, or
-	// document content).
+	// The template data as a JSON-encoded string containing the pre-filled attributes for the entity type (e.g., issue fields, project configuration, or document content).
 	TemplateData string `json:"templateData"`
 }
 
@@ -1770,42 +2054,32 @@ func (v *Template) GetTeam() *TemplateTeam { return v.Team }
 // GetTemplateData returns Template.TemplateData, and is useful for accessing the field via an interface.
 func (v *Template) GetTemplateData() string { return v.TemplateData }
 
-// Input for creating a new template. A name, type, and template data are required.
-// If no team is specified, the template is shared across the workspace.
+// Input for creating a new template. A name, type, and template data are required. If no team is specified, the template is shared across the workspace.
 type TemplateCreateInput struct {
-	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
-	Id *string `json:"id,omitempty"`
-	// The template type, e.g. 'issue', 'project', or 'document'.
-	Type string `json:"type"`
-	// The identifier or key of the team associated with the template. If not given,
-	// the template will be shared across all teams.
-	TeamId *string `json:"teamId"`
-	// The template name.
-	Name string `json:"name"`
+	// The color of the template icon.
+	Color *string `json:"color,omitempty"`
 	// The template description.
 	Description *string `json:"description"`
 	// The icon of the template.
 	Icon *string `json:"icon,omitempty"`
-	// The color of the template icon.
-	Color *string `json:"color,omitempty"`
-	// The template data as JSON-encoded attributes of the target entity type, such
-	// as pre-filled issue fields, project configuration, or document content.
-	TemplateData string `json:"templateData"`
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id *string `json:"id,omitempty"`
+	// The template name.
+	Name string `json:"name"`
+	// The identifier of the release pipeline this template is bound to. Required when the template type is 'releaseNote' and rejected otherwise. Each pipeline can have at most one release note template.
+	PipelineId string `json:"pipelineId"`
 	// The sort position of the template in the templates list.
 	SortOrder *float64 `json:"sortOrder,omitempty"`
+	// The identifier or key of the team associated with the template. If not given, the template will be shared across all teams.
+	TeamId *string `json:"teamId"`
+	// The template data as JSON-encoded attributes of the target entity type, such as pre-filled issue fields, project configuration, or document content.
+	TemplateData string `json:"templateData"`
+	// The template type, e.g. 'issue', 'project', or 'document'.
+	Type string `json:"type"`
 }
 
-// GetId returns TemplateCreateInput.Id, and is useful for accessing the field via an interface.
-func (v *TemplateCreateInput) GetId() *string { return v.Id }
-
-// GetType returns TemplateCreateInput.Type, and is useful for accessing the field via an interface.
-func (v *TemplateCreateInput) GetType() string { return v.Type }
-
-// GetTeamId returns TemplateCreateInput.TeamId, and is useful for accessing the field via an interface.
-func (v *TemplateCreateInput) GetTeamId() *string { return v.TeamId }
-
-// GetName returns TemplateCreateInput.Name, and is useful for accessing the field via an interface.
-func (v *TemplateCreateInput) GetName() string { return v.Name }
+// GetColor returns TemplateCreateInput.Color, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetColor() *string { return v.Color }
 
 // GetDescription returns TemplateCreateInput.Description, and is useful for accessing the field via an interface.
 func (v *TemplateCreateInput) GetDescription() *string { return v.Description }
@@ -1813,22 +2087,31 @@ func (v *TemplateCreateInput) GetDescription() *string { return v.Description }
 // GetIcon returns TemplateCreateInput.Icon, and is useful for accessing the field via an interface.
 func (v *TemplateCreateInput) GetIcon() *string { return v.Icon }
 
-// GetColor returns TemplateCreateInput.Color, and is useful for accessing the field via an interface.
-func (v *TemplateCreateInput) GetColor() *string { return v.Color }
+// GetId returns TemplateCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetId() *string { return v.Id }
 
-// GetTemplateData returns TemplateCreateInput.TemplateData, and is useful for accessing the field via an interface.
-func (v *TemplateCreateInput) GetTemplateData() string { return v.TemplateData }
+// GetName returns TemplateCreateInput.Name, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetName() string { return v.Name }
+
+// GetPipelineId returns TemplateCreateInput.PipelineId, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetPipelineId() string { return v.PipelineId }
 
 // GetSortOrder returns TemplateCreateInput.SortOrder, and is useful for accessing the field via an interface.
 func (v *TemplateCreateInput) GetSortOrder() *float64 { return v.SortOrder }
 
+// GetTeamId returns TemplateCreateInput.TeamId, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetTeamId() *string { return v.TeamId }
+
+// GetTemplateData returns TemplateCreateInput.TemplateData, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetTemplateData() string { return v.TemplateData }
+
+// GetType returns TemplateCreateInput.Type, and is useful for accessing the field via an interface.
+func (v *TemplateCreateInput) GetType() string { return v.Type }
+
 // TemplateTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type TemplateTeam struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -1839,26 +2122,24 @@ func (v *TemplateTeam) GetId() string { return v.Id }
 
 // Input for updating an existing template. All fields are optional; only provided fields will be updated.
 type TemplateUpdateInput struct {
-	// The template name.
-	Name string `json:"name"`
+	// The color of the template icon.
+	Color *string `json:"color,omitempty"`
 	// The template description.
 	Description *string `json:"description"`
 	// The icon of the template.
 	Icon *string `json:"icon,omitempty"`
-	// The color of the template icon.
-	Color *string `json:"color,omitempty"`
-	// The identifier or key of the team associated with the template. If set to
-	// null, the template will be shared across all teams.
-	TeamId *string `json:"teamId"`
-	// The template data as JSON-encoded attributes of the target entity type, such
-	// as pre-filled issue fields, project configuration, or document content.
-	TemplateData string `json:"templateData"`
+	// The template name.
+	Name string `json:"name"`
 	// The position of the template in the templates list.
 	SortOrder *float64 `json:"sortOrder,omitempty"`
+	// The identifier or key of the team associated with the template. If set to null, the template will be shared across all teams.
+	TeamId *string `json:"teamId"`
+	// The template data as JSON-encoded attributes of the target entity type, such as pre-filled issue fields, project configuration, or document content.
+	TemplateData string `json:"templateData"`
 }
 
-// GetName returns TemplateUpdateInput.Name, and is useful for accessing the field via an interface.
-func (v *TemplateUpdateInput) GetName() string { return v.Name }
+// GetColor returns TemplateUpdateInput.Color, and is useful for accessing the field via an interface.
+func (v *TemplateUpdateInput) GetColor() *string { return v.Color }
 
 // GetDescription returns TemplateUpdateInput.Description, and is useful for accessing the field via an interface.
 func (v *TemplateUpdateInput) GetDescription() *string { return v.Description }
@@ -1866,8 +2147,11 @@ func (v *TemplateUpdateInput) GetDescription() *string { return v.Description }
 // GetIcon returns TemplateUpdateInput.Icon, and is useful for accessing the field via an interface.
 func (v *TemplateUpdateInput) GetIcon() *string { return v.Icon }
 
-// GetColor returns TemplateUpdateInput.Color, and is useful for accessing the field via an interface.
-func (v *TemplateUpdateInput) GetColor() *string { return v.Color }
+// GetName returns TemplateUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *TemplateUpdateInput) GetName() string { return v.Name }
+
+// GetSortOrder returns TemplateUpdateInput.SortOrder, and is useful for accessing the field via an interface.
+func (v *TemplateUpdateInput) GetSortOrder() *float64 { return v.SortOrder }
 
 // GetTeamId returns TemplateUpdateInput.TeamId, and is useful for accessing the field via an interface.
 func (v *TemplateUpdateInput) GetTeamId() *string { return v.TeamId }
@@ -1875,30 +2159,21 @@ func (v *TemplateUpdateInput) GetTeamId() *string { return v.TeamId }
 // GetTemplateData returns TemplateUpdateInput.TemplateData, and is useful for accessing the field via an interface.
 func (v *TemplateUpdateInput) GetTemplateData() string { return v.TemplateData }
 
-// GetSortOrder returns TemplateUpdateInput.SortOrder, and is useful for accessing the field via an interface.
-func (v *TemplateUpdateInput) GetSortOrder() *float64 { return v.SortOrder }
-
 // The different permission roles available to users in a workspace.
 type UserRoleType string
 
 const (
-	UserRoleTypeOwner UserRoleType = "owner"
 	UserRoleTypeAdmin UserRoleType = "admin"
-	UserRoleTypeGuest UserRoleType = "guest"
-	UserRoleTypeUser  UserRoleType = "user"
 	UserRoleTypeApp   UserRoleType = "app"
+	UserRoleTypeGuest UserRoleType = "guest"
+	UserRoleTypeOwner UserRoleType = "owner"
+	UserRoleTypeUser  UserRoleType = "user"
 )
 
 // WorkflowState includes the GraphQL fields of WorkflowState requested by the fragment WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team's workflow, representing an issue status such as Triage,
-// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
-// set of workflow states that define the progression of issues through the team's
-// process. Workflow states have a type that categorizes them (triage, backlog,
-// unstarted, started, completed, canceled), a position that determines their
-// display order, and a color for visual identification. States can be inherited
-// from parent teams to sub-teams.
+// A state in a team's workflow, representing an issue status such as Triage, Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own set of workflow states that define the progression of issues through the team's process. Workflow states have a type that categorizes them (triage, backlog, unstarted, started, completed, canceled), a position that determines their display order, and a color for visual identification. States can be inherited from parent teams to sub-teams.
 type WorkflowState struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -1910,8 +2185,7 @@ type WorkflowState struct {
 	Description *string `json:"description"`
 	// The type of the state. One of "triage", "backlog", "unstarted", "started", "completed", "canceled", "duplicate".
 	Type string `json:"type"`
-	// The position of the state in the team's workflow. States are displayed in
-	// ascending order of position within their type group.
+	// The position of the state in the team's workflow. States are displayed in ascending order of position within their type group.
 	Position float64 `json:"position"`
 	// The team that this workflow state belongs to. Each team has its own set of workflow states.
 	Team WorkflowStateTeam `json:"team"`
@@ -1940,32 +2214,21 @@ func (v *WorkflowState) GetTeam() WorkflowStateTeam { return v.Team }
 
 // Input for creating a new workflow state (issue status) in a team. The name, type, color, and team are required.
 type WorkflowStateCreateInput struct {
-	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
-	Id string `json:"id,omitempty"`
-	// The workflow state type, which categorizes the state. Valid values: backlog,
-	// unstarted, started, completed, canceled. The type determines how the state is
-	// treated in workflow progression and reporting.
-	Type string `json:"type"`
-	// The name of the state.
-	Name string `json:"name"`
 	// The color of the state.
 	Color string `json:"color"`
 	// The description of the state.
 	Description *string `json:"description"`
+	// The identifier in UUID v4 format. If none is provided, the backend will generate one.
+	Id string `json:"id,omitempty"`
+	// The name of the state.
+	Name string `json:"name"`
 	// The position of the state.
 	Position float64 `json:"position"`
 	// The team associated with the state.
 	TeamId string `json:"teamId"`
+	// The workflow state type, which categorizes the state. Valid values: backlog, unstarted, started, completed, canceled. The type determines how the state is treated in workflow progression and reporting.
+	Type string `json:"type"`
 }
-
-// GetId returns WorkflowStateCreateInput.Id, and is useful for accessing the field via an interface.
-func (v *WorkflowStateCreateInput) GetId() string { return v.Id }
-
-// GetType returns WorkflowStateCreateInput.Type, and is useful for accessing the field via an interface.
-func (v *WorkflowStateCreateInput) GetType() string { return v.Type }
-
-// GetName returns WorkflowStateCreateInput.Name, and is useful for accessing the field via an interface.
-func (v *WorkflowStateCreateInput) GetName() string { return v.Name }
 
 // GetColor returns WorkflowStateCreateInput.Color, and is useful for accessing the field via an interface.
 func (v *WorkflowStateCreateInput) GetColor() string { return v.Color }
@@ -1973,19 +2236,25 @@ func (v *WorkflowStateCreateInput) GetColor() string { return v.Color }
 // GetDescription returns WorkflowStateCreateInput.Description, and is useful for accessing the field via an interface.
 func (v *WorkflowStateCreateInput) GetDescription() *string { return v.Description }
 
+// GetId returns WorkflowStateCreateInput.Id, and is useful for accessing the field via an interface.
+func (v *WorkflowStateCreateInput) GetId() string { return v.Id }
+
+// GetName returns WorkflowStateCreateInput.Name, and is useful for accessing the field via an interface.
+func (v *WorkflowStateCreateInput) GetName() string { return v.Name }
+
 // GetPosition returns WorkflowStateCreateInput.Position, and is useful for accessing the field via an interface.
 func (v *WorkflowStateCreateInput) GetPosition() float64 { return v.Position }
 
 // GetTeamId returns WorkflowStateCreateInput.TeamId, and is useful for accessing the field via an interface.
 func (v *WorkflowStateCreateInput) GetTeamId() string { return v.TeamId }
 
+// GetType returns WorkflowStateCreateInput.Type, and is useful for accessing the field via an interface.
+func (v *WorkflowStateCreateInput) GetType() string { return v.Type }
+
 // WorkflowStateTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type WorkflowStateTeam struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -1994,27 +2263,26 @@ type WorkflowStateTeam struct {
 // GetId returns WorkflowStateTeam.Id, and is useful for accessing the field via an interface.
 func (v *WorkflowStateTeam) GetId() string { return v.Id }
 
-// Input for updating an existing workflow state. All fields are optional; only
-// provided fields will be updated. The state type cannot be changed after creation.
+// Input for updating an existing workflow state. All fields are optional; only provided fields will be updated. The state type cannot be changed after creation.
 type WorkflowStateUpdateInput struct {
-	// The name of the state.
-	Name string `json:"name,omitempty"`
 	// The color of the state.
 	Color string `json:"color,omitempty"`
 	// The description of the state.
 	Description *string `json:"description"`
+	// The name of the state.
+	Name string `json:"name,omitempty"`
 	// The position of the state.
 	Position float64 `json:"position"`
 }
-
-// GetName returns WorkflowStateUpdateInput.Name, and is useful for accessing the field via an interface.
-func (v *WorkflowStateUpdateInput) GetName() string { return v.Name }
 
 // GetColor returns WorkflowStateUpdateInput.Color, and is useful for accessing the field via an interface.
 func (v *WorkflowStateUpdateInput) GetColor() string { return v.Color }
 
 // GetDescription returns WorkflowStateUpdateInput.Description, and is useful for accessing the field via an interface.
 func (v *WorkflowStateUpdateInput) GetDescription() *string { return v.Description }
+
+// GetName returns WorkflowStateUpdateInput.Name, and is useful for accessing the field via an interface.
+func (v *WorkflowStateUpdateInput) GetName() string { return v.Name }
 
 // GetPosition returns WorkflowStateUpdateInput.Position, and is useful for accessing the field via an interface.
 func (v *WorkflowStateUpdateInput) GetPosition() float64 { return v.Position }
@@ -2044,6 +2312,22 @@ type __createLabelInput struct {
 
 // GetInput returns __createLabelInput.Input, and is useful for accessing the field via an interface.
 func (v *__createLabelInput) GetInput() IssueLabelCreateInput { return v.Input }
+
+// __createReleasePipelineInput is used internally by genqlient
+type __createReleasePipelineInput struct {
+	Input ReleasePipelineCreateInput `json:"input"`
+}
+
+// GetInput returns __createReleasePipelineInput.Input, and is useful for accessing the field via an interface.
+func (v *__createReleasePipelineInput) GetInput() ReleasePipelineCreateInput { return v.Input }
+
+// __createReleaseStageInput is used internally by genqlient
+type __createReleaseStageInput struct {
+	Input ReleaseStageCreateInput `json:"input"`
+}
+
+// GetInput returns __createReleaseStageInput.Input, and is useful for accessing the field via an interface.
+func (v *__createReleaseStageInput) GetInput() ReleaseStageCreateInput { return v.Input }
 
 // __createTeamInput is used internally by genqlient
 type __createTeamInput struct {
@@ -2084,6 +2368,22 @@ type __deleteLabelInput struct {
 
 // GetId returns __deleteLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__deleteLabelInput) GetId() string { return v.Id }
+
+// __deleteReleasePipelineInput is used internally by genqlient
+type __deleteReleasePipelineInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __deleteReleasePipelineInput.Id, and is useful for accessing the field via an interface.
+func (v *__deleteReleasePipelineInput) GetId() string { return v.Id }
+
+// __deleteReleaseStageInput is used internally by genqlient
+type __deleteReleaseStageInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __deleteReleaseStageInput.Id, and is useful for accessing the field via an interface.
+func (v *__deleteReleaseStageInput) GetId() string { return v.Id }
 
 // __deleteTeamInput is used internally by genqlient
 type __deleteTeamInput struct {
@@ -2140,6 +2440,22 @@ type __getLabelInput struct {
 
 // GetId returns __getLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__getLabelInput) GetId() string { return v.Id }
+
+// __getReleasePipelineInput is used internally by genqlient
+type __getReleasePipelineInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __getReleasePipelineInput.Id, and is useful for accessing the field via an interface.
+func (v *__getReleasePipelineInput) GetId() string { return v.Id }
+
+// __getReleaseStageInput is used internally by genqlient
+type __getReleaseStageInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __getReleaseStageInput.Id, and is useful for accessing the field via an interface.
+func (v *__getReleaseStageInput) GetId() string { return v.Id }
 
 // __getTeamInput is used internally by genqlient
 type __getTeamInput struct {
@@ -2233,6 +2549,30 @@ func (v *__updateLabelInput) GetInput() IssueLabelUpdateInput { return v.Input }
 // GetId returns __updateLabelInput.Id, and is useful for accessing the field via an interface.
 func (v *__updateLabelInput) GetId() string { return v.Id }
 
+// __updateReleasePipelineInput is used internally by genqlient
+type __updateReleasePipelineInput struct {
+	Input ReleasePipelineUpdateInput `json:"input"`
+	Id    string                     `json:"id"`
+}
+
+// GetInput returns __updateReleasePipelineInput.Input, and is useful for accessing the field via an interface.
+func (v *__updateReleasePipelineInput) GetInput() ReleasePipelineUpdateInput { return v.Input }
+
+// GetId returns __updateReleasePipelineInput.Id, and is useful for accessing the field via an interface.
+func (v *__updateReleasePipelineInput) GetId() string { return v.Id }
+
+// __updateReleaseStageInput is used internally by genqlient
+type __updateReleaseStageInput struct {
+	Input ReleaseStageUpdateInput `json:"input"`
+	Id    string                  `json:"id"`
+}
+
+// GetInput returns __updateReleaseStageInput.Input, and is useful for accessing the field via an interface.
+func (v *__updateReleaseStageInput) GetInput() ReleaseStageUpdateInput { return v.Input }
+
+// GetId returns __updateReleaseStageInput.Id, and is useful for accessing the field via an interface.
+func (v *__updateReleaseStageInput) GetId() string { return v.Id }
+
 // __updateTeamInput is used internally by genqlient
 type __updateTeamInput struct {
 	Input TeamUpdateInput `json:"input"`
@@ -2314,20 +2654,13 @@ func (v *createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutoma
 // createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch includes the requested fields of the GraphQL type GitAutomationTargetBranch.
 // The GraphQL type's documentation follows.
 //
-// A target branch definition used by Git automation rules to scope automations to
-// specific branches. The branch can be specified as an exact name (e.g., 'main')
-// or as a regular expression pattern (e.g., 'release/.*'). Each target branch
-// belongs to a team and can have multiple automation rules associated with it,
-// which override the team's default automation rules when a PR targets a matching branch.
+// A target branch definition used by Git automation rules to scope automations to specific branches. The branch can be specified as an exact name (e.g., 'main') or as a regular expression pattern (e.g., 'release/.*'). Each target branch belongs to a team and can have multiple automation rules associated with it, which override the team's default automation rules when a PR targets a matching branch.
 type createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayloadTargetBranchGitAutomationTargetBranch struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The branch name or pattern to match against pull request target branches.
-	// Interpreted as a literal branch name unless isRegex is true, in which case it
-	// is treated as a regular expression.
+	// The branch name or pattern to match against pull request target branches. Interpreted as a literal branch name unless isRegex is true, in which case it is treated as a regular expression.
 	BranchPattern string `json:"branchPattern"`
-	// Whether the branch pattern should be interpreted as a regular expression. When
-	// false, the pattern is matched as an exact branch name.
+	// Whether the branch pattern should be interpreted as a regular expression. When false, the pattern is matched as an exact branch name.
 	IsRegex bool `json:"isRegex"`
 }
 
@@ -2348,8 +2681,7 @@ func (v *createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutoma
 
 // createGitAutomationTargetBranchResponse is returned by createGitAutomationTargetBranch on success.
 type createGitAutomationTargetBranchResponse struct {
-	// Creates a new Git target branch definition that scopes automation rules to
-	// pull requests targeting a specific branch pattern.
+	// Creates a new Git target branch definition that scopes automation rules to pull requests targeting a specific branch pattern.
 	GitAutomationTargetBranchCreate createGitAutomationTargetBranchGitAutomationTargetBranchCreateGitAutomationTargetBranchPayload `json:"gitAutomationTargetBranchCreate"`
 }
 
@@ -2375,11 +2707,7 @@ func (v *createLabelIssueLabelCreateIssueLabelPayload) GetIssueLabel() createLab
 // createLabelIssueLabelCreateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues. Labels help categorize and filter
-// issues across a workspace. They can be workspace-level (shared across all teams)
-// or team-scoped. Labels have a color for visual identification and can be
-// organized hierarchically into groups, where a parent label acts as a group
-// containing child labels. Labels may also be inherited from parent teams to sub-teams.
+// Labels that can be associated with issues. Labels help categorize and filter issues across a workspace. They can be workspace-level (shared across all teams) or team-scoped. Labels have a color for visual identification and can be organized hierarchically into groups, where a parent label acts as a group containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type createLabelIssueLabelCreateIssueLabelPayloadIssueLabel struct {
 	IssueLabel `json:"-"`
 }
@@ -2492,11 +2820,277 @@ func (v *createLabelResponse) GetIssueLabelCreate() createLabelIssueLabelCreateI
 	return v.IssueLabelCreate
 }
 
+// createReleasePipelineReleasePipelineCreateReleasePipelinePayload includes the requested fields of the GraphQL type ReleasePipelinePayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a release pipeline mutation.
+type createReleasePipelineReleasePipelineCreateReleasePipelinePayload struct {
+	// The release pipeline that was created or updated.
+	ReleasePipeline createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline `json:"releasePipeline"`
+}
+
+// GetReleasePipeline returns createReleasePipelineReleasePipelineCreateReleasePipelinePayload.ReleasePipeline, and is useful for accessing the field via an interface.
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayload) GetReleasePipeline() createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline {
+	return v.ReleasePipeline
+}
+
+// createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline includes the requested fields of the GraphQL type ReleasePipeline.
+// The GraphQL type's documentation follows.
+//
+// [Internal] A release pipeline that defines a release workflow with ordered stages. Pipelines can be continuous (each sync creates a completed release) or scheduled (issues accumulate in a started release that is explicitly completed). Pipelines are associated with teams and can filter commits by file path patterns.
+type createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline struct {
+	ReleasePipelineFields `json:"-"`
+}
+
+// GetId returns createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline.Id, and is useful for accessing the field via an interface.
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) GetId() string {
+	return v.ReleasePipelineFields.Id
+}
+
+// GetName returns createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline.Name, and is useful for accessing the field via an interface.
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) GetName() string {
+	return v.ReleasePipelineFields.Name
+}
+
+// GetType returns createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline.Type, and is useful for accessing the field via an interface.
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) GetType() ReleasePipelineType {
+	return v.ReleasePipelineFields.Type
+}
+
+// GetIsProduction returns createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline.IsProduction, and is useful for accessing the field via an interface.
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) GetIsProduction() bool {
+	return v.ReleasePipelineFields.IsProduction
+}
+
+// GetIncludePathPatterns returns createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline.IncludePathPatterns, and is useful for accessing the field via an interface.
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) GetIncludePathPatterns() []string {
+	return v.ReleasePipelineFields.IncludePathPatterns
+}
+
+// GetSlugId returns createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline.SlugId, and is useful for accessing the field via an interface.
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) GetSlugId() string {
+	return v.ReleasePipelineFields.SlugId
+}
+
+// GetTeams returns createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline.Teams, and is useful for accessing the field via an interface.
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) GetTeams() ReleasePipelineFieldsTeamsTeamConnection {
+	return v.ReleasePipelineFields.Teams
+}
+
+// GetStages returns createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline.Stages, and is useful for accessing the field via an interface.
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) GetStages() ReleasePipelineFieldsStagesReleaseStageConnection {
+	return v.ReleasePipelineFields.Stages
+}
+
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.ReleasePipelineFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalcreateReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Type ReleasePipelineType `json:"type"`
+
+	IsProduction bool `json:"isProduction"`
+
+	IncludePathPatterns []string `json:"includePathPatterns"`
+
+	SlugId string `json:"slugId"`
+
+	Teams ReleasePipelineFieldsTeamsTeamConnection `json:"teams"`
+
+	Stages ReleasePipelineFieldsStagesReleaseStageConnection `json:"stages"`
+}
+
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *createReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline) __premarshalJSON() (*__premarshalcreateReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline, error) {
+	var retval __premarshalcreateReleasePipelineReleasePipelineCreateReleasePipelinePayloadReleasePipeline
+
+	retval.Id = v.ReleasePipelineFields.Id
+	retval.Name = v.ReleasePipelineFields.Name
+	retval.Type = v.ReleasePipelineFields.Type
+	retval.IsProduction = v.ReleasePipelineFields.IsProduction
+	retval.IncludePathPatterns = v.ReleasePipelineFields.IncludePathPatterns
+	retval.SlugId = v.ReleasePipelineFields.SlugId
+	retval.Teams = v.ReleasePipelineFields.Teams
+	retval.Stages = v.ReleasePipelineFields.Stages
+	return &retval, nil
+}
+
+// createReleasePipelineResponse is returned by createReleasePipeline on success.
+type createReleasePipelineResponse struct {
+	// [ALPHA] Creates a new release pipeline with default stages. Subject to plan entitlement and quota limits.
+	ReleasePipelineCreate createReleasePipelineReleasePipelineCreateReleasePipelinePayload `json:"releasePipelineCreate"`
+}
+
+// GetReleasePipelineCreate returns createReleasePipelineResponse.ReleasePipelineCreate, and is useful for accessing the field via an interface.
+func (v *createReleasePipelineResponse) GetReleasePipelineCreate() createReleasePipelineReleasePipelineCreateReleasePipelinePayload {
+	return v.ReleasePipelineCreate
+}
+
+// createReleaseStageReleaseStageCreateReleaseStagePayload includes the requested fields of the GraphQL type ReleaseStagePayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a release stage mutation.
+type createReleaseStageReleaseStageCreateReleaseStagePayload struct {
+	// The release stage that was created or updated.
+	ReleaseStage createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage `json:"releaseStage"`
+}
+
+// GetReleaseStage returns createReleaseStageReleaseStageCreateReleaseStagePayload.ReleaseStage, and is useful for accessing the field via an interface.
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayload) GetReleaseStage() createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage {
+	return v.ReleaseStage
+}
+
+// createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage includes the requested fields of the GraphQL type ReleaseStage.
+// The GraphQL type's documentation follows.
+//
+// [Internal] A stage within a release pipeline that represents a phase in the release lifecycle (e.g., Planned, In Progress, Completed, Canceled). Releases progress through stages as they move toward production. Started-type stages can be frozen to prevent new issues from being automatically synced into releases at that stage.
+type createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage struct {
+	ReleaseStageFields `json:"-"`
+}
+
+// GetId returns createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage.Id, and is useful for accessing the field via an interface.
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage) GetId() string {
+	return v.ReleaseStageFields.Id
+}
+
+// GetName returns createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage.Name, and is useful for accessing the field via an interface.
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage) GetName() string {
+	return v.ReleaseStageFields.Name
+}
+
+// GetType returns createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage.Type, and is useful for accessing the field via an interface.
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage) GetType() ReleaseStageType {
+	return v.ReleaseStageFields.Type
+}
+
+// GetColor returns createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage.Color, and is useful for accessing the field via an interface.
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage) GetColor() string {
+	return v.ReleaseStageFields.Color
+}
+
+// GetPosition returns createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage.Position, and is useful for accessing the field via an interface.
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage) GetPosition() float64 {
+	return v.ReleaseStageFields.Position
+}
+
+// GetFrozen returns createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage.Frozen, and is useful for accessing the field via an interface.
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage) GetFrozen() bool {
+	return v.ReleaseStageFields.Frozen
+}
+
+// GetPipeline returns createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage.Pipeline, and is useful for accessing the field via an interface.
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage) GetPipeline() ReleaseStageFieldsPipelineReleasePipeline {
+	return v.ReleaseStageFields.Pipeline
+}
+
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.ReleaseStageFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalcreateReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Type ReleaseStageType `json:"type"`
+
+	Color string `json:"color"`
+
+	Position float64 `json:"position"`
+
+	Frozen bool `json:"frozen"`
+
+	Pipeline ReleaseStageFieldsPipelineReleasePipeline `json:"pipeline"`
+}
+
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *createReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage) __premarshalJSON() (*__premarshalcreateReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage, error) {
+	var retval __premarshalcreateReleaseStageReleaseStageCreateReleaseStagePayloadReleaseStage
+
+	retval.Id = v.ReleaseStageFields.Id
+	retval.Name = v.ReleaseStageFields.Name
+	retval.Type = v.ReleaseStageFields.Type
+	retval.Color = v.ReleaseStageFields.Color
+	retval.Position = v.ReleaseStageFields.Position
+	retval.Frozen = v.ReleaseStageFields.Frozen
+	retval.Pipeline = v.ReleaseStageFields.Pipeline
+	return &retval, nil
+}
+
+// createReleaseStageResponse is returned by createReleaseStage on success.
+type createReleaseStageResponse struct {
+	// [ALPHA] Creates a new release stage in a pipeline. Non-started stages must use default names and colors, and only one stage of each non-started type is allowed per pipeline. Started stages can optionally be frozen, but at least one non-frozen started stage must remain.
+	ReleaseStageCreate createReleaseStageReleaseStageCreateReleaseStagePayload `json:"releaseStageCreate"`
+}
+
+// GetReleaseStageCreate returns createReleaseStageResponse.ReleaseStageCreate, and is useful for accessing the field via an interface.
+func (v *createReleaseStageResponse) GetReleaseStageCreate() createReleaseStageReleaseStageCreateReleaseStagePayload {
+	return v.ReleaseStageCreate
+}
+
 // createTeamResponse is returned by createTeam on success.
 type createTeamResponse struct {
-	// Creates a new team. The user who creates the team will automatically be added
-	// as a member and owner of the newly created team. Default workflow states,
-	// labels, and other team resources are created alongside the team.
+	// Creates a new team. The user who creates the team will automatically be added as a member and owner of the newly created team. Default workflow states, labels, and other team resources are created alongside the team.
 	TeamCreate createTeamTeamCreateTeamPayload `json:"teamCreate"`
 }
 
@@ -2520,10 +3114,7 @@ func (v *createTeamTeamCreateTeamPayload) GetTeam() createTeamTeamCreateTeamPayl
 // createTeamTeamCreateTeamPayloadTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type createTeamTeamCreateTeamPayloadTeam struct {
 	Team `json:"-"`
 }
@@ -2819,13 +3410,7 @@ func (v *createWorkflowStateWorkflowStateCreateWorkflowStatePayload) GetWorkflow
 // createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team's workflow, representing an issue status such as Triage,
-// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
-// set of workflow states that define the progression of issues through the team's
-// process. Workflow states have a type that categorizes them (triage, backlog,
-// unstarted, started, completed, canceled), a position that determines their
-// display order, and a color for visual identification. States can be inherited
-// from parent teams to sub-teams.
+// A state in a team's workflow, representing an issue status such as Triage, Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own set of workflow states that define the progression of issues through the team's process. Workflow states have a type that categorizes them (triage, backlog, unstarted, started, completed, canceled), a position that determines their display order, and a color for visual identification. States can be inherited from parent teams to sub-teams.
 type createWorkflowStateWorkflowStateCreateWorkflowStatePayloadWorkflowState struct {
 	WorkflowState `json:"-"`
 }
@@ -3000,6 +3585,54 @@ func (v *deleteLabelResponse) GetIssueLabelDelete() deleteLabelIssueLabelDeleteD
 	return v.IssueLabelDelete
 }
 
+// deleteReleasePipelineReleasePipelineDeleteDeletePayload includes the requested fields of the GraphQL type DeletePayload.
+// The GraphQL type's documentation follows.
+//
+// A generic payload return from entity deletion mutations.
+type deleteReleasePipelineReleasePipelineDeleteDeletePayload struct {
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns deleteReleasePipelineReleasePipelineDeleteDeletePayload.Success, and is useful for accessing the field via an interface.
+func (v *deleteReleasePipelineReleasePipelineDeleteDeletePayload) GetSuccess() bool { return v.Success }
+
+// deleteReleasePipelineResponse is returned by deleteReleasePipeline on success.
+type deleteReleasePipelineResponse struct {
+	// [ALPHA] Permanently deletes a release pipeline and all associated stages and releases.
+	ReleasePipelineDelete deleteReleasePipelineReleasePipelineDeleteDeletePayload `json:"releasePipelineDelete"`
+}
+
+// GetReleasePipelineDelete returns deleteReleasePipelineResponse.ReleasePipelineDelete, and is useful for accessing the field via an interface.
+func (v *deleteReleasePipelineResponse) GetReleasePipelineDelete() deleteReleasePipelineReleasePipelineDeleteDeletePayload {
+	return v.ReleasePipelineDelete
+}
+
+// deleteReleaseStageReleaseStageArchiveReleaseStageArchivePayload includes the requested fields of the GraphQL type ReleaseStageArchivePayload.
+// The GraphQL type's documentation follows.
+//
+// A generic payload return from entity archive mutations.
+type deleteReleaseStageReleaseStageArchiveReleaseStageArchivePayload struct {
+	// Whether the operation was successful.
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns deleteReleaseStageReleaseStageArchiveReleaseStageArchivePayload.Success, and is useful for accessing the field via an interface.
+func (v *deleteReleaseStageReleaseStageArchiveReleaseStageArchivePayload) GetSuccess() bool {
+	return v.Success
+}
+
+// deleteReleaseStageResponse is returned by deleteReleaseStage on success.
+type deleteReleaseStageResponse struct {
+	// [ALPHA] Archives a release stage. Only started-type stages can be archived, and only if they have no active releases and at least one other stage of the same type remains. Cannot archive the last non-frozen started stage.
+	ReleaseStageArchive deleteReleaseStageReleaseStageArchiveReleaseStageArchivePayload `json:"releaseStageArchive"`
+}
+
+// GetReleaseStageArchive returns deleteReleaseStageResponse.ReleaseStageArchive, and is useful for accessing the field via an interface.
+func (v *deleteReleaseStageResponse) GetReleaseStageArchive() deleteReleaseStageReleaseStageArchiveReleaseStageArchivePayload {
+	return v.ReleaseStageArchive
+}
+
 // deleteTeamResponse is returned by deleteTeam on success.
 type deleteTeamResponse struct {
 	// Archives a team and schedules its data for deletion. Requires team owner or workspace admin permissions.
@@ -3059,11 +3692,7 @@ func (v *findTeamLabelIssueLabelsIssueLabelConnection) GetNodes() []findTeamLabe
 // findTeamLabelIssueLabelsIssueLabelConnectionNodesIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues. Labels help categorize and filter
-// issues across a workspace. They can be workspace-level (shared across all teams)
-// or team-scoped. Labels have a color for visual identification and can be
-// organized hierarchically into groups, where a parent label acts as a group
-// containing child labels. Labels may also be inherited from parent teams to sub-teams.
+// Labels that can be associated with issues. Labels help categorize and filter issues across a workspace. They can be workspace-level (shared across all teams) or team-scoped. Labels have a color for visual identification and can be organized hierarchically into groups, where a parent label acts as a group containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type findTeamLabelIssueLabelsIssueLabelConnectionNodesIssueLabel struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -3074,8 +3703,7 @@ func (v *findTeamLabelIssueLabelsIssueLabelConnectionNodesIssueLabel) GetId() st
 
 // findTeamLabelResponse is returned by findTeamLabel on success.
 type findTeamLabelResponse struct {
-	// All issue labels. Returns a paginated list of labels visible to the
-	// authenticated user, including both workspace-level and team-scoped labels.
+	// All issue labels. Returns a paginated list of labels visible to the authenticated user, including both workspace-level and team-scoped labels.
 	IssueLabels findTeamLabelIssueLabelsIssueLabelConnection `json:"issueLabels"`
 }
 
@@ -3086,8 +3714,7 @@ func (v *findTeamLabelResponse) GetIssueLabels() findTeamLabelIssueLabelsIssueLa
 
 // findWorkflowStateResponse is returned by findWorkflowState on success.
 type findWorkflowStateResponse struct {
-	// All issue workflow states (issue statuses). Returns a paginated list of
-	// workflow states visible to the authenticated user, across all teams they have access to.
+	// All issue workflow states (issue statuses). Returns a paginated list of workflow states visible to the authenticated user, across all teams they have access to.
 	WorkflowStates findWorkflowStateWorkflowStatesWorkflowStateConnection `json:"workflowStates"`
 }
 
@@ -3109,13 +3736,7 @@ func (v *findWorkflowStateWorkflowStatesWorkflowStateConnection) GetNodes() []fi
 // findWorkflowStateWorkflowStatesWorkflowStateConnectionNodesWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team's workflow, representing an issue status such as Triage,
-// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
-// set of workflow states that define the progression of issues through the team's
-// process. Workflow states have a type that categorizes them (triage, backlog,
-// unstarted, started, completed, canceled), a position that determines their
-// display order, and a color for visual identification. States can be inherited
-// from parent teams to sub-teams.
+// A state in a team's workflow, representing an issue status such as Triage, Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own set of workflow states that define the progression of issues through the team's process. Workflow states have a type that categorizes them (triage, backlog, unstarted, started, completed, canceled), a position that determines their display order, and a color for visual identification. States can be inherited from parent teams to sub-teams.
 type findWorkflowStateWorkflowStatesWorkflowStateConnectionNodesWorkflowState struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -3139,16 +3760,11 @@ func (v *findWorkspaceLabelIssueLabelsIssueLabelConnection) GetNodes() []findWor
 // findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues. Labels help categorize and filter
-// issues across a workspace. They can be workspace-level (shared across all teams)
-// or team-scoped. Labels have a color for visual identification and can be
-// organized hierarchically into groups, where a parent label acts as a group
-// containing child labels. Labels may also be inherited from parent teams to sub-teams.
+// Labels that can be associated with issues. Labels help categorize and filter issues across a workspace. They can be workspace-level (shared across all teams) or team-scoped. Labels have a color for visual identification and can be organized hierarchically into groups, where a parent label acts as a group containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
-	// The team that the label is scoped to. If null, the label is a workspace-level
-	// label available to all teams in the workspace.
+	// The team that the label is scoped to. If null, the label is a workspace-level label available to all teams in the workspace.
 	Team findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam `json:"team"`
 }
 
@@ -3165,10 +3781,7 @@ func (v *findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabel) GetTe
 // findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -3181,8 +3794,7 @@ func (v *findWorkspaceLabelIssueLabelsIssueLabelConnectionNodesIssueLabelTeam) G
 
 // findWorkspaceLabelResponse is returned by findWorkspaceLabel on success.
 type findWorkspaceLabelResponse struct {
-	// All issue labels. Returns a paginated list of labels visible to the
-	// authenticated user, including both workspace-level and team-scoped labels.
+	// All issue labels. Returns a paginated list of labels visible to the authenticated user, including both workspace-level and team-scoped labels.
 	IssueLabels findWorkspaceLabelIssueLabelsIssueLabelConnection `json:"issueLabels"`
 }
 
@@ -3194,11 +3806,7 @@ func (v *findWorkspaceLabelResponse) GetIssueLabels() findWorkspaceLabelIssueLab
 // getLabelIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues. Labels help categorize and filter
-// issues across a workspace. They can be workspace-level (shared across all teams)
-// or team-scoped. Labels have a color for visual identification and can be
-// organized hierarchically into groups, where a parent label acts as a group
-// containing child labels. Labels may also be inherited from parent teams to sub-teams.
+// Labels that can be associated with issues. Labels help categorize and filter issues across a workspace. They can be workspace-level (shared across all teams) or team-scoped. Labels have a color for visual identification and can be organized hierarchically into groups, where a parent label acts as a group containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type getLabelIssueLabel struct {
 	IssueLabel `json:"-"`
 }
@@ -3295,6 +3903,228 @@ type getLabelResponse struct {
 // GetIssueLabel returns getLabelResponse.IssueLabel, and is useful for accessing the field via an interface.
 func (v *getLabelResponse) GetIssueLabel() getLabelIssueLabel { return v.IssueLabel }
 
+// getReleasePipelineReleasePipeline includes the requested fields of the GraphQL type ReleasePipeline.
+// The GraphQL type's documentation follows.
+//
+// [Internal] A release pipeline that defines a release workflow with ordered stages. Pipelines can be continuous (each sync creates a completed release) or scheduled (issues accumulate in a started release that is explicitly completed). Pipelines are associated with teams and can filter commits by file path patterns.
+type getReleasePipelineReleasePipeline struct {
+	ReleasePipelineFields `json:"-"`
+}
+
+// GetId returns getReleasePipelineReleasePipeline.Id, and is useful for accessing the field via an interface.
+func (v *getReleasePipelineReleasePipeline) GetId() string { return v.ReleasePipelineFields.Id }
+
+// GetName returns getReleasePipelineReleasePipeline.Name, and is useful for accessing the field via an interface.
+func (v *getReleasePipelineReleasePipeline) GetName() string { return v.ReleasePipelineFields.Name }
+
+// GetType returns getReleasePipelineReleasePipeline.Type, and is useful for accessing the field via an interface.
+func (v *getReleasePipelineReleasePipeline) GetType() ReleasePipelineType {
+	return v.ReleasePipelineFields.Type
+}
+
+// GetIsProduction returns getReleasePipelineReleasePipeline.IsProduction, and is useful for accessing the field via an interface.
+func (v *getReleasePipelineReleasePipeline) GetIsProduction() bool {
+	return v.ReleasePipelineFields.IsProduction
+}
+
+// GetIncludePathPatterns returns getReleasePipelineReleasePipeline.IncludePathPatterns, and is useful for accessing the field via an interface.
+func (v *getReleasePipelineReleasePipeline) GetIncludePathPatterns() []string {
+	return v.ReleasePipelineFields.IncludePathPatterns
+}
+
+// GetSlugId returns getReleasePipelineReleasePipeline.SlugId, and is useful for accessing the field via an interface.
+func (v *getReleasePipelineReleasePipeline) GetSlugId() string { return v.ReleasePipelineFields.SlugId }
+
+// GetTeams returns getReleasePipelineReleasePipeline.Teams, and is useful for accessing the field via an interface.
+func (v *getReleasePipelineReleasePipeline) GetTeams() ReleasePipelineFieldsTeamsTeamConnection {
+	return v.ReleasePipelineFields.Teams
+}
+
+// GetStages returns getReleasePipelineReleasePipeline.Stages, and is useful for accessing the field via an interface.
+func (v *getReleasePipelineReleasePipeline) GetStages() ReleasePipelineFieldsStagesReleaseStageConnection {
+	return v.ReleasePipelineFields.Stages
+}
+
+func (v *getReleasePipelineReleasePipeline) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*getReleasePipelineReleasePipeline
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.getReleasePipelineReleasePipeline = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.ReleasePipelineFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalgetReleasePipelineReleasePipeline struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Type ReleasePipelineType `json:"type"`
+
+	IsProduction bool `json:"isProduction"`
+
+	IncludePathPatterns []string `json:"includePathPatterns"`
+
+	SlugId string `json:"slugId"`
+
+	Teams ReleasePipelineFieldsTeamsTeamConnection `json:"teams"`
+
+	Stages ReleasePipelineFieldsStagesReleaseStageConnection `json:"stages"`
+}
+
+func (v *getReleasePipelineReleasePipeline) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *getReleasePipelineReleasePipeline) __premarshalJSON() (*__premarshalgetReleasePipelineReleasePipeline, error) {
+	var retval __premarshalgetReleasePipelineReleasePipeline
+
+	retval.Id = v.ReleasePipelineFields.Id
+	retval.Name = v.ReleasePipelineFields.Name
+	retval.Type = v.ReleasePipelineFields.Type
+	retval.IsProduction = v.ReleasePipelineFields.IsProduction
+	retval.IncludePathPatterns = v.ReleasePipelineFields.IncludePathPatterns
+	retval.SlugId = v.ReleasePipelineFields.SlugId
+	retval.Teams = v.ReleasePipelineFields.Teams
+	retval.Stages = v.ReleasePipelineFields.Stages
+	return &retval, nil
+}
+
+// getReleasePipelineResponse is returned by getReleasePipeline on success.
+type getReleasePipelineResponse struct {
+	// [ALPHA] Fetch a single release pipeline by its UUID or slug identifier.
+	ReleasePipeline getReleasePipelineReleasePipeline `json:"releasePipeline"`
+}
+
+// GetReleasePipeline returns getReleasePipelineResponse.ReleasePipeline, and is useful for accessing the field via an interface.
+func (v *getReleasePipelineResponse) GetReleasePipeline() getReleasePipelineReleasePipeline {
+	return v.ReleasePipeline
+}
+
+// getReleaseStageReleaseStage includes the requested fields of the GraphQL type ReleaseStage.
+// The GraphQL type's documentation follows.
+//
+// [Internal] A stage within a release pipeline that represents a phase in the release lifecycle (e.g., Planned, In Progress, Completed, Canceled). Releases progress through stages as they move toward production. Started-type stages can be frozen to prevent new issues from being automatically synced into releases at that stage.
+type getReleaseStageReleaseStage struct {
+	ReleaseStageFields `json:"-"`
+}
+
+// GetId returns getReleaseStageReleaseStage.Id, and is useful for accessing the field via an interface.
+func (v *getReleaseStageReleaseStage) GetId() string { return v.ReleaseStageFields.Id }
+
+// GetName returns getReleaseStageReleaseStage.Name, and is useful for accessing the field via an interface.
+func (v *getReleaseStageReleaseStage) GetName() string { return v.ReleaseStageFields.Name }
+
+// GetType returns getReleaseStageReleaseStage.Type, and is useful for accessing the field via an interface.
+func (v *getReleaseStageReleaseStage) GetType() ReleaseStageType { return v.ReleaseStageFields.Type }
+
+// GetColor returns getReleaseStageReleaseStage.Color, and is useful for accessing the field via an interface.
+func (v *getReleaseStageReleaseStage) GetColor() string { return v.ReleaseStageFields.Color }
+
+// GetPosition returns getReleaseStageReleaseStage.Position, and is useful for accessing the field via an interface.
+func (v *getReleaseStageReleaseStage) GetPosition() float64 { return v.ReleaseStageFields.Position }
+
+// GetFrozen returns getReleaseStageReleaseStage.Frozen, and is useful for accessing the field via an interface.
+func (v *getReleaseStageReleaseStage) GetFrozen() bool { return v.ReleaseStageFields.Frozen }
+
+// GetPipeline returns getReleaseStageReleaseStage.Pipeline, and is useful for accessing the field via an interface.
+func (v *getReleaseStageReleaseStage) GetPipeline() ReleaseStageFieldsPipelineReleasePipeline {
+	return v.ReleaseStageFields.Pipeline
+}
+
+func (v *getReleaseStageReleaseStage) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*getReleaseStageReleaseStage
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.getReleaseStageReleaseStage = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.ReleaseStageFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalgetReleaseStageReleaseStage struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Type ReleaseStageType `json:"type"`
+
+	Color string `json:"color"`
+
+	Position float64 `json:"position"`
+
+	Frozen bool `json:"frozen"`
+
+	Pipeline ReleaseStageFieldsPipelineReleasePipeline `json:"pipeline"`
+}
+
+func (v *getReleaseStageReleaseStage) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *getReleaseStageReleaseStage) __premarshalJSON() (*__premarshalgetReleaseStageReleaseStage, error) {
+	var retval __premarshalgetReleaseStageReleaseStage
+
+	retval.Id = v.ReleaseStageFields.Id
+	retval.Name = v.ReleaseStageFields.Name
+	retval.Type = v.ReleaseStageFields.Type
+	retval.Color = v.ReleaseStageFields.Color
+	retval.Position = v.ReleaseStageFields.Position
+	retval.Frozen = v.ReleaseStageFields.Frozen
+	retval.Pipeline = v.ReleaseStageFields.Pipeline
+	return &retval, nil
+}
+
+// getReleaseStageResponse is returned by getReleaseStage on success.
+type getReleaseStageResponse struct {
+	// [ALPHA] Fetch a single release stage by its UUID.
+	ReleaseStage getReleaseStageReleaseStage `json:"releaseStage"`
+}
+
+// GetReleaseStage returns getReleaseStageResponse.ReleaseStage, and is useful for accessing the field via an interface.
+func (v *getReleaseStageResponse) GetReleaseStage() getReleaseStageReleaseStage {
+	return v.ReleaseStage
+}
+
 // getTeamResponse is returned by getTeam on success.
 type getTeamResponse struct {
 	// Fetches a specific team by its ID.
@@ -3307,10 +4137,7 @@ func (v *getTeamResponse) GetTeam() getTeamTeam { return v.Team }
 // getTeamTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type getTeamTeam struct {
 	Team `json:"-"`
 }
@@ -3561,8 +4388,7 @@ func (v *getTeamWorkflowResponse) GetTeam() getTeamWorkflowTeam { return v.Team 
 
 // getTeamWorkflowStatesResponse is returned by getTeamWorkflowStates on success.
 type getTeamWorkflowStatesResponse struct {
-	// All issue workflow states (issue statuses). Returns a paginated list of
-	// workflow states visible to the authenticated user, across all teams they have access to.
+	// All issue workflow states (issue statuses). Returns a paginated list of workflow states visible to the authenticated user, across all teams they have access to.
 	WorkflowStates getTeamWorkflowStatesWorkflowStatesWorkflowStateConnection `json:"workflowStates"`
 }
 
@@ -3584,13 +4410,7 @@ func (v *getTeamWorkflowStatesWorkflowStatesWorkflowStateConnection) GetNodes() 
 // getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team's workflow, representing an issue status such as Triage,
-// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
-// set of workflow states that define the progression of issues through the team's
-// process. Workflow states have a type that categorizes them (triage, backlog,
-// unstarted, started, completed, canceled), a position that determines their
-// display order, and a color for visual identification. States can be inherited
-// from parent teams to sub-teams.
+// A state in a team's workflow, representing an issue status such as Triage, Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own set of workflow states that define the progression of issues through the team's process. Workflow states have a type that categorizes them (triage, backlog, unstarted, started, completed, canceled), a position that determines their display order, and a color for visual identification. States can be inherited from parent teams to sub-teams.
 type getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflowState struct {
 	WorkflowState `json:"-"`
 }
@@ -3695,10 +4515,7 @@ func (v *getTeamWorkflowStatesWorkflowStatesWorkflowStateConnectionNodesWorkflow
 // getTeamWorkflowTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type getTeamWorkflowTeam struct {
 	TeamWorkflow `json:"-"`
 }
@@ -3776,10 +4593,7 @@ func (v *getTemplateResponse) GetTemplate() getTemplateTemplate { return v.Templ
 // getTemplateTemplate includes the requested fields of the GraphQL type Template.
 // The GraphQL type's documentation follows.
 //
-// A reusable template for creating issues, projects, or documents. Templates store
-// pre-filled field values and content as JSON data. They can be scoped to a
-// specific team or shared across the entire workspace. Team-scoped templates may
-// be inherited from parent teams.
+// A reusable template for creating issues, projects, or documents. Templates store pre-filled field values and content as JSON data. They can be scoped to a specific team or shared across the entire workspace. Team-scoped templates may be inherited from parent teams.
 type getTemplateTemplate struct {
 	Template `json:"-"`
 }
@@ -3887,13 +4701,7 @@ func (v *getWorkflowStateResponse) GetWorkflowState() getWorkflowStateWorkflowSt
 // getWorkflowStateWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team's workflow, representing an issue status such as Triage,
-// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
-// set of workflow states that define the progression of issues through the team's
-// process. Workflow states have a type that categorizes them (triage, backlog,
-// unstarted, started, completed, canceled), a position that determines their
-// display order, and a color for visual identification. States can be inherited
-// from parent teams to sub-teams.
+// A state in a team's workflow, representing an issue status such as Triage, Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own set of workflow states that define the progression of issues through the team's process. Workflow states have a type that categorizes them (triage, backlog, unstarted, started, completed, canceled), a position that determines their display order, and a color for visual identification. States can be inherited from parent teams to sub-teams.
 type getWorkflowStateWorkflowState struct {
 	WorkflowState `json:"-"`
 }
@@ -3984,10 +4792,7 @@ func (v *getWorkflowStateWorkflowState) __premarshalJSON() (*__premarshalgetWork
 // getWorkspaceOrganization includes the requested fields of the GraphQL type Organization.
 // The GraphQL type's documentation follows.
 //
-// A workspace (referred to as Organization in the API). Workspaces are the
-// root-level container for all teams, users, projects, issues, and settings. Every
-// user belongs to at least one workspace, and all data is scoped within a
-// workspace boundary.
+// A workspace (referred to as Organization in the API). Workspaces are the root-level container for all teams, users, projects, issues, and settings. Every user belongs to at least one workspace, and all data is scoped within a workspace boundary.
 type getWorkspaceOrganization struct {
 	// The unique identifier of the entity.
 	Id string `json:"id"`
@@ -4018,10 +4823,7 @@ func (v *getWorkspaceResponse) GetOrganization() getWorkspaceOrganization { retu
 // getWorkspaceSettingsOrganization includes the requested fields of the GraphQL type Organization.
 // The GraphQL type's documentation follows.
 //
-// A workspace (referred to as Organization in the API). Workspaces are the
-// root-level container for all teams, users, projects, issues, and settings. Every
-// user belongs to at least one workspace, and all data is scoped within a
-// workspace boundary.
+// A workspace (referred to as Organization in the API). Workspaces are the root-level container for all teams, users, projects, issues, and settings. Every user belongs to at least one workspace, and all data is scoped within a workspace boundary.
 type getWorkspaceSettingsOrganization struct {
 	Organization `json:"-"`
 }
@@ -4222,10 +5024,7 @@ func (v *templateCreateTemplateCreateTemplatePayload) GetTemplate() templateCrea
 // templateCreateTemplateCreateTemplatePayloadTemplate includes the requested fields of the GraphQL type Template.
 // The GraphQL type's documentation follows.
 //
-// A reusable template for creating issues, projects, or documents. Templates store
-// pre-filled field values and content as JSON data. They can be scoped to a
-// specific team or shared across the entire workspace. Team-scoped templates may
-// be inherited from parent teams.
+// A reusable template for creating issues, projects, or documents. Templates store pre-filled field values and content as JSON data. They can be scoped to a specific team or shared across the entire workspace. Team-scoped templates may be inherited from parent teams.
 type templateCreateTemplateCreateTemplatePayloadTemplate struct {
 	Template `json:"-"`
 }
@@ -4384,10 +5183,7 @@ func (v *templateUpdateTemplateUpdateTemplatePayload) GetTemplate() templateUpda
 // templateUpdateTemplateUpdateTemplatePayloadTemplate includes the requested fields of the GraphQL type Template.
 // The GraphQL type's documentation follows.
 //
-// A reusable template for creating issues, projects, or documents. Templates store
-// pre-filled field values and content as JSON data. They can be scoped to a
-// specific team or shared across the entire workspace. Team-scoped templates may
-// be inherited from parent teams.
+// A reusable template for creating issues, projects, or documents. Templates store pre-filled field values and content as JSON data. They can be scoped to a specific team or shared across the entire workspace. Team-scoped templates may be inherited from parent teams.
 type templateUpdateTemplateUpdateTemplatePayloadTemplate struct {
 	Template `json:"-"`
 }
@@ -4537,11 +5333,7 @@ func (v *updateLabelIssueLabelUpdateIssueLabelPayload) GetIssueLabel() updateLab
 // updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel includes the requested fields of the GraphQL type IssueLabel.
 // The GraphQL type's documentation follows.
 //
-// Labels that can be associated with issues. Labels help categorize and filter
-// issues across a workspace. They can be workspace-level (shared across all teams)
-// or team-scoped. Labels have a color for visual identification and can be
-// organized hierarchically into groups, where a parent label acts as a group
-// containing child labels. Labels may also be inherited from parent teams to sub-teams.
+// Labels that can be associated with issues. Labels help categorize and filter issues across a workspace. They can be workspace-level (shared across all teams) or team-scoped. Labels have a color for visual identification and can be organized hierarchically into groups, where a parent label acts as a group containing child labels. Labels may also be inherited from parent teams to sub-teams.
 type updateLabelIssueLabelUpdateIssueLabelPayloadIssueLabel struct {
 	IssueLabel `json:"-"`
 }
@@ -4654,10 +5446,277 @@ func (v *updateLabelResponse) GetIssueLabelUpdate() updateLabelIssueLabelUpdateI
 	return v.IssueLabelUpdate
 }
 
+// updateReleasePipelineReleasePipelineUpdateReleasePipelinePayload includes the requested fields of the GraphQL type ReleasePipelinePayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a release pipeline mutation.
+type updateReleasePipelineReleasePipelineUpdateReleasePipelinePayload struct {
+	// The release pipeline that was created or updated.
+	ReleasePipeline updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline `json:"releasePipeline"`
+}
+
+// GetReleasePipeline returns updateReleasePipelineReleasePipelineUpdateReleasePipelinePayload.ReleasePipeline, and is useful for accessing the field via an interface.
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayload) GetReleasePipeline() updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline {
+	return v.ReleasePipeline
+}
+
+// updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline includes the requested fields of the GraphQL type ReleasePipeline.
+// The GraphQL type's documentation follows.
+//
+// [Internal] A release pipeline that defines a release workflow with ordered stages. Pipelines can be continuous (each sync creates a completed release) or scheduled (issues accumulate in a started release that is explicitly completed). Pipelines are associated with teams and can filter commits by file path patterns.
+type updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline struct {
+	ReleasePipelineFields `json:"-"`
+}
+
+// GetId returns updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline.Id, and is useful for accessing the field via an interface.
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) GetId() string {
+	return v.ReleasePipelineFields.Id
+}
+
+// GetName returns updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline.Name, and is useful for accessing the field via an interface.
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) GetName() string {
+	return v.ReleasePipelineFields.Name
+}
+
+// GetType returns updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline.Type, and is useful for accessing the field via an interface.
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) GetType() ReleasePipelineType {
+	return v.ReleasePipelineFields.Type
+}
+
+// GetIsProduction returns updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline.IsProduction, and is useful for accessing the field via an interface.
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) GetIsProduction() bool {
+	return v.ReleasePipelineFields.IsProduction
+}
+
+// GetIncludePathPatterns returns updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline.IncludePathPatterns, and is useful for accessing the field via an interface.
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) GetIncludePathPatterns() []string {
+	return v.ReleasePipelineFields.IncludePathPatterns
+}
+
+// GetSlugId returns updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline.SlugId, and is useful for accessing the field via an interface.
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) GetSlugId() string {
+	return v.ReleasePipelineFields.SlugId
+}
+
+// GetTeams returns updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline.Teams, and is useful for accessing the field via an interface.
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) GetTeams() ReleasePipelineFieldsTeamsTeamConnection {
+	return v.ReleasePipelineFields.Teams
+}
+
+// GetStages returns updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline.Stages, and is useful for accessing the field via an interface.
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) GetStages() ReleasePipelineFieldsStagesReleaseStageConnection {
+	return v.ReleasePipelineFields.Stages
+}
+
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.ReleasePipelineFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalupdateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Type ReleasePipelineType `json:"type"`
+
+	IsProduction bool `json:"isProduction"`
+
+	IncludePathPatterns []string `json:"includePathPatterns"`
+
+	SlugId string `json:"slugId"`
+
+	Teams ReleasePipelineFieldsTeamsTeamConnection `json:"teams"`
+
+	Stages ReleasePipelineFieldsStagesReleaseStageConnection `json:"stages"`
+}
+
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *updateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline) __premarshalJSON() (*__premarshalupdateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline, error) {
+	var retval __premarshalupdateReleasePipelineReleasePipelineUpdateReleasePipelinePayloadReleasePipeline
+
+	retval.Id = v.ReleasePipelineFields.Id
+	retval.Name = v.ReleasePipelineFields.Name
+	retval.Type = v.ReleasePipelineFields.Type
+	retval.IsProduction = v.ReleasePipelineFields.IsProduction
+	retval.IncludePathPatterns = v.ReleasePipelineFields.IncludePathPatterns
+	retval.SlugId = v.ReleasePipelineFields.SlugId
+	retval.Teams = v.ReleasePipelineFields.Teams
+	retval.Stages = v.ReleasePipelineFields.Stages
+	return &retval, nil
+}
+
+// updateReleasePipelineResponse is returned by updateReleasePipeline on success.
+type updateReleasePipelineResponse struct {
+	// [ALPHA] Updates an existing release pipeline. Supports updating name, slug, type, production flag, path patterns, and team associations. Private teams that the current user cannot access are preserved in the team list.
+	ReleasePipelineUpdate updateReleasePipelineReleasePipelineUpdateReleasePipelinePayload `json:"releasePipelineUpdate"`
+}
+
+// GetReleasePipelineUpdate returns updateReleasePipelineResponse.ReleasePipelineUpdate, and is useful for accessing the field via an interface.
+func (v *updateReleasePipelineResponse) GetReleasePipelineUpdate() updateReleasePipelineReleasePipelineUpdateReleasePipelinePayload {
+	return v.ReleasePipelineUpdate
+}
+
+// updateReleaseStageReleaseStageUpdateReleaseStagePayload includes the requested fields of the GraphQL type ReleaseStagePayload.
+// The GraphQL type's documentation follows.
+//
+// The result of a release stage mutation.
+type updateReleaseStageReleaseStageUpdateReleaseStagePayload struct {
+	// The release stage that was created or updated.
+	ReleaseStage updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage `json:"releaseStage"`
+}
+
+// GetReleaseStage returns updateReleaseStageReleaseStageUpdateReleaseStagePayload.ReleaseStage, and is useful for accessing the field via an interface.
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayload) GetReleaseStage() updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage {
+	return v.ReleaseStage
+}
+
+// updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage includes the requested fields of the GraphQL type ReleaseStage.
+// The GraphQL type's documentation follows.
+//
+// [Internal] A stage within a release pipeline that represents a phase in the release lifecycle (e.g., Planned, In Progress, Completed, Canceled). Releases progress through stages as they move toward production. Started-type stages can be frozen to prevent new issues from being automatically synced into releases at that stage.
+type updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage struct {
+	ReleaseStageFields `json:"-"`
+}
+
+// GetId returns updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage.Id, and is useful for accessing the field via an interface.
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage) GetId() string {
+	return v.ReleaseStageFields.Id
+}
+
+// GetName returns updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage.Name, and is useful for accessing the field via an interface.
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage) GetName() string {
+	return v.ReleaseStageFields.Name
+}
+
+// GetType returns updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage.Type, and is useful for accessing the field via an interface.
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage) GetType() ReleaseStageType {
+	return v.ReleaseStageFields.Type
+}
+
+// GetColor returns updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage.Color, and is useful for accessing the field via an interface.
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage) GetColor() string {
+	return v.ReleaseStageFields.Color
+}
+
+// GetPosition returns updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage.Position, and is useful for accessing the field via an interface.
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage) GetPosition() float64 {
+	return v.ReleaseStageFields.Position
+}
+
+// GetFrozen returns updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage.Frozen, and is useful for accessing the field via an interface.
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage) GetFrozen() bool {
+	return v.ReleaseStageFields.Frozen
+}
+
+// GetPipeline returns updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage.Pipeline, and is useful for accessing the field via an interface.
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage) GetPipeline() ReleaseStageFieldsPipelineReleasePipeline {
+	return v.ReleaseStageFields.Pipeline
+}
+
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.ReleaseStageFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalupdateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Type ReleaseStageType `json:"type"`
+
+	Color string `json:"color"`
+
+	Position float64 `json:"position"`
+
+	Frozen bool `json:"frozen"`
+
+	Pipeline ReleaseStageFieldsPipelineReleasePipeline `json:"pipeline"`
+}
+
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *updateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage) __premarshalJSON() (*__premarshalupdateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage, error) {
+	var retval __premarshalupdateReleaseStageReleaseStageUpdateReleaseStagePayloadReleaseStage
+
+	retval.Id = v.ReleaseStageFields.Id
+	retval.Name = v.ReleaseStageFields.Name
+	retval.Type = v.ReleaseStageFields.Type
+	retval.Color = v.ReleaseStageFields.Color
+	retval.Position = v.ReleaseStageFields.Position
+	retval.Frozen = v.ReleaseStageFields.Frozen
+	retval.Pipeline = v.ReleaseStageFields.Pipeline
+	return &retval, nil
+}
+
+// updateReleaseStageResponse is returned by updateReleaseStage on success.
+type updateReleaseStageResponse struct {
+	// [ALPHA] Updates an existing release stage. Only started-type stages can be edited. Supports updating name, color, position, and frozen status.
+	ReleaseStageUpdate updateReleaseStageReleaseStageUpdateReleaseStagePayload `json:"releaseStageUpdate"`
+}
+
+// GetReleaseStageUpdate returns updateReleaseStageResponse.ReleaseStageUpdate, and is useful for accessing the field via an interface.
+func (v *updateReleaseStageResponse) GetReleaseStageUpdate() updateReleaseStageReleaseStageUpdateReleaseStagePayload {
+	return v.ReleaseStageUpdate
+}
+
 // updateTeamResponse is returned by updateTeam on success.
 type updateTeamResponse struct {
-	// Updates a team's settings, properties, or configuration. Requires team owner
-	// or workspace admin permissions for most changes.
+	// Updates a team's settings, properties, or configuration. Requires team owner or workspace admin permissions for most changes.
 	TeamUpdate updateTeamTeamUpdateTeamPayload `json:"teamUpdate"`
 }
 
@@ -4681,10 +5740,7 @@ func (v *updateTeamTeamUpdateTeamPayload) GetTeam() updateTeamTeamUpdateTeamPayl
 // updateTeamTeamUpdateTeamPayloadTeam includes the requested fields of the GraphQL type Team.
 // The GraphQL type's documentation follows.
 //
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
+// A team is the primary organizational unit in Linear. Issues belong to teams, and each team has its own workflow states, cycles, labels, and settings. Teams can be public (visible to all workspace members) or private (visible only to team members). Teams can also have sub-teams that inherit settings from their parent.
 type updateTeamTeamUpdateTeamPayloadTeam struct {
 	Team `json:"-"`
 }
@@ -4980,13 +6036,7 @@ func (v *updateWorkflowStateWorkflowStateUpdateWorkflowStatePayload) GetWorkflow
 // updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState includes the requested fields of the GraphQL type WorkflowState.
 // The GraphQL type's documentation follows.
 //
-// A state in a team's workflow, representing an issue status such as Triage,
-// Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own
-// set of workflow states that define the progression of issues through the team's
-// process. Workflow states have a type that categorizes them (triage, backlog,
-// unstarted, started, completed, canceled), a position that determines their
-// display order, and a color for visual identification. States can be inherited
-// from parent teams to sub-teams.
+// A state in a team's workflow, representing an issue status such as Triage, Backlog, Todo, In Progress, In Review, Done, or Canceled. Each team has its own set of workflow states that define the progression of issues through the team's process. Workflow states have a type that categorizes them (triage, backlog, unstarted, started, completed, canceled), a position that determines their display order, and a color for visual identification. States can be inherited from parent teams to sub-teams.
 type updateWorkflowStateWorkflowStateUpdateWorkflowStatePayloadWorkflowState struct {
 	WorkflowState `json:"-"`
 }
@@ -5105,10 +6155,7 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayload) GetOrgani
 // updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization includes the requested fields of the GraphQL type Organization.
 // The GraphQL type's documentation follows.
 //
-// A workspace (referred to as Organization in the API). Workspaces are the
-// root-level container for all teams, users, projects, issues, and settings. Every
-// user belongs to at least one workspace, and all data is scoped within a
-// workspace boundary.
+// A workspace (referred to as Organization in the API). Workspaces are the root-level container for all teams, users, projects, issues, and settings. Every user belongs to at least one workspace, and all data is scoped within a workspace boundary.
 type updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganization struct {
 	Organization `json:"-"`
 }
@@ -5276,8 +6323,7 @@ func (v *updateWorkspaceSettingsOrganizationUpdateOrganizationPayloadOrganizatio
 
 // updateWorkspaceSettingsResponse is returned by updateWorkspaceSettings on success.
 type updateWorkspaceSettingsResponse struct {
-	// Updates the user's workspace settings. Different settings require different
-	// permission levels; most require the workspaceSettings admin permission.
+	// Updates the user's workspace settings. Different settings require different permission levels; most require the workspaceSettings admin permission.
 	OrganizationUpdate updateWorkspaceSettingsOrganizationUpdateOrganizationPayload `json:"organizationUpdate"`
 }
 
@@ -5391,6 +6437,107 @@ fragment IssueLabel on IssueLabel {
 	var err error
 
 	var data createLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func createReleasePipeline(
+	ctx context.Context,
+	client graphql.Client,
+	input ReleasePipelineCreateInput,
+) (*createReleasePipelineResponse, error) {
+	req := &graphql.Request{
+		OpName: "createReleasePipeline",
+		Query: `
+mutation createReleasePipeline ($input: ReleasePipelineCreateInput!) {
+	releasePipelineCreate(input: $input) {
+		releasePipeline {
+			... ReleasePipelineFields
+		}
+	}
+}
+fragment ReleasePipelineFields on ReleasePipeline {
+	id
+	name
+	type
+	isProduction
+	includePathPatterns
+	slugId
+	teams {
+		nodes {
+			id
+		}
+	}
+	stages {
+		nodes {
+			id
+			name
+			type
+			color
+			position
+		}
+	}
+}
+`,
+		Variables: &__createReleasePipelineInput{
+			Input: input,
+		},
+	}
+	var err error
+
+	var data createReleasePipelineResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func createReleaseStage(
+	ctx context.Context,
+	client graphql.Client,
+	input ReleaseStageCreateInput,
+) (*createReleaseStageResponse, error) {
+	req := &graphql.Request{
+		OpName: "createReleaseStage",
+		Query: `
+mutation createReleaseStage ($input: ReleaseStageCreateInput!) {
+	releaseStageCreate(input: $input) {
+		releaseStage {
+			... ReleaseStageFields
+		}
+	}
+}
+fragment ReleaseStageFields on ReleaseStage {
+	id
+	name
+	type
+	color
+	position
+	frozen
+	pipeline {
+		id
+	}
+}
+`,
+		Variables: &__createReleaseStageInput{
+			Input: input,
+		},
+	}
+	var err error
+
+	var data createReleaseStageResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -5612,6 +6759,70 @@ mutation deleteLabel ($id: String!) {
 	return &data, err
 }
 
+func deleteReleasePipeline(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*deleteReleasePipelineResponse, error) {
+	req := &graphql.Request{
+		OpName: "deleteReleasePipeline",
+		Query: `
+mutation deleteReleasePipeline ($id: String!) {
+	releasePipelineDelete(id: $id) {
+		success
+	}
+}
+`,
+		Variables: &__deleteReleasePipelineInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data deleteReleasePipelineResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func deleteReleaseStage(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*deleteReleaseStageResponse, error) {
+	req := &graphql.Request{
+		OpName: "deleteReleaseStage",
+		Query: `
+mutation deleteReleaseStage ($id: String!) {
+	releaseStageArchive(id: $id) {
+		success
+	}
+}
+`,
+		Variables: &__deleteReleaseStageInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data deleteReleaseStageResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
 func deleteTeam(
 	ctx context.Context,
 	client graphql.Client,
@@ -5819,6 +7030,103 @@ fragment IssueLabel on IssueLabel {
 	var err error
 
 	var data getLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func getReleasePipeline(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*getReleasePipelineResponse, error) {
+	req := &graphql.Request{
+		OpName: "getReleasePipeline",
+		Query: `
+query getReleasePipeline ($id: String!) {
+	releasePipeline(id: $id) {
+		... ReleasePipelineFields
+	}
+}
+fragment ReleasePipelineFields on ReleasePipeline {
+	id
+	name
+	type
+	isProduction
+	includePathPatterns
+	slugId
+	teams {
+		nodes {
+			id
+		}
+	}
+	stages {
+		nodes {
+			id
+			name
+			type
+			color
+			position
+		}
+	}
+}
+`,
+		Variables: &__getReleasePipelineInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data getReleasePipelineResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func getReleaseStage(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*getReleaseStageResponse, error) {
+	req := &graphql.Request{
+		OpName: "getReleaseStage",
+		Query: `
+query getReleaseStage ($id: String!) {
+	releaseStage(id: $id) {
+		... ReleaseStageFields
+	}
+}
+fragment ReleaseStageFields on ReleaseStage {
+	id
+	name
+	type
+	color
+	position
+	frozen
+	pipeline {
+		id
+	}
+}
+`,
+		Variables: &__getReleaseStageInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data getReleaseStageResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(
@@ -6352,6 +7660,111 @@ fragment IssueLabel on IssueLabel {
 	var err error
 
 	var data updateLabelResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func updateReleasePipeline(
+	ctx context.Context,
+	client graphql.Client,
+	input ReleasePipelineUpdateInput,
+	id string,
+) (*updateReleasePipelineResponse, error) {
+	req := &graphql.Request{
+		OpName: "updateReleasePipeline",
+		Query: `
+mutation updateReleasePipeline ($input: ReleasePipelineUpdateInput!, $id: String!) {
+	releasePipelineUpdate(input: $input, id: $id) {
+		releasePipeline {
+			... ReleasePipelineFields
+		}
+	}
+}
+fragment ReleasePipelineFields on ReleasePipeline {
+	id
+	name
+	type
+	isProduction
+	includePathPatterns
+	slugId
+	teams {
+		nodes {
+			id
+		}
+	}
+	stages {
+		nodes {
+			id
+			name
+			type
+			color
+			position
+		}
+	}
+}
+`,
+		Variables: &__updateReleasePipelineInput{
+			Input: input,
+			Id:    id,
+		},
+	}
+	var err error
+
+	var data updateReleasePipelineResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
+}
+
+func updateReleaseStage(
+	ctx context.Context,
+	client graphql.Client,
+	input ReleaseStageUpdateInput,
+	id string,
+) (*updateReleaseStageResponse, error) {
+	req := &graphql.Request{
+		OpName: "updateReleaseStage",
+		Query: `
+mutation updateReleaseStage ($input: ReleaseStageUpdateInput!, $id: String!) {
+	releaseStageUpdate(input: $input, id: $id) {
+		releaseStage {
+			... ReleaseStageFields
+		}
+	}
+}
+fragment ReleaseStageFields on ReleaseStage {
+	id
+	name
+	type
+	color
+	position
+	frozen
+	pipeline {
+		id
+	}
+}
+`,
+		Variables: &__updateReleaseStageInput{
+			Input: input,
+			Id:    id,
+		},
+	}
+	var err error
+
+	var data updateReleaseStageResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

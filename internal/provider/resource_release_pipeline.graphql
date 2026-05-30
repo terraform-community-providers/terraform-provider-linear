@@ -1,0 +1,65 @@
+fragment ReleasePipelineFields on ReleasePipeline {
+  id
+  name
+  type
+  isProduction
+  includePathPatterns
+  slugId
+  teams {
+    nodes {
+      id
+    }
+  }
+  stages {
+    nodes {
+      id
+      name
+      type
+      color
+      position
+    }
+  }
+}
+
+query getReleasePipeline($id: String!) {
+  releasePipeline(id: $id) {
+    ...ReleasePipelineFields
+  }
+}
+
+# @genqlient(for: "ReleasePipelineCreateInput.id", omitempty: true)
+# @genqlient(for: "ReleasePipelineCreateInput.slugId", omitempty: true)
+# @genqlient(for: "ReleasePipelineCreateInput.type", omitempty: true)
+# @genqlient(for: "ReleasePipelineCreateInput.includePathPatterns", omitempty: true)
+# @genqlient(for: "ReleasePipelineCreateInput.teamIds", omitempty: true)
+mutation createReleasePipeline(
+  $input: ReleasePipelineCreateInput!
+) {
+  releasePipelineCreate(input: $input) {
+    releasePipeline {
+      ...ReleasePipelineFields
+    }
+  }
+}
+
+# @genqlient(for: "ReleasePipelineUpdateInput.name", omitempty: true)
+# @genqlient(for: "ReleasePipelineUpdateInput.slugId", omitempty: true)
+# @genqlient(for: "ReleasePipelineUpdateInput.type", omitempty: true)
+# @genqlient(for: "ReleasePipelineUpdateInput.includePathPatterns", omitempty: true)
+# @genqlient(for: "ReleasePipelineUpdateInput.teamIds", omitempty: true)
+mutation updateReleasePipeline(
+  $input: ReleasePipelineUpdateInput!,
+  $id: String!
+) {
+  releasePipelineUpdate(input: $input, id: $id) {
+    releasePipeline {
+      ...ReleasePipelineFields
+    }
+  }
+}
+
+mutation deleteReleasePipeline($id: String!) {
+  releasePipelineDelete(id: $id) {
+    success
+  }
+}
