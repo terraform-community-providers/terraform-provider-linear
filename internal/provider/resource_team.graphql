@@ -118,6 +118,22 @@ mutation updateTeam(
   }
 }
 
+# Explicit parent-clear path. `TeamUpdateInput.parentId` has `omitempty`,
+# which drops nil pointers from the JSON payload — that's the right default
+# (Linear gates any parentId touch on workspace-admin perms, including
+# no-op `null → null`). But it also means we can't express "user removed
+# parent_id, clear the team's parent" through the struct, since the
+# resulting nil would be omitted rather than serialised as `null`. So the
+# resource's Update() routes that one case through this mutation, which
+# spells `parentId: null` as a literal in the query string.
+mutation clearTeamParent($id: String!) {
+  teamUpdate(input: {parentId: null}, id: $id) {
+    team {
+      ...Team
+    }
+  }
+}
+
 mutation deleteTeam($key: String!) {
   teamDelete(id: $key) {
     success

@@ -2019,6 +2019,14 @@ func (v *WorkflowStateUpdateInput) GetDescription() *string { return v.Descripti
 // GetPosition returns WorkflowStateUpdateInput.Position, and is useful for accessing the field via an interface.
 func (v *WorkflowStateUpdateInput) GetPosition() float64 { return v.Position }
 
+// __clearTeamParentInput is used internally by genqlient
+type __clearTeamParentInput struct {
+	Id string `json:"id"`
+}
+
+// GetId returns __clearTeamParentInput.Id, and is useful for accessing the field via an interface.
+func (v *__clearTeamParentInput) GetId() string { return v.Id }
+
 // __createGitAutomationStateInput is used internally by genqlient
 type __createGitAutomationStateInput struct {
 	Input GitAutomationStateCreateInput `json:"input"`
@@ -2264,6 +2272,316 @@ type __updateWorkspaceSettingsInput struct {
 
 // GetInput returns __updateWorkspaceSettingsInput.Input, and is useful for accessing the field via an interface.
 func (v *__updateWorkspaceSettingsInput) GetInput() OrganizationUpdateInput { return v.Input }
+
+// clearTeamParentResponse is returned by clearTeamParent on success.
+type clearTeamParentResponse struct {
+	// Updates a team's settings, properties, or configuration. Requires team owner
+	// or workspace admin permissions for most changes.
+	TeamUpdate clearTeamParentTeamUpdateTeamPayload `json:"teamUpdate"`
+}
+
+// GetTeamUpdate returns clearTeamParentResponse.TeamUpdate, and is useful for accessing the field via an interface.
+func (v *clearTeamParentResponse) GetTeamUpdate() clearTeamParentTeamUpdateTeamPayload {
+	return v.TeamUpdate
+}
+
+// clearTeamParentTeamUpdateTeamPayload includes the requested fields of the GraphQL type TeamPayload.
+// The GraphQL type's documentation follows.
+//
+// Team operation response.
+type clearTeamParentTeamUpdateTeamPayload struct {
+	// The team that was created or updated.
+	Team clearTeamParentTeamUpdateTeamPayloadTeam `json:"team"`
+}
+
+// GetTeam returns clearTeamParentTeamUpdateTeamPayload.Team, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayload) GetTeam() clearTeamParentTeamUpdateTeamPayloadTeam {
+	return v.Team
+}
+
+// clearTeamParentTeamUpdateTeamPayloadTeam includes the requested fields of the GraphQL type Team.
+// The GraphQL type's documentation follows.
+//
+// A team is the primary organizational unit in Linear. Issues belong to teams, and
+// each team has its own workflow states, cycles, labels, and settings. Teams can
+// be public (visible to all workspace members) or private (visible only to team
+// members). Teams can also have sub-teams that inherit settings from their parent.
+type clearTeamParentTeamUpdateTeamPayloadTeam struct {
+	Team `json:"-"`
+}
+
+// GetId returns clearTeamParentTeamUpdateTeamPayloadTeam.Id, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetId() string { return v.Team.Id }
+
+// GetName returns clearTeamParentTeamUpdateTeamPayloadTeam.Name, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetName() string { return v.Team.Name }
+
+// GetKey returns clearTeamParentTeamUpdateTeamPayloadTeam.Key, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetKey() string { return v.Team.Key }
+
+// GetPrivate returns clearTeamParentTeamUpdateTeamPayloadTeam.Private, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetPrivate() bool { return v.Team.Private }
+
+// GetDescription returns clearTeamParentTeamUpdateTeamPayloadTeam.Description, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetDescription() *string {
+	return v.Team.Description
+}
+
+// GetIcon returns clearTeamParentTeamUpdateTeamPayloadTeam.Icon, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetIcon() *string { return v.Team.Icon }
+
+// GetColor returns clearTeamParentTeamUpdateTeamPayloadTeam.Color, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetColor() *string { return v.Team.Color }
+
+// GetParent returns clearTeamParentTeamUpdateTeamPayloadTeam.Parent, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetParent() *TeamParentTeam { return v.Team.Parent }
+
+// GetTimezone returns clearTeamParentTeamUpdateTeamPayloadTeam.Timezone, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetTimezone() string { return v.Team.Timezone }
+
+// GetGroupIssueHistory returns clearTeamParentTeamUpdateTeamPayloadTeam.GroupIssueHistory, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetGroupIssueHistory() bool {
+	return v.Team.GroupIssueHistory
+}
+
+// GetSetIssueSortOrderOnStateChange returns clearTeamParentTeamUpdateTeamPayloadTeam.SetIssueSortOrderOnStateChange, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetSetIssueSortOrderOnStateChange() string {
+	return v.Team.SetIssueSortOrderOnStateChange
+}
+
+// GetAiThreadSummariesEnabled returns clearTeamParentTeamUpdateTeamPayloadTeam.AiThreadSummariesEnabled, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetAiThreadSummariesEnabled() bool {
+	return v.Team.AiThreadSummariesEnabled
+}
+
+// GetAutoArchivePeriod returns clearTeamParentTeamUpdateTeamPayloadTeam.AutoArchivePeriod, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetAutoArchivePeriod() float64 {
+	return v.Team.AutoArchivePeriod
+}
+
+// GetAutoClosePeriod returns clearTeamParentTeamUpdateTeamPayloadTeam.AutoClosePeriod, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetAutoClosePeriod() *float64 {
+	return v.Team.AutoClosePeriod
+}
+
+// GetAutoCloseParentIssues returns clearTeamParentTeamUpdateTeamPayloadTeam.AutoCloseParentIssues, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetAutoCloseParentIssues() bool {
+	return v.Team.AutoCloseParentIssues
+}
+
+// GetAutoCloseChildIssues returns clearTeamParentTeamUpdateTeamPayloadTeam.AutoCloseChildIssues, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetAutoCloseChildIssues() bool {
+	return v.Team.AutoCloseChildIssues
+}
+
+// GetTriageEnabled returns clearTeamParentTeamUpdateTeamPayloadTeam.TriageEnabled, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetTriageEnabled() bool {
+	return v.Team.TriageEnabled
+}
+
+// GetRequirePriorityToLeaveTriage returns clearTeamParentTeamUpdateTeamPayloadTeam.RequirePriorityToLeaveTriage, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetRequirePriorityToLeaveTriage() bool {
+	return v.Team.RequirePriorityToLeaveTriage
+}
+
+// GetCyclesEnabled returns clearTeamParentTeamUpdateTeamPayloadTeam.CyclesEnabled, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetCyclesEnabled() bool {
+	return v.Team.CyclesEnabled
+}
+
+// GetCycleStartDay returns clearTeamParentTeamUpdateTeamPayloadTeam.CycleStartDay, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetCycleStartDay() float64 {
+	return v.Team.CycleStartDay
+}
+
+// GetCycleDuration returns clearTeamParentTeamUpdateTeamPayloadTeam.CycleDuration, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetCycleDuration() float64 {
+	return v.Team.CycleDuration
+}
+
+// GetCycleCooldownTime returns clearTeamParentTeamUpdateTeamPayloadTeam.CycleCooldownTime, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetCycleCooldownTime() float64 {
+	return v.Team.CycleCooldownTime
+}
+
+// GetUpcomingCycleCount returns clearTeamParentTeamUpdateTeamPayloadTeam.UpcomingCycleCount, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetUpcomingCycleCount() float64 {
+	return v.Team.UpcomingCycleCount
+}
+
+// GetCycleIssueAutoAssignStarted returns clearTeamParentTeamUpdateTeamPayloadTeam.CycleIssueAutoAssignStarted, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetCycleIssueAutoAssignStarted() bool {
+	return v.Team.CycleIssueAutoAssignStarted
+}
+
+// GetCycleIssueAutoAssignCompleted returns clearTeamParentTeamUpdateTeamPayloadTeam.CycleIssueAutoAssignCompleted, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetCycleIssueAutoAssignCompleted() bool {
+	return v.Team.CycleIssueAutoAssignCompleted
+}
+
+// GetCycleLockToActive returns clearTeamParentTeamUpdateTeamPayloadTeam.CycleLockToActive, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetCycleLockToActive() bool {
+	return v.Team.CycleLockToActive
+}
+
+// GetIssueEstimationType returns clearTeamParentTeamUpdateTeamPayloadTeam.IssueEstimationType, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetIssueEstimationType() string {
+	return v.Team.IssueEstimationType
+}
+
+// GetIssueEstimationAllowZero returns clearTeamParentTeamUpdateTeamPayloadTeam.IssueEstimationAllowZero, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetIssueEstimationAllowZero() bool {
+	return v.Team.IssueEstimationAllowZero
+}
+
+// GetIssueEstimationExtended returns clearTeamParentTeamUpdateTeamPayloadTeam.IssueEstimationExtended, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetIssueEstimationExtended() bool {
+	return v.Team.IssueEstimationExtended
+}
+
+// GetDefaultIssueEstimate returns clearTeamParentTeamUpdateTeamPayloadTeam.DefaultIssueEstimate, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetDefaultIssueEstimate() float64 {
+	return v.Team.DefaultIssueEstimate
+}
+
+// GetSecuritySettings returns clearTeamParentTeamUpdateTeamPayloadTeam.SecuritySettings, and is useful for accessing the field via an interface.
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) GetSecuritySettings() map[string]interface{} {
+	return v.Team.SecuritySettings
+}
+
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*clearTeamParentTeamUpdateTeamPayloadTeam
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.clearTeamParentTeamUpdateTeamPayloadTeam = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.Team)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalclearTeamParentTeamUpdateTeamPayloadTeam struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Key string `json:"key"`
+
+	Private bool `json:"private"`
+
+	Description *string `json:"description"`
+
+	Icon *string `json:"icon"`
+
+	Color *string `json:"color"`
+
+	Parent *TeamParentTeam `json:"parent"`
+
+	Timezone string `json:"timezone"`
+
+	GroupIssueHistory bool `json:"groupIssueHistory"`
+
+	SetIssueSortOrderOnStateChange string `json:"setIssueSortOrderOnStateChange"`
+
+	AiThreadSummariesEnabled bool `json:"aiThreadSummariesEnabled"`
+
+	AutoArchivePeriod float64 `json:"autoArchivePeriod"`
+
+	AutoClosePeriod *float64 `json:"autoClosePeriod"`
+
+	AutoCloseParentIssues bool `json:"autoCloseParentIssues"`
+
+	AutoCloseChildIssues bool `json:"autoCloseChildIssues"`
+
+	TriageEnabled bool `json:"triageEnabled"`
+
+	RequirePriorityToLeaveTriage bool `json:"requirePriorityToLeaveTriage"`
+
+	CyclesEnabled bool `json:"cyclesEnabled"`
+
+	CycleStartDay float64 `json:"cycleStartDay"`
+
+	CycleDuration float64 `json:"cycleDuration"`
+
+	CycleCooldownTime float64 `json:"cycleCooldownTime"`
+
+	UpcomingCycleCount float64 `json:"upcomingCycleCount"`
+
+	CycleIssueAutoAssignStarted bool `json:"cycleIssueAutoAssignStarted"`
+
+	CycleIssueAutoAssignCompleted bool `json:"cycleIssueAutoAssignCompleted"`
+
+	CycleLockToActive bool `json:"cycleLockToActive"`
+
+	IssueEstimationType string `json:"issueEstimationType"`
+
+	IssueEstimationAllowZero bool `json:"issueEstimationAllowZero"`
+
+	IssueEstimationExtended bool `json:"issueEstimationExtended"`
+
+	DefaultIssueEstimate float64 `json:"defaultIssueEstimate"`
+
+	SecuritySettings map[string]interface{} `json:"securitySettings"`
+}
+
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *clearTeamParentTeamUpdateTeamPayloadTeam) __premarshalJSON() (*__premarshalclearTeamParentTeamUpdateTeamPayloadTeam, error) {
+	var retval __premarshalclearTeamParentTeamUpdateTeamPayloadTeam
+
+	retval.Id = v.Team.Id
+	retval.Name = v.Team.Name
+	retval.Key = v.Team.Key
+	retval.Private = v.Team.Private
+	retval.Description = v.Team.Description
+	retval.Icon = v.Team.Icon
+	retval.Color = v.Team.Color
+	retval.Parent = v.Team.Parent
+	retval.Timezone = v.Team.Timezone
+	retval.GroupIssueHistory = v.Team.GroupIssueHistory
+	retval.SetIssueSortOrderOnStateChange = v.Team.SetIssueSortOrderOnStateChange
+	retval.AiThreadSummariesEnabled = v.Team.AiThreadSummariesEnabled
+	retval.AutoArchivePeriod = v.Team.AutoArchivePeriod
+	retval.AutoClosePeriod = v.Team.AutoClosePeriod
+	retval.AutoCloseParentIssues = v.Team.AutoCloseParentIssues
+	retval.AutoCloseChildIssues = v.Team.AutoCloseChildIssues
+	retval.TriageEnabled = v.Team.TriageEnabled
+	retval.RequirePriorityToLeaveTriage = v.Team.RequirePriorityToLeaveTriage
+	retval.CyclesEnabled = v.Team.CyclesEnabled
+	retval.CycleStartDay = v.Team.CycleStartDay
+	retval.CycleDuration = v.Team.CycleDuration
+	retval.CycleCooldownTime = v.Team.CycleCooldownTime
+	retval.UpcomingCycleCount = v.Team.UpcomingCycleCount
+	retval.CycleIssueAutoAssignStarted = v.Team.CycleIssueAutoAssignStarted
+	retval.CycleIssueAutoAssignCompleted = v.Team.CycleIssueAutoAssignCompleted
+	retval.CycleLockToActive = v.Team.CycleLockToActive
+	retval.IssueEstimationType = v.Team.IssueEstimationType
+	retval.IssueEstimationAllowZero = v.Team.IssueEstimationAllowZero
+	retval.IssueEstimationExtended = v.Team.IssueEstimationExtended
+	retval.DefaultIssueEstimate = v.Team.DefaultIssueEstimate
+	retval.SecuritySettings = v.Team.SecuritySettings
+	return &retval, nil
+}
 
 // createGitAutomationStateGitAutomationStateCreateGitAutomationStatePayload includes the requested fields of the GraphQL type GitAutomationStatePayload.
 // The GraphQL type's documentation follows.
@@ -5284,6 +5602,83 @@ type updateWorkspaceSettingsResponse struct {
 // GetOrganizationUpdate returns updateWorkspaceSettingsResponse.OrganizationUpdate, and is useful for accessing the field via an interface.
 func (v *updateWorkspaceSettingsResponse) GetOrganizationUpdate() updateWorkspaceSettingsOrganizationUpdateOrganizationPayload {
 	return v.OrganizationUpdate
+}
+
+// Explicit parent-clear path. `TeamUpdateInput.parentId` has `omitempty`,
+// which drops nil pointers from the JSON payload — that's the right default
+// (Linear gates any parentId touch on workspace-admin perms, including
+// no-op `null → null`). But it also means we can't express "user removed
+// parent_id, clear the team's parent" through the struct, since the
+// resulting nil would be omitted rather than serialised as `null`. So the
+// resource's Update() routes that one case through this mutation, which
+// spells `parentId: null` as a literal in the query string.
+func clearTeamParent(
+	ctx context.Context,
+	client graphql.Client,
+	id string,
+) (*clearTeamParentResponse, error) {
+	req := &graphql.Request{
+		OpName: "clearTeamParent",
+		Query: `
+mutation clearTeamParent ($id: String!) {
+	teamUpdate(input: {parentId:null}, id: $id) {
+		team {
+			... Team
+		}
+	}
+}
+fragment Team on Team {
+	id
+	name
+	key
+	private
+	description
+	icon
+	color
+	parent {
+		id
+	}
+	timezone
+	groupIssueHistory
+	setIssueSortOrderOnStateChange
+	aiThreadSummariesEnabled
+	autoArchivePeriod
+	autoClosePeriod
+	autoCloseParentIssues
+	autoCloseChildIssues
+	triageEnabled
+	requirePriorityToLeaveTriage
+	cyclesEnabled
+	cycleStartDay
+	cycleDuration
+	cycleCooldownTime
+	upcomingCycleCount
+	cycleIssueAutoAssignStarted
+	cycleIssueAutoAssignCompleted
+	cycleLockToActive
+	issueEstimationType
+	issueEstimationAllowZero
+	issueEstimationExtended
+	defaultIssueEstimate
+	securitySettings
+}
+`,
+		Variables: &__clearTeamParentInput{
+			Id: id,
+		},
+	}
+	var err error
+
+	var data clearTeamParentResponse
+	resp := &graphql.Response{Data: &data}
+
+	err = client.MakeRequest(
+		ctx,
+		req,
+		resp,
+	)
+
+	return &data, err
 }
 
 func createGitAutomationState(
