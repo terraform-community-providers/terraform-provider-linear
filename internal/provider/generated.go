@@ -1375,7 +1375,7 @@ type TeamUpdateInput struct {
 	// workspace admins or owners and only unsetting is allowed!
 	ScimManaged bool `json:"scimManaged,omitempty"`
 	// The parent team ID.
-	ParentId *string `json:"parentId"`
+	ParentId *string `json:"parentId,omitempty"`
 	// [Internal] Whether the team should inherit workflow statuses from its parent.
 	InheritWorkflowStatuses bool `json:"inheritWorkflowStatuses"`
 	// [Internal] Whether the team should inherit its product intelligence scope from its parent. Only applies to sub-teams.

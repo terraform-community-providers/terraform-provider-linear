@@ -78,7 +78,7 @@ mutation createTeam(
 # @genqlient(for: "TeamUpdateInput.icon", omitempty: true, pointer: true)
 # @genqlient(for: "TeamUpdateInput.color", omitempty: true, pointer: true)
 # @genqlient(for: "TeamUpdateInput.autoClosePeriod", pointer: true)
-# @genqlient(for: "TeamUpdateInput.parentId", pointer: true)
+# @genqlient(for: "TeamUpdateInput.parentId", omitempty: true, pointer: true)
 # @genqlient(for: "TeamUpdateInput.cycleEnabledStartDate", omitempty: true, pointer: true)
 # @genqlient(for: "TeamUpdateInput.inheritIssueEstimation", omitempty: true)
 # @genqlient(for: "TeamUpdateInput.slackNewIssue", omitempty: true)
