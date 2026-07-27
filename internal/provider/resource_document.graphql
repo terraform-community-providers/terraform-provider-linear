@@ -1,0 +1,94 @@
+# @genqlient(for: "Document.content", pointer: true)
+# @genqlient(for: "Document.project", pointer: true)
+# @genqlient(for: "Document.initiative", pointer: true)
+# @genqlient(for: "Document.team", pointer: true)
+# @genqlient(for: "Document.issue", pointer: true)
+# @genqlient(for: "Document.release", pointer: true)
+# @genqlient(for: "Document.cycle", pointer: true)
+fragment Document on Document {
+  id
+  title
+  content
+  trashed
+  project {
+    id
+  }
+  initiative {
+    id
+  }
+  team {
+    id
+  }
+  issue {
+    id
+    identifier
+  }
+  release {
+    id
+  }
+  cycle {
+    id
+  }
+}
+
+query getDocument($id: String!) {
+  document(id: $id) {
+    ...Document
+  }
+}
+
+# @genqlient(for: "DocumentCreateInput.id", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.icon", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.color", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.projectId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.initiativeId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.teamId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.issueId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.releaseId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.cycleId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.resourceFolderId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.lastAppliedTemplateId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.sortOrder", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentCreateInput.subscriberIds", omitempty: true)
+mutation createDocument(
+  $input: DocumentCreateInput!
+) {
+  documentCreate(input: $input) {
+    success
+    document {
+      id
+    }
+  }
+}
+
+# @genqlient(for: "DocumentUpdateInput.icon", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.color", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.projectId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.initiativeId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.teamId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.issueId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.releaseId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.cycleId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.resourceFolderId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.lastAppliedTemplateId", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.hiddenAt", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.sortOrder", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.trashed", omitempty: true, pointer: true)
+# @genqlient(for: "DocumentUpdateInput.subscriberIds", omitempty: true)
+mutation updateDocument(
+  $id: String!,
+  $input: DocumentUpdateInput!
+) {
+  documentUpdate(id: $id, input: $input) {
+    success
+    document {
+      ...Document
+    }
+  }
+}
+
+mutation deleteDocument($id: String!) {
+  documentDelete(id: $id) {
+    success
+  }
+}

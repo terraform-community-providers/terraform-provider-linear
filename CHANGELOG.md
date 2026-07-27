@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+* Added `linear_document` resource for managing a document's Markdown content
+
 ## 0.3.7
 
 ### Bug Fixes
