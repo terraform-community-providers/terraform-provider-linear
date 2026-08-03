@@ -24,11 +24,7 @@ var _ resource.ResourceWithConfigValidators = &DocumentResource{}
 var _ resource.ResourceWithImportState = &DocumentResource{}
 
 var documentParentAttributeNames = []string{
-	"initiative_id",
-	"team_id",
 	"issue_id",
-	"release_id",
-	"cycle_id",
 	"project_id",
 }
 
@@ -41,15 +37,11 @@ type DocumentResource struct {
 }
 
 type DocumentResourceModel struct {
-	Id           types.String `tfsdk:"id"`
-	Title        types.String `tfsdk:"title"`
-	Content      types.String `tfsdk:"content"`
-	InitiativeId types.String `tfsdk:"initiative_id"`
-	TeamId       types.String `tfsdk:"team_id"`
-	IssueId      types.String `tfsdk:"issue_id"`
-	ReleaseId    types.String `tfsdk:"release_id"`
-	CycleId      types.String `tfsdk:"cycle_id"`
-	ProjectId    types.String `tfsdk:"project_id"`
+	Id        types.String `tfsdk:"id"`
+	Title     types.String `tfsdk:"title"`
+	Content   types.String `tfsdk:"content"`
+	IssueId   types.String `tfsdk:"issue_id"`
+	ProjectId types.String `tfsdk:"project_id"`
 }
 
 type documentIssueValues struct {
@@ -58,16 +50,12 @@ type documentIssueValues struct {
 }
 
 type documentValues struct {
-	ID           string
-	Title        string
-	Content      *string
-	Trashed      bool
-	InitiativeID *string
-	TeamID       *string
-	Issue        *documentIssueValues
-	ReleaseID    *string
-	CycleID      *string
-	ProjectID    *string
+	ID        string
+	Title     string
+	Content   *string
+	Trashed   bool
+	Issue     *documentIssueValues
+	ProjectID *string
 }
 
 func (r *DocumentResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -109,30 +97,10 @@ func (r *DocumentResource) Schema(ctx context.Context, req resource.SchemaReques
 					stringvalidator.UTF8LengthAtLeast(1),
 				},
 			},
-			"initiative_id": schema.StringAttribute{
-				MarkdownDescription: "Identifier of the initiative that owns the document. Linear marks the corresponding API field internal, and it may change without notice. Exactly one parent identifier must be configured.",
-				Optional:            true,
-				Validators:          uuidParentValidators,
-			},
-			"team_id": schema.StringAttribute{
-				MarkdownDescription: "Identifier of the team that owns the document. Linear marks the corresponding API field internal, and it may change without notice. Exactly one parent identifier must be configured.",
-				Optional:            true,
-				Validators:          uuidParentValidators,
-			},
 			"issue_id": schema.StringAttribute{
 				MarkdownDescription: "Identifier or issue key, such as `LIN-123`, of the issue that owns the document. Exactly one parent identifier must be configured.",
 				Optional:            true,
 				Validators:          issueParentValidators,
-			},
-			"release_id": schema.StringAttribute{
-				MarkdownDescription: "Identifier of the release that owns the document. Linear marks the corresponding API field internal, and it may change without notice. Exactly one parent identifier must be configured.",
-				Optional:            true,
-				Validators:          uuidParentValidators,
-			},
-			"cycle_id": schema.StringAttribute{
-				MarkdownDescription: "Identifier of the cycle that owns the document. Linear marks the corresponding API field internal, and it may change without notice. Exactly one parent identifier must be configured.",
-				Optional:            true,
-				Validators:          uuidParentValidators,
 			},
 			"project_id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the project that owns the document. Exactly one parent identifier must be configured.",
@@ -146,11 +114,7 @@ func (r *DocumentResource) Schema(ctx context.Context, req resource.SchemaReques
 func (r *DocumentResource) ConfigValidators(ctx context.Context) []resource.ConfigValidator {
 	return []resource.ConfigValidator{
 		resourcevalidator.ExactlyOneOf(
-			path.MatchRoot("initiative_id"),
-			path.MatchRoot("team_id"),
 			path.MatchRoot("issue_id"),
-			path.MatchRoot("release_id"),
-			path.MatchRoot("cycle_id"),
 			path.MatchRoot("project_id"),
 		),
 	}
@@ -271,27 +235,19 @@ func (r *DocumentResource) ImportState(ctx context.Context, req resource.ImportS
 
 func documentCreateInputFromModel(data *DocumentResourceModel) DocumentCreateInput {
 	return DocumentCreateInput{
-		Title:        data.Title.ValueString(),
-		Content:      data.Content.ValueString(),
-		InitiativeId: data.InitiativeId.ValueStringPointer(),
-		TeamId:       data.TeamId.ValueStringPointer(),
-		IssueId:      data.IssueId.ValueStringPointer(),
-		ReleaseId:    data.ReleaseId.ValueStringPointer(),
-		CycleId:      data.CycleId.ValueStringPointer(),
-		ProjectId:    data.ProjectId.ValueStringPointer(),
+		Title:     data.Title.ValueString(),
+		Content:   data.Content.ValueString(),
+		IssueId:   data.IssueId.ValueStringPointer(),
+		ProjectId: data.ProjectId.ValueStringPointer(),
 	}
 }
 
 func documentUpdateInputFromModel(data *DocumentResourceModel) DocumentUpdateInput {
 	return DocumentUpdateInput{
-		Title:        data.Title.ValueString(),
-		Content:      data.Content.ValueString(),
-		InitiativeId: data.InitiativeId.ValueStringPointer(),
-		TeamId:       data.TeamId.ValueStringPointer(),
-		IssueId:      data.IssueId.ValueStringPointer(),
-		ReleaseId:    data.ReleaseId.ValueStringPointer(),
-		CycleId:      data.CycleId.ValueStringPointer(),
-		ProjectId:    data.ProjectId.ValueStringPointer(),
+		Title:     data.Title.ValueString(),
+		Content:   data.Content.ValueString(),
+		IssueId:   data.IssueId.ValueStringPointer(),
+		ProjectId: data.ProjectId.ValueStringPointer(),
 	}
 }
 
@@ -304,23 +260,11 @@ func documentValuesFromGraphQL(document Document) documentValues {
 		Trashed: document.Trashed,
 	}
 
-	if document.Initiative != nil {
-		values.InitiativeID = &document.Initiative.Id
-	}
-	if document.Team != nil {
-		values.TeamID = &document.Team.Id
-	}
 	if document.Issue != nil {
 		values.Issue = &documentIssueValues{
 			ID:         document.Issue.Id,
 			Identifier: document.Issue.Identifier,
 		}
-	}
-	if document.Release != nil {
-		values.ReleaseID = &document.Release.Id
-	}
-	if document.Cycle != nil {
-		values.CycleID = &document.Cycle.Id
 	}
 	if document.Project != nil {
 		values.ProjectID = &document.Project.Id
@@ -337,28 +281,16 @@ func applyDocumentValuesToModel(data *DocumentResourceModel, values documentValu
 	data.Title = types.StringValue(values.Title)
 	data.Content = types.StringValue(documentContentForState(data.Content, values.Content))
 
-	data.InitiativeId = types.StringNull()
-	data.TeamId = types.StringNull()
 	data.IssueId = types.StringNull()
-	data.ReleaseId = types.StringNull()
-	data.CycleId = types.StringNull()
 	data.ProjectId = types.StringNull()
 
 	switch {
-	case values.InitiativeID != nil:
-		data.InitiativeId = types.StringValue(*values.InitiativeID)
-	case values.TeamID != nil:
-		data.TeamId = types.StringValue(*values.TeamID)
 	case values.Issue != nil:
 		if currentIssueID == values.Issue.ID || currentIssueID == values.Issue.Identifier {
 			data.IssueId = types.StringValue(currentIssueID)
 		} else {
 			data.IssueId = types.StringValue(values.Issue.ID)
 		}
-	case values.ReleaseID != nil:
-		data.ReleaseId = types.StringValue(*values.ReleaseID)
-	case values.CycleID != nil:
-		data.CycleId = types.StringValue(*values.CycleID)
 	case values.ProjectID != nil:
 		data.ProjectId = types.StringValue(*values.ProjectID)
 	}

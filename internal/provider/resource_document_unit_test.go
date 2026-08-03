@@ -48,13 +48,19 @@ func TestDocumentResourceSchema(t *testing.T) {
 		t.Error("\"id\" should be computed")
 	}
 
-	for _, name := range documentParentAttributeNames {
+	for _, name := range []string{"project_id", "issue_id"} {
 		attribute, ok := response.Schema.Attributes[name]
 		if !ok {
 			t.Fatalf("schema is missing %q", name)
 		}
 		if !attribute.IsOptional() {
 			t.Errorf("%q should be optional", name)
+		}
+	}
+
+	for _, name := range []string{"initiative_id", "team_id", "release_id", "cycle_id"} {
+		if _, ok := response.Schema.Attributes[name]; ok {
+			t.Errorf("schema should not expose internal Linear parent attribute %q", name)
 		}
 	}
 }
@@ -124,42 +130,6 @@ func TestDocumentResourceParentIdentifierValidation(t *testing.T) {
 		value       string
 		expectError bool
 	}{
-		"initiative UUID": {
-			attribute: "initiative_id",
-			value:     validUUID,
-		},
-		"invalid initiative": {
-			attribute:   "initiative_id",
-			value:       "initiative-id",
-			expectError: true,
-		},
-		"team UUID": {
-			attribute: "team_id",
-			value:     validUUID,
-		},
-		"invalid team": {
-			attribute:   "team_id",
-			value:       "team-id",
-			expectError: true,
-		},
-		"release UUID": {
-			attribute: "release_id",
-			value:     validUUID,
-		},
-		"invalid release": {
-			attribute:   "release_id",
-			value:       "release-id",
-			expectError: true,
-		},
-		"cycle UUID": {
-			attribute: "cycle_id",
-			value:     validUUID,
-		},
-		"invalid cycle": {
-			attribute:   "cycle_id",
-			value:       "cycle-id",
-			expectError: true,
-		},
 		"project UUID": {
 			attribute: "project_id",
 			value:     validUUID,
@@ -258,20 +228,6 @@ func TestApplyDocumentValuesToModel(t *testing.T) {
 		expectedParent string
 		expectedValue  string
 	}{
-		"initiative": {
-			values: documentValues{
-				InitiativeID: stringPointer("initiative-id"),
-			},
-			expectedParent: "initiative_id",
-			expectedValue:  "initiative-id",
-		},
-		"team": {
-			values: documentValues{
-				TeamID: stringPointer("team-id"),
-			},
-			expectedParent: "team_id",
-			expectedValue:  "team-id",
-		},
 		"issue UUID": {
 			values: documentValues{
 				Issue: &documentIssueValues{
@@ -292,20 +248,6 @@ func TestApplyDocumentValuesToModel(t *testing.T) {
 			},
 			expectedParent: "issue_id",
 			expectedValue:  "LIN-123",
-		},
-		"release": {
-			values: documentValues{
-				ReleaseID: stringPointer("release-id"),
-			},
-			expectedParent: "release_id",
-			expectedValue:  "release-id",
-		},
-		"cycle": {
-			values: documentValues{
-				CycleID: stringPointer("cycle-id"),
-			},
-			expectedParent: "cycle_id",
-			expectedValue:  "cycle-id",
 		},
 		"project": {
 			values: documentValues{
@@ -804,15 +746,11 @@ func documentResourceWithMutationResponses(responses map[string]string) *Documen
 
 func documentResourceModelForMutationTest(title, content, parentName, parentID string) DocumentResourceModel {
 	model := DocumentResourceModel{
-		Id:           types.StringUnknown(),
-		Title:        types.StringValue(title),
-		Content:      types.StringValue(content),
-		InitiativeId: types.StringNull(),
-		TeamId:       types.StringNull(),
-		IssueId:      types.StringNull(),
-		ReleaseId:    types.StringNull(),
-		CycleId:      types.StringNull(),
-		ProjectId:    types.StringNull(),
+		Id:        types.StringUnknown(),
+		Title:     types.StringValue(title),
+		Content:   types.StringValue(content),
+		IssueId:   types.StringNull(),
+		ProjectId: types.StringNull(),
 	}
 
 	switch parentName {
@@ -856,15 +794,11 @@ func documentResourceModelFromState(t *testing.T, state tfsdk.State) DocumentRes
 
 func documentResourceTestConfig(documentSchema schema.Schema, parents map[string]string) tfsdk.Config {
 	attributeTypes := map[string]tftypes.Type{
-		"id":            tftypes.String,
-		"title":         tftypes.String,
-		"content":       tftypes.String,
-		"initiative_id": tftypes.String,
-		"team_id":       tftypes.String,
-		"issue_id":      tftypes.String,
-		"release_id":    tftypes.String,
-		"cycle_id":      tftypes.String,
-		"project_id":    tftypes.String,
+		"id":         tftypes.String,
+		"title":      tftypes.String,
+		"content":    tftypes.String,
+		"issue_id":   tftypes.String,
+		"project_id": tftypes.String,
 	}
 	values := map[string]tftypes.Value{
 		"id":      tftypes.NewValue(tftypes.String, nil),
@@ -892,16 +826,8 @@ func documentResourceTestConfig(documentSchema schema.Schema, parents map[string
 
 func documentParentModelValue(model *DocumentResourceModel, name string) types.String {
 	switch name {
-	case "initiative_id":
-		return model.InitiativeId
-	case "team_id":
-		return model.TeamId
 	case "issue_id":
 		return model.IssueId
-	case "release_id":
-		return model.ReleaseId
-	case "cycle_id":
-		return model.CycleId
 	case "project_id":
 		return model.ProjectId
 	default:

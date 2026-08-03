@@ -38,12 +38,8 @@ resource "linear_document" "example" {
 
 ### Optional
 
-- `cycle_id` (String) Identifier of the cycle that owns the document. Linear marks the corresponding API field internal, and it may change without notice. Exactly one parent identifier must be configured.
-- `initiative_id` (String) Identifier of the initiative that owns the document. Linear marks the corresponding API field internal, and it may change without notice. Exactly one parent identifier must be configured.
 - `issue_id` (String) Identifier or issue key, such as `LIN-123`, of the issue that owns the document. Exactly one parent identifier must be configured.
 - `project_id` (String) Identifier of the project that owns the document. Exactly one parent identifier must be configured.
-- `release_id` (String) Identifier of the release that owns the document. Linear marks the corresponding API field internal, and it may change without notice. Exactly one parent identifier must be configured.
-- `team_id` (String) Identifier of the team that owns the document. Linear marks the corresponding API field internal, and it may change without notice. Exactly one parent identifier must be configured.
 
 ### Read-Only
 

@@ -1,10 +1,6 @@
 # @genqlient(for: "Document.content", pointer: true)
 # @genqlient(for: "Document.project", pointer: true)
-# @genqlient(for: "Document.initiative", pointer: true)
-# @genqlient(for: "Document.team", pointer: true)
 # @genqlient(for: "Document.issue", pointer: true)
-# @genqlient(for: "Document.release", pointer: true)
-# @genqlient(for: "Document.cycle", pointer: true)
 fragment Document on Document {
   id
   title
@@ -13,21 +9,9 @@ fragment Document on Document {
   project {
     id
   }
-  initiative {
-    id
-  }
-  team {
-    id
-  }
   issue {
     id
     identifier
-  }
-  release {
-    id
-  }
-  cycle {
-    id
   }
 }
 

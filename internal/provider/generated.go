@@ -41,17 +41,8 @@ type Document struct {
 	Trashed bool `json:"trashed"`
 	// The project that the document is associated with. Null if the document belongs to a different parent entity type.
 	Project *DocumentProject `json:"project"`
-	// The initiative that the document is associated with. Null if the document belongs to a different parent entity type.
-	Initiative *DocumentInitiative `json:"initiative"`
-	// [Internal] The team that the document is associated with. Null if the document belongs to a different parent entity type.
-	Team *DocumentTeam `json:"team"`
 	// The issue that the document is associated with. Null if the document belongs to a different parent entity type.
 	Issue *DocumentIssue `json:"issue"`
-	// [Internal] The release that the document is associated with. Null if the
-	// document belongs to a different parent entity type.
-	Release *DocumentRelease `json:"release"`
-	// [Internal] The cycle that the document is associated with. Null if the document belongs to a different parent entity type.
-	Cycle *DocumentCycle `json:"cycle"`
 }
 
 // GetId returns Document.Id, and is useful for accessing the field via an interface.
@@ -69,20 +60,8 @@ func (v *Document) GetTrashed() bool { return v.Trashed }
 // GetProject returns Document.Project, and is useful for accessing the field via an interface.
 func (v *Document) GetProject() *DocumentProject { return v.Project }
 
-// GetInitiative returns Document.Initiative, and is useful for accessing the field via an interface.
-func (v *Document) GetInitiative() *DocumentInitiative { return v.Initiative }
-
-// GetTeam returns Document.Team, and is useful for accessing the field via an interface.
-func (v *Document) GetTeam() *DocumentTeam { return v.Team }
-
 // GetIssue returns Document.Issue, and is useful for accessing the field via an interface.
 func (v *Document) GetIssue() *DocumentIssue { return v.Issue }
-
-// GetRelease returns Document.Release, and is useful for accessing the field via an interface.
-func (v *Document) GetRelease() *DocumentRelease { return v.Release }
-
-// GetCycle returns Document.Cycle, and is useful for accessing the field via an interface.
-func (v *Document) GetCycle() *DocumentCycle { return v.Cycle }
 
 // Input for creating a new document.
 type DocumentCreateInput struct {
@@ -163,36 +142,6 @@ func (v *DocumentCreateInput) GetSortOrder() *float64 { return v.SortOrder }
 // GetSubscriberIds returns DocumentCreateInput.SubscriberIds, and is useful for accessing the field via an interface.
 func (v *DocumentCreateInput) GetSubscriberIds() []string { return v.SubscriberIds }
 
-// DocumentCycle includes the requested fields of the GraphQL type Cycle.
-// The GraphQL type's documentation follows.
-//
-// A time-boxed iteration (similar to a sprint) used for planning and tracking
-// work. Cycles belong to a team and have defined start and end dates. Issues are
-// assigned to cycles for time-based planning, and progress is tracked via
-// completed, in-progress, and total scope. Cycles are automatically completed when
-// their end date passes, and uncompleted issues can be carried over to the next cycle.
-type DocumentCycle struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-}
-
-// GetId returns DocumentCycle.Id, and is useful for accessing the field via an interface.
-func (v *DocumentCycle) GetId() string { return v.Id }
-
-// DocumentInitiative includes the requested fields of the GraphQL type Initiative.
-// The GraphQL type's documentation follows.
-//
-// An initiative is a high-level strategic grouping of projects toward a business
-// goal. Initiatives can contain multiple projects, have their own status updates
-// and health tracking, and can be organized hierarchically with parent-child relationships.
-type DocumentInitiative struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-}
-
-// GetId returns DocumentInitiative.Id, and is useful for accessing the field via an interface.
-func (v *DocumentInitiative) GetId() string { return v.Id }
-
 // DocumentIssue includes the requested fields of the GraphQL type Issue.
 // The GraphQL type's documentation follows.
 //
@@ -228,37 +177,6 @@ type DocumentProject struct {
 
 // GetId returns DocumentProject.Id, and is useful for accessing the field via an interface.
 func (v *DocumentProject) GetId() string { return v.Id }
-
-// DocumentRelease includes the requested fields of the GraphQL type Release.
-// The GraphQL type's documentation follows.
-//
-// [Internal] A release that bundles issues together for a software deployment or
-// version. Releases belong to a release pipeline and progress through stages
-// (e.g., planned, started, completed, canceled). Issues are associated with
-// releases via the IssueToRelease join entity, and the release tracks lifecycle
-// timestamps such as when it was started, completed, or canceled.
-type DocumentRelease struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-}
-
-// GetId returns DocumentRelease.Id, and is useful for accessing the field via an interface.
-func (v *DocumentRelease) GetId() string { return v.Id }
-
-// DocumentTeam includes the requested fields of the GraphQL type Team.
-// The GraphQL type's documentation follows.
-//
-// A team is the primary organizational unit in Linear. Issues belong to teams, and
-// each team has its own workflow states, cycles, labels, and settings. Teams can
-// be public (visible to all workspace members) or private (visible only to team
-// members). Teams can also have sub-teams that inherit settings from their parent.
-type DocumentTeam struct {
-	// The unique identifier of the entity.
-	Id string `json:"id"`
-}
-
-// GetId returns DocumentTeam.Id, and is useful for accessing the field via an interface.
-func (v *DocumentTeam) GetId() string { return v.Id }
 
 // Input for updating an existing document.
 type DocumentUpdateInput struct {
@@ -3642,20 +3560,8 @@ func (v *getDocumentDocument) GetTrashed() bool { return v.Document.Trashed }
 // GetProject returns getDocumentDocument.Project, and is useful for accessing the field via an interface.
 func (v *getDocumentDocument) GetProject() *DocumentProject { return v.Document.Project }
 
-// GetInitiative returns getDocumentDocument.Initiative, and is useful for accessing the field via an interface.
-func (v *getDocumentDocument) GetInitiative() *DocumentInitiative { return v.Document.Initiative }
-
-// GetTeam returns getDocumentDocument.Team, and is useful for accessing the field via an interface.
-func (v *getDocumentDocument) GetTeam() *DocumentTeam { return v.Document.Team }
-
 // GetIssue returns getDocumentDocument.Issue, and is useful for accessing the field via an interface.
 func (v *getDocumentDocument) GetIssue() *DocumentIssue { return v.Document.Issue }
-
-// GetRelease returns getDocumentDocument.Release, and is useful for accessing the field via an interface.
-func (v *getDocumentDocument) GetRelease() *DocumentRelease { return v.Document.Release }
-
-// GetCycle returns getDocumentDocument.Cycle, and is useful for accessing the field via an interface.
-func (v *getDocumentDocument) GetCycle() *DocumentCycle { return v.Document.Cycle }
 
 func (v *getDocumentDocument) UnmarshalJSON(b []byte) error {
 
@@ -3693,15 +3599,7 @@ type __premarshalgetDocumentDocument struct {
 
 	Project *DocumentProject `json:"project"`
 
-	Initiative *DocumentInitiative `json:"initiative"`
-
-	Team *DocumentTeam `json:"team"`
-
 	Issue *DocumentIssue `json:"issue"`
-
-	Release *DocumentRelease `json:"release"`
-
-	Cycle *DocumentCycle `json:"cycle"`
 }
 
 func (v *getDocumentDocument) MarshalJSON() ([]byte, error) {
@@ -3720,11 +3618,7 @@ func (v *getDocumentDocument) __premarshalJSON() (*__premarshalgetDocumentDocume
 	retval.Content = v.Document.Content
 	retval.Trashed = v.Document.Trashed
 	retval.Project = v.Document.Project
-	retval.Initiative = v.Document.Initiative
-	retval.Team = v.Document.Team
 	retval.Issue = v.Document.Issue
-	retval.Release = v.Document.Release
-	retval.Cycle = v.Document.Cycle
 	return &retval, nil
 }
 
@@ -5094,29 +4988,9 @@ func (v *updateDocumentDocumentUpdateDocumentPayloadDocument) GetProject() *Docu
 	return v.Document.Project
 }
 
-// GetInitiative returns updateDocumentDocumentUpdateDocumentPayloadDocument.Initiative, and is useful for accessing the field via an interface.
-func (v *updateDocumentDocumentUpdateDocumentPayloadDocument) GetInitiative() *DocumentInitiative {
-	return v.Document.Initiative
-}
-
-// GetTeam returns updateDocumentDocumentUpdateDocumentPayloadDocument.Team, and is useful for accessing the field via an interface.
-func (v *updateDocumentDocumentUpdateDocumentPayloadDocument) GetTeam() *DocumentTeam {
-	return v.Document.Team
-}
-
 // GetIssue returns updateDocumentDocumentUpdateDocumentPayloadDocument.Issue, and is useful for accessing the field via an interface.
 func (v *updateDocumentDocumentUpdateDocumentPayloadDocument) GetIssue() *DocumentIssue {
 	return v.Document.Issue
-}
-
-// GetRelease returns updateDocumentDocumentUpdateDocumentPayloadDocument.Release, and is useful for accessing the field via an interface.
-func (v *updateDocumentDocumentUpdateDocumentPayloadDocument) GetRelease() *DocumentRelease {
-	return v.Document.Release
-}
-
-// GetCycle returns updateDocumentDocumentUpdateDocumentPayloadDocument.Cycle, and is useful for accessing the field via an interface.
-func (v *updateDocumentDocumentUpdateDocumentPayloadDocument) GetCycle() *DocumentCycle {
-	return v.Document.Cycle
 }
 
 func (v *updateDocumentDocumentUpdateDocumentPayloadDocument) UnmarshalJSON(b []byte) error {
@@ -5155,15 +5029,7 @@ type __premarshalupdateDocumentDocumentUpdateDocumentPayloadDocument struct {
 
 	Project *DocumentProject `json:"project"`
 
-	Initiative *DocumentInitiative `json:"initiative"`
-
-	Team *DocumentTeam `json:"team"`
-
 	Issue *DocumentIssue `json:"issue"`
-
-	Release *DocumentRelease `json:"release"`
-
-	Cycle *DocumentCycle `json:"cycle"`
 }
 
 func (v *updateDocumentDocumentUpdateDocumentPayloadDocument) MarshalJSON() ([]byte, error) {
@@ -5182,11 +5048,7 @@ func (v *updateDocumentDocumentUpdateDocumentPayloadDocument) __premarshalJSON()
 	retval.Content = v.Document.Content
 	retval.Trashed = v.Document.Trashed
 	retval.Project = v.Document.Project
-	retval.Initiative = v.Document.Initiative
-	retval.Team = v.Document.Team
 	retval.Issue = v.Document.Issue
-	retval.Release = v.Document.Release
-	retval.Cycle = v.Document.Cycle
 	return &retval, nil
 }
 
@@ -6579,21 +6441,9 @@ fragment Document on Document {
 	project {
 		id
 	}
-	initiative {
-		id
-	}
-	team {
-		id
-	}
 	issue {
 		id
 		identifier
-	}
-	release {
-		id
-	}
-	cycle {
-		id
 	}
 }
 `,
@@ -7135,21 +6985,9 @@ fragment Document on Document {
 	project {
 		id
 	}
-	initiative {
-		id
-	}
-	team {
-		id
-	}
 	issue {
 		id
 		identifier
-	}
-	release {
-		id
-	}
-	cycle {
-		id
 	}
 }
 `,
