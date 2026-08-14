@@ -8,16 +8,28 @@ import (
 )
 
 func TestAccTeamResourceDefault(t *testing.T) {
+	var duplicateWorkflowStateID string
+	checkDuplicateWorkflowStateStable := resource.TestCheckResourceAttrWith("linear_team.test", "duplicate_workflow_state.id", func(id string) error {
+		if duplicateWorkflowStateID == "" {
+			duplicateWorkflowStateID = id
+			return nil
+		}
+		if id != duplicateWorkflowStateID {
+			return fmt.Errorf("duplicate workflow state changed from %q to %q", duplicateWorkflowStateID, id)
+		}
+		return nil
+	})
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: testAccTeamResourceConfigDefault("ACC", "Acc Tests"),
+				Config: testAccTeamResourceConfigDefault("ACCTEST", "Acc Tests"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
-					resource.TestCheckResourceAttr("linear_team.test", "key", "ACC"),
+					resource.TestCheckResourceAttr("linear_team.test", "key", "ACCTEST"),
 					resource.TestCheckResourceAttr("linear_team.test", "name", "Acc Tests"),
 					resource.TestCheckResourceAttr("linear_team.test", "private", "false"),
 					resource.TestCheckNoResourceAttr("linear_team.test", "parent_id"),
@@ -75,21 +87,24 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.name", "Canceled"),
 					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.color", "#95a2b3"),
 					resource.TestCheckNoResourceAttr("linear_team.test", "canceled_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "duplicate_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.test", "duplicate_workflow_state.name", "Duplicate"),
+					checkDuplicateWorkflowStateStable,
 				),
 			},
 			// ImportState testing
 			{
 				ResourceName:      "linear_team.test",
 				ImportState:       true,
-				ImportStateId:     "ACC",
+				ImportStateId:     "ACCTEST",
 				ImportStateVerify: true,
 			},
 			// Update with default values
 			{
-				Config: testAccTeamResourceConfigDefault("ACC", "Acc Tests"),
+				Config: testAccTeamResourceConfigDefault("ACCTEST", "Acc Tests"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
-					resource.TestCheckResourceAttr("linear_team.test", "key", "ACC"),
+					resource.TestCheckResourceAttr("linear_team.test", "key", "ACCTEST"),
 					resource.TestCheckResourceAttr("linear_team.test", "name", "Acc Tests"),
 					resource.TestCheckResourceAttr("linear_team.test", "private", "false"),
 					resource.TestCheckNoResourceAttr("linear_team.test", "parent_id"),
@@ -147,19 +162,21 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.name", "Canceled"),
 					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.color", "#95a2b3"),
 					resource.TestCheckNoResourceAttr("linear_team.test", "canceled_workflow_state.description"),
+					resource.TestMatchResourceAttr("linear_team.test", "duplicate_workflow_state.id", uuidRegex()),
+					checkDuplicateWorkflowStateStable,
 				),
 			},
 			// Update and Read testing
 			{
-				Config: testAccTeamResourceConfigNonDefault("AC", "Acceptance"),
+				Config: testAccTeamResourceConfigNonDefault("ACCTEST2", "Acceptance", ":gear:"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
-					resource.TestCheckResourceAttr("linear_team.test", "key", "AC"),
+					resource.TestCheckResourceAttr("linear_team.test", "key", "ACCTEST2"),
 					resource.TestCheckResourceAttr("linear_team.test", "name", "Acceptance"),
 					resource.TestCheckResourceAttr("linear_team.test", "private", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "parent_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 					resource.TestCheckResourceAttr("linear_team.test", "description", "nice team"),
-					resource.TestCheckResourceAttr("linear_team.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_team.test", "icon", ":gear:"),
 					resource.TestCheckResourceAttr("linear_team.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Europe/London"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
@@ -212,13 +229,15 @@ func TestAccTeamResourceDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.name", "Invalid"),
 					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.color", "#99aabb"),
 					resource.TestCheckResourceAttr("linear_team.test", "canceled_workflow_state.description", "Not valid or not needed"),
+					resource.TestMatchResourceAttr("linear_team.test", "duplicate_workflow_state.id", uuidRegex()),
+					checkDuplicateWorkflowStateStable,
 				),
 			},
 			// ImportState testing
 			{
 				ResourceName:      "linear_team.test",
 				ImportState:       true,
-				ImportStateId:     "AC",
+				ImportStateId:     "ACCTEST2",
 				ImportStateVerify: true,
 			},
 			// Delete testing automatically occurs in TestCase
@@ -233,7 +252,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: testAccTeamResourceConfigNonDefault("DEV", "DevOps"),
+				Config: testAccTeamResourceConfigNonDefault("DEV", "DevOps", "👩‍💻"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team.test", "key", "DEV"),
@@ -241,7 +260,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "private", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "parent_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 					resource.TestCheckResourceAttr("linear_team.test", "description", "nice team"),
-					resource.TestCheckResourceAttr("linear_team.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_team.test", "icon", "👩‍💻"),
 					resource.TestCheckResourceAttr("linear_team.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Europe/London"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
@@ -305,7 +324,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 			},
 			// Update with same values
 			{
-				Config: testAccTeamResourceConfigNonDefault("DEV", "DevOps"),
+				Config: testAccTeamResourceConfigNonDefault("DEV", "DevOps", "👩‍💻"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_team.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team.test", "key", "DEV"),
@@ -313,7 +332,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "private", "true"),
 					resource.TestCheckResourceAttr("linear_team.test", "parent_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
 					resource.TestCheckResourceAttr("linear_team.test", "description", "nice team"),
-					resource.TestCheckResourceAttr("linear_team.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_team.test", "icon", "👩‍💻"),
 					resource.TestCheckResourceAttr("linear_team.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Europe/London"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "false"),
@@ -378,7 +397,7 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 					resource.TestCheckResourceAttr("linear_team.test", "private", "false"),
 					resource.TestCheckNoResourceAttr("linear_team.test", "parent_id"),
 					resource.TestCheckNoResourceAttr("linear_team.test", "description"),
-					resource.TestCheckResourceAttr("linear_team.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_team.test", "icon", "👩‍💻"),
 					resource.TestCheckResourceAttr("linear_team.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_team.test", "timezone", "Etc/GMT"),
 					resource.TestCheckResourceAttr("linear_team.test", "enable_issue_history_grouping", "true"),
@@ -454,7 +473,7 @@ resource "linear_team" "test" {
 `, key, name)
 }
 
-func testAccTeamResourceConfigNonDefault(key string, name string) string {
+func testAccTeamResourceConfigNonDefault(key string, name string, icon string) string {
 	return fmt.Sprintf(`
 resource "linear_team" "test" {
   key = "%s"
@@ -462,7 +481,7 @@ resource "linear_team" "test" {
   private = true
   parent_id = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
   description = "nice team"
-  icon = "Image"
+  icon = "%s"
   color = "#00ff00"
   timezone = "Europe/London"
   enable_issue_history_grouping = false
@@ -530,5 +549,5 @@ resource "linear_team" "test" {
     description = "Not valid or not needed"
   }
 }
-`, key, name)
+`, key, name, icon)
 }

@@ -50,12 +50,12 @@ func TestAccTemplateResourceDefault(t *testing.T) {
 			},
 			// Update and Read testing
 			{
-				Config: testAccTemplateResourceConfigNonDefault("Easy Tech Debt"),
+				Config: testAccTemplateResourceConfigNonDefault("Easy Tech Debt", ":rocket:"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_template.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_template.test", "name", "Easy Tech Debt"),
 					resource.TestCheckResourceAttr("linear_template.test", "description", "Tech debt that is easy to fix"),
-					resource.TestCheckResourceAttr("linear_template.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_template.test", "icon", ":rocket:"),
 					resource.TestCheckResourceAttr("linear_template.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_template.test", "type", "issue"),
 					resource.TestCheckResourceAttr("linear_template.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
@@ -81,12 +81,12 @@ func TestAccTemplateResourceNonDefault(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: testAccTemplateResourceConfigNonDefault("Easy Tech Debt"),
+				Config: testAccTemplateResourceConfigNonDefault("Easy Tech Debt", "👩‍💻"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_template.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_template.test", "name", "Easy Tech Debt"),
 					resource.TestCheckResourceAttr("linear_template.test", "description", "Tech debt that is easy to fix"),
-					resource.TestCheckResourceAttr("linear_template.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_template.test", "icon", "👩‍💻"),
 					resource.TestCheckResourceAttr("linear_template.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_template.test", "type", "issue"),
 					resource.TestCheckResourceAttr("linear_template.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
@@ -102,12 +102,12 @@ func TestAccTemplateResourceNonDefault(t *testing.T) {
 			},
 			// Update with null values
 			{
-				Config: testAccTemplateResourceConfigNonDefault("Easy Tech Debt"),
+				Config: testAccTemplateResourceConfigNonDefault("Easy Tech Debt", "👩‍💻"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestMatchResourceAttr("linear_template.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_template.test", "name", "Easy Tech Debt"),
 					resource.TestCheckResourceAttr("linear_template.test", "description", "Tech debt that is easy to fix"),
-					resource.TestCheckResourceAttr("linear_template.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_template.test", "icon", "👩‍💻"),
 					resource.TestCheckResourceAttr("linear_template.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_template.test", "type", "issue"),
 					resource.TestCheckResourceAttr("linear_template.test", "team_id", "ff0a060a-eceb-4b34-9140-fd7231f0cd28"),
@@ -121,7 +121,7 @@ func TestAccTemplateResourceNonDefault(t *testing.T) {
 					resource.TestMatchResourceAttr("linear_template.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_template.test", "name", "Tech Debt"),
 					resource.TestCheckNoResourceAttr("linear_template.test", "description"),
-					resource.TestCheckResourceAttr("linear_template.test", "icon", "Image"),
+					resource.TestCheckResourceAttr("linear_template.test", "icon", "👩‍💻"),
 					resource.TestCheckResourceAttr("linear_template.test", "color", "#00ff00"),
 					resource.TestCheckResourceAttr("linear_template.test", "type", "issue"),
 					resource.TestCheckNoResourceAttr("linear_template.test", "team_id"),
@@ -152,12 +152,12 @@ resource "linear_template" "test" {
 `, name)
 }
 
-func testAccTemplateResourceConfigNonDefault(name string) string {
+func testAccTemplateResourceConfigNonDefault(name string, icon string) string {
 	return fmt.Sprintf(`
 resource "linear_template" "test" {
   name = "%s"
   description = "Tech debt that is easy to fix"
-  icon = "Image"
+  icon = "%s"
   color = "#00ff00"
   type = "issue"
   team_id = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
@@ -167,7 +167,7 @@ resource "linear_template" "test" {
     "labelIds" = ["53c7964a-5bd4-4679-8cca-a5b78498b2b3"]
   })
 }
-`, name)
+`, name, icon)
 }
 
 func templateImportIdFunc(state *terraform.State) (string, error) {
