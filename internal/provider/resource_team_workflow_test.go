@@ -84,6 +84,8 @@ func TestAccTeamWorkflowResourceLongKey(t *testing.T) {
 			{
 				Config: testAccTeamWorkflowResourceConfigLongKey(),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_team.long_key", "duplicate_workflow_state.id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team.long_key", "icon", ":gear:"),
 					resource.TestMatchResourceAttr("linear_team_workflow.test", "id", uuidRegex()),
 					resource.TestCheckResourceAttr("linear_team_workflow.test", "key", "ACCFLOW"),
 				),
@@ -318,6 +320,7 @@ func testAccTeamWorkflowResourceConfigLongKey() string {
 resource "linear_team" "long_key" {
   key  = "ACCFLOW"
   name = "Acceptance Workflow"
+  icon = ":gear:"
 }
 
 resource "linear_team_workflow" "test" {
