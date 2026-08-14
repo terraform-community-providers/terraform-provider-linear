@@ -76,6 +76,28 @@ func TestAccTeamWorkflowResourceDefault(t *testing.T) {
 	})
 }
 
+func TestAccTeamWorkflowResourceLongKey(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTeamWorkflowResourceConfigLongKey(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestMatchResourceAttr("linear_team_workflow.test", "id", uuidRegex()),
+					resource.TestCheckResourceAttr("linear_team_workflow.test", "key", "ACCFLOW"),
+				),
+			},
+			{
+				ResourceName:      "linear_team_workflow.test",
+				ImportState:       true,
+				ImportStateId:     "ACCFLOW",
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func TestAccTeamWorkflowResourceDefaultUpdateBranch(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -289,6 +311,19 @@ resource "linear_team_workflow" "test" {
   key = "%s"
 }
 `, key)
+}
+
+func testAccTeamWorkflowResourceConfigLongKey() string {
+	return `
+resource "linear_team" "long_key" {
+  key  = "ACCFLOW"
+  name = "Acceptance Workflow"
+}
+
+resource "linear_team_workflow" "test" {
+  key = linear_team.long_key.key
+}
+`
 }
 
 func testAccTeamWorkflowResourceConfigDefaultBranch(key string) string {
