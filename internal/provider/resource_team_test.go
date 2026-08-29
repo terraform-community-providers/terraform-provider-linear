@@ -2,8 +2,10 @@ package provider
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -226,6 +228,137 @@ func TestAccTeamResourceDefault(t *testing.T) {
 	})
 }
 
+func TestBoolPointerIfKnown(t *testing.T) {
+	tests := []struct {
+		name    string
+		value   types.Bool
+		wantNil bool
+		want    bool
+	}{
+		{name: "null", value: types.BoolNull(), wantNil: true},
+		{name: "unknown", value: types.BoolUnknown(), wantNil: true},
+		{name: "false", value: types.BoolValue(false)},
+		{name: "true", value: types.BoolValue(true), want: true},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := boolPointerIfKnown(test.value)
+			if test.wantNil {
+				if got != nil {
+					t.Fatalf("boolPointerIfKnown() = %v, want nil", *got)
+				}
+				return
+			}
+			if got == nil || *got != test.want {
+				t.Fatalf("boolPointerIfKnown() = %v, want %v", got, test.want)
+			}
+		})
+	}
+}
+
+func TestTeamResourceInheritancePlanValidation(t *testing.T) {
+	tests := []struct {
+		name        string
+		config      string
+		expectError string
+	}{
+		{
+			name: "parent required",
+			config: `
+resource "linear_team" "test" {
+  key                      = "TEST"
+  name                     = "Test"
+  inherit_issue_estimation = true
+}`,
+			expectError: "Missing Parent Team",
+		},
+		{
+			name: "local estimation conflicts",
+			config: `
+resource "linear_team" "test" {
+  key                      = "TEST"
+  name                     = "Test"
+  parent_id                = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
+  inherit_issue_estimation = true
+  estimation = {
+    type = "linear"
+  }
+}`,
+			expectError: "Conflicting Estimation Settings",
+		},
+		{
+			name: "local workflow conflicts",
+			config: `
+resource "linear_team" "test" {
+  key                       = "TEST"
+  name                      = "Test"
+  parent_id                 = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
+  inherit_workflow_statuses = true
+  started_workflow_state = {
+    name = "Working"
+  }
+}`,
+			expectError: "Conflicting Workflow Settings",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			resource.UnitTest(t, resource.TestCase{
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Steps: []resource.TestStep{
+					{
+						Config:      "provider \"linear\" { token = \"test\" }\n" + test.config,
+						PlanOnly:    true,
+						ExpectError: regexp.MustCompile(test.expectError),
+					},
+				},
+			})
+		})
+	}
+}
+
+func TestTeamResourceMixedInheritancePlans(t *testing.T) {
+	configs := map[string]string{
+		"estimation only": `
+resource "linear_team" "test" {
+  key                      = "TEST"
+  name                     = "Test"
+  parent_id                = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
+  inherit_issue_estimation = true
+  started_workflow_state = {
+    name = "Working"
+  }
+}`,
+		"workflow only": `
+resource "linear_team" "test" {
+  key                       = "TEST"
+  name                      = "Test"
+  parent_id                 = "ff0a060a-eceb-4b34-9140-fd7231f0cd28"
+  inherit_workflow_statuses = true
+  estimation = {
+    type = "linear"
+  }
+}`,
+	}
+
+	for name, config := range configs {
+		t.Run(name, func(t *testing.T) {
+			resource.UnitTest(t, resource.TestCase{
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Steps: []resource.TestStep{
+					{
+						Config:             "provider \"linear\" { token = \"test\" }\n" + config,
+						PlanOnly:           true,
+						ExpectNonEmptyPlan: true,
+					},
+				},
+			})
+		})
+	}
+}
+
 func TestAccTeamResourceNonDefault(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -445,6 +578,80 @@ func TestAccTeamResourceNonDefault(t *testing.T) {
 	})
 }
 
+func TestAccTeamResourceInheritance(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTeamResourceConfigInheritance(true, "parent"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrPair("linear_team.child", "parent_id", "linear_team.parent", "id"),
+					resource.TestCheckResourceAttr("linear_team.child", "inherit_issue_estimation", "true"),
+					resource.TestCheckResourceAttr("linear_team.child", "inherit_workflow_statuses", "true"),
+					resource.TestCheckResourceAttr("linear_team.child", "estimation.type", "linear"),
+					resource.TestCheckResourceAttr("linear_team.child", "estimation.extended", "true"),
+					resource.TestCheckResourceAttr("linear_team.child", "estimation.allow_zero", "true"),
+					resource.TestCheckResourceAttr("linear_team.child", "estimation.default", "0"),
+					resource.TestCheckResourceAttr("linear_team.child", "backlog_workflow_state.name", "Icebox"),
+					resource.TestCheckResourceAttr("linear_team.child", "unstarted_workflow_state.name", "Ready"),
+					resource.TestCheckResourceAttr("linear_team.child", "started_workflow_state.name", "Building"),
+					resource.TestCheckResourceAttr("linear_team.child", "completed_workflow_state.name", "Shipped"),
+					resource.TestCheckResourceAttr("linear_team.child", "canceled_workflow_state.name", "Declined"),
+				),
+			},
+			{
+				Config: testAccTeamResourceConfigInheritance(true, "alternate_parent"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrPair("linear_team.child", "parent_id", "linear_team.alternate_parent", "id"),
+					resource.TestCheckResourceAttr("linear_team.child", "estimation.type", "exponential"),
+					resource.TestCheckResourceAttr("linear_team.child", "backlog_workflow_state.name", "Alternate icebox"),
+					resource.TestCheckResourceAttr("linear_team.child", "unstarted_workflow_state.name", "Alternate ready"),
+					resource.TestCheckResourceAttr("linear_team.child", "started_workflow_state.name", "Alternate building"),
+					resource.TestCheckResourceAttr("linear_team.child", "completed_workflow_state.name", "Alternate shipped"),
+					resource.TestCheckResourceAttr("linear_team.child", "canceled_workflow_state.name", "Alternate declined"),
+				),
+			},
+			{
+				Config: testAccTeamResourceConfigInheritance(false, "alternate_parent"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("linear_team.child", "inherit_issue_estimation", "false"),
+					resource.TestCheckResourceAttr("linear_team.child", "inherit_workflow_statuses", "false"),
+					resource.TestCheckResourceAttr("linear_team.child", "estimation.type", "fibonacci"),
+					resource.TestCheckResourceAttr("linear_team.child", "backlog_workflow_state.name", "Child backlog"),
+					resource.TestCheckResourceAttr("linear_team.child", "unstarted_workflow_state.name", "Child ready"),
+					resource.TestCheckResourceAttr("linear_team.child", "started_workflow_state.name", "Child building"),
+					resource.TestCheckResourceAttr("linear_team.child", "completed_workflow_state.name", "Child shipped"),
+					resource.TestCheckResourceAttr("linear_team.child", "canceled_workflow_state.name", "Child declined"),
+				),
+			},
+			{
+				Config: testAccTeamResourceConfigInheritance(true, "parent"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("linear_team.child", "inherit_issue_estimation", "true"),
+					resource.TestCheckResourceAttr("linear_team.child", "inherit_workflow_statuses", "true"),
+					resource.TestCheckResourceAttr("linear_team.child", "estimation.type", "linear"),
+					resource.TestCheckResourceAttr("linear_team.child", "backlog_workflow_state.name", "Icebox"),
+					resource.TestCheckResourceAttr("linear_team.child", "unstarted_workflow_state.name", "Ready"),
+					resource.TestCheckResourceAttr("linear_team.child", "started_workflow_state.name", "Building"),
+					resource.TestCheckResourceAttr("linear_team.child", "completed_workflow_state.name", "Shipped"),
+					resource.TestCheckResourceAttr("linear_team.child", "canceled_workflow_state.name", "Declined"),
+				),
+			},
+			{
+				ResourceName:      "linear_team.child",
+				ImportState:       true,
+				ImportStateId:     "ACHI",
+				ImportStateVerify: true,
+			},
+			{
+				Config:   testAccTeamResourceConfigInheritance(true, "parent"),
+				PlanOnly: true,
+			},
+		},
+	})
+}
+
 func testAccTeamResourceConfigDefault(key string, name string) string {
 	return fmt.Sprintf(`
 resource "linear_team" "test" {
@@ -531,4 +738,109 @@ resource "linear_team" "test" {
   }
 }
 `, key, name)
+}
+
+func testAccTeamResourceConfigInheritance(inherit bool, parentResource string) string {
+	childSettings := `
+  inherit_issue_estimation  = true
+  inherit_workflow_statuses = true`
+	if !inherit {
+		childSettings = `
+  inherit_issue_estimation  = false
+  inherit_workflow_statuses = false
+
+  estimation = {
+    type = "fibonacci"
+  }
+
+  backlog_workflow_state = {
+    name = "Child backlog"
+  }
+
+  unstarted_workflow_state = {
+    name = "Child ready"
+  }
+
+  started_workflow_state = {
+    name = "Child building"
+  }
+
+  completed_workflow_state = {
+    name = "Child shipped"
+  }
+
+  canceled_workflow_state = {
+    name = "Child declined"
+  }`
+	}
+
+	return fmt.Sprintf(`
+resource "linear_team" "parent" {
+  key  = "APAR"
+  name = "Acceptance Parent"
+
+  estimation = {
+    type       = "linear"
+    extended   = true
+    allow_zero = true
+    default    = 0
+  }
+
+  backlog_workflow_state = {
+    name = "Icebox"
+  }
+
+  unstarted_workflow_state = {
+    name = "Ready"
+  }
+
+  started_workflow_state = {
+    name = "Building"
+  }
+
+  completed_workflow_state = {
+    name = "Shipped"
+  }
+
+  canceled_workflow_state = {
+    name = "Declined"
+  }
+}
+
+resource "linear_team" "alternate_parent" {
+  key  = "AALT"
+  name = "Acceptance Alternate Parent"
+
+  estimation = {
+    type = "exponential"
+  }
+
+  backlog_workflow_state = {
+    name = "Alternate icebox"
+  }
+
+  unstarted_workflow_state = {
+    name = "Alternate ready"
+  }
+
+  started_workflow_state = {
+    name = "Alternate building"
+  }
+
+  completed_workflow_state = {
+    name = "Alternate shipped"
+  }
+
+  canceled_workflow_state = {
+    name = "Alternate declined"
+  }
+}
+
+resource "linear_team" "child" {
+  key       = "ACHI"
+  name      = "Acceptance Child"
+  parent_id = linear_team.%s.id
+%s
+}
+`, parentResource, childSettings)
 }
