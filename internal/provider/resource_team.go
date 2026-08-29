@@ -3,9 +3,9 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
 	"regexp"
 	"sort"
+	"strings"
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
@@ -30,9 +31,18 @@ import (
 
 var _ resource.Resource = &TeamResource{}
 var _ resource.ResourceWithImportState = &TeamResource{}
+var _ resource.ResourceWithModifyPlan = &TeamResource{}
 
 func securitySetting() planmodifier.Bool {
 	return securitySettingModifier{}
+}
+
+func boolPointerIfKnown(value types.Bool) *bool {
+	if value.IsNull() || value.IsUnknown() {
+		return nil
+	}
+
+	return value.ValueBoolPointer()
 }
 
 type securitySettingModifier struct{}
@@ -127,6 +137,8 @@ type TeamResourceModel struct {
 	Name                          types.String  `tfsdk:"name"`
 	Private                       types.Bool    `tfsdk:"private"`
 	ParentId                      types.String  `tfsdk:"parent_id"`
+	InheritIssueEstimation        types.Bool    `tfsdk:"inherit_issue_estimation"`
+	InheritWorkflowStatuses       types.Bool    `tfsdk:"inherit_workflow_statuses"`
 	Description                   types.String  `tfsdk:"description"`
 	Icon                          types.String  `tfsdk:"icon"`
 	Color                         types.String  `tfsdk:"color"`
@@ -193,6 +205,22 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:            true,
 				Validators: []validator.String{
 					stringvalidator.RegexMatches(uuidRegex(), "must be an uuid"),
+				},
+			},
+			"inherit_issue_estimation": schema.BoolAttribute{
+				MarkdownDescription: "Whether the team inherits estimation settings from its parent. Only applies to sub-teams.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"inherit_workflow_statuses": schema.BoolAttribute{
+				MarkdownDescription: "Whether the team inherits workflow statuses from its parent. Only applies to sub-teams.",
+				Optional:            true,
+				Computed:            true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"description": schema.StringAttribute{
@@ -732,6 +760,99 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 	}
 }
 
+func (r *TeamResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if req.Plan.Raw.IsNull() {
+		return
+	}
+
+	var config TeamResourceModel
+	var plan TeamResourceModel
+	var state TeamResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if !req.State.Raw.IsNull() {
+		resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if config.InheritIssueEstimation.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("inherit_issue_estimation"),
+			"Unknown Inheritance Setting",
+			"inherit_issue_estimation must be known during planning so it can be validated against estimation.",
+		)
+	}
+	if config.InheritWorkflowStatuses.IsUnknown() {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("inherit_workflow_statuses"),
+			"Unknown Inheritance Setting",
+			"inherit_workflow_statuses must be known during planning so it can be validated against workflow state settings.",
+		)
+	}
+
+	if plan.InheritIssueEstimation.ValueBool() {
+		if config.ParentId.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("inherit_issue_estimation"),
+				"Missing Parent Team",
+				"inherit_issue_estimation can only be enabled when parent_id is configured.",
+			)
+		}
+		if !config.Estimation.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("estimation"),
+				"Conflicting Estimation Settings",
+				"estimation cannot be configured when inherit_issue_estimation is enabled.",
+			)
+		}
+		if req.State.Raw.IsNull() || !state.InheritIssueEstimation.ValueBool() || !plan.ParentId.Equal(state.ParentId) {
+			plan.Estimation = types.ObjectUnknown(estimationAttrTypes)
+		} else {
+			plan.Estimation = state.Estimation
+		}
+	}
+
+	if plan.InheritWorkflowStatuses.ValueBool() {
+		if config.ParentId.IsNull() {
+			resp.Diagnostics.AddAttributeError(
+				path.Root("inherit_workflow_statuses"),
+				"Missing Parent Team",
+				"inherit_workflow_statuses can only be enabled when parent_id is configured.",
+			)
+		}
+		workflowStates := []struct {
+			name   string
+			config types.Object
+			plan   *types.Object
+			state  types.Object
+		}{
+			{"backlog_workflow_state", config.BacklogWorkflowState, &plan.BacklogWorkflowState, state.BacklogWorkflowState},
+			{"unstarted_workflow_state", config.UnstartedWorkflowState, &plan.UnstartedWorkflowState, state.UnstartedWorkflowState},
+			{"started_workflow_state", config.StartedWorkflowState, &plan.StartedWorkflowState, state.StartedWorkflowState},
+			{"completed_workflow_state", config.CompletedWorkflowState, &plan.CompletedWorkflowState, state.CompletedWorkflowState},
+			{"canceled_workflow_state", config.CanceledWorkflowState, &plan.CanceledWorkflowState, state.CanceledWorkflowState},
+		}
+		for _, workflowState := range workflowStates {
+			if !workflowState.config.IsNull() {
+				resp.Diagnostics.AddAttributeError(
+					path.Root(workflowState.name),
+					"Conflicting Workflow Settings",
+					fmt.Sprintf("%s cannot be configured when inherit_workflow_statuses is enabled.", workflowState.name),
+				)
+			}
+			if req.State.Raw.IsNull() || !state.InheritWorkflowStatuses.ValueBool() || !plan.ParentId.Equal(state.ParentId) {
+				*workflowState.plan = types.ObjectUnknown(workflowStateAttrTypes)
+			} else {
+				*workflowState.plan = workflowState.state
+			}
+		}
+	}
+
+	resp.Diagnostics.Append(resp.Plan.Set(ctx, &plan)...)
+}
+
 func (r *TeamResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
@@ -783,6 +904,8 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		SetIssueSortOrderOnStateChange: setIssueSortOrderOnStateChange,
 		AutoArchivePeriod:              data.AutoArchivePeriod.ValueFloat64(),
 	}
+	input.InheritIssueEstimation = boolPointerIfKnown(data.InheritIssueEstimation)
+	input.InheritWorkflowStatuses = boolPointerIfKnown(data.InheritWorkflowStatuses)
 
 	if !data.Icon.IsUnknown() {
 		value := data.Icon.ValueString()
@@ -823,16 +946,18 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.ValueBool()
 	input.CycleLockToActive = cyclesData.NeedForActive.ValueBool()
 
-	resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, basetypes.ObjectAsOptions{})...)
+	if !data.InheritIssueEstimation.ValueBool() {
+		resp.Diagnostics.Append(data.Estimation.As(ctx, &estimationData, basetypes.ObjectAsOptions{})...)
 
-	if resp.Diagnostics.HasError() {
-		return
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		input.IssueEstimationType = estimationData.Type.ValueString()
+		input.IssueEstimationExtended = estimationData.Extended.ValueBool()
+		input.IssueEstimationAllowZero = estimationData.AllowZero.ValueBool()
+		input.DefaultIssueEstimate = estimationData.Default.ValueFloat64()
 	}
-
-	input.IssueEstimationType = estimationData.Type.ValueString()
-	input.IssueEstimationExtended = estimationData.Extended.ValueBool()
-	input.IssueEstimationAllowZero = estimationData.AllowZero.ValueBool()
-	input.DefaultIssueEstimate = estimationData.Default.ValueFloat64()
 
 	response, err := createTeam(ctx, *r.client, input)
 
@@ -879,23 +1004,29 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	// Update the workflow states
+	if data.InheritWorkflowStatuses.ValueBool() {
+		data.BacklogWorkflowState = readWorkflowStateToObject(*backlogWorkflowState)
+		data.UnstartedWorkflowState = readWorkflowStateToObject(*unstartedWorkflowState)
+		data.StartedWorkflowState = readWorkflowStateToObject(*startedWorkflowState)
+		data.CompletedWorkflowState = readWorkflowStateToObject(*completedWorkflowState)
+		data.CanceledWorkflowState = readWorkflowStateToObject(*canceledWorkflowState)
+	} else {
+		backlog := updateTeamWorkflowStateInCreate(ctx, r, data.BacklogWorkflowState, resp, backlogWorkflowState.Id)
+		unstarted := updateTeamWorkflowStateInCreate(ctx, r, data.UnstartedWorkflowState, resp, unstartedWorkflowState.Id)
+		started := updateTeamWorkflowStateInCreate(ctx, r, data.StartedWorkflowState, resp, startedWorkflowState.Id)
+		completed := updateTeamWorkflowStateInCreate(ctx, r, data.CompletedWorkflowState, resp, completedWorkflowState.Id)
+		canceled := updateTeamWorkflowStateInCreate(ctx, r, data.CanceledWorkflowState, resp, canceledWorkflowState.Id)
 
-	backlog := updateTeamWorkflowStateInCreate(ctx, r, data.BacklogWorkflowState, resp, backlogWorkflowState.Id)
-	unstarted := updateTeamWorkflowStateInCreate(ctx, r, data.UnstartedWorkflowState, resp, unstartedWorkflowState.Id)
-	started := updateTeamWorkflowStateInCreate(ctx, r, data.StartedWorkflowState, resp, startedWorkflowState.Id)
-	completed := updateTeamWorkflowStateInCreate(ctx, r, data.CompletedWorkflowState, resp, completedWorkflowState.Id)
-	canceled := updateTeamWorkflowStateInCreate(ctx, r, data.CanceledWorkflowState, resp, canceledWorkflowState.Id)
+		if backlog == nil || unstarted == nil || started == nil || completed == nil || canceled == nil {
+			return
+		}
 
-	if backlog == nil || unstarted == nil || started == nil || completed == nil || canceled == nil {
-		return
+		data.BacklogWorkflowState = *backlog
+		data.UnstartedWorkflowState = *unstarted
+		data.StartedWorkflowState = *started
+		data.CompletedWorkflowState = *completed
+		data.CanceledWorkflowState = *canceled
 	}
-
-	data.BacklogWorkflowState = *backlog
-	data.UnstartedWorkflowState = *unstarted
-	data.StartedWorkflowState = *started
-	data.CompletedWorkflowState = *completed
-	data.CanceledWorkflowState = *canceled
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -928,6 +1059,8 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	data.Id = types.StringValue(team.Id)
 	data.Name = types.StringValue(team.Name)
 	data.Private = types.BoolValue(team.Private)
+	data.InheritIssueEstimation = types.BoolValue(team.InheritIssueEstimation)
+	data.InheritWorkflowStatuses = types.BoolValue(team.InheritWorkflowStatuses)
 	data.Description = types.StringPointerValue(team.Description)
 	data.Icon = types.StringPointerValue(team.Icon)
 	data.Color = types.StringPointerValue(team.Color)
@@ -1038,23 +1171,81 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	// Update the workflow states
+	if !data.InheritWorkflowStatuses.ValueBool() {
+		backlogID := state.BacklogWorkflowState.Attributes()["id"].(types.String).ValueString()
+		unstartedID := state.UnstartedWorkflowState.Attributes()["id"].(types.String).ValueString()
+		startedID := state.StartedWorkflowState.Attributes()["id"].(types.String).ValueString()
+		completedID := state.CompletedWorkflowState.Attributes()["id"].(types.String).ValueString()
+		canceledID := state.CanceledWorkflowState.Attributes()["id"].(types.String).ValueString()
 
-	backlog := updateTeamWorkflowStateInUpdate(ctx, r, data.BacklogWorkflowState, resp, state.BacklogWorkflowState.Attributes()["id"].(types.String).ValueString())
-	unstarted := updateTeamWorkflowStateInUpdate(ctx, r, data.UnstartedWorkflowState, resp, state.UnstartedWorkflowState.Attributes()["id"].(types.String).ValueString())
-	started := updateTeamWorkflowStateInUpdate(ctx, r, data.StartedWorkflowState, resp, state.StartedWorkflowState.Attributes()["id"].(types.String).ValueString())
-	completed := updateTeamWorkflowStateInUpdate(ctx, r, data.CompletedWorkflowState, resp, state.CompletedWorkflowState.Attributes()["id"].(types.String).ValueString())
-	canceled := updateTeamWorkflowStateInUpdate(ctx, r, data.CanceledWorkflowState, resp, state.CanceledWorkflowState.Attributes()["id"].(types.String).ValueString())
+		if state.InheritWorkflowStatuses.ValueBool() {
+			workflowStatesResponse, err := getTeamWorkflowStates(ctx, *r.client, data.Key.ValueString())
+			if err != nil {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to get local workflow states after disabling inheritance, got error: %s", err))
+				return
+			}
 
-	if backlog == nil || unstarted == nil || started == nil || completed == nil || canceled == nil {
-		return
+			backlog := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "backlog")
+			unstarted := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "unstarted")
+			started := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "started")
+			completed := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "completed")
+			canceled := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "canceled")
+			if backlog == nil || unstarted == nil || started == nil || completed == nil || canceled == nil {
+				resp.Diagnostics.AddError("Client Error", "Unable to find all local workflow states after disabling inheritance")
+				return
+			}
+
+			teamID := data.Id.ValueString()
+			if backlog.Team.Id != teamID || unstarted.Team.Id != teamID || started.Team.Id != teamID || completed.Team.Id != teamID || canceled.Team.Id != teamID {
+				resp.Diagnostics.AddError("Client Error", "Linear returned workflow states for a different team after disabling inheritance")
+				return
+			}
+
+			backlogID = backlog.Id
+			unstartedID = unstarted.Id
+			startedID = started.Id
+			completedID = completed.Id
+			canceledID = canceled.Id
+		}
+
+		backlog := updateTeamWorkflowStateInUpdate(ctx, r, data.BacklogWorkflowState, resp, backlogID)
+		unstarted := updateTeamWorkflowStateInUpdate(ctx, r, data.UnstartedWorkflowState, resp, unstartedID)
+		started := updateTeamWorkflowStateInUpdate(ctx, r, data.StartedWorkflowState, resp, startedID)
+		completed := updateTeamWorkflowStateInUpdate(ctx, r, data.CompletedWorkflowState, resp, completedID)
+		canceled := updateTeamWorkflowStateInUpdate(ctx, r, data.CanceledWorkflowState, resp, canceledID)
+
+		if backlog == nil || unstarted == nil || started == nil || completed == nil || canceled == nil {
+			return
+		}
+
+		data.BacklogWorkflowState = *backlog
+		data.UnstartedWorkflowState = *unstarted
+		data.StartedWorkflowState = *started
+		data.CompletedWorkflowState = *completed
+		data.CanceledWorkflowState = *canceled
+	} else {
+		workflowStatesResponse, err := getTeamWorkflowStates(ctx, *r.client, data.Key.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to get inherited workflow states, got error: %s", err))
+			return
+		}
+
+		backlog := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "backlog")
+		unstarted := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "unstarted")
+		started := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "started")
+		completed := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "completed")
+		canceled := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "canceled")
+		if backlog == nil || unstarted == nil || started == nil || completed == nil || canceled == nil {
+			resp.Diagnostics.AddError("Client Error", "Unable to find all inherited workflow states")
+			return
+		}
+
+		data.BacklogWorkflowState = readWorkflowStateToObject(*backlog)
+		data.UnstartedWorkflowState = readWorkflowStateToObject(*unstarted)
+		data.StartedWorkflowState = readWorkflowStateToObject(*started)
+		data.CompletedWorkflowState = readWorkflowStateToObject(*completed)
+		data.CanceledWorkflowState = readWorkflowStateToObject(*canceled)
 	}
-
-	data.BacklogWorkflowState = *backlog
-	data.UnstartedWorkflowState = *unstarted
-	data.StartedWorkflowState = *started
-	data.CompletedWorkflowState = *completed
-	data.CanceledWorkflowState = *canceled
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -1108,6 +1299,8 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 		AutoCloseParentIssues:          data.AutoCloseParentIssues.ValueBool(),
 		AutoCloseChildIssues:           data.AutoCloseChildIssues.ValueBool(),
 	}
+	input.InheritIssueEstimation = boolPointerIfKnown(data.InheritIssueEstimation)
+	input.InheritWorkflowStatuses = boolPointerIfKnown(data.InheritWorkflowStatuses)
 
 	changedSecuritySettings := false
 	securitySettings := TeamSecuritySettingsInput{}
@@ -1183,16 +1376,18 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 	input.CycleIssueAutoAssignCompleted = cyclesData.AutoAddCompleted.ValueBool()
 	input.CycleLockToActive = cyclesData.NeedForActive.ValueBool()
 
-	diags = data.Estimation.As(ctx, &estimationData, basetypes.ObjectAsOptions{})
+	if !data.InheritIssueEstimation.ValueBool() {
+		diags = data.Estimation.As(ctx, &estimationData, basetypes.ObjectAsOptions{})
 
-	if diags.HasError() {
-		return diags
+		if diags.HasError() {
+			return diags
+		}
+
+		input.IssueEstimationType = estimationData.Type.ValueString()
+		input.IssueEstimationExtended = estimationData.Extended.ValueBool()
+		input.IssueEstimationAllowZero = estimationData.AllowZero.ValueBool()
+		input.DefaultIssueEstimate = estimationData.Default.ValueFloat64()
 	}
-
-	input.IssueEstimationType = estimationData.Type.ValueString()
-	input.IssueEstimationExtended = estimationData.Extended.ValueBool()
-	input.IssueEstimationAllowZero = estimationData.AllowZero.ValueBool()
-	input.DefaultIssueEstimate = estimationData.Default.ValueFloat64()
 
 	response, err := updateTeam(ctx, *client, input, state.Key.ValueString())
 
@@ -1209,6 +1404,8 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 
 	data.Id = types.StringValue(team.Id)
 	data.Private = types.BoolValue(team.Private)
+	data.InheritIssueEstimation = types.BoolValue(team.InheritIssueEstimation)
+	data.InheritWorkflowStatuses = types.BoolValue(team.InheritWorkflowStatuses)
 	data.Description = types.StringPointerValue(team.Description)
 	data.Icon = types.StringPointerValue(team.Icon)
 	data.Color = types.StringPointerValue(team.Color)

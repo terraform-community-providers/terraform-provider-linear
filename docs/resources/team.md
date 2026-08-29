@@ -13,9 +13,17 @@ Linear team.
 ## Example Usage
 
 ```terraform
-resource "linear_team" "example" {
-  key  = "SOME"
-  name = "something"
+resource "linear_team" "parent" {
+  key  = "ENG"
+  name = "Engineering"
+}
+
+resource "linear_team" "child" {
+  key                       = "MOB"
+  name                      = "Mobile"
+  parent_id                 = linear_team.parent.id
+  inherit_issue_estimation  = true
+  inherit_workflow_statuses = true
 }
 ```
 
@@ -48,6 +56,8 @@ resource "linear_team" "example" {
 - `enable_thread_summaries` (Boolean) Enable resolved thread AI summaries for the team. **Default** `true`.
 - `estimation` (Attributes) Issue estimation settings of the team. (see [below for nested schema](#nestedatt--estimation))
 - `icon` (String) Icon of the team.
+- `inherit_issue_estimation` (Boolean) Whether the team inherits estimation settings from its parent. Only applies to sub-teams.
+- `inherit_workflow_statuses` (Boolean) Whether the team inherits workflow statuses from its parent. Only applies to sub-teams.
 - `parent_id` (String) Identifier of the parent team.
 - `private` (Boolean) Privacy of the team. **Default** `false`.
 - `started_workflow_state` (Attributes) Settings for the `started` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--started_workflow_state))
