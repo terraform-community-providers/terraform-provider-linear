@@ -409,7 +409,7 @@ func (r *WorkspaceSettingsResource) Create(ctx context.Context, req resource.Cre
 		feedAttrTypes,
 		map[string]attr.Value{
 			"enabled":  types.BoolValue(organization.FeedEnabled),
-			"schedule": types.StringValue(string(organization.DefaultFeedSummarySchedule)),
+			"schedule": types.StringValue(feedScheduleValue(organization.DefaultFeedSummarySchedule)),
 		},
 	)
 
@@ -473,7 +473,7 @@ func (r *WorkspaceSettingsResource) Read(ctx context.Context, req resource.ReadR
 		feedAttrTypes,
 		map[string]attr.Value{
 			"enabled":  types.BoolValue(organization.FeedEnabled),
-			"schedule": types.StringValue(string(organization.DefaultFeedSummarySchedule)),
+			"schedule": types.StringValue(feedScheduleValue(organization.DefaultFeedSummarySchedule)),
 		},
 	)
 
@@ -574,7 +574,7 @@ func (r *WorkspaceSettingsResource) Update(ctx context.Context, req resource.Upd
 		feedAttrTypes,
 		map[string]attr.Value{
 			"enabled":  types.BoolValue(organization.FeedEnabled),
-			"schedule": types.StringValue(string(organization.DefaultFeedSummarySchedule)),
+			"schedule": types.StringValue(feedScheduleValue(organization.DefaultFeedSummarySchedule)),
 		},
 	)
 
@@ -631,6 +631,16 @@ func (r *WorkspaceSettingsResource) Delete(ctx context.Context, req resource.Del
 
 func (r *WorkspaceSettingsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+// Linear leaves the schedule null until someone sets one, which reads as "". The
+// schema can't hold that, so without this every such workspace plans a write.
+func feedScheduleValue(schedule FeedSummarySchedule) string {
+	if schedule == "" {
+		return "daily"
+	}
+
+	return string(schedule)
 }
 
 func toUserRoleType(allow bool) UserRoleType {
