@@ -397,7 +397,7 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 						Computed:            true,
 						Default:             float64default.StaticFloat64(2),
 						Validators: []validator.Float64{
-							float64validator.OneOf([]float64{1, 2, 3, 4, 6, 8, 10}...),
+							float64validator.OneOf([]float64{1, 2, 3, 4, 6, 8, 10, 12}...),
 						},
 					},
 					"auto_add_started": schema.BoolAttribute{
