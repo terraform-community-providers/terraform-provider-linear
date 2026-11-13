@@ -1098,7 +1098,6 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 
 	input := TeamUpdateInput{
 		Private:                        data.Private.ValueBool(),
-		ParentId:                       data.ParentId.ValueStringPointer(),
 		Description:                    data.Description.ValueStringPointer(),
 		Timezone:                       data.Timezone.ValueString(),
 		GroupIssueHistory:              data.EnableIssueHistoryGrouping.ValueBool(),
@@ -1152,6 +1151,28 @@ func update(ctx context.Context, client *graphql.Client, state TeamResourceModel
 	if !data.Color.IsUnknown() {
 		value := data.Color.ValueString()
 		input.Color = &value
+	}
+
+	// Linear gates any teamUpdate touch on parentId behind workspace-admin
+	// perms — even no-op `null → null` returns 403 for non-admin actors. So
+	// the JSON tag uses `omitempty` and we only set `input.ParentId` when the
+	// user actually changed the value (matching the Key/Name pattern above).
+	// The value→null clear case can't ride along on this struct because
+	// `omitempty` would drop the nil pointer rather than serialising it as
+	// `null`; that case routes through `clearTeamParent` (literal
+	// `parentId: null` in the query string) before the main update so the
+	// response's `team.Parent` reflects the cleared state.
+	if !data.ParentId.Equal(state.ParentId) {
+		if data.ParentId.IsNull() {
+			if _, err := clearTeamParent(ctx, *client, state.Key.ValueString()); err != nil {
+				diags := diag.Diagnostics{}
+				diags.AddError("Client Error", fmt.Sprintf("Unable to clear team parent, got error: %s", err))
+
+				return diags
+			}
+		} else {
+			input.ParentId = data.ParentId.ValueStringPointer()
+		}
 	}
 
 	if data.AutoClosePeriod.ValueFloat64() != 0 {
