@@ -80,7 +80,6 @@ func (r *TeamWorkflowResource) Schema(ctx context.Context, req resource.SchemaRe
 				MarkdownDescription: "Key of the team.",
 				Required:            true,
 				Validators: []validator.String{
-					stringvalidator.UTF8LengthAtMost(5),
 					stringvalidator.RegexMatches(regexp.MustCompile("^[A-Z0-9]+$"), "must only contain uppercase letters and numbers"),
 				},
 			},

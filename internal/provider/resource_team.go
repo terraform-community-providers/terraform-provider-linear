@@ -3,9 +3,9 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
 	"regexp"
 	"sort"
+	"strings"
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/float64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -150,6 +151,7 @@ type TeamResourceModel struct {
 	StartedWorkflowState          types.Object  `tfsdk:"started_workflow_state"`
 	CompletedWorkflowState        types.Object  `tfsdk:"completed_workflow_state"`
 	CanceledWorkflowState         types.Object  `tfsdk:"canceled_workflow_state"`
+	DuplicateWorkflowState        types.Object  `tfsdk:"duplicate_workflow_state"`
 }
 
 func (r *TeamResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -171,7 +173,6 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				MarkdownDescription: "Key of the team.",
 				Required:            true,
 				Validators: []validator.String{
-					stringvalidator.UTF8LengthAtMost(5),
 					stringvalidator.RegexMatches(regexp.MustCompile("^[A-Z0-9]+$"), "must only contain uppercase letters and numbers"),
 				},
 			},
@@ -200,14 +201,11 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:            true,
 			},
 			"icon": schema.StringAttribute{
-				MarkdownDescription: "Icon of the team.",
+				MarkdownDescription: "Decorative icon name or emoji string.",
 				Optional:            true,
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
-				},
-				Validators: []validator.String{
-					stringvalidator.RegexMatches(regexp.MustCompile("^[a-zA-Z]+$"), "must only contain letters"),
 				},
 			},
 			"color": schema.StringAttribute{
@@ -728,6 +726,35 @@ func (r *TeamResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 					},
 				},
 			},
+			"duplicate_workflow_state": schema.SingleNestedAttribute{
+				MarkdownDescription: "The system-managed `duplicate` workflow state for the team.",
+				Computed:            true,
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
+				},
+				Attributes: map[string]schema.Attribute{
+					"id": schema.StringAttribute{
+						MarkdownDescription: "Identifier of the workflow state.",
+						Computed:            true,
+					},
+					"position": schema.Float64Attribute{
+						MarkdownDescription: "Position of the workflow state.",
+						Computed:            true,
+					},
+					"name": schema.StringAttribute{
+						MarkdownDescription: "Name of the workflow state.",
+						Computed:            true,
+					},
+					"color": schema.StringAttribute{
+						MarkdownDescription: "Color of the workflow state.",
+						Computed:            true,
+					},
+					"description": schema.StringAttribute{
+						MarkdownDescription: "Description of the workflow state.",
+						Computed:            true,
+					},
+				},
+			},
 		},
 	}
 }
@@ -873,8 +900,9 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	startedWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "started")
 	completedWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "completed")
 	canceledWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "canceled")
+	duplicateWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "duplicate")
 
-	if backlogWorkflowState == nil || unstartedWorkflowState == nil || startedWorkflowState == nil || completedWorkflowState == nil || canceledWorkflowState == nil {
+	if backlogWorkflowState == nil || unstartedWorkflowState == nil || startedWorkflowState == nil || completedWorkflowState == nil || canceledWorkflowState == nil || duplicateWorkflowState == nil {
 		resp.Diagnostics.AddError("Client Error", "Unable to find all workflow states in a new team")
 		return
 	}
@@ -896,6 +924,7 @@ func (r *TeamResource) Create(ctx context.Context, req resource.CreateRequest, r
 	data.StartedWorkflowState = *started
 	data.CompletedWorkflowState = *completed
 	data.CanceledWorkflowState = *canceled
+	data.DuplicateWorkflowState = readWorkflowStateToObject(*duplicateWorkflowState)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -1001,8 +1030,9 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	startedWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "started")
 	completedWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "completed")
 	canceledWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "canceled")
+	duplicateWorkflowState := findWorkflowStateType(workflowStatesResponse.WorkflowStates.Nodes, "duplicate")
 
-	if backlogWorkflowState == nil || unstartedWorkflowState == nil || startedWorkflowState == nil || completedWorkflowState == nil || canceledWorkflowState == nil {
+	if backlogWorkflowState == nil || unstartedWorkflowState == nil || startedWorkflowState == nil || completedWorkflowState == nil || canceledWorkflowState == nil || duplicateWorkflowState == nil {
 		resp.Diagnostics.AddError("Client Error", "Unable to find all workflow states when reading team")
 		return
 	}
@@ -1012,6 +1042,7 @@ func (r *TeamResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	data.StartedWorkflowState = readWorkflowStateToObject(*startedWorkflowState)
 	data.CompletedWorkflowState = readWorkflowStateToObject(*completedWorkflowState)
 	data.CanceledWorkflowState = readWorkflowStateToObject(*canceledWorkflowState)
+	data.DuplicateWorkflowState = readWorkflowStateToObject(*duplicateWorkflowState)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -1055,6 +1086,7 @@ func (r *TeamResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	data.StartedWorkflowState = *started
 	data.CompletedWorkflowState = *completed
 	data.CanceledWorkflowState = *canceled
+	data.DuplicateWorkflowState = state.DuplicateWorkflowState
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

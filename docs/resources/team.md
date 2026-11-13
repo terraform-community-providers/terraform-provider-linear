@@ -47,7 +47,7 @@ resource "linear_team" "example" {
 - `enable_issue_history_grouping` (Boolean) Enable issue history grouping for the team. **Default** `true`.
 - `enable_thread_summaries` (Boolean) Enable resolved thread AI summaries for the team. **Default** `true`.
 - `estimation` (Attributes) Issue estimation settings of the team. (see [below for nested schema](#nestedatt--estimation))
-- `icon` (String) Icon of the team.
+- `icon` (String) Decorative icon name or emoji string.
 - `parent_id` (String) Identifier of the parent team.
 - `private` (Boolean) Privacy of the team. **Default** `false`.
 - `started_workflow_state` (Attributes) Settings for the `started` workflow state that is created by default for the team. *Position is always `0`. This can not be deleted.* (see [below for nested schema](#nestedatt--started_workflow_state))
@@ -57,6 +57,7 @@ resource "linear_team" "example" {
 
 ### Read-Only
 
+- `duplicate_workflow_state` (Attributes) The system-managed `duplicate` workflow state for the team. (see [below for nested schema](#nestedatt--duplicate_workflow_state))
 - `id` (String) Identifier of the team.
 
 <a id="nestedatt--backlog_workflow_state"></a>
@@ -166,6 +167,18 @@ Optional:
 Read-Only:
 
 - `id` (String) Identifier of the workflow state.
+- `position` (Number) Position of the workflow state.
+
+
+<a id="nestedatt--duplicate_workflow_state"></a>
+### Nested Schema for `duplicate_workflow_state`
+
+Read-Only:
+
+- `color` (String) Color of the workflow state.
+- `description` (String) Description of the workflow state.
+- `id` (String) Identifier of the workflow state.
+- `name` (String) Name of the workflow state.
 - `position` (Number) Position of the workflow state.
 
 ## Import
