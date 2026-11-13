@@ -9,3 +9,7 @@ bindings:
     type: map[string]interface{}
   JSON:
     type: string
+  TimelessDate:
+    type: string
+  TimelessDateOrDuration:
+    type: string
