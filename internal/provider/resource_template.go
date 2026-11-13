@@ -179,7 +179,7 @@ func (r *TemplateResource) Create(ctx context.Context, req resource.CreateReques
 	data.Icon = types.StringPointerValue(template.Icon)
 	data.Color = types.StringPointerValue(template.Color)
 	data.Type = types.StringValue(template.Type)
-	data.Data = types.StringValue(template.TemplateData)
+	data.Data = templateDataValue(data.Data, template.TemplateData)
 
 	if template.Team != nil {
 		data.TeamId = types.StringValue(template.Team.Id)
@@ -215,7 +215,7 @@ func (r *TemplateResource) Read(ctx context.Context, req resource.ReadRequest, r
 	data.Icon = types.StringPointerValue(template.Icon)
 	data.Color = types.StringPointerValue(template.Color)
 	data.Type = types.StringValue(template.Type)
-	data.Data = types.StringValue(template.TemplateData)
+	data.Data = templateDataValue(data.Data, template.TemplateData)
 
 	if template.Team != nil {
 		data.TeamId = types.StringValue(template.Team.Id)
@@ -269,7 +269,7 @@ func (r *TemplateResource) Update(ctx context.Context, req resource.UpdateReques
 	data.Icon = types.StringPointerValue(template.Icon)
 	data.Color = types.StringPointerValue(template.Color)
 	data.Type = types.StringValue(template.Type)
-	data.Data = types.StringValue(template.TemplateData)
+	data.Data = templateDataValue(data.Data, template.TemplateData)
 
 	if template.Team != nil {
 		data.TeamId = types.StringValue(template.Team.Id)
