@@ -1,0 +1,56 @@
+# @genqlient(for: "ProjectLabel.description", pointer: true)
+# @genqlient(for: "ProjectLabel.parent", pointer: true)
+fragment ProjectLabel on ProjectLabel {
+  id
+  name
+  description
+  color
+  isGroup
+  parent {
+    id
+  }
+}
+
+query getProjectLabel($id: String!) {
+  projectLabel(id: $id) {
+    ...ProjectLabel
+  }
+}
+
+# @genqlient(for: "ProjectLabelCreateInput.id", pointer: true, omitempty: true)
+# @genqlient(for: "ProjectLabelCreateInput.description", pointer: true)
+# @genqlient(for: "ProjectLabelCreateInput.color", pointer: true, omitempty: true)
+# @genqlient(for: "ProjectLabelCreateInput.parentId", pointer: true)
+# @genqlient(for: "ProjectLabelCreateInput.retiredAt", pointer: true, omitempty: true)
+mutation projectLabelCreate(
+  $input: ProjectLabelCreateInput!
+) {
+  projectLabelCreate(input: $input) {
+    success
+    projectLabel {
+      ...ProjectLabel
+    }
+  }
+}
+
+# @genqlient(for: "ProjectLabelUpdateInput.description", pointer: true)
+# @genqlient(for: "ProjectLabelUpdateInput.color", pointer: true, omitempty: true)
+# @genqlient(for: "ProjectLabelUpdateInput.parentId", pointer: true)
+# @genqlient(for: "ProjectLabelUpdateInput.retiredAt", pointer: true, omitempty: true)
+mutation projectLabelUpdate(
+  $input: ProjectLabelUpdateInput!,
+  $id: String!
+) {
+  projectLabelUpdate(input: $input, id: $id) {
+    success
+    projectLabel {
+      ...ProjectLabel
+    }
+  }
+}
+
+mutation projectLabelDelete($id: String!) {
+  projectLabelDelete(id: $id) {
+    success
+  }
+}

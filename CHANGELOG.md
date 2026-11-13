@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+* Added `linear_project_label` resource
+
 ## 0.3.7
 
 ### Bug Fixes
